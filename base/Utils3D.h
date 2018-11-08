@@ -7,6 +7,7 @@
 
 #include "base/Vector3D.h"
 #include "base/Transformation3D.h"
+#include "base/Vector.h"
 
 /// A set of 3D geometry utilities
 namespace vecgeom {
@@ -35,40 +36,35 @@ struct Line {
   Vector3D<double> fPts[2];
 };
 
-/// @brief A rectangle defined by half widths, normal and distance to origin, and an up vector
-struct HRectangle {
-  double fDx   = 0.;        ///< half dimension in X
-  double fDy   = 0.;        ///< half dimension in Y
-  double fDist = 0.;        ///< Distance to plane (positive if origin on same side as normal)
-  Vector3D<double> fNorm;   ///< Unit normal vector to plane
-  Vector3D<double> fCenter; ///< Center of the rectangle
-  Vector3D<double> fUpVect; ///< up vector along local Y
+struct Polygon {
+  using Vec_t = Vector3D<double>;
+  template <typename T>
+  using Vector_t = Vector<T>;
 
-  HRectangle() : fNorm(), fUpVect() {}
-  HRectangle(double dx, double dy, double dist, Vector3D<double> const &norm, Vector3D<double> const &center,
-             Vector3D<double> const &up)
-  {
-    fDx     = dx;
-    fDy     = dy;
-    fDist   = dist;
-    fNorm   = norm;
-    fCenter = center;
-    fUpVect = up;
-    assert(vecCore::math::Abs(fNorm.Dot(fUpVect)) < kTolerance);
-  }
+  size_t fN     = 0;      ///< Number of vertices
+  bool fConvex  = false;  ///< Convexity
+  bool fHasNorm = false;  ///< Normal is already supplied
+  double fDist  = 0.;     ///< Distance to plane in the Hessian form
+  Vec_t fNorm;            ///< Unit normal vector to plane
+  Vector_t<Vec_t> fVert;  ///< Vertices
+  Vector_t<Vec_t> fSides; ///< Side vectors
+
+  Polygon(size_t n, bool convex = false);
+  Polygon(size_t n, double normx, double normy, double normz, bool is_normalized = true, bool is_convex = false);
+
+  VECGEOM_FORCE_INLINE
+  void AddVertex(int i, double vx, double vy, double vz) { fVert[i].Set(vx, vy, vz); }
+  void Init();
   void Transform(Transformation3D const &tr);
 };
 
 #ifndef VECCORE_CUDA
 std::ostream &operator<<(std::ostream &os, HPlane const &hpl);
-std::ostream &operator<<(std::ostream &os, HRectangle const &hrect);
+std::ostream &operator<<(std::ostream &os, Polygon const &poly);
 #endif
 
 /// @brief Transform a plane from master frame to local frame given by a transformation
 void TransformPlane(Transformation3D const &tr, HPlane const &localp, HPlane &masterp);
-
-/// @brief Transform a plane from master frame to local frame given by a transformation
-void TransformRectangle(Transformation3D const &tr, HRectangle const &local, HRectangle &master);
 
 /// @brief Function to find the crossing line between two planes.
 /** The function takes as input the 2 plane definition in Hessian form (n, p), where:
@@ -79,8 +75,8 @@ void TransformRectangle(Transformation3D const &tr, HRectangle const &local, HRe
 EPlaneXing_t PlaneXing(Vector3D<double> const &n1, double p1, Vector3D<double> const &n2, double p2,
                        Vector3D<double> &point, Vector3D<double> &direction);
 
-// @brief Function to find if 2 3D rectangles cross each other.
-EBodyXing_t RectangleXing(HRectangle const &rect1, HRectangle const &rect2, Line *line = nullptr);
+// @brief Function to find if 2 arbitrary polygons cross each other.
+EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line = nullptr);
 
 /// @brief Function to determine crossing of two arbitrary placed boxes
 /** The function takes the box parameters and their transformations in a common frame.

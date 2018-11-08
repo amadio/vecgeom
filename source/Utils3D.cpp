@@ -15,13 +15,15 @@ using vecCore::math::Max;
 #ifndef VECCORE_CUDA
 std::ostream &operator<<(std::ostream &os, HPlane const &hpl)
 {
-  os << "   plane normal: " << hpl.fNorm << "  distance = " << hpl.fDist << std::endl;
+  os << "   plane normal: " << hpl.fNorm << "  distance = " << hpl.fDist;
   return os;
 }
-std::ostream &operator<<(std::ostream &os, HRectangle const &hrect)
+std::ostream &operator<<(std::ostream &os, Polygon const &poly)
 {
-  os << "   rectangle (" << hrect.fDx << ", " << hrect.fDy << ") center: " << hrect.fCenter
-     << " normal: " << hrect.fNorm << " up vector: " << hrect.fUpVect << " distance = " << hrect.fDist << std::endl;
+  os << "   rectangle (";
+  for (size_t i = 0; i < poly.fN; ++i)
+    os << i << ":" << poly.fVert[i] << "  ";
+  os << "  normal: " << poly.fNorm << "  distance = " << poly.fDist;
   return os;
 }
 #endif
@@ -33,27 +35,89 @@ void TransformPlane(Transformation3D const &tr, HPlane const &localp, HPlane &ma
   masterp.fDist = localp.fDist - masterp.fNorm.Dot(tr.Translation());
 }
 
-void TransformRectangle(Transformation3D const &tr, HRectangle const &local, HRectangle &master)
+Polygon::Polygon(size_t n, bool convex) : fN(n), fConvex(convex)
 {
-  // Transform niormal vector
-  master.fDx = local.fDx;
-  master.fDy = local.fDy;
-  tr.InverseTransformDirection(local.fNorm, master.fNorm);
-  tr.InverseTransformDirection(local.fUpVect, master.fUpVect);
-  tr.InverseTransform(local.fCenter, master.fCenter);
-  master.fDist = local.fDist - master.fNorm.Dot(tr.Translation());
+  assert(fN > 2);
+  fVert.reserve(fN);
+  fSides.reserve(fN);
+  for (size_t i = 0; i < fN; ++i) {
+    fVert.push_back(Vec_t());
+    fSides.push_back(Vec_t());
+  }
 }
 
-void HRectangle::Transform(Transformation3D const &tr)
+Polygon::Polygon(size_t n, double normx, double normy, double normz, bool is_normalized, bool is_convex)
+    : fN(n), fConvex(is_convex), fHasNorm(true)
 {
-  Vector3D<double> norm_new, up_new, center_new;
-  tr.InverseTransformDirection(fNorm, norm_new);
-  tr.InverseTransformDirection(fUpVect, up_new);
-  tr.InverseTransform(fCenter, center_new);
-  fDist -= norm_new.Dot(tr.Translation());
-  fNorm   = norm_new;
-  fUpVect = up_new;
-  fCenter = center_new;
+  assert(fN > 2);
+  fVert.reserve(fN);
+  fSides.reserve(fN);
+  for (size_t i = 0; i < fN; ++i) {
+    fVert.push_back(Vec_t());
+    fSides.push_back(Vec_t());
+  }
+  fNorm.Set(normx, normy, normz);
+  if (!is_normalized) fNorm.Normalize();
+}
+
+void Polygon::Init()
+{
+  // Compute sides
+  for (size_t i = 0; i < fN - 1; ++i) {
+    fSides[i] = fVert[i + 1] - fVert[i];
+    assert(fSides[i].Mag2() > kTolerance);
+  }
+  fSides[fN - 1] = fVert[0] - fVert[fN - 2];
+  assert(fSides[fN - 1].Mag2() > kTolerance);
+  // Compute normal if not already set
+  if (!fHasNorm) {
+    fNorm = fSides[0].Cross(fSides[1]);
+    fNorm.Normalize();
+  } else {
+    if ((fSides[0].Cross(fSides[1])).Dot(fNorm) < 0) {
+      // We need to invert the vertices and sides
+      size_t i = 1;
+      while (i < fN - i) {
+        Vector3D<double> temp = fVert[i];
+        fVert[i]              = fVert[fN - i];
+        fVert[fN - i]         = temp;
+      }
+      for (i = 0; i < fN - 1; ++i)
+        fSides[i] = fVert[i + 1] - fVert[i];
+      fSides[fN - 1] = fVert[0] - fVert[fN - 2];
+    }
+  }
+  // Compute convexity if not supplied
+  if (!fConvex) {
+    fConvex = true;
+    for (size_t i = 0; i < fN; ++i) {
+      for (size_t k = 0; k < fN - 2; ++k) {
+        size_t j = (i + k + 2) % fN; // remaining vertices
+        if ((fSides[i].Cross(fVert[j] - fVert[i])).Dot(fNorm) < 0) {
+          fConvex = false;
+          break;
+        }
+      }
+    }
+  }
+
+  // Compute distance to origin
+  fDist = -fNorm.Dot(fVert[0]);
+}
+
+void Polygon::Transform(Transformation3D const &tr)
+{
+  for (size_t i = 0; i < fN; ++i) {
+    Vector3D<double> temp;
+    tr.InverseTransform(fVert[i], temp);
+    fVert[i] = temp;
+  }
+  if (fHasNorm) {
+    Vector3D<double> temp;
+    tr.InverseTransformDirection(fNorm, temp);
+    fNorm = temp;
+  }
+  Init();
 }
 
 EPlaneXing_t PlaneXing(Vector3D<double> const &n1, double p1, Vector3D<double> const &n2, double p2,
@@ -75,7 +139,7 @@ EPlaneXing_t PlaneXing(Vector3D<double> const &n1, double p1, Vector3D<double> c
   return kIntersecting;
 }
 
-EBodyXing_t RectangleXing(HRectangle const &rect1, HRectangle const &rect2, Line *line)
+EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
 {
   using Vec_t = Vector3D<double>;
   using vecCore::math::CopySign;
@@ -84,92 +148,89 @@ EBodyXing_t RectangleXing(HRectangle const &rect1, HRectangle const &rect2, Line
   using vecCore::math::Sqrt;
 
   Vec_t point, direction;
-  EPlaneXing_t crossing = PlaneXing(rect1.fNorm, rect1.fDist, rect2.fNorm, rect2.fDist, point, direction);
+  EPlaneXing_t crossing = PlaneXing(poly1.fNorm, poly1.fDist, poly2.fNorm, poly2.fDist, point, direction);
   if (crossing == kParallel) return kDisjoint;
-  Vec_t side1 = rect1.fNorm.Cross(rect1.fUpVect);
-  Vec_t side2 = rect2.fNorm.Cross(rect2.fUpVect);
-  Vec_t vertices1[4], vertices2[4], sides1[4], sides2[4];
-
-  sides1[0] = 2. * rect1.fDx * side1;
-  sides1[1] = -2. * rect1.fDy * rect1.fUpVect;
-  sides1[2] = -2. * rect1.fDx * side1;
-  sides1[3] = 2. * rect1.fDy * rect1.fUpVect;
-
-  vertices1[0] = rect1.fCenter + rect1.fDy * rect1.fUpVect - rect1.fDx * side1;
-  vertices1[1] = rect1.fCenter + rect1.fDy * rect1.fUpVect + rect1.fDx * side1;
-  vertices1[2] = rect1.fCenter - rect1.fDy * rect1.fUpVect + rect1.fDx * side1;
-  vertices1[3] = rect1.fCenter - rect1.fDy * rect1.fUpVect - rect1.fDx * side1;
-
-  sides2[0] = 2. * rect2.fDx * side2;
-  sides2[1] = -2. * rect2.fDy * rect2.fUpVect;
-  sides2[2] = -2. * rect2.fDx * side2;
-  sides2[3] = 2. * rect2.fDy * rect2.fUpVect;
-
-  vertices2[0] = rect2.fCenter + rect2.fDy * rect2.fUpVect - rect2.fDx * side2;
-  vertices2[1] = rect2.fCenter + rect2.fDy * rect2.fUpVect + rect2.fDx * side2;
-  vertices2[2] = rect2.fCenter - rect2.fDy * rect2.fUpVect + rect2.fDx * side2;
-  vertices2[3] = rect2.fCenter - rect2.fDy * rect2.fUpVect - rect2.fDx * side2;
 
   if (crossing == kIdentical) {
     // We use the separate axis theorem
     // loop segments of 1
-    for (int i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < poly1.fN; ++i) {
       // loop vertices of 2
       bool outside = false;
-      for (int j = 0; j < 4; ++j) {
-        outside = rect1.fNorm.Dot((vertices2[j] - vertices1[i]).Cross(sides1[i])) > 0;
+      for (size_t j = 0; j < poly2.fN; ++j) {
+        outside = poly1.fNorm.Dot((poly2.fVert[j] - poly1.fVert[i]).Cross(poly1.fSides[i])) > 0;
         if (!outside) break;
       }
       if (outside) return kDisjoint;
+    }
+    // loop segments of 2
+    for (size_t i = 0; i < poly2.fN; ++i) {
       // loop vertices of 1
-      for (int j = 0; j < 4; ++j) {
-        outside = rect2.fNorm.Dot((vertices1[j] - vertices2[i]).Cross(sides2[i])) > 0;
+      bool outside = false;
+      for (size_t j = 0; j < poly1.fN; ++j) {
+        outside = poly2.fNorm.Dot((poly1.fVert[j] - poly2.fVert[i]).Cross(poly2.fSides[i])) > 0;
         if (!outside) break;
       }
       if (outside) return kDisjoint;
     }
     return kTouching;
   }
-  // The rectangles do cross each other along a line
+
+  // The polygons do cross each other along a line
+  if (!(poly1.fConvex | poly2.fConvex)) return kDisjoint; // cannot solve yet non-convex case
   double smin1 = InfinityLength<double>();
   double smax1 = -InfinityLength<double>();
-  ;
-  for (int i = 0; i < 4; ++i) {
-    Vec_t crossdirs      = sides1[i].Cross(direction);
+  std::cout << "IP: " << point << "  direction: " << direction << std::endl;
+  std::cout << "Checking poly1\n";
+  for (size_t i = 0; i < poly1.fN; ++i) {
+    std::cout << "segment " << i << ": (" << poly1.fVert[i] << ", " << poly1.fVert[(i + 1) % poly1.fN] << ")\n";
+    Vec_t crossdirs      = poly1.fSides[i].Cross(direction);
     double mag2crossdirs = crossdirs.Mag2();
     if (mag2crossdirs < kTolerance) continue; // Crossing line parallel to edge
-    double invmag2crossdirs = 1. / mag2crossdirs;
-    Vec_t crosspts          = (point - vertices1[i]).Cross(direction);
-    if (crossdirs.Dot(crosspts) < 0) continue; // crossing line hits edge on lower prolongation
-    double s0sq = crosspts.Mag2() * invmag2crossdirs;
-    if (s0sq < sides1[i].Mag2() + kTolerance) {
-      // Crossing line hits edge
-      crosspts      = (vertices1[i] - point).Cross(sides1[i]);
-      double distsq = CopySign(-crosspts.Mag2() * invmag2crossdirs, -crosspts.Dot(crossdirs));
-      smin1         = Min(smin1, distsq);
-      smax1         = Max(smax1, distsq);
+    Vec_t crosspts = (point - poly1.fVert[i]).Cross(direction);
+    if (crossdirs.Dot(crosspts) < 0) {
+      std::cout << " miss (before)\n";
+      continue;
+    } // crossing line hits edge on lower prolongation
+    if (crosspts.Mag2() < mag2crossdirs + kTolerance) {
+      // Crossing line hits the current edge
+      crosspts      = (point - poly1.fVert[i]).Cross(poly1.fSides[i]);
+      double distsq = CopySign(crosspts.Mag2() / mag2crossdirs, crosspts.Dot(crossdirs));
+      std::cout << "  dist = " << CopySign(Sqrt(crosspts.Mag2() / mag2crossdirs), distsq) << std::endl;
+      smin1 = Min(smin1, distsq);
+      smax1 = Max(smax1, distsq);
+    } else {
+      std::cout << " miss (after)\n";
     }
   }
+  std::cout << "smin1 = " << smin1 << "  smax1 = " << smax1 << std::endl;
   if (smax1 <= smin1) return kDisjoint;
+
   double smin2 = InfinityLength<double>();
   double smax2 = -InfinityLength<double>();
-  ;
-  for (int i = 0; i < 4; ++i) {
-    Vec_t crossdirs      = sides2[i].Cross(direction);
+  std::cout << "Checking poly2\n";
+  for (size_t i = 0; i < poly2.fN; ++i) {
+    std::cout << "segment " << i << ": (" << poly2.fVert[i] << ", " << poly2.fVert[(i + 1) % poly2.fN] << ")\n";
+    Vec_t crossdirs      = poly2.fSides[i].Cross(direction);
     double mag2crossdirs = crossdirs.Mag2();
     if (mag2crossdirs < kTolerance) continue; // Crossing line parallel to edge
-    double invmag2crossdirs = 1. / mag2crossdirs;
-    Vec_t crosspts          = (point - vertices2[i]).Cross(direction);
-    if (crossdirs.Dot(crosspts) < 0) continue; // crossing line hits edge on lower prolongation
-    double s0sq = crosspts.Mag2() * invmag2crossdirs;
-    if (s0sq < sides2[i].Mag2() + kTolerance) {
-      // Crossing line hits edge
-      crosspts      = (vertices2[i] - point).Cross(sides2[i]);
-      double distsq = CopySign(-crosspts.Mag2() * invmag2crossdirs, -crosspts.Dot(crossdirs));
-      smin2         = Min(smin2, distsq);
-      smax2         = Max(smax2, distsq);
+    Vec_t crosspts = (point - poly2.fVert[i]).Cross(direction);
+    if (crossdirs.Dot(crosspts) < 0) {
+      std::cout << " miss (before)\n";
+      continue;
+    } // crossing line hits edge on lower prolongation
+    if (crosspts.Mag2() < mag2crossdirs + kTolerance) {
+      // Crossing line hits the current edge
+      crosspts      = (point - poly2.fVert[i]).Cross(poly2.fSides[i]);
+      double distsq = CopySign(crosspts.Mag2() / mag2crossdirs, crosspts.Dot(crossdirs));
+      std::cout << "  dist = " << CopySign(Sqrt(crosspts.Mag2() / mag2crossdirs), distsq) << std::endl;
+      smin2 = Min(smin2, distsq);
+      smax2 = Max(smax2, distsq);
+    } else {
+      std::cout << " miss (after)\n";
     }
   }
+  std::cout << "smin2 = " << smin2 << "  smax2 = " << smax2 << std::endl;
   if (smax2 <= smin2) return kDisjoint;
   if (smin2 - smax1 > -kTolerance || smin1 - smax2 > -kTolerance) return kDisjoint;
   if (line != nullptr) {
@@ -178,9 +239,10 @@ EBodyXing_t RectangleXing(HRectangle const &rect1, HRectangle const &rect2, Line
               << std::endl;
     double dmin = Max(smin1, smin2);
     double dmax = Min(smax1, smax2);
+    std::cout << "dmin = " << dmin << "  dmax = " << dmax << std::endl;
     assert(dmax - dmin > -kTolerance);
-    line->fPts[0] = point + direction * CopySign(Sqrt(Abs(smin1)), smin1);
-    line->fPts[1] = point + direction * CopySign(Sqrt(Abs(smax1)), smax1);
+    line->fPts[0] = point + direction * CopySign(Sqrt(Abs(dmin)), dmin);
+    line->fPts[1] = point + direction * CopySign(Sqrt(Abs(dmax)), dmax);
   }
   return kOverlapping;
 }

@@ -9,8 +9,12 @@
 #include "base/Utils3D.h"
 #include "ApproxEqual.h"
 #include "volumes/Box.h"
+
+#ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
+#include "TPolyMarker3D.h"
 #include "TPolyLine3D.h"
+#endif
 
 bool ValidXing(vecgeom::Vector3D<double> const &point, vecgeom::Vector3D<double> const &dir,
                vecgeom::Vector3D<double> const &n1, double p1, vecgeom::Vector3D<double> const &n2, double p2)
@@ -20,37 +24,30 @@ bool ValidXing(vecgeom::Vector3D<double> const &point, vecgeom::Vector3D<double>
   return valid_point & valid_dir;
 }
 
-void DrawRectangle(vecgeom::Utils3D::HRectangle const &rect, vecgeom::Visualizer &visualizer, size_t color)
+#ifdef VECGEOM_ROOT
+void DrawPolygon(vecgeom::Utils3D::Polygon const &poly, vecgeom::Visualizer &visualizer, size_t color)
 {
   using namespace vecgeom;
   using Vec_t = Vector3D<double>;
-  Vec_t vertices[4];
-  Vec_t side  = rect.fNorm.Cross(rect.fUpVect);
-  vertices[0] = rect.fCenter + rect.fDy * rect.fUpVect - rect.fDx * side;
-  vertices[1] = rect.fCenter + rect.fDy * rect.fUpVect + rect.fDx * side;
-  vertices[2] = rect.fCenter - rect.fDy * rect.fUpVect + rect.fDx * side;
-  vertices[3] = rect.fCenter - rect.fDy * rect.fUpVect - rect.fDx * side;
-  TPolyLine3D pl(5);
+  TPolyLine3D pl(poly.fN + 1);
   pl.SetLineColor(color);
-  for (auto i = 0; i < 4; ++i)
-    pl.SetNextPoint(vertices[i].x(), vertices[i].y(), vertices[i].z());
-  pl.SetNextPoint(vertices[0].x(), vertices[0].y(), vertices[0].z());
+  for (size_t i = 0; i < poly.fN; ++i)
+    pl.SetNextPoint(poly.fVert[i].x(), poly.fVert[i].y(), poly.fVert[i].z());
+  pl.SetNextPoint(poly.fVert[0].x(), poly.fVert[0].y(), poly.fVert[0].z());
   visualizer.AddLine(pl);
 
+  // Compute center of polygon
+  Vec_t center;
+  for (size_t i = 0; i < poly.fN; ++i)
+    center += poly.fVert[i];
+  center *= 1. / poly.fN;
   TPolyLine3D plnorm(2);
   plnorm.SetLineColor(color);
-  plnorm.SetNextPoint(rect.fCenter[0], rect.fCenter[1], rect.fCenter[2]);
-  plnorm.SetNextPoint(rect.fCenter[0] + rect.fNorm[0], rect.fCenter[1] + rect.fNorm[1],
-                      rect.fCenter[2] + rect.fNorm[2]);
+  plnorm.SetNextPoint(center[0], center[1], center[2]);
+  plnorm.SetNextPoint(center[0] + poly.fNorm[0], center[1] + poly.fNorm[1], center[2] + poly.fNorm[2]);
   visualizer.AddLine(plnorm);
-
-  TPolyLine3D plup(2);
-  plup.SetLineColor(color);
-  plup.SetNextPoint(rect.fCenter[0], rect.fCenter[1], rect.fCenter[2]);
-  plup.SetNextPoint(rect.fCenter[0] + rect.fUpVect[0], rect.fCenter[1] + rect.fUpVect[1],
-                    rect.fCenter[2] + rect.fUpVect[2]);
-  visualizer.AddLine(plup);
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -61,9 +58,12 @@ int main(int argc, char *argv[])
   const Vector3D<double> dirx(1., 0., 0.);
   const Vector3D<double> diry(0., 1., 0.);
   const Vector3D<double> dirz(0., 0., 1.);
+
+#ifdef VECGEOM_ROOT
   Visualizer visualizer;
   SimpleBox boxshape("box", 10, 10, 10);
   visualizer.AddVolume(boxshape);
+#endif
 
   ///* Plane transformations */
   Utils3D::HPlane pl1(Vec_t(1., 0., 0.), -10.);
@@ -73,34 +73,33 @@ int main(int argc, char *argv[])
   Utils3D::TransformPlane(transf1, pl1, plrot);
   assert(ApproxEqual(plrot.fNorm[0], -1.) && ApproxEqual(plrot.fDist, 0.));
 
-  // Rectangle transformations
-  Utils3D::HRectangle rect1(4., 6., -10., Vec_t(1., 0., 0.), Vec_t(10., 0., 0.), Vec_t(0., 0., 1.));
-  Utils3D::HRectangle rect2;
-  Transformation3D transf2(0., 6., 9.6, 0., 45., 0.);
-  Utils3D::TransformRectangle(transf2, rect1, rect2);
-  const double cosa = 0.5 * vecCore::math::Sqrt(2.);
-  Utils3D::HRectangle rect3(4., 6., -12 * cosa, Vec_t(cosa, 0, cosa), Vec_t(12., 0., 0.), Vec_t(-cosa, 0., cosa));
-  Transformation3D transf3(0., 0., 4., 0., 60., 0.);
-  rect3.Transform(transf3);
-  // assert(ApproxEqual(rect_tr.fCenter[0], 20.) && ApproxEqual(rect_tr.fNorm[0], 1.) && ApproxEqual(rect_tr.fUpVect[1],
-  // -1.) &&
-  //     ApproxEqual(rect_tr.fDist, -20.));
+  // Polygon intersection
+  Utils3D::Polygon poly1(4, true);
+  poly1.AddVertex(0, 10., 4., 6.);
+  poly1.AddVertex(1, 10., -4., 6.);
+  poly1.AddVertex(2, 10., -4., -6.);
+  poly1.AddVertex(3, 10., 4., -6.);
+  poly1.Init();
+  Utils3D::Polygon poly2(4, true);
+  poly2.AddVertex(0, 7.75736, -3.17423, 10.5854);
+  poly2.AddVertex(1, 7.75736, -7.17423, 3.65722);
+  poly2.AddVertex(2, 16.2426, 0.174235, -0.585422);
+  poly2.AddVertex(3, 16.2426, 4.17423, 6.34278);
+  poly2.Init();
 
-  std::cout << rect2 << std::endl;
-
-  // Rectangle intersection
-  DrawRectangle(rect1, visualizer, kBlue);
-  // DrawRectangle(rect2, visualizer, kBlue);
-  DrawRectangle(rect3, visualizer, kGreen);
   Utils3D::Line line1;
-  assert(Utils3D::RectangleXing(rect1, rect2) == Utils3D::kTouching);
-  assert(Utils3D::RectangleXing(rect1, rect3, &line1) == Utils3D::kOverlapping);
+  assert(Utils3D::PolygonXing(poly1, poly2, &line1) == Utils3D::kOverlapping);
+
+#ifdef VECGEOM_ROOT
+  DrawPolygon(poly1, visualizer, kBlue);
+  DrawPolygon(poly2, visualizer, kGreen);
   TPolyLine3D pl(2);
   pl.SetNextPoint(line1.fPts[0].x(), line1.fPts[0].y(), line1.fPts[0].z());
   pl.SetNextPoint(line1.fPts[1].x(), line1.fPts[1].y(), line1.fPts[1].z());
   pl.SetLineColor(kRed);
   visualizer.AddLine(pl);
   visualizer.Show();
+#endif
 
   ///* Test plane crossings */
   Vector3D<double> point, direction;
