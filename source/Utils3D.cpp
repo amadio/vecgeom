@@ -13,135 +13,144 @@ using vecCore::math::Abs;
 using vecCore::math::Max;
 
 #ifndef VECCORE_CUDA
-std::ostream &operator<<(std::ostream &os, HPlane const &hpl)
+std::ostream &operator<<(std::ostream &os, Plane const &hpl)
 {
   os << "   plane normal: " << hpl.fNorm << "  distance = " << hpl.fDist;
   return os;
 }
+
 std::ostream &operator<<(std::ostream &os, Polygon const &poly)
 {
-  os << "   rectangle (";
+  os << "   polygon (";
   for (size_t i = 0; i < poly.fN; ++i)
-    os << i << ":" << poly.fVert[i] << "  ";
+    os << i << ":" << poly.GetVertex(i) << "  ";
   os << "  normal: " << poly.fNorm << "  distance = " << poly.fDist;
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, Polyhedron const &polyh)
+{
+  os << "   polyhedron:\n";
+  for (size_t i = 0; i < polyh.GetNpolygons(); ++i)
+    os << "   " << polyh.GetPolygon(i) << std::endl;
   return os;
 }
 #endif
 
-void TransformPlane(Transformation3D const &tr, HPlane const &localp, HPlane &masterp)
+void Plane::Transform(Transformation3D const &tr)
 {
-  // Transform niormal vector
-  tr.InverseTransformDirection(localp.fNorm, masterp.fNorm);
-  masterp.fDist = localp.fDist - masterp.fNorm.Dot(tr.Translation());
+  // Transform normal vector
+  Vec_t tempdir;
+  tr.InverseTransformDirection(fNorm, tempdir);
+  fNorm = tempdir;
+  fDist -= fNorm.Dot(tr.Translation());
 }
 
-Polygon::Polygon(size_t n, bool convex) : fN(n), fConvex(convex)
+Polygon::Polygon(size_t n, vector_t<Vec_t> &vertices, bool convex)
+    : fN(n), fConvex(convex), fNorm(), fVert(vertices), fInd(n), fSides(n)
 {
   assert(fN > 2);
-  fVert.reserve(fN);
-  fSides.reserve(fN);
-  for (size_t i = 0; i < fN; ++i) {
-    fVert.push_back(Vec_t());
-    fSides.push_back(Vec_t());
-  }
 }
 
-Polygon::Polygon(size_t n, double normx, double normy, double normz, bool is_normalized, bool is_convex)
+Polygon::Polygon(size_t n, vector_t<Vec_t> &vertices, Vec_t const &normal)
+    : fN(n), fConvex(true), fHasNorm(true), fNorm(normal), fVert(vertices), fInd(n), fSides(n)
 {
-  Set(n, normx, normy, normz, is_normalized, is_convex);
-}
-
-void Polygon::Set(size_t n, double normx, double normy, double normz, bool is_normalized, bool is_convex)
-{
-  assert(n > 2);
-  fN       = n;
-  fConvex  = is_convex;
-  fHasNorm = true;
-  fVert.reserve(fN);
-  fSides.reserve(fN);
-  for (size_t i = 0; i < fN; ++i) {
-    fVert.push_back(Vec_t());
-    fSides.push_back(Vec_t());
-  }
-  fNorm.Set(normx, normy, normz);
-  if (!is_normalized) fNorm.Normalize();
+  assert(fN > 2 && fNorm.IsNormalized());
 }
 
 void Polygon::Init()
 {
   // Compute sides
   for (size_t i = 0; i < fN - 1; ++i) {
-    fSides[i] = fVert[i + 1] - fVert[i];
+    fSides[i] = GetVertex(i + 1) - GetVertex(i);
     assert(fSides[i].Mag2() > kTolerance);
   }
-  fSides[fN - 1] = fVert[0] - fVert[fN - 2];
+  fSides[fN - 1] = GetVertex(0) - GetVertex(fN - 1);
   assert(fSides[fN - 1].Mag2() > kTolerance);
   // Compute normal if not already set
   if (!fHasNorm) {
     fNorm = fSides[0].Cross(fSides[1]);
     fNorm.Normalize();
-  } else {
-    if ((fSides[0].Cross(fSides[1])).Dot(fNorm) < 0) {
-      // We need to invert the vertices and sides
-      size_t i = 1;
-      while (i < fN - i) {
-        Vector3D<double> temp = fVert[i];
-        fVert[i]              = fVert[fN - i];
-        fVert[fN - i]         = temp;
-      }
-      for (i = 0; i < fN - 1; ++i)
-        fSides[i] = fVert[i + 1] - fVert[i];
-      fSides[fN - 1] = fVert[0] - fVert[fN - 2];
-    }
   }
+  assert((fSides[0].Cross(fSides[1])).Dot(fNorm) > 0);
   // Compute convexity if not supplied
   if (!fConvex) {
     fConvex = true;
     for (size_t i = 0; i < fN; ++i) {
       for (size_t k = 0; k < fN - 2; ++k) {
         size_t j = (i + k + 2) % fN; // remaining vertices
-        if ((fSides[i].Cross(fVert[j] - fVert[i])).Dot(fNorm) < 0) {
+        if (fSides[i].Cross(GetVertex(j) - GetVertex(i)).Dot(fNorm) < 0) {
           fConvex = false;
           break;
         }
       }
     }
   }
-
   // Compute distance to origin
-  fDist = -fNorm.Dot(fVert[0]);
+  fDist = -fNorm.Dot(GetVertex(0));
 }
 
 void Polygon::Transform(Transformation3D const &tr)
 {
-  for (size_t i = 0; i < fN; ++i) {
-    Vector3D<double> temp;
+  // The polygon must be already initialized and the vertices transformed
+  Vec_t temp;
+  tr.InverseTransformDirection(fNorm, temp);
+  fNorm = temp;
+  // Compute sides
+  for (size_t i = 0; i < fN - 1; ++i)
+    fSides[i] = GetVertex(i + 1) - GetVertex(i);
+  fSides[fN - 1] = GetVertex(0) - GetVertex(fN - 1);
+  // Compute distance to origin
+  fDist = -fNorm.Dot(GetVertex(0));
+}
+
+void Polyhedron::Transform(Transformation3D const &tr)
+{
+  // Transform vertices
+  for (size_t i = 0; i < fVert.size(); ++i) {
+    Vec_t temp;
     tr.InverseTransform(fVert[i], temp);
     fVert[i] = temp;
   }
-  if (fHasNorm) {
-    Vector3D<double> temp;
-    tr.InverseTransformDirection(fNorm, temp);
-    fNorm = temp;
-  }
-  Init();
+  for (size_t i = 0; i < fPolys.size(); ++i)
+    fPolys[i].Transform(tr);
 }
 
-EPlaneXing_t PlaneXing(Vector3D<double> const &n1, double p1, Vector3D<double> const &n2, double p2,
-                       Vector3D<double> &point, Vector3D<double> &direction)
+void FillBoxPolyhedron(Vec_t const &box, Polyhedron &polyh)
 {
-  direction        = n1.Cross(n2);
+  polyh.Reset(8, 6);
+  vector_t<Vec_t> &vert    = polyh.fVert;
+  vector_t<Polygon> &polys = polyh.fPolys;
+
+  vert          = {{-box[0], -box[1], -box[2]}, {-box[0], box[1], -box[2]}, {box[0], box[1], -box[2]},
+          {box[0], -box[1], -box[2]},  {-box[0], -box[1], box[2]}, {-box[0], box[1], box[2]},
+          {box[0], box[1], box[2]},    {box[0], -box[1], box[2]}};
+  polys         = {{4, vert, {0., 0., -1.}}, {4, vert, {0., 0., 1.}}, {4, vert, {-1., 0., 0.}},
+           {4, vert, {0., 1., 0.}},  {4, vert, {1., 0., 0.}}, {4, vert, {0., -1., 0.}}};
+  polys[0].fInd = {0, 1, 2, 3};
+  polys[1].fInd = {4, 7, 6, 5};
+  polys[2].fInd = {0, 4, 5, 1};
+  polys[3].fInd = {1, 5, 6, 2};
+  polys[4].fInd = {2, 6, 7, 3};
+  polys[5].fInd = {3, 7, 4, 0};
+  for (size_t i = 0; i < 6; ++i)
+    polys[i].Init();
+}
+
+EPlaneXing_t PlaneXing(Plane const &pl1, Plane const &pl2, Vector3D<double> &point, Vector3D<double> &direction)
+{
+  direction        = pl1.fNorm.Cross(pl2.fNorm);
   const double det = direction.Mag2();
   if (Abs(det) < kTolerance) {
     // The 2 planes are parallel, let's find the distance between them
-    const double d12 = Abs(Abs(p1) - Abs(p2));
+    const double d12 = Abs(Abs(pl1.fDist) - Abs(pl2.fDist));
     if (d12 < kTolerance) {
-      if (p1 * p2 * n1.Dot(n2) > 0.) return kIdentical;
+      if (pl1.fDist * pl2.fDist * pl1.fNorm.Dot(pl2.fNorm) > 0.) return kIdentical;
     }
     return kParallel;
   }
   // The planes do intersect
-  point = ((p1 * direction.Cross(n2) - p2 * direction.Cross(n1))) / det;
+  point = ((pl1.fDist * direction.Cross(pl2.fNorm) - pl2.fDist * direction.Cross(pl1.fNorm))) / det;
   direction.Normalize();
   return kIntersecting;
 }
@@ -155,7 +164,7 @@ EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
   using vecCore::math::Sqrt;
 
   Vec_t point, direction;
-  EPlaneXing_t crossing = PlaneXing(poly1.fNorm, poly1.fDist, poly2.fNorm, poly2.fDist, point, direction);
+  EPlaneXing_t crossing = PlaneXing(Plane(poly1.fNorm, poly1.fDist), Plane(poly2.fNorm, poly2.fDist), point, direction);
   if (crossing == kParallel) return kDisjoint;
 
   if (crossing == kIdentical) {
@@ -165,7 +174,7 @@ EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
       // loop vertices of 2
       bool outside = false;
       for (size_t j = 0; j < poly2.fN; ++j) {
-        outside = poly1.fNorm.Dot((poly2.fVert[j] - poly1.fVert[i]).Cross(poly1.fSides[i])) > 0;
+        outside = poly1.fNorm.Dot((poly2.GetVertex(j) - poly1.GetVertex(i)).Cross(poly1.fSides[i])) > 0;
         if (!outside) break;
       }
       if (outside) return kDisjoint;
@@ -175,7 +184,7 @@ EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
       // loop vertices of 1
       bool outside = false;
       for (size_t j = 0; j < poly1.fN; ++j) {
-        outside = poly2.fNorm.Dot((poly1.fVert[j] - poly2.fVert[i]).Cross(poly2.fSides[i])) > 0;
+        outside = poly2.fNorm.Dot((poly1.GetVertex(j) - poly2.GetVertex(i)).Cross(poly2.fSides[i])) > 0;
         if (!outside) break;
       }
       if (outside) return kDisjoint;
@@ -187,71 +196,64 @@ EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
   if (!(poly1.fConvex | poly2.fConvex)) return kDisjoint; // cannot solve yet non-convex case
   double smin1 = InfinityLength<double>();
   double smax1 = -InfinityLength<double>();
-  std::cout << "IP: " << point << "  direction: " << direction << std::endl;
-  std::cout << "Checking poly1\n";
   for (size_t i = 0; i < poly1.fN; ++i) {
-    std::cout << "segment " << i << ": (" << poly1.fVert[i] << ", " << poly1.fVert[(i + 1) % poly1.fN] << ")\n";
     Vec_t crossdirs      = poly1.fSides[i].Cross(direction);
     double mag2crossdirs = crossdirs.Mag2();
     if (mag2crossdirs < kTolerance) continue; // Crossing line parallel to edge
-    Vec_t crosspts = (point - poly1.fVert[i]).Cross(direction);
-    if (crossdirs.Dot(crosspts) < 0) {
-      std::cout << " miss (before)\n";
-      continue;
-    } // crossing line hits edge on lower prolongation
+    Vec_t crosspts = (point - poly1.GetVertex(i)).Cross(direction);
+    if (crossdirs.Dot(crosspts) < 0) continue;
     if (crosspts.Mag2() < mag2crossdirs + kTolerance) {
       // Crossing line hits the current edge
-      crosspts      = (point - poly1.fVert[i]).Cross(poly1.fSides[i]);
+      crosspts      = (point - poly1.GetVertex(i)).Cross(poly1.fSides[i]);
       double distsq = CopySign(crosspts.Mag2() / mag2crossdirs, crosspts.Dot(crossdirs));
-      std::cout << "  dist = " << CopySign(Sqrt(crosspts.Mag2() / mag2crossdirs), distsq) << std::endl;
-      smin1 = Min(smin1, distsq);
-      smax1 = Max(smax1, distsq);
-    } else {
-      std::cout << " miss (after)\n";
+      smin1         = Min(smin1, distsq);
+      smax1         = Max(smax1, distsq);
     }
   }
-  std::cout << "smin1 = " << smin1 << "  smax1 = " << smax1 << std::endl;
   if (smax1 <= smin1) return kDisjoint;
 
   double smin2 = InfinityLength<double>();
   double smax2 = -InfinityLength<double>();
-  std::cout << "Checking poly2\n";
   for (size_t i = 0; i < poly2.fN; ++i) {
-    std::cout << "segment " << i << ": (" << poly2.fVert[i] << ", " << poly2.fVert[(i + 1) % poly2.fN] << ")\n";
     Vec_t crossdirs      = poly2.fSides[i].Cross(direction);
     double mag2crossdirs = crossdirs.Mag2();
     if (mag2crossdirs < kTolerance) continue; // Crossing line parallel to edge
-    Vec_t crosspts = (point - poly2.fVert[i]).Cross(direction);
-    if (crossdirs.Dot(crosspts) < 0) {
-      std::cout << " miss (before)\n";
-      continue;
-    } // crossing line hits edge on lower prolongation
+    Vec_t crosspts = (point - poly2.GetVertex(i)).Cross(direction);
+    if (crossdirs.Dot(crosspts) < 0) continue;
     if (crosspts.Mag2() < mag2crossdirs + kTolerance) {
       // Crossing line hits the current edge
-      crosspts      = (point - poly2.fVert[i]).Cross(poly2.fSides[i]);
+      crosspts      = (point - poly2.GetVertex(i)).Cross(poly2.fSides[i]);
       double distsq = CopySign(crosspts.Mag2() / mag2crossdirs, crosspts.Dot(crossdirs));
-      std::cout << "  dist = " << CopySign(Sqrt(crosspts.Mag2() / mag2crossdirs), distsq) << std::endl;
-      smin2 = Min(smin2, distsq);
-      smax2 = Max(smax2, distsq);
-    } else {
-      std::cout << " miss (after)\n";
+      smin2         = Min(smin2, distsq);
+      smax2         = Max(smax2, distsq);
     }
   }
-  std::cout << "smin2 = " << smin2 << "  smax2 = " << smax2 << std::endl;
   if (smax2 <= smin2) return kDisjoint;
   if (smin2 - smax1 > -kTolerance || smin1 - smax2 > -kTolerance) return kDisjoint;
   if (line != nullptr) {
-    std::cout << "point: " << point << "  direction: " << direction << std::endl;
-    std::cout << " smin1 = " << smin1 << "  smax1 = " << smax1 << " smin2 = " << smin2 << "  smax2 = " << smax2
-              << std::endl;
     double dmin = Max(smin1, smin2);
     double dmax = Min(smax1, smax2);
-    std::cout << "dmin = " << dmin << "  dmax = " << dmax << std::endl;
     assert(dmax - dmin > -kTolerance);
     line->fPts[0] = point + direction * CopySign(Sqrt(Abs(dmin)), dmin);
     line->fPts[1] = point + direction * CopySign(Sqrt(Abs(dmax)), dmax);
   }
   return kOverlapping;
+}
+
+EBodyXing_t PolyhedronXing(Polyhedron const &polyh1, Polyhedron const &polyh2, vector_t<Line> &lines)
+{
+  // We assume PolyhedronCollision was called and the polyhedra do intersect. The polihedra are already transformed.
+  using vecCore::math::Max;
+  Line line;
+  EBodyXing_t result = kDisjoint;
+  for (const auto &poly1 : polyh1.fPolys) {
+    for (const auto &poly2 : polyh2.fPolys) {
+      EBodyXing_t crossing = PolygonXing(poly1, poly2, &line);
+      result               = Max(result, crossing);
+      if (crossing == kOverlapping) lines.push_back(line);
+    }
+  }
+  return result;
 }
 
 EBodyXing_t BoxCollision(Vector3D<double> const &box1, Transformation3D const &tr1, Vector3D<double> const &box2,

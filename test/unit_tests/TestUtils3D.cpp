@@ -4,11 +4,14 @@
 ///
 
 //-- ensure asserts are compiled in
+#ifdef NDEBUG
 #undef NDEBUG
+#endif
 
 #include "base/Utils3D.h"
 #include "ApproxEqual.h"
 #include "volumes/Box.h"
+#include "test/benchmark/ArgParser.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -32,14 +35,14 @@ void DrawPolygon(vecgeom::Utils3D::Polygon const &poly, vecgeom::Visualizer &vis
   TPolyLine3D pl(poly.fN + 1);
   pl.SetLineColor(color);
   for (size_t i = 0; i < poly.fN; ++i)
-    pl.SetNextPoint(poly.fVert[i].x(), poly.fVert[i].y(), poly.fVert[i].z());
-  pl.SetNextPoint(poly.fVert[0].x(), poly.fVert[0].y(), poly.fVert[0].z());
+    pl.SetNextPoint(poly.GetVertex(i).x(), poly.GetVertex(i).y(), poly.GetVertex(i).z());
+  pl.SetNextPoint(poly.GetVertex(0).x(), poly.GetVertex(0).y(), poly.GetVertex(0).z());
   visualizer.AddLine(pl);
 
   // Compute center of polygon
   Vec_t center;
   for (size_t i = 0; i < poly.fN; ++i)
-    center += poly.fVert[i];
+    center += poly.GetVertex(i);
   center *= 1. / poly.fN;
   TPolyLine3D plnorm(2);
   plnorm.SetLineColor(color);
@@ -48,65 +51,13 @@ void DrawPolygon(vecgeom::Utils3D::Polygon const &poly, vecgeom::Visualizer &vis
   visualizer.AddLine(plnorm);
 }
 
-void DrawBox(vecgeom::Vector3D<double> const &box, vecgeom::Transformation3D const &tr, vecgeom::Visualizer &visualizer,
-             size_t color)
+void DrawPolyhedron(vecgeom::Utils3D::Polyhedron &polyh, vecgeom::Visualizer &visualizer, size_t color)
 {
   using namespace vecgeom;
-  using Vec_t = Vector3D<double>;
 
-  // compute transformed vertices
-  const Vec_t mesh1[8] = {{-box[0], -box[1], -box[2]}, {-box[0], box[1], -box[2]}, {box[0], box[1], -box[2]},
-                          {box[0], -box[1], -box[2]},  {-box[0], -box[1], box[2]}, {-box[0], box[1], box[2]},
-                          {box[0], box[1], box[2]},    {box[0], -box[1], box[2]}};
-
-  Vec_t mesh[8];
-  for (auto i = 0; i < 8; ++i)
-    tr.InverseTransform(mesh1[i], mesh[i]);
-
-  // Generate lines
-  TPolyLine3D pl(2);
-  pl.SetLineColor(color);
-
-  pl.SetPoint(0, mesh[0].x(), mesh[0].y(), mesh[0].z());
-  pl.SetPoint(1, mesh[1].x(), mesh[1].y(), mesh[1].z());
-  visualizer.AddLine(pl);
-  pl.SetPoint(0, mesh[1].x(), mesh[1].y(), mesh[1].z());
-  pl.SetPoint(1, mesh[2].x(), mesh[2].y(), mesh[2].z());
-  visualizer.AddLine(pl);
-  pl.SetPoint(0, mesh[2].x(), mesh[2].y(), mesh[2].z());
-  pl.SetPoint(1, mesh[3].x(), mesh[3].y(), mesh[3].z());
-  visualizer.AddLine(pl);
-  pl.SetPoint(0, mesh[3].x(), mesh[3].y(), mesh[3].z());
-  pl.SetPoint(1, mesh[0].x(), mesh[0].y(), mesh[0].z());
-  visualizer.AddLine(pl);
-
-  pl.SetPoint(0, mesh[4].x(), mesh[4].y(), mesh[4].z());
-  pl.SetPoint(1, mesh[5].x(), mesh[5].y(), mesh[5].z());
-  visualizer.AddLine(pl);
-  pl.SetPoint(0, mesh[5].x(), mesh[5].y(), mesh[5].z());
-  pl.SetPoint(1, mesh[6].x(), mesh[6].y(), mesh[6].z());
-  visualizer.AddLine(pl);
-  pl.SetPoint(0, mesh[6].x(), mesh[6].y(), mesh[6].z());
-  pl.SetPoint(1, mesh[7].x(), mesh[7].y(), mesh[7].z());
-  visualizer.AddLine(pl);
-  pl.SetPoint(0, mesh[7].x(), mesh[7].y(), mesh[7].z());
-  pl.SetPoint(1, mesh[4].x(), mesh[4].y(), mesh[4].z());
-  visualizer.AddLine(pl);
-
-  pl.SetPoint(0, mesh[0].x(), mesh[0].y(), mesh[0].z());
-  pl.SetPoint(1, mesh[4].x(), mesh[4].y(), mesh[4].z());
-  visualizer.AddLine(pl);
-  pl.SetPoint(0, mesh[1].x(), mesh[1].y(), mesh[1].z());
-  pl.SetPoint(1, mesh[5].x(), mesh[5].y(), mesh[5].z());
-  visualizer.AddLine(pl);
-  pl.SetPoint(0, mesh[2].x(), mesh[2].y(), mesh[2].z());
-  pl.SetPoint(1, mesh[6].x(), mesh[6].y(), mesh[6].z());
-  visualizer.AddLine(pl);
-  pl.SetPoint(0, mesh[3].x(), mesh[3].y(), mesh[3].z());
-  pl.SetPoint(1, mesh[7].x(), mesh[7].y(), mesh[7].z());
-  visualizer.AddLine(pl);
+  for (size_t i = 0; i < polyh.GetNpolygons(); ++i)
+    DrawPolygon(polyh.GetPolygon(i), visualizer, color);
 }
-
 #endif
 
 int main(int argc, char *argv[])
@@ -115,51 +66,41 @@ int main(int argc, char *argv[])
   using namespace vecCore::math;
   using Vec_t = Vector3D<double>;
 
-  const Vector3D<double> dirx(1., 0., 0.);
-  const Vector3D<double> diry(0., 1., 0.);
-  const Vector3D<double> dirz(0., 0., 1.);
+  using vecgeom::Utils3D::Line;
+  using vecgeom::Utils3D::Plane;
+  using vecgeom::Utils3D::Polygon;
+  using vecgeom::Utils3D::Polyhedron;
+
+  const Vec_t dirx(1., 0., 0.);
+  const Vec_t diry(0., 1., 0.);
+  const Vec_t dirz(0., 0., 1.);
 
 #ifdef VECGEOM_ROOT
-  Visualizer visualizer;
-  SimpleBox boxshape("box", 10, 10, 10);
-  visualizer.AddVolume(boxshape);
+  OPTION_INT(vis, 0);
 #endif
 
   ///* Plane transformations */
-  Utils3D::HPlane pl1(Vec_t(1., 0., 0.), -10.);
-  Utils3D::HPlane plrot;
-  Vector3D<double> pmaster;
+  Plane pl1(Vec_t(1., 0., 0.), -10.);
   Transformation3D transf1(10., 0., 0., 0., 0., 180.);
-  Utils3D::TransformPlane(transf1, pl1, plrot);
-  assert(ApproxEqual(plrot.fNorm[0], -1.) && ApproxEqual(plrot.fDist, 0.));
+  pl1.Transform(transf1);
+  assert(ApproxEqual(pl1.fNorm[0], -1.) && ApproxEqual(pl1.fDist, 0.));
 
   // Polygon intersection
-  Utils3D::Polygon poly1(4, true);
-  poly1.AddVertex(0, 10., 4., 6.);
-  poly1.AddVertex(1, 10., -4., 6.);
-  poly1.AddVertex(2, 10., -4., -6.);
-  poly1.AddVertex(3, 10., 4., -6.);
+
+  Utils3D::vector_t<Vec_t> pvec1 = {{10., 4., 6.}, {10., -4., 6.}, {10., -4., -6.}, {10., 4., -6.}};
+  Polygon poly1(4, pvec1, Vec_t(1., 0., 0.));
+  poly1.fInd = {0, 1, 2, 3};
   poly1.Init();
-  Utils3D::Polygon poly2(4, true);
-  poly2.AddVertex(0, 7.75736, -3.17423, 10.5854);
-  poly2.AddVertex(1, 7.75736, -7.17423, 3.65722);
-  poly2.AddVertex(2, 16.2426, 0.174235, -0.585422);
-  poly2.AddVertex(3, 16.2426, 4.17423, 6.34278);
+  Utils3D::vector_t<Vec_t> pvec2 = {{7.75736, -3.17423, 10.5854},
+                                    {7.75736, -7.17423, 3.65722},
+                                    {16.2426, 0.174235, -0.585422},
+                                    {16.2426, 4.17423, 6.34278}};
+  Polygon poly2(4, pvec2, true);
+  poly2.fInd = {0, 1, 2, 3};
   poly2.Init();
 
-  Utils3D::Line line1;
+  Line line1;
   assert(Utils3D::PolygonXing(poly1, poly2, &line1) == Utils3D::kOverlapping);
-
-#ifdef VECGEOM_ROOT_1
-  DrawPolygon(poly1, visualizer, kBlue);
-  DrawPolygon(poly2, visualizer, kGreen);
-  TPolyLine3D pl(2);
-  pl.SetNextPoint(line1.fPts[0].x(), line1.fPts[0].y(), line1.fPts[0].z());
-  pl.SetNextPoint(line1.fPts[1].x(), line1.fPts[1].y(), line1.fPts[1].z());
-  pl.SetLineColor(kRed);
-  visualizer.AddLine(pl);
-  visualizer.Show();
-#endif
 
   ///* Test plane crossings */
   Vector3D<double> point, direction;
@@ -171,28 +112,28 @@ int main(int argc, char *argv[])
   n2.Set(0., 0., 1.);
   p1 = -3.;
   p2 = -3.;
-  assert(Utils3D::PlaneXing(n1, p1, n2, p2, point, direction) == Utils3D::kIdentical);
+  assert(Utils3D::PlaneXing(Plane(n1, p1), Plane(n2, p2), point, direction) == Utils3D::kIdentical);
 
   // identical planes with opposite normals
   n1.Set(0., 0., 1.);
   n2.Set(0., 0., -1.);
   p1 = -3.;
   p2 = 3.;
-  assert(Utils3D::PlaneXing(n1, p1, n2, p2, point, direction) == Utils3D::kIdentical);
+  assert(Utils3D::PlaneXing(Plane(n1, p1), Plane(n2, p2), point, direction) == Utils3D::kIdentical);
 
   // opposite planes with opposite normals
   n1.Set(0., 0., 1.);
   n2.Set(0., 0., -1.);
   p1 = -3;
   p2 = -3;
-  assert(Utils3D::PlaneXing(n1, p1, n2, p2, point, direction) == Utils3D::kParallel);
+  assert(Utils3D::PlaneXing(Plane(n1, p1), Plane(n2, p2), point, direction) == Utils3D::kParallel);
 
   // opposite planes with identical normal
   n1.Set(0., 0., 1.);
   n2.Set(0., 0., 1.);
   p1 = -3;
   p2 = 3;
-  assert(Utils3D::PlaneXing(n1, p1, n2, p2, point, direction) == Utils3D::kParallel);
+  assert(Utils3D::PlaneXing(Plane(n1, p1), Plane(n2, p2), point, direction) == Utils3D::kParallel);
 
   // arbitrary parallel planes
   n1.Set(1., 2., 3.);
@@ -200,25 +141,28 @@ int main(int argc, char *argv[])
   n2 = -n1;
   p1 = 1;
   p2 = -2;
-  assert(Utils3D::PlaneXing(n1, p1, n2, p2, point, direction) == Utils3D::kParallel);
+  assert(Utils3D::PlaneXing(Plane(n1, p1), Plane(n2, p2), point, direction) == Utils3D::kParallel);
 
   // +z face of a box with +x face of the same box
   n1.Set(0., 0., 1.);
   n2.Set(1., 0., 0.);
   p1 = -3;
   p2 = -2;
-  assert(Utils3D::PlaneXing(n1, p1, n2, p2, point, direction) == Utils3D::kIntersecting);
+  assert(Utils3D::PlaneXing(Plane(n1, p1), Plane(n2, p2), point, direction) == Utils3D::kIntersecting);
   assert(ValidXing(point, direction, n1, p1, n2, p2));
 
   // same as above but 1 face has opposite normal
   n2 = -n2;
   p2 = -p2;
-  assert(Utils3D::PlaneXing(n1, p1, n2, p2, point, direction) == Utils3D::kIntersecting);
+  assert(Utils3D::PlaneXing(Plane(n1, p1), Plane(n2, p2), point, direction) == Utils3D::kIntersecting);
   assert(ValidXing(point, direction, n1, p1, n2, p2));
 
   ///* Test box crossings */
-  Vector3D<double> box1(1., 2., 3.);
-  Vector3D<double> box2(2., 3., 4.);
+  Vec_t box1(1., 2., 3.);
+  Vec_t box2(2., 3., 4.);
+  Polyhedron polyh1, polyh2;
+  Utils3D::FillBoxPolyhedron(box1, polyh1);
+  Utils3D::FillBoxPolyhedron(box2, polyh2);
   Transformation3D tr1, tr2, tr3;
 
   // Touching boxes
@@ -236,18 +180,35 @@ int main(int argc, char *argv[])
   tr2 = Transformation3D(2.5, 4.5, 6.5);
   assert(Utils3D::BoxCollision(box1, tr1, box2, tr2) == Utils3D::kOverlapping);
 
-  tr1 = Transformation3D(-2.5, -0.5, 0.5);
+  tr1 = Transformation3D(-1, -0.5, 0.5);
   tr2 = Transformation3D(-3., -0.5, 0.5);
   tr3 = Transformation3D(1., 2., 3., 0., 45., 45.);
+  polyh1.Transform(tr1);
+  polyh2.Transform(tr3);
   assert(Utils3D::BoxCollision(box1, tr1, box2, tr3) == Utils3D::kOverlapping &&
          Utils3D::BoxCollision(box1, tr2, box2, tr3) == Utils3D::kDisjoint);
 
+  std::cout << "TestUtils3D passed\n";
+
 #ifdef VECGEOM_ROOT
-  DrawBox(box1, tr1, visualizer, kBlue);
-  DrawBox(box2, tr3, visualizer, kGreen);
+  if (vis == 0) return 0;
+  Visualizer visualizer;
+  SimpleBox boxshape("box", 7, 7, 7);
+  visualizer.AddVolume(boxshape);
+  Utils3D::vector_t<Utils3D::Line> lines;
+  DrawPolyhedron(polyh1, visualizer, kBlue);
+  DrawPolyhedron(polyh2, visualizer, kGreen);
+  if (PolyhedronXing(polyh1, polyh2, lines) == Utils3D::kOverlapping) {
+    TPolyLine3D pl(2);
+    pl.SetLineColor(kRed);
+    for (auto line : lines) {
+      pl.SetNextPoint(line.fPts[0].x(), line.fPts[0].y(), line.fPts[0].z());
+      pl.SetNextPoint(line.fPts[1].x(), line.fPts[1].y(), line.fPts[1].z());
+      visualizer.AddLine(pl);
+    }
+  }
   visualizer.Show();
 #endif
 
-  std::cout << "TestUtils3D passed\n";
   return 0;
 }
