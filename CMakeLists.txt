@@ -70,6 +70,8 @@ option(STATIC_ANALYSIS "enable static analysis on VecGeom" OFF)
 
 option(GDML "Enable GDML persistency. Requres Xerces-C" OFF)
 
+option(FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
+
 set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic mic_avx512)
 
 enum_option(VECGEOM_VECTOR
@@ -298,8 +300,8 @@ if (GNU)
 
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -finline-limit=10000000 -ftree-vectorize")
-    if (NOT _arch_lo MATCHES "^sse")
-      set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ffast-math")
+    if (FAST_MATH)
+        set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ffast-math")
     endif()
   endif()
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fabi-version=0")
@@ -336,7 +338,7 @@ elseif(Clang OR AppleClang)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS}  -ggdb -O0")
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ftree-vectorize")
-    if (NOT _arch_lo MATCHES "^sse")
+    if (FAST_MATH)
       set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ffast-math")
     endif()
   endif()
