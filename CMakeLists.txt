@@ -1132,7 +1132,7 @@ endif()
 if (CTEST)
   build_executables("${TEST_EXECUTABLES_CORE}")
   add_to_ctest("${TEST_EXECUTABLES_CORE}")
-  set_tests_properties(TestSExtru PROPERTIES TIMEOUT 30)
+  # set_tests_properties(TestSExtru PROPERTIES TIMEOUT 30)
 endif()
 
 if (BENCHMARK)
