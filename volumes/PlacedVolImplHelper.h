@@ -65,12 +65,6 @@ public:
     // careful here: we need to transform result
     return GetUnplacedVolume()->Normal(point, normal);
   }
-
-  virtual Vector3D<Precision> SamplePointOnSurface() const override
-  {
-    return GetUnplacedVolume()->SamplePointOnSurface();
-    // careful here: we need to transform result
-  }
 #endif
 
   virtual double SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }

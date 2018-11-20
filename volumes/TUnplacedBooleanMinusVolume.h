@@ -83,13 +83,6 @@ public:
   };
 
   VECCORE_ATT_HOST_DEVICE
-  Vector3D<Precision> SamplePointOnSurface() const
-  {
-    // TBDONE
-    return Vector3D<Precision>();
-  }
-
-  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const {};
 
   virtual void Print(std::ostream &os) const {};

@@ -46,8 +46,6 @@ public:
   virtual void PrintType() const override;
   virtual void PrintType(std::ostream &os) const override;
 
-  virtual Vector3D<Precision> SamplePointOnSurface() const override;
-
 // Comparison specific
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;

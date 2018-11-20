@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     VPlacedVolume const *vecgeompvol = RootGeoManager::Instance().Convert(foundvolume)->Place();
 
     for (int i = 0; i < 20; ++i) {
-      Vector3D<Precision> point = vecgeompvol->SamplePointOnSurface();
+      Vector3D<Precision> point = vecgeompvol->GetUnplacedVolume()->SamplePointOnSurface();
 
       if (vecgeompvol->Inside(point) != vecgeom::kSurface) {
         std::cerr << " WARNING : Inside does not report surface state \n";

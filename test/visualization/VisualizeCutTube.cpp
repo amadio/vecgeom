@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
   for (int i = 0; i < npoints; ++i) {
     switch (test) {
     case 0: // Points on surface test
-      sample = cuttube.SamplePointOnSurface();
+      sample = cuttube.GetUnplacedVolume()->SamplePointOnSurface();
       safety = cuttube.SafetyToIn(sample);
       inside = cuttube.Inside(sample);
       if (inside != EnumInside::kSurface || safety > kTolerance) nerrors++;

@@ -26,12 +26,6 @@ void PlacedSExtru::PrintType(std::ostream &s) const
   s << "PlacedSExtru";
 }
 
-Vector3D<Precision> PlacedSExtru::SamplePointOnSurface() const
-{
-  // use generic implementation
-  return VPlacedVolume::SamplePointOnSurface();
-}
-
 // Comparison specific
 #ifndef VECCORE_CUDA
 VPlacedVolume const *PlacedSExtru::ConvertToUnspecialized() const

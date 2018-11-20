@@ -61,7 +61,7 @@ Vector3D<Precision> UnplacedScaledShape::SamplePointOnSurface() const
 {
   // Sample the scaled shape
   Vector3D<Precision> sampled;
-  fScaled.fScale.InverseTransform(fScaled.fPlaced->SamplePointOnSurface(), sampled);
+  fScaled.fScale.InverseTransform(fScaled.fPlaced->GetUnplacedVolume()->SamplePointOnSurface(), sampled);
   return sampled;
 }
 

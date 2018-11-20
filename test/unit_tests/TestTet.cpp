@@ -336,7 +336,7 @@ bool TestTet()
   std::cout << "=== SamplePointOnSurface()" << std::endl;
   int nx = 0, ny = 0, nz = 0, nxyz = 0, nfactor = 10000, ntot = area * nfactor;
   for (int i = 0; i < ntot; i++) {
-    Vec_t rndPoint = tet.SamplePointOnSurface();
+    Vec_t rndPoint = tet.GetUnplacedVolume()->SamplePointOnSurface();
     assert(tet.Inside(rndPoint) == vecgeom::EInside::kSurface);
     if (rndPoint.x() == 0.)
       ++nx;

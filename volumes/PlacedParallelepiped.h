@@ -89,11 +89,6 @@ public:
 
 #ifndef VECCORE_CUDA
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
-
-  virtual Vector3D<Precision> SamplePointOnSurface() const override
-  {
-    return GetUnplacedVolume()->SamplePointOnSurface();
-  }
 #endif
 
   VECCORE_ATT_HOST_DEVICE

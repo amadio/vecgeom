@@ -10,6 +10,8 @@
 #include "volumes/SpecializedBooleanVolume.h"
 #include "management/VolumeFactory.h"
 #include "volumes/utilities/GenerationUtilities.h"
+#include "volumes/utilities/VolumeUtilities.h"
+#include "base/RNG.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/PlacedVolume.h"
 
@@ -22,6 +24,150 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECCORE_CUDA
+template <>
+Vector3D<Precision> UnplacedBooleanVolume<kUnion>::SamplePointOnSurface() const
+{
+  // implementation taken from G4
+  int counter = 0;
+  Vector3D<Precision> p;
+
+  double arearatio(0.5);
+  double leftarea, rightarea;
+
+  // calculating surface area can be expensive
+  // until there is a caching mechanism in place, we will cache these values here
+  // in a static map
+  // the caching mechanism will be put into place with the completion of the move to UnplacedVolume interfaces
+  static std::map<size_t, double> idtoareamap;
+  auto leftid = GetLeft()->GetLogicalVolume()->id();
+  if (idtoareamap.find(leftid) != idtoareamap.end()) {
+    leftarea = idtoareamap[leftid];
+  } else { // insert
+    leftarea = const_cast<VPlacedVolume *>(GetLeft())->SurfaceArea();
+    idtoareamap.insert(std::pair<size_t, double>(leftid, leftarea));
+  }
+
+  auto rightid = GetRight()->GetLogicalVolume()->id();
+  if (idtoareamap.find(rightid) != idtoareamap.end()) {
+    rightarea = idtoareamap[rightid];
+  } else { // insert
+    rightarea = const_cast<VPlacedVolume *>(GetRight())->SurfaceArea();
+    idtoareamap.insert(std::pair<size_t, double>(rightid, rightarea));
+  }
+
+  if (leftarea > 0. && rightarea > 0.) {
+    arearatio = leftarea / (leftarea + rightarea);
+  }
+  do {
+    counter++;
+    if (counter > 1000) {
+      std::cerr << "WARNING : COULD NOT GENERATE POINT ON SURFACE FOR BOOLEAN\n";
+      return p;
+    }
+
+    auto *selected((RNG::Instance().uniform() < arearatio) ? GetLeft() : GetRight());
+    auto transf = selected->GetTransformation();
+    p           = transf->InverseTransform(selected->GetUnplacedVolume()->SamplePointOnSurface());
+  } while (Inside(p) != vecgeom::kSurface);
+  return p;
+}
+
+template <>
+Vector3D<Precision> UnplacedBooleanVolume<kIntersection>::SamplePointOnSurface() const
+{
+  // implementation taken from G4
+  int counter = 0;
+  Vector3D<Precision> p;
+
+  double arearatio(0.5);
+  double leftarea, rightarea;
+
+  // calculating surface area can be expensive
+  // until there is a caching mechanism in place, we will cache these values here
+  // in a static map
+  // the caching mechanism will be put into place with the completion of the move to UnplacedVolume interfaces
+  static std::map<size_t, double> idtoareamap;
+  auto leftid = GetLeft()->GetLogicalVolume()->id();
+  if (idtoareamap.find(leftid) != idtoareamap.end()) {
+    leftarea = idtoareamap[leftid];
+  } else { // insert
+    leftarea = const_cast<VPlacedVolume *>(GetLeft())->SurfaceArea();
+    idtoareamap.insert(std::pair<size_t, double>(leftid, leftarea));
+  }
+
+  auto rightid = GetRight()->GetLogicalVolume()->id();
+  if (idtoareamap.find(rightid) != idtoareamap.end()) {
+    rightarea = idtoareamap[rightid];
+  } else { // insert
+    rightarea = const_cast<VPlacedVolume *>(GetRight())->SurfaceArea();
+    idtoareamap.insert(std::pair<size_t, double>(rightid, rightarea));
+  }
+
+  if (leftarea > 0. && rightarea > 0.) {
+    arearatio = leftarea / (leftarea + rightarea);
+  }
+  do {
+    counter++;
+    if (counter > 1000) {
+      std::cerr << "WARNING : COULD NOT GENERATE POINT ON SURFACE FOR BOOLEAN\n";
+      return p;
+    }
+
+    auto *selected((RNG::Instance().uniform() < arearatio) ? GetLeft() : GetRight());
+    auto transf = selected->GetTransformation();
+    p           = transf->InverseTransform(selected->GetUnplacedVolume()->SamplePointOnSurface());
+  } while (Inside(p) != vecgeom::kSurface);
+  return p;
+}
+
+template <>
+Vector3D<Precision> UnplacedBooleanVolume<kSubtraction>::SamplePointOnSurface() const
+{
+  // implementation taken from G4
+  int counter = 0;
+  Vector3D<Precision> p;
+
+  double arearatio(0.5);
+  double leftarea, rightarea;
+
+  // calculating surface area can be expensive
+  // until there is a caching mechanism in place, we will cache these values here
+  // in a static map
+  // the caching mechanism will be put into place with the completion of the move to UnplacedVolume interfaces
+  static std::map<size_t, double> idtoareamap;
+  auto leftid = GetLeft()->GetLogicalVolume()->id();
+  if (idtoareamap.find(leftid) != idtoareamap.end()) {
+    leftarea = idtoareamap[leftid];
+  } else { // insert
+    leftarea = const_cast<VPlacedVolume *>(GetLeft())->SurfaceArea();
+    idtoareamap.insert(std::pair<size_t, double>(leftid, leftarea));
+  }
+
+  auto rightid = GetRight()->GetLogicalVolume()->id();
+  if (idtoareamap.find(rightid) != idtoareamap.end()) {
+    rightarea = idtoareamap[rightid];
+  } else { // insert
+    rightarea = const_cast<VPlacedVolume *>(GetRight())->SurfaceArea();
+    idtoareamap.insert(std::pair<size_t, double>(rightid, rightarea));
+  }
+
+  if (leftarea > 0. && rightarea > 0.) {
+    arearatio = leftarea / (leftarea + rightarea);
+  }
+  do {
+    counter++;
+    if (counter > 1000) {
+      std::cerr << "WARNING : COULD NOT GENERATE POINT ON SURFACE FOR BOOLEAN\n";
+      return p;
+    }
+
+    auto *selected((RNG::Instance().uniform() < arearatio) ? GetLeft() : GetRight());
+    auto transf = selected->GetTransformation();
+    p           = transf->InverseTransform(selected->GetUnplacedVolume()->SamplePointOnSurface());
+  } while (Inside(p) != vecgeom::kSurface);
+  return p;
+}
+
 
 VECCORE_ATT_HOST_DEVICE
 BooleanStruct const *BooleanHelper::GetBooleanStruct(VUnplacedVolume const *unplaced)

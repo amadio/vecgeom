@@ -243,11 +243,6 @@ public:
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->SurfaceArea();
   }
 
-  Vector3D<Precision> SamplePointOnSurface() const override
-  {
-    return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->SamplePointOnSurface();
-  }
-
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override { return this; }
 #ifdef VECGEOM_ROOT

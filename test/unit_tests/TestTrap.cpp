@@ -144,12 +144,12 @@ bool TestTrap()
   // test SamplePointOnSurface()
   vecgeom::Vector3D<vecgeom::Precision> ponsurf;
   for (int i = 0; i < 100000; ++i) {
-    ponsurf = trap1.SamplePointOnSurface();
+    ponsurf = trap1.GetUnplacedVolume()->SamplePointOnSurface();
     assert(trap1.Inside(ponsurf) == vecgeom::EInside::kSurface);
     assert(trap1.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
   }
   for (int i = 0; i < 100000; ++i) {
-    ponsurf = trap2.SamplePointOnSurface();
+    ponsurf = trap2.GetUnplacedVolume()->SamplePointOnSurface();
     assert(trap2.Inside(ponsurf) == vecgeom::EInside::kSurface);
     assert(trap2.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
   }

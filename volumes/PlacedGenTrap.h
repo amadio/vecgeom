@@ -105,12 +105,6 @@ public:
   {
     return GetUnplacedVolume()->Normal(point, normal);
   }
-
-  /** @brief Generates randomly a point on the surface of the trapezoid */
-  virtual Vector3D<Precision> SamplePointOnSurface() const override
-  {
-    return GetUnplacedVolume()->SamplePointOnSurface();
-  }
 #endif
 
   /** @brief Print type name */

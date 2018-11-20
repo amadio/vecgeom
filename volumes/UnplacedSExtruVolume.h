@@ -42,8 +42,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { fPolyShell.Extent(aMin, aMax); }
 
-  Vector3D<Precision> SamplePointOnSurface() const override;
-
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
   {

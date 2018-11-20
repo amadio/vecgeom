@@ -20,14 +20,14 @@ int main()
   int nerrors = 0;
   for (int i = 0; i < nSamples; ++i) {
     Vector3D<Precision> sample;
-    sample = para.SamplePointOnSurface();
+    sample = para.GetUnplacedVolume()->SamplePointOnSurface();
     inside = para.Inside(sample);
     if (inside != EnumInside::kSurface) nerrors++;
     /*
        bool contains;
        do {
           sample = volumeUtilities::SamplePoint(Vector3D<Precision>(4, 4, 10));
-          sample = para.SamplePointOnSurface();
+          sample = para.GetUnplacedVolume()->SamplePointOnSurface();
           inside = para.Inside(sample);
           contains = para.Contains(sample);
           if (inside==kInside && !contains) {

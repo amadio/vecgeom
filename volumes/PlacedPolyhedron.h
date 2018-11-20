@@ -126,12 +126,6 @@ public:
   {
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
-
-  virtual Vector3D<Precision> SamplePointOnSurface() const override
-  {
-    return GetUnplacedVolume()->SamplePointOnSurface();
-  }
-
 #endif
 
   VECCORE_ATT_HOST_DEVICE

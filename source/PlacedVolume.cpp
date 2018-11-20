@@ -111,20 +111,6 @@ std::ostream &operator<<(std::ostream &os, VPlacedVolume const &vol)
 
 // implement a default function for SamplePointOnSurface
 // based on contains + DistanceToOut
-Vector3D<Precision> VPlacedVolume::SamplePointOnSurface() const
-{
-  //   std::cerr << "WARNING : Base SamplePointOnSurface called \n";
-
-  Vector3D<Precision> surfacepoint;
-  SOA3D<Precision> points(1);
-  volumeUtilities::FillRandomPoints(*this, points);
-
-  Vector3D<Precision> dir = volumeUtilities::SampleDirection();
-  surfacepoint            = points[0] + DistanceToOut(points[0], dir) * dir;
-
-  // assert( Inside(surfacepoint) == vecgeom::kSurface );
-  return surfacepoint;
-}
 
 Precision VPlacedVolume::Capacity()
 {

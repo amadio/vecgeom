@@ -103,11 +103,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
-  Vector3D<Precision> SamplePointOnSurface() const override
-  {
-    // TBDONE
-    return Vector3D<Precision>();
-  }
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   std::string GetEntityType() const { return "BooleanVolume"; }
 

@@ -266,8 +266,6 @@ public:
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
-  Vector3D<Precision> SamplePointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
-
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT

@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
     // generate POINTS ON SURFACE FROM VECGEOM
     for (size_t i = 0; i < N; ++i) {
-      auto sp = vecgeomplaced->SamplePointOnSurface();
+      auto sp = vecgeomplaced->GetUnplacedVolume()->SamplePointOnSurface();
       std::cerr << "SPVG " << sp.x() << " " << sp.y() << " " << sp.z() << "\n";
     }
 

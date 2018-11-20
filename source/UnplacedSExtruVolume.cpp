@@ -18,11 +18,6 @@ void UnplacedSExtruVolume::Print(std::ostream &os) const
   os << "UnplacedSExtruVolume";
 }
 
-Vector3D<Precision> UnplacedSExtruVolume::SamplePointOnSurface() const
-{
-  throw std::runtime_error("unimplemented");
-}
-
 #ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedSExtruVolume::Create(LogicalVolume const *const logical_volume,

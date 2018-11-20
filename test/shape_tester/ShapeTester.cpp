@@ -1737,7 +1737,7 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsSurface()
     do
     { bool surfaceExist=true;
       if(surfaceExist) {
-        pointU = fVolume->SamplePointOnSurface();
+        pointU = fVolume->GetUnplacedVolume()->SamplePointOnSurface();
       }
       else {
         Vec_t dir = GetRandomDirection(), norm;
@@ -1754,7 +1754,7 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsSurface()
 #endif
     int retry = 100;
     do {
-      pointU                          = fVolume->SamplePointOnSurface();
+      pointU                          = fVolume->GetUnplacedVolume()->SamplePointOnSurface();
       Vec_t vec                       = GetRandomDirection();
       fDirections[i + fOffsetSurface] = vec;
       point.Set(pointU.x(), pointU.y(), pointU.z());
@@ -1814,7 +1814,7 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsOutside()
     if (random <= fOutsideRandomDirectionPercent / 100.) {
       vec = GetRandomDirection();
     } else {
-      Vec_t pointSurface = fVolume->SamplePointOnSurface();
+      Vec_t pointSurface = fVolume->GetUnplacedVolume()->SamplePointOnSurface();
       vec                = pointSurface - point;
       vec.Normalize();
     }

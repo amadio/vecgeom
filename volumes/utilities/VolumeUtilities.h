@@ -221,7 +221,7 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
       // set direction accordingly
       uint selecteddaughter              = (uint)RNG::Instance().uniform() * volume.GetDaughters().size();
       VPlacedVolume const *daughter      = volume.GetDaughters()[selecteddaughter];
-      Vector3D<Precision> pointonsurface = daughter->SamplePointOnSurface();
+      Vector3D<Precision> pointonsurface = daughter->GetUnplacedVolume()->SamplePointOnSurface();
       // point is in reference frame of daughter so need to transform it back
       Vector3D<Precision> dirtosurfacepoint =
           daughter->GetTransformation()->InverseTransform(pointonsurface) - points[track];
@@ -393,6 +393,50 @@ bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
   }
   return true;
 }
+
+/**
+ * @brief Fill a container structure (SOA3D or AOS3D) with random
+ *    points contained in a volume. Points are returned in the reference
+ *    frame of the volume (and not in the mother containing this volume)
+ * @details Input volume must have a valid bounding box, which is used
+ *    for sampling.
+ * @param volume containing all points
+ * @param points is the output container, provided by the caller.
+ * returns if successful or not
+ */
+template <typename TrackContainer>
+VECGEOM_FORCE_INLINE
+bool FillRandomPoints(VUnplacedVolume const &volume, TrackContainer &points)
+{
+  const int size = points.capacity();
+  points.resize(points.capacity());
+
+  int tries = 0;
+
+  Vector3D<Precision> lower, upper, offset;
+  volume.Extent(lower, upper);
+  offset                        = 0.5 * (upper + lower);
+  const Vector3D<Precision> dim = 0.5 * (upper - lower);
+
+  for (int i = 0; i < size; ++i) {
+    Vector3D<Precision> point;
+    do {
+      ++tries;
+      if (tries % 1000000 == 0) {
+        printf("%s line %i: Warning: %i tries to find contained points... in UnplacedVolume. Please check.\n", __FILE__,
+               __LINE__, tries);
+      }
+      if (tries > 100000000) {
+        printf("%s line %i: giving up\n", __FILE__, __LINE__);
+        return false;
+      }
+      point = offset + SamplePoint(dim);
+    } while (!volume.Contains(point));
+    points.set(i, point);
+  }
+  return true;
+}
+
 
 /**
  * @brief Fills the volume with 3D points which are to be contained in

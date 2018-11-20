@@ -68,8 +68,6 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-  virtual Vector3D<Precision> SamplePointOnSurface() const override;
-
   VECCORE_ATT_HOST_DEVICE
   void PrintType() const override{};
 

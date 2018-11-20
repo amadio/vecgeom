@@ -223,7 +223,7 @@ bool TestGenTrap()
   // SamplePointOnSurface + DistanceToIn
   // Shoot from outside to points on surface
   for (int i = 0; i < 100; i++) {
-    Vec_t psurf = trap2.SamplePointOnSurface();
+    Vec_t psurf = trap2.GetUnplacedVolume()->SamplePointOnSurface();
     Vec_t start = 100. * psurf;
     dir         = psurf - start;
     testValue   = dir.Mag();

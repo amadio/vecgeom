@@ -180,8 +180,6 @@ public:
     return GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-  Vector3D<Precision> SamplePointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
-
   //  VECCORE_ATT_HOST_DEVICE
   //  VECGEOM_FORCE_INLINE
   //  void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}

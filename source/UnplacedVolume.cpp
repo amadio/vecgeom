@@ -1,5 +1,6 @@
 #include "volumes/UnplacedVolume.h"
 #include "volumes/PlacedVolume.h"
+#include "base/SOA3D.h"
 #include "volumes/utilities/VolumeUtilities.h"
 
 namespace vecgeom {
@@ -7,6 +8,21 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 using Vec3D  = Vector3D<Precision>;
 using Real_v = vecgeom::VectorBackend::Real_v;
+
+// generic implementation for SamplePointOnSurface
+Vector3D<Precision> VUnplacedVolume::SamplePointOnSurface() const
+{
+  Vector3D<Precision> surfacepoint;
+  SOA3D<Precision> points(1);
+  volumeUtilities::FillRandomPoints(*this, points);
+
+  Vector3D<Precision> dir = volumeUtilities::SampleDirection();
+  surfacepoint            = points[0] + DistanceToOut(points[0], dir) * dir;
+
+  // assert( Inside(surfacepoint) == vecgeom::kSurface );
+  return surfacepoint;
+}
+
 
 // trivial implementations for the interface functions
 // (since we are moving to these interfaces only gradually)
@@ -92,13 +108,6 @@ bool VUnplacedVolume::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &
   throw std::runtime_error("unimplemented function called");
 #endif
   return false;
-}
-
-// ---------------- SamplePointOnSurface ----------------------------------------------------------
-Vector3D<Precision> VUnplacedVolume::SamplePointOnSurface() const
-{
-  throw std::runtime_error("unimplemented function called");
-  return Vector3D<Precision>();
 }
 
 // ----------------- Extent --------------------------------------------------------------------

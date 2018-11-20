@@ -61,7 +61,7 @@ Vector3D<Precision> UnplacedAssembly::SamplePointOnSurface() const
   const size_t selected = RNG::Instance().uniform() * ndaughters;
 
   const auto selectedplaced = fLogicalVolume->GetDaughters()[selected];
-  Vector3D<Precision> sp    = selectedplaced->SamplePointOnSurface();
+  Vector3D<Precision> sp    = selectedplaced->GetUnplacedVolume()->SamplePointOnSurface();
   // this is in the reference frame of the selected daughter
   // we need to return it in the reference of this assembly
 

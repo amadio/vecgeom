@@ -290,8 +290,6 @@ public:
 
   virtual Precision SurfaceArea() const = 0;
 
-  virtual Vector3D<Precision> SamplePointOnSurface() const;
-
 public:
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const = 0;

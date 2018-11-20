@@ -30,7 +30,8 @@ Precision UnplacedMultiUnion::SurfaceArea() const
   for (size_t i = 0; i < GetNumberOfSolids(); ++i) {
     size_t nsurf = 0;
     for (size_t ip = 0; ip < nsamples; ++ip) {
-      Vector3D<double> point = GetNode(i)->GetTransformation()->InverseTransform(GetNode(i)->SamplePointOnSurface());
+      Vector3D<double> point =
+          GetNode(i)->GetTransformation()->InverseTransform(GetNode(i)->GetUnplacedVolume()->SamplePointOnSurface());
       if (Inside(point) == vecgeom::kSurface) nsurf++;
     }
     fMultiUnion.fSurfaceArea += GetNode(i)->SurfaceArea() * nsurf / nsamples;
@@ -50,7 +51,7 @@ Vector3D<Precision> UnplacedMultiUnion::SamplePointOnSurface() const
       id     = (size_t)RNG::Instance().uniform(0., GetNumberOfSolids());
       volume = GetNode(id);
     }
-    point   = volume->GetTransformation()->InverseTransform(volume->SamplePointOnSurface());
+    point   = volume->GetTransformation()->InverseTransform(volume->GetUnplacedVolume()->SamplePointOnSurface());
     counter = (counter + 1) % 1000;
   } while (Inside(point) != vecgeom::kSurface);
   return point;
