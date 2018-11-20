@@ -86,7 +86,8 @@ int main(int argc, char *argv[])
       double DO               = vecgeompvol->DistanceToOut(point, dir);
       double DI               = vecgeompvol->DistanceToIn(point, dir);
 
-      std::cerr << i << "  " << point << "  " << contained
+      std::cerr << i << "  " << point << "  "
+                << contained
                 //                  << "   ExitingM1  " << ExitingMethod1(vecgeompvol,point,dir)
                 << "   ExitingM2  " << exiting << " DI " << DI << " DO " << DO << " SO "
                 << vecgeompvol->SafetyToOut(point) << " SI " << vecgeompvol->SafetyToIn(point) << "\n";

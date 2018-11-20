@@ -126,7 +126,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedMultiUnion::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -135,7 +135,7 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedMultiUnion>::SizeOf();
 template void DevicePtr<cuda::UnplacedMultiUnion>::Construct() const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #elif defined(VECGEOM_CUDA_INTERFACE) && !defined(VECGEOM_CUDA_HYBRID2)
 
@@ -163,7 +163,7 @@ void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation
 template void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
                                                            rotation::kGeneric>>::Construct() const;
 
-} // End cxx namespace
+} // namespace cxx
 #endif
 
-} // End global namespace
+} // namespace vecgeom

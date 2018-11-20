@@ -82,7 +82,7 @@ public:
 #endif
 #endif // VECCORE_CUDA
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLACEDTUBE_H_

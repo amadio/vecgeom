@@ -151,6 +151,6 @@ private:
 
 }; // End class
 
-} // End global namespace
+} // namespace VECGEOM_NAMESPACE
 
 #endif /* TUNPLACEDBOOLEANMINUSVOLUME_H_ */

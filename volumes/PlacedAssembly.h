@@ -289,7 +289,7 @@ public:
   }
 
 }; // end class
-}
-}
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // PLACEDASSEMBLY_H

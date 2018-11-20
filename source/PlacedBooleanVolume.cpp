@@ -34,7 +34,6 @@
 
 namespace vecgeom {
 
-
 #ifdef VECGEOM_ROOT
 template <>
 TGeoShape const *PlacedBooleanVolume<kUnion>::ConvertToRoot() const

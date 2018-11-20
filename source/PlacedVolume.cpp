@@ -135,7 +135,7 @@ void VPlacedVolume::Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> 
 #endif
 }
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -149,8 +149,8 @@ template size_t DevicePtr<Precision>::SizeOf();
 //    DevicePtr<cuda::Transformation3D> const transform,
 //    const int id) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif // VECCORE_CUDA
 
-} // End global namespace
+} // namespace vecgeom

@@ -160,8 +160,8 @@ public:
 #endif // VECCORE_CUDA
 };
 
-} // End inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLACEDPOLYHEDRON_H_

@@ -30,7 +30,7 @@ size_t CountBooleanNodes(VUnplacedVolume const *unplaced, size_t &nunion, size_t
 
 UnplacedMultiUnion *Flatten(VUnplacedVolume const *unplaced, size_t min_unions = 3,
                             Transformation3D const *trbase = nullptr, UnplacedMultiUnion *munion = nullptr);
-} // End BooleanHelper
+} // namespace BooleanHelper
 #endif
 
 /**
@@ -155,8 +155,8 @@ private:
   friend class GeoManager;
 }; // End class
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif /* UNPLACEDBOOLEANVOLUME_H_ */

@@ -121,7 +121,7 @@ public:
   typedef UnplacedCone UnplacedShape_t;
   using Base::Base;
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLACEDCONE_H_

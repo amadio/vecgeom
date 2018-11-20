@@ -168,7 +168,6 @@ Vector3D<Precision> UnplacedBooleanVolume<kSubtraction>::SamplePointOnSurface() 
   return p;
 }
 
-
 VECCORE_ATT_HOST_DEVICE
 BooleanStruct const *BooleanHelper::GetBooleanStruct(VUnplacedVolume const *unplaced)
 {
@@ -217,7 +216,7 @@ UnplacedMultiUnion *BooleanHelper::Flatten(VUnplacedVolume const *unplaced, size
   VUnplacedVolume const *vol;
   BooleanStruct *bstruct = (BooleanStruct *)GetBooleanStruct(unplaced);
   if (bstruct->fOp == kUnion) {
-    bool creator        = munion == nullptr;
+    bool creator = munion == nullptr;
     if (!munion) munion = new UnplacedMultiUnion();
     Transformation3D transform;
 
@@ -403,8 +402,8 @@ void TransformedExtent(VPlacedVolume const *pvol, Vector3D<Precision> &aMin, Vec
 {
 // CUDA does not have min and max in std:: namespace
 #ifndef VECCORE_CUDA
-  using std::min;
   using std::max;
+  using std::min;
 #endif
   Vector3D<Precision> lower, upper;
   pvol->Extent(lower, upper);
@@ -591,7 +590,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kSubtraction>::CopyToGpu(
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -608,7 +607,7 @@ template size_t DevicePtr<cuda::UnplacedBooleanVolume<kSubtraction>>::SizeOf();
 template void DevicePtr<cuda::UnplacedBooleanVolume<kSubtraction>>::Construct(
     BooleanOperation op, DevicePtr<cuda::VPlacedVolume> left, DevicePtr<cuda::VPlacedVolume> right) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 

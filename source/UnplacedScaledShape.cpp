@@ -81,7 +81,7 @@ VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_vo
                                                                  ,
                                                                  id
 #endif
-                                                                 );
+    );
     return placement;
   }
   return new SpecializedScaledShape<trans_code, rot_code>(logical_volume, transformation
@@ -89,7 +89,7 @@ VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_vo
                                                           ,
                                                           id
 #endif
-                                                          );
+  );
 }
 
 //______________________________________________________________________________
@@ -128,7 +128,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedScaledShape::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -140,8 +140,8 @@ template size_t DevicePtr<cuda::UnplacedScaledShape>::SizeOf();
 template void DevicePtr<cuda::UnplacedScaledShape>::Construct(DevicePtr<cuda::VPlacedVolume> gpuptr, Precision sx,
                                                               Precision sy, Precision sz, bool globalConvexity) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom

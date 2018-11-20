@@ -292,10 +292,10 @@ public:
 
 public:
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const = 0;
+  virtual size_t DeviceSizeOf() const                                                                       = 0;
   virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
                                                    DevicePtr<cuda::Transformation3D> const transform,
-                                                   DevicePtr<cuda::VPlacedVolume> const gpu_ptr) const = 0;
+                                                   DevicePtr<cuda::VPlacedVolume> const gpu_ptr) const      = 0;
   virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
                                                    DevicePtr<cuda::Transformation3D> const transform) const = 0;
 
@@ -333,8 +333,8 @@ public:
 #endif
 #endif // VECCORE_CUDA
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #ifdef VECCORE_CUDA
 

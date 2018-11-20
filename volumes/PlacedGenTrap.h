@@ -28,12 +28,12 @@ public:
 #ifndef VECCORE_CUDA
 
   /** @brief PlacedGenTrap constructor
-  * @param label Name of the object
-  * @param logicalVolume Logical volume
-  * @param transformation Transformation matrix (local to mother)
-  * @param halfzheight The half-height of the GenTrap
-  * @param boundingBox Bounding box
-  */
+   * @param label Name of the object
+   * @param logicalVolume Logical volume
+   * @param transformation Transformation matrix (local to mother)
+   * @param halfzheight The half-height of the GenTrap
+   * @param boundingBox Bounding box
+   */
   // constructor inheritance;
   using Base::Base;
   PlacedGenTrap(char const *const label, LogicalVolume const *const logicalVolume,
@@ -43,11 +43,11 @@ public:
   }
 
   /** @brief PlacedGenTrap constructor
-  * @param logicalVolume Logical volume
-  * @param transformation Transformation matrix (local to mother)
-  * @param halfzheight The half-height of the GenTrap
-  * @param boundingBox Bounding box
-  */
+   * @param logicalVolume Logical volume
+   * @param transformation Transformation matrix (local to mother)
+   * @param halfzheight The half-height of the GenTrap
+   * @param boundingBox Bounding box
+   */
   PlacedGenTrap(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                 vecgeom::PlacedBox const *const boundingBox)
       : PlacedGenTrap("", logicalVolume, transformation, boundingBox)
@@ -57,11 +57,11 @@ public:
 #else
 
   /** @brief PlacedGenTrap device constructor
-  * @param logicalVolume Logical volume
-  * @param transformation Transformation matrix (local to mother)
-  * @param halfzheight The half-height of the GenTrap
-  * @param boundingBox Bounding box
-  */
+   * @param logicalVolume Logical volume
+   * @param transformation Transformation matrix (local to mother)
+   * @param halfzheight The half-height of the GenTrap
+   * @param boundingBox Bounding box
+   */
   VECCORE_ATT_DEVICE PlacedGenTrap(LogicalVolume const *const logicalVolume,
                                    Transformation3D const *const transformation, PlacedBox const *const boundingBox,
                                    const int id)
@@ -120,7 +120,7 @@ public:
   VECGEOM_FORCE_INLINE
   virtual int MemorySize() const override { return sizeof(*this); }
 
-// Comparison specific
+  // Comparison specific
 
 #ifndef VECCORE_CUDA
   /** @brief Convert to unspecialized placement */
@@ -136,7 +136,7 @@ public:
 
 #endif // VECCORE_CUDA
 };
-}
-} // end global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_VOLUMES_PLACEDGENTRAP_H_ */

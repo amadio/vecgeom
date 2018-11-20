@@ -14,9 +14,7 @@ UnplacedAssembly::UnplacedAssembly() : fLogicalVolume(nullptr), fLowerCorner(-kI
   fIsAssembly = true;
 }
 
-UnplacedAssembly::~UnplacedAssembly()
-{
-}
+UnplacedAssembly::~UnplacedAssembly() {}
 
 void UnplacedAssembly::AddVolume(VPlacedVolume const *v)
 {
@@ -128,7 +126,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedAssembly::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -137,8 +135,8 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedAssembly>::SizeOf();
 template void DevicePtr<cuda::UnplacedAssembly>::Construct() const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End vecgeom namespace
+} // namespace vecgeom

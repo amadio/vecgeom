@@ -98,7 +98,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedSExtruVolume::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -107,8 +107,8 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedSExtruVolume>::SizeOf();
 template void DevicePtr<cuda::UnplacedSExtruVolume>::Construct(int, double *, double *, Precision, Precision) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom

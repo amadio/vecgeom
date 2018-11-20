@@ -133,5 +133,5 @@ public:
   }
 
 }; // End class PlacedVolumeImplHelper
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom

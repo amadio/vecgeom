@@ -23,7 +23,6 @@ Vector3D<Precision> VUnplacedVolume::SamplePointOnSurface() const
   return surfacepoint;
 }
 
-
 // trivial implementations for the interface functions
 // (since we are moving to these interfaces only gradually)
 

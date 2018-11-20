@@ -41,9 +41,9 @@ int main(int argc, char *argv[])
   OPTION_INT(test, 0);
   OPTION_INT(nsamples, 10000000);
 
-  const char *stest[] = {"=== Testing Inside and Safety for points on surface ===",
-                         "=== Testing Contains and SafetyToOut ===", "=== Testing DistanceToIn and SafetyToIn ===",
-                         "=== Testing DistanceToOut ==="};
+  const char *stest[] = {
+      "=== Testing Inside and Safety for points on surface ===", "=== Testing Contains and SafetyToOut ===",
+      "=== Testing DistanceToIn and SafetyToIn ===", "=== Testing DistanceToOut ==="};
   Vector3D<double> nbottom(std::sin(thb) * std::cos(phib), std::sin(thb) * std::sin(phib), std::cos(thb));
   Vector3D<double> ntop(std::sin(tht) * std::cos(phit), std::sin(tht) * std::sin(phit), std::cos(tht));
   Vector3D<Precision> sample;

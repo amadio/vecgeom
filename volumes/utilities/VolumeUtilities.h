@@ -437,7 +437,6 @@ bool FillRandomPoints(VUnplacedVolume const &volume, TrackContainer &points)
   return true;
 }
 
-
 /**
  * @brief Fills the volume with 3D points which are to be contained in
  *    any daughters of the input mother volume.
@@ -902,9 +901,9 @@ bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<P
   Vector3D<Precision> Bz = transformSecondBox->InverseTransformDirection(Vector3D<Precision>(0., 0., 1.));
 
   /** Needs to handle total 15 cases for 3D.
-  *   Literature can be found at following link
-  *   http://www.jkh.me/files/tutorials/Separating%20Axis%20Theorem%20for%20Oriented%20Bounding%20Boxes.pdf
-  */
+   *   Literature can be found at following link
+   *   http://www.jkh.me/files/tutorials/Separating%20Axis%20Theorem%20for%20Oriented%20Bounding%20Boxes.pdf
+   */
 
   // Case 1:
   // L = Ax
@@ -1026,7 +1025,7 @@ bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<P
 }
 
 } // end namespace volumeUtilities
-}
-} // end global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VOLUME_UTILITIES_H_ */

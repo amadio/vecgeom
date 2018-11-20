@@ -182,8 +182,9 @@ int ShapeTester<ImplT>::TestBoundaryPrecision(int mode)
         while (1) {
           if (ntries == 1000) {
             errCode = 1; // do we have a rule coding the error number?
-            ReportError(&nError, point, norm, 1., "TBE: Cannot reach outside from surface when "
-                                                  "propagating with unit distance after 1000 tries.");
+            ReportError(&nError, point, norm, 1.,
+                        "TBE: Cannot reach outside from surface when "
+                        "propagating with unit distance after 1000 tries.");
             return errCode;
           }
           ntries++;
@@ -504,8 +505,8 @@ int ShapeTester<ImplT>::ShapeDistances()
 
 #ifdef VECGEOM_ROOT
     // Histograms
-    if (std::fabs(difDelta) < 1E-20) difDelta    = 1E-30;
-    if (std::fabs(DistanceIn) < 1E-20) difDelta  = 1E-30;
+    if (std::fabs(difDelta) < 1E-20) difDelta = 1E-30;
+    if (std::fabs(DistanceIn) < 1E-20) difDelta = 1E-30;
     if (std::fabs(DistanceOut) < 1E-20) difDelta = 1E-30;
     hist1->Fill(std::max(0.5 * std::log(std::fabs(difDelta)), -20.));
     hist2->Fill(std::max(0.5 * std::log(std::fabs(DistanceIn)), -20.));
@@ -1241,10 +1242,10 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(double dist)
         distIn = fVolume->DistanceToIn(pointSurf, vec);
         if (distIn >= kInfLength) {
           // Accuracy Test for convex part
-          distIn                            = fVolume->DistanceToIn(point, -vec);
+          distIn = fVolume->DistanceToIn(point, -vec);
           if (maxDistIn < distIn) maxDistIn = distIn;
-          diff                              = ((pointSurf - point).Mag() - distIn);
-          if (diff > difMax) difMax         = diff;
+          diff = ((pointSurf - point).Mag() - distIn);
+          if (diff > difMax) difMax = diff;
           if (std::fabs(diff) < 1E-20) diff = 1E-30;
 #ifdef VECGEOM_ROOT
           hist10->Fill(std::max(0.5 * std::log(std::fabs(diff)), -20.));
@@ -1691,8 +1692,8 @@ double ShapeTester<ImplT>::CrossedLength(const Vec_t &point, const Vec_t &dir, b
   double eps = 0;
 
   if (useeps) eps = 1.E-9;
-  double len      = 0;
-  double dist     = fVolume->DistanceToIn(point, dir);
+  double len  = 0;
+  double dist = fVolume->DistanceToIn(point, dir);
   if (dist > 1E10) return len;
   // Propagate from starting point with the found distance (on the numerical boundary)
   Vec_t pt(point), norm;
@@ -1832,10 +1833,10 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsInside()
   fVolume->Extent(minExtent, maxExtent);
   int i = 0;
   while (i < fMaxPointsInside) {
-    double x                              = RandomRange(minExtent.x(), maxExtent.x());
-    double y                              = RandomRange(minExtent.y(), maxExtent.y());
+    double x = RandomRange(minExtent.x(), maxExtent.x());
+    double y = RandomRange(minExtent.y(), maxExtent.y());
     if (minExtent.y() == maxExtent.y()) y = RandomRange(-1000, +1000);
-    double z                              = RandomRange(minExtent.z(), maxExtent.z());
+    double z = RandomRange(minExtent.z(), maxExtent.z());
     Vec_t point0(x, y, z);
     if (fVolume->Inside(point0) == vecgeom::EInside::kInside) {
       Vec_t point(x, y, z);
@@ -1927,10 +1928,10 @@ void ShapeTester<ImplT>::VectorToDouble(const vector<Vec_t> &vectorUVector, vect
 
   int size = vectorUVector.size();
   for (int i = 0; i < size; i++) {
-    vec                = vectorUVector[i];
-    double mag         = vec.Mag();
+    vec        = vectorUVector[i];
+    double mag = vec.Mag();
     if (mag > 1.1) mag = 1;
-    vectorDouble[i]    = mag;
+    vectorDouble[i] = mag;
   }
 }
 
@@ -1938,7 +1939,7 @@ template <typename ImplT>
 void ShapeTester<ImplT>::BoolToDouble(const std::vector<bool> &vectorBool, std::vector<double> &vectorDouble)
 {
   int size = vectorBool.size();
-  for (int i        = 0; i < size; i++)
+  for (int i = 0; i < size; i++)
     vectorDouble[i] = (double)vectorBool[i];
 }
 
@@ -2103,7 +2104,7 @@ int ShapeTester<ImplT>::Run(ImplT const *testVolume)
 #endif
 
   if (fMethod == "") fMethod = "all";
-  string name                = testVolume->GetName();
+  string name = testVolume->GetName();
   std::cout << "\n\n";
   std::cout << "===============================================================================\n";
   std::cout << "Invoking test for Method " << fMethod << " on " << name << " ..."
@@ -2111,13 +2112,13 @@ int ShapeTester<ImplT>::Run(ImplT const *testVolume)
   std::cout << "===============================================================================\n";
   std::cout << "\n";
 
-  if (fMethod == "Consistency") funcPtr       = &ShapeTester::TestConsistencySolids;
-  if (fMethod == "Normal") funcPtr            = &ShapeTester::TestNormalSolids;
-  if (fMethod == "SafetyFromInside") funcPtr  = &ShapeTester::TestSafetyFromInsideSolids;
+  if (fMethod == "Consistency") funcPtr = &ShapeTester::TestConsistencySolids;
+  if (fMethod == "Normal") funcPtr = &ShapeTester::TestNormalSolids;
+  if (fMethod == "SafetyFromInside") funcPtr = &ShapeTester::TestSafetyFromInsideSolids;
   if (fMethod == "SafetyFromOutside") funcPtr = &ShapeTester::TestSafetyFromOutsideSolids;
-  if (fMethod == "DistanceToIn") funcPtr      = &ShapeTester::TestDistanceToInSolids;
-  if (fMethod == "DistanceToOut") funcPtr     = &ShapeTester::TestDistanceToOutSolids;
-  if (fMethod == "XRayProfile") funcPtr       = &ShapeTester::TestXRayProfile;
+  if (fMethod == "DistanceToIn") funcPtr = &ShapeTester::TestDistanceToInSolids;
+  if (fMethod == "DistanceToOut") funcPtr = &ShapeTester::TestDistanceToOutSolids;
+  if (fMethod == "XRayProfile") funcPtr = &ShapeTester::TestXRayProfile;
 
   if (fMethod == "all")
     errCode += TestMethodAll();
@@ -2157,7 +2158,7 @@ int ShapeTester<ImplT>::RunMethod(ImplT const *testVolume, std::string fMethod1)
   fMethod = fMethod1;
 
   if (fMethod == "") fMethod = "all";
-  string name                = testVolume->GetName();
+  string name = testVolume->GetName();
 
   std::cout << "\n\n";
   std::cout << "===============================================================================\n";
@@ -2166,12 +2167,12 @@ int ShapeTester<ImplT>::RunMethod(ImplT const *testVolume, std::string fMethod1)
   std::cout << "===============================================================================\n";
   std::cout << "\n";
 
-  if (fMethod == "Consistency") funcPtr       = &ShapeTester::TestConsistencySolids;
-  if (fMethod == "Normal") funcPtr            = &ShapeTester::TestNormalSolids;
-  if (fMethod == "SafetyFromInside") funcPtr  = &ShapeTester::TestSafetyFromInsideSolids;
+  if (fMethod == "Consistency") funcPtr = &ShapeTester::TestConsistencySolids;
+  if (fMethod == "Normal") funcPtr = &ShapeTester::TestNormalSolids;
+  if (fMethod == "SafetyFromInside") funcPtr = &ShapeTester::TestSafetyFromInsideSolids;
   if (fMethod == "SafetyFromOutside") funcPtr = &ShapeTester::TestSafetyFromOutsideSolids;
-  if (fMethod == "DistanceToIn") funcPtr      = &ShapeTester::TestDistanceToInSolids;
-  if (fMethod == "DistanceToOut") funcPtr     = &ShapeTester::TestDistanceToOutSolids;
+  if (fMethod == "DistanceToIn") funcPtr = &ShapeTester::TestDistanceToInSolids;
+  if (fMethod == "DistanceToOut") funcPtr = &ShapeTester::TestDistanceToOutSolids;
 
   if (fMethod == "XRayProfile") funcPtr = &ShapeTester::TestXRayProfile;
   if (fMethod == "all")

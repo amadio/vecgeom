@@ -82,7 +82,7 @@ public:
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
-// Comparison specific
+  // Comparison specific
 
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override { return this; }
@@ -96,7 +96,7 @@ public:
 
 }; // end class declaration
 
-} // End impl namespace
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLACEDTBOOLEAN_H_

@@ -82,7 +82,7 @@ public:
 
   virtual int MemorySize() const override { return sizeof(*this); }
 
-// Comparison specific
+  // Comparison specific
 
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
@@ -94,7 +94,7 @@ public:
 #endif
 #endif // VECCORE_CUDA
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLACEDSCALEDSHAPE_H_
