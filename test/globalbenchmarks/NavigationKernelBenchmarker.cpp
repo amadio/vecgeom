@@ -716,13 +716,15 @@ int main(int argc, char *argv[])
   NavStatePool statepoolout(npoints, GeoManager::Instance().getMaxDepth());
 
   std::stringstream pstream;
-  pstream << "points_" << argv[1] << "_" << argv[2] << ".bin";
+  std::string geomfilename(argv[1]);
+  std::string geomfilename_nopath(geomfilename.substr(1 + geomfilename.find_last_of("\\/")));
+  pstream << "points_" << geomfilename_nopath << "_" << argv[2] << ".bin";
   std::stringstream dstream;
-  dstream << "directions_" << argv[1] << "_" << argv[2] << ".bin";
+  dstream << "directions_" << geomfilename_nopath << "_" << argv[2] << ".bin";
   std::stringstream statestream;
-  statestream << "states_" << argv[1] << "_" << argv[2] << ".bin";
+  statestream << "states_" << geomfilename_nopath << "_" << argv[2] << ".bin";
   std::stringstream outstatestream;
-  outstatestream << "outstates_" << argv[1] << "_" << argv[2];
+  outstatestream << "outstates_" << geomfilename_nopath << "_" << argv[2];
   if (usecached) {
     std::cerr << " loading points from cache \n";
     bool fail = (npoints != points.FromFile(pstream.str()));
