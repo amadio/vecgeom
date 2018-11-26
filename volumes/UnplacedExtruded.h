@@ -42,6 +42,13 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  UnplacedExtruded(int nvertices, const Precision *x, const Precision *y, Precision zmin, Precision zmax)
+      : fXtru(nvertices, x, y, zmin, zmax)
+  {
+    fGlobalConvexity = fXtru.IsConvexPolygon();
+  }
+
+  VECCORE_ATT_HOST_DEVICE
   ExtrudedStruct const &GetStruct() const { return fXtru; }
 
   /** @brief Initialize */
@@ -113,6 +120,16 @@ public:
 
   std::ostream &StreamInfo(std::ostream &os) const;
 
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+  TGeoShape const *ConvertToRoot(char const *label) const;
+#endif
+
+#ifdef VECGEOM_GEANT4
+  G4VSolid const *ConvertToGeant4(char const *label) const;
+#endif
+#endif
+
 private:
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
@@ -121,8 +138,18 @@ private:
 #ifdef VECCORE_CUDA
                                            const int id,
 #endif
-                                           VPlacedVolume *const placement = NULL) const final;
+                                           VPlacedVolume *const placement = NULL) const override; // final;
 };
+
+template <>
+struct Maker<UnplacedExtruded> {
+  template <typename... ArgTypes>
+  static UnplacedExtruded *MakeInstance(const size_t nvertices, XtruVertex2 const *vertices, const int nsections,
+                                        XtruSection const *sections);
+};
+
+using GenericUnplacedExtruded = UnplacedExtruded;
+
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
 

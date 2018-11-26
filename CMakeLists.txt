@@ -1015,6 +1015,7 @@ set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeHype.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParallelepiped.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCutTube.cpp
+  #${CMAKE_SOURCE_DIR}/test/visualization/VisualizeExtruded.cpp
 )
 
 if(NOT CUDA)

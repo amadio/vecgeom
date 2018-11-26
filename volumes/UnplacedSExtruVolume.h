@@ -22,6 +22,8 @@ private:
   PolygonalShell fPolyShell;
 
 public:
+  using Kernel = SExtruImplementation;
+
   VECCORE_ATT_HOST_DEVICE
   UnplacedSExtruVolume(int nvertices, double *x, double *y, Precision lowerz, Precision upperz)
       : fPolyShell(nvertices, x, y, lowerz, upperz)

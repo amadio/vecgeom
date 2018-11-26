@@ -3,14 +3,112 @@
 
 #include "volumes/Tessellated.h"
 #include "volumes/UnplacedExtruded.h"
+#include "volumes/UnplacedSExtruVolume.h"
 #include "volumes/SpecializedExtruded.h"
 #include "volumes/utilities/GenerationUtilities.h"
 #include "base/RNG.h"
 
 #include "management/VolumeFactory.h"
 
+#ifndef VECCORE_CUDA
+#include "volumes/UnplacedImplAs.h"
+#endif
+
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+#include "TGeoXtru.h"
+#endif
+
+#ifdef VECGEOM_GEANT4
+#include "G4ExtrudedSolid.hh"
+#include "G4TessellatedSolid.hh"
+#include "G4TriangularFacet.hh"
+#endif
+#endif
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+TGeoShape const *UnplacedExtruded::ConvertToRoot(char const *label) const
+{
+  size_t nvert = GetNVertices();
+  size_t nsect = GetNSections();
+
+  // if(nsect > 1){
+  double *x = new double[nvert];
+  double *y = new double[nvert];
+  for (size_t i = 0; i < nvert; ++i) {
+    GetVertex(i, x[i], y[i]);
+  }
+  TGeoXtru *xtru = new TGeoXtru(nsect);
+  xtru->DefinePolygon(nvert, x, y);
+  for (size_t i = 0; i < nsect; ++i) {
+    XtruSection sect = GetSection(i);
+    xtru->DefineSection(i, sect.fOrigin.z(), sect.fOrigin.x(), sect.fOrigin.y(), sect.fScale);
+  }
+  return xtru;
+}
+#endif
+
+#ifdef VECGEOM_GEANT4
+G4VSolid const *UnplacedExtruded::ConvertToGeant4(char const *label) const
+{
+  std::vector<G4TwoVector> polygon;
+  double x, y;
+  size_t nvert = GetNVertices();
+  for (size_t i = 0; i < nvert; ++i) {
+    GetVertex(i, x, y);
+    polygon.push_back(G4TwoVector(x, y));
+  }
+  std::vector<G4ExtrudedSolid::ZSection> sections;
+  size_t nsect = GetNSections();
+  for (size_t i = 0; i < nsect; ++i) {
+    XtruSection sect = GetSection(i);
+    sections.push_back(
+        G4ExtrudedSolid::ZSection(sect.fOrigin.z(), G4TwoVector(sect.fOrigin.x(), sect.fOrigin.y()), sect.fScale));
+  }
+  G4ExtrudedSolid *g4xtru = new G4ExtrudedSolid(label, polygon, sections);
+  return g4xtru;
+}
+#endif
+#endif
+
+template <>
+UnplacedExtruded *Maker<UnplacedExtruded>::MakeInstance(const size_t nvertices, XtruVertex2 const *vertices,
+                                                        const int nsections, XtruSection const *sections)
+{
+
+#ifndef VECGEOM_NO_SPECIALIZATION
+  bool isSExtru = false;
+  for (int i = 0; i < (nsections - 1); i++) {
+    if (i == 0) {
+      isSExtru = ((sections[i].fOrigin - sections[i + 1].fOrigin).Perp2() < kTolerance &&
+                  vecCore::math::Abs(sections[i].fScale - sections[i + 1].fScale) < kTolerance);
+    } else {
+      isSExtru &= ((sections[i].fOrigin - sections[i + 1].fOrigin).Perp2() < kTolerance &&
+                   vecCore::math::Abs(sections[i].fScale - sections[i + 1].fScale) < kTolerance);
+    }
+    if (!isSExtru) break;
+  }
+  if (isSExtru) {
+    double *x = new double[nvertices];
+    double *y = new double[nvertices];
+    for (size_t i = 0; i < nvertices; ++i) {
+      x[i] = vertices[i].x;
+      y[i] = vertices[i].y;
+    }
+    Precision zmin = sections[0].fOrigin.z();
+    Precision zmax = sections[nsections - 1].fOrigin.z();
+    return new SUnplacedImplAs<UnplacedExtruded, UnplacedSExtruVolume>(nvertices, x, y, zmin, zmax);
+  } else {
+    return new UnplacedExtruded(nvertices, vertices, nsections, sections);
+  }
+#else
+  return new UnplacedExtruded(nvertices, vertices, nsections, sections);
+#endif
+}
 
 void UnplacedExtruded::Print() const
 {
@@ -206,7 +304,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedExtruded::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -215,8 +313,8 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedExtruded>::SizeOf();
 template void DevicePtr<cuda::UnplacedExtruded>::Construct() const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom

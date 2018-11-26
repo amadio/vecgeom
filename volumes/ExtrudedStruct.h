@@ -68,6 +68,26 @@ public:
     Initialize(nvertices, vertices, nsections, sections);
   }
 
+  // Constructor used during Specialization for nsections == 2
+  VECCORE_ATT_HOST_DEVICE
+  ExtrudedStruct(size_t nvertices, const Precision *x, const Precision *y, Precision zmin, Precision zmax)
+  {
+    XtruVertex2 *vertices = new XtruVertex2[nvertices];
+    XtruSection *sections = new XtruSection[2];
+    for (size_t i = 0; i < nvertices; ++i) {
+      vertices[i].x = x[i];
+      vertices[i].y = y[i];
+    }
+
+    sections[0].fScale = 1.;
+    sections[0].fOrigin.Set(0., 0., zmin);
+
+    sections[1].fScale = 1.;
+    sections[1].fOrigin.Set(0., 0., zmax);
+
+    Initialize(nvertices, vertices, 2, sections);
+  }
+
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   int FindZSegment(double const &pointZ) const

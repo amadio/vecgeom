@@ -8,6 +8,7 @@
 #include <iostream>
 #include "volumes/Extruded.h"
 #include "volumes/SExtru.h"
+#include "management/GeoManager.h"
 
 using namespace vecgeom;
 
@@ -34,12 +35,12 @@ int main(int argc, char *argv[])
   double phi = 2. * kPi / nvert;
   double r;
   for (int i = 0; i < nvert; ++i) {
-    r                           = rmax;
+    r = rmax;
     if (i % 2 > 0 && !convex) r = rmin;
-    vertices[i].x               = r * vecCore::math::Cos(i * phi);
-    vertices[i].y               = r * vecCore::math::Sin(i * phi);
-    x[i]                        = vertices[i].x;
-    y[i]                        = vertices[i].y;
+    vertices[i].x = r * vecCore::math::Cos(i * phi);
+    vertices[i].y = r * vecCore::math::Sin(i * phi);
+    x[i]          = vertices[i].x;
+    y[i]          = vertices[i].y;
   }
   for (int i = 0; i < nsect; ++i) {
     sections[i].fOrigin.Set(0, 0, -20. + i * 40. / (nsect - 1));
@@ -58,11 +59,14 @@ int main(int argc, char *argv[])
               << " sections\n";
   }
 
-  UnplacedExtruded xtru(nvert, vertices, nsect, sections);
-  LogicalVolume xtruVol("xtru", &xtru);
+  // UnplacedExtruded xtru(nvert, vertices, nsect, sections);
+  auto xtru = GeoManager::MakeInstance<UnplacedExtruded>(nvert, vertices, nsect, sections);
+  // LogicalVolume xtruVol("xtru", &xtru);
+  LogicalVolume xtruVol("xtru", xtru);
 
   if (tsl) {
-    world.PlaceDaughter("extruded", &xtruVol, &placement);
+    // world.PlaceDaughter("extruded", &xtruVol, &placement);
+    world.PlaceDaughter(&xtruVol, &placement);
     std::cout << "Benchmarking extruded polygon having " << nvert << " vertices and " << nsect << " sections\n";
   }
 
