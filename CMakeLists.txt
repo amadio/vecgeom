@@ -1322,16 +1322,16 @@ endif()
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
   set(DOXYFILE_OUTPUT_DIR  ${CMAKE_BINARY_DIR}/doxygen)
-  set(DOXYFILE_SOURCE_DIRS ${CMAKE_SOURCE_DIR}/doc/doxygen
-                           ${CMAKE_SOURCE_DIR}/backend
-                           ${CMAKE_SOURCE_DIR}/base
-                           ${CMAKE_SOURCE_DIR}/benchmarking
-                           ${CMAKE_SOURCE_DIR}/io
-                           ${CMAKE_SOURCE_DIR}/management
-                           ${CMAKE_SOURCE_DIR}/navigation
-                           ${CMAKE_SOURCE_DIR}/scripts
-                           ${CMAKE_SOURCE_DIR}/source
-                           ${CMAKE_SOURCE_DIR}/volumes)
+  set(DOXYFILE_SOURCE_DIRS "${CMAKE_SOURCE_DIR}/doc/doxygen
+                            ${CMAKE_SOURCE_DIR}/backend
+                            ${CMAKE_SOURCE_DIR}/base
+                            ${CMAKE_SOURCE_DIR}/benchmarking
+                            ${CMAKE_SOURCE_DIR}/io
+                            ${CMAKE_SOURCE_DIR}/management
+                            ${CMAKE_SOURCE_DIR}/navigation
+                            ${CMAKE_SOURCE_DIR}/scripts
+                            ${CMAKE_SOURCE_DIR}/source
+                            ${CMAKE_SOURCE_DIR}/volumes")
   
   configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/Doxyfile.in
                   ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
