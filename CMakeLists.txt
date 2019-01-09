@@ -7,6 +7,7 @@ include(ExternalProject)
 
 project(VecGeom)
 
+set(VECGEOM_VERSION 1.1.0)
 set(VECGEOM ON)
 
 enable_language(CXX)
@@ -35,39 +36,22 @@ include(MacroUtilities)
 # Configuration options
 
 option(BUILTIN_VECCORE "Build VecCore and its dependencies from source" OFF)
-
 option(CUDA "Enable compilation for CUDA." OFF)
-
 option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF)
-
 option(ROOT "Include ROOT." OFF)
-
 option(GEANT4 "Include Geant4." OFF)
-
 option(BENCHMARK "Enable performance comparisons." OFF)
-
 option(NO_SPECIALIZATION "Disable specialization of volumes." ON)
-
 option(COVERAGE_TESTING "Enable coverage testing flags." OFF)
-
 option(CTEST "Enable CTest when building." ON)
-
 option(VALIDATION "Enable validation tests from CMS geometry." OFF)
-
 option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
-
 option(QUADRILATERAL_ACCELERATION "Enable SIMD vectorization when looping over quadrilaterals (in Polyhedron)." ON)
-
 option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
-
 option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
-
 option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" ON)
-
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
-
 option(STATIC_ANALYSIS "enable static analysis on VecGeom" OFF)
-
 option(GDML "Enable GDML persistency. Requres Xerces-C" OFF)
 
 option(FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
@@ -158,7 +142,6 @@ endif()
 
 # Which version of VecCore do we need.
 set(VecCore_VERSION "0.5.2")
-
 
 # Let's see if we can find VecCore
 if (NOT BUILTIN_VECCORE)
@@ -1330,4 +1313,34 @@ endif ()
 if (CUDA)
   install(TARGETS vecgeomcuda DESTINATION ${INSTALL_LIB_DIR})
   install(TARGETS vecgeomcuda_static DESTINATION ${INSTALL_LIB_DIR})
+endif()
+
+################################################################################
+
+# Doxygen documentation
+
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+  set(DOXYFILE_OUTPUT_DIR  ${CMAKE_BINARY_DIR}/doxygen)
+  set(DOXYFILE_SOURCE_DIRS ${CMAKE_SOURCE_DIR}/doc/doxygen
+                           ${CMAKE_SOURCE_DIR}/backend
+                           ${CMAKE_SOURCE_DIR}/base
+                           ${CMAKE_SOURCE_DIR}/benchmarking
+                           ${CMAKE_SOURCE_DIR}/io
+                           ${CMAKE_SOURCE_DIR}/management
+                           ${CMAKE_SOURCE_DIR}/navigation
+                           ${CMAKE_SOURCE_DIR}/scripts
+                           ${CMAKE_SOURCE_DIR}/source
+                           ${CMAKE_SOURCE_DIR}/volumes)
+  
+  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/Doxyfile.in
+                  ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+  add_custom_target(doxygen
+                    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+                    COMMENT "Writing documentation to ${DOXYFILE_OUTPUT_DIR}..."
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  add_custom_target(doxydir
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYFILE_OUTPUT_DIR}
+                    COMMENT "Creating doc directory")
+  add_dependencies(doxygen doxydir)
 endif()
