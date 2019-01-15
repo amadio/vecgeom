@@ -122,8 +122,8 @@ struct EllipticalTubeImplementation {
     Vector3D<Real_v> pcur(point);
 
     // Move point closer, if required
-    Real_v Rfar = 32. * ellipticaltube.fRsph; // limit for "very far" points
-    vecCore__MaskedAssignFunc(pcur, ((pcur.Mag2() > Rfar * Rfar) && (direction.Dot(point) < 0.)),
+    Real_v Rfar2(1024. * ellipticaltube.fRsph * ellipticaltube.fRsph); // 1024 = 32 * 32
+    vecCore__MaskedAssignFunc(pcur, ((pcur.Mag2() > Rfar2) && (direction.Dot(point) < 0.)),
                               pcur + (offset = pcur.Mag() - 2. * ellipticaltube.fRsph) * direction);
 
     // Scale elliptical tube to cylinder

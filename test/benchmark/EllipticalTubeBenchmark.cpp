@@ -1,0 +1,45 @@
+/*
+ * EllipticalTubeBenchmark.cpp
+ *
+ *  Created on: 15-Jan-2019
+ *      Author: Raman Sehgal (raman.sehgal@cern.ch)
+ */
+
+#include "volumes/LogicalVolume.h"
+#include "volumes/EllipticalTube.h"
+#include "volumes/PlacedBox.h"
+#include "volumes/UnplacedBox.h"
+#include "benchmarking/Benchmarker.h"
+#include "management/GeoManager.h"
+#include "ArgParser.h"
+
+using namespace vecgeom;
+
+int main(int argc, char *argv[])
+{
+  OPTION_INT(npoints, 10240);
+  OPTION_INT(nrep, 1);
+  OPTION_DOUBLE(dx, 5);
+  OPTION_DOUBLE(dy, 10);
+  OPTION_DOUBLE(dz, 7);
+
+  UnplacedBox worldUnplaced   = UnplacedBox(100., 100., 100.);
+  auto ellipticalTubeUnplaced = GeoManager::MakeInstance<UnplacedEllipticalTube>(dx, dy, dz);
+
+  LogicalVolume world("world", &worldUnplaced);
+  LogicalVolume ellipticalTube("ellipticalTube", ellipticalTubeUnplaced);
+
+  Transformation3D placement(5, 0, 0);
+  world.PlaceDaughter("ellipticalTube", &ellipticalTube, &placement);
+
+  VPlacedVolume *worldPlaced = world.Place();
+  GeoManager::Instance().SetWorldAndClose(worldPlaced);
+
+  Benchmarker tester(GeoManager::Instance().GetWorld());
+  tester.SetTolerance(1e-7);
+  tester.SetVerbosity(2);
+  tester.SetPoolMultiplier(1);
+  tester.SetRepetitions(nrep);
+  tester.SetPointCount(npoints);
+  return tester.RunBenchmark();
+}
