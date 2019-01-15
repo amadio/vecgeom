@@ -108,7 +108,6 @@ struct TetImplementation {
 
     completelyoutside = safety > kHalfTolerance;
     if (ForInside) completelyinside = safety <= -kHalfTolerance;
-
     return;
   }
 
@@ -176,9 +175,9 @@ struct TetImplementation {
     /* Logic to calculate Safety from outside point to the Tet surface */
 
     Real_v dist[4];
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 4; ++i) {
       dist[i] = point.Dot(tet.fPlane[i].n) + tet.fPlane[i].d;
-
+    }
     safety = vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
     vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) <= kHalfTolerance, Real_v(0.));
   }
@@ -191,9 +190,9 @@ struct TetImplementation {
     /* Logic to calculate Safety from inside point to the Tet surface */
 
     Real_v dist[4];
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 4; ++i) {
       dist[i] = point.Dot(tet.fPlane[i].n) + tet.fPlane[i].d;
-
+    }
     safety = -vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
     vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) <= kHalfTolerance, Real_v(0.));
   }
@@ -213,15 +212,15 @@ struct TetImplementation {
       dist[i]            = n.Dot(point) + tet.fPlane[i].d;
       vecCore__MaskedAssignFunc(normal, vecCore::math::Abs(dist[i]) <= kHalfTolerance, normal + tet.fPlane[i].n)
     }
-
     vecCore::Mask_v<Real_v> done = normal.Mag2() > 1;
     vecCore__MaskedAssignFunc(normal, done, normal.Unit());
+
+    done = normal.Mag2() > 0.;
     if (vecCore::MaskFull(done)) return normal;
 
     // Point is not on the surface - normally, this should never be.
     // Return normal of the nearest face.
     //
-    done = normal.Mag2() > 0;
     vecCore__MaskedAssignFunc(valid, !done, false);
 
     Real_v safety(-kInfLength);
