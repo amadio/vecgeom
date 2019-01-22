@@ -436,20 +436,26 @@ bool TestEllipticalTube()
   for (int ix = 0; ix < np; ++ix) {
     for (int iy = 0; iy < np; ++iy) {
       for (int iz = 0; iz < np; ++iz) {
-        Vec_t height(0, 0, zzz[iz]);
         pnt.Set(xxx[ix], yyy[iy], zzz[iz]);
-        double tmp  = (1 - (yyy[iy] / b)) * (1 + (yyy[iy] / b));
+
+        Vec_t height(0, 0, pnt.z());
+        double tmp  = (1 - (pnt.y() / b)) * (1 + (pnt.y() / b));
         double intx = (tmp < 0) ? 0 : std::sqrt(tmp) * a;
 
         dist = tube.DistanceToIn(pnt, dir = Vec_t(1, 0, 0));
         if (tube.Inside(pnt) == vecgeom::kInside) assert(dist < 0);
         if (tube.Inside(pnt) == vecgeom::kInside) continue;
+        if (tube.Inside(height) != vecgeom::kInside) assert(dist == vecgeom::kInfLength);
+        if (tube.Inside(height) != vecgeom::kInside) continue;
         if (tmp <= 0) assert(dist == kInfLength);
-        if (tmp > 0) assert(ApproxEqual(dist, pnt.x()) - intx);
+        if (tmp <= 0) continue;
+
+        if (pnt.x() > 0) assert(dist == kInfLength);
+        if (pnt.x() < 0) assert(ApproxEqual(dist, std::abs(pnt.x()) - intx));
 
         dist = tube.DistanceToIn(pnt, dir = Vec_t(-1, 0, 0));
-        if (tmp <= 0) assert(dist == kInfLength);
-        if (tmp > 0) assert(ApproxEqual(dist, pnt.x()) + intx);
+        if (pnt.x() < 0) assert(dist == kInfLength);
+        if (pnt.x() > 0) assert(ApproxEqual(dist, std::abs(pnt.x()) - intx));
       }
     }
   }
@@ -557,7 +563,7 @@ bool TestEllipticalTube()
       for (int iz = 0; iz < np; ++iz) {
         pnt.Set(xxx[ix], yyy[iy], zzz[iz]);
 
-        double tmp  = (1 - (yyy[iy] / b)) * (1 + (yyy[iy] / b));
+        double tmp  = (1 - (pnt.y() / b)) * (1 + (pnt.y() / b));
         double intx = (tmp < 0) ? 0 : std::sqrt(tmp) * a;
 
         dist = tube.DistanceToOut(pnt, dir = Vec_t(1, 0, 0));
