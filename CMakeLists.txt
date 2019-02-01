@@ -639,6 +639,7 @@ set(VECGEOM_SRCS
   source/UnplacedTorus2.cpp
   source/UnplacedTube.cpp
   source/UnplacedEllipticalTube.cpp
+  source/UnplacedEllipticalCone.cpp
   source/UnplacedCone.cpp
   source/UnplacedCutTube.cpp
   source/UnplacedGenTrap.cpp
@@ -654,6 +655,7 @@ set(VECGEOM_SRCS
   source/PlacedHype.cpp
   source/PlacedTube.cpp
   source/PlacedEllipticalTube.cpp
+  source/PlacedEllipticalCone.cpp
   source/PlacedCutTube.cpp
   source/PlacedTorus2.cpp
   source/PlacedTrd.cpp
@@ -1046,6 +1048,7 @@ set(TEST_EXECUTABLES_SHAPES
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTube.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestEllipticalTube.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestEllipticalCone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestHype.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrd.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrap.cpp
