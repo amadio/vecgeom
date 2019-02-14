@@ -141,6 +141,7 @@ void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, T
     else { // need a new flattened node with a different transformation
       TGeoMatrix *newmatrix   = new TGeoHMatrix(*globalmatrix);
       TGeoNodeMatrix *newnode = new TGeoNodeMatrix(node->GetVolume(), newmatrix);
+      newnode->SetNumber(node->GetNumber());
 
       // need a new name for the flattened node
       std::string *newname = new std::string(node->GetName());
@@ -193,7 +194,8 @@ VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node)
   bool adjusted = PostAdjustTransformation(const_cast<Transformation3D *>(transformation), node, &adjustmentTr);
 
   LogicalVolume *const logical_volume = Convert(node->GetVolume());
-  VPlacedVolume *const placed_volume  = logical_volume->Place(node->GetName(), transformation);
+  VPlacedVolume *placed_volume        = logical_volume->Place(node->GetName(), transformation);
+  placed_volume->SetCopyNo(node->GetNumber());
 
   int remaining_daughters = 0;
   {
@@ -246,6 +248,7 @@ TGeoNode *RootGeoManager::Convert(VPlacedVolume const *const placed_volume)
   // Protect for volumes that may not be convertible in some cases (e.g. tessellated)
   if (!geovolume) return nullptr;
   TGeoNode *node = new TGeoNodeMatrix(geovolume, NULL);
+  node->SetNumber(placed_volume->GetCopyNo());
   fPlacedVolumeMap.Set(node, placed_volume->id());
 
   // only need to do daughterloop once for every logical volume.
@@ -346,7 +349,7 @@ TGeoVolume *RootGeoManager::Convert(VPlacedVolume const *const placed_volume, Lo
   if (!root_shape) return nullptr;
   TGeoVolume *geovolume = new TGeoVolume(logical_volume->GetLabel().c_str(), /* the name */
                                          root_shape, 0                       /* NO MATERIAL FOR THE MOMENT */
-                                         );
+  );
 
   fLogicalVolumeMap.Set(geovolume, logical_volume);
   return geovolume;
@@ -441,7 +444,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
                                                                    zs,                          // zPlanes
                                                                    rmins,                       // rMin
                                                                    rmaxs                        // rMax
-                                                                   );
+    );
   }
 
   // TRD2
@@ -752,4 +755,4 @@ VPlacedVolume const *RootGeoManager::Lookup(TGeoNode const *node) const
   return Index2PVolumeConverter<NavStateIndex_t>::ToPlacedVolume(fPlacedVolumeMap[node]);
 }
 
-} // End global namespace
+} // namespace vecgeom

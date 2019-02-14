@@ -37,6 +37,8 @@ class VPlacedVolume {
 
 private:
   unsigned int id_;
+  int copy_no_ = 0; /** Copy number for the physical volume, used by transport*/
+
   // Use a pointer so the string won't be constructed on the GPU
   std::string *label_;
   static unsigned int g_id_count;
@@ -89,6 +91,10 @@ public:
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   unsigned int id() const { return id_; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  int GetCopyNo() const { return copy_no_; }
 
   static unsigned int GetIdCount() { return g_id_count; }
 
@@ -145,6 +151,10 @@ public:
     if (label_) delete label_;
     label_ = new std::string(label);
   }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void SetCopyNo(int copy_no) { copy_no_ = copy_no; }
 
   friend std::ostream &operator<<(std::ostream &os, VPlacedVolume const &vol);
 
