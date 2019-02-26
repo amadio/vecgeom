@@ -1,5 +1,5 @@
 /// @file PlacedCoaxialCones.h
-/// @author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
+/// @author Raman Sehgal (raman.sehgal@cern.ch)
 
 #ifndef VECGEOM_VOLUMES_PLACEDCOAXIALCONES_H_
 #define VECGEOM_VOLUMES_PLACEDCOAXIALCONES_H_

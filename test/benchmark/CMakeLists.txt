@@ -26,7 +26,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/EllipticalTubeBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/EllipticalConeBenchmark.cpp
+  #${CMAKE_SOURCE_DIR}/test/benchmark/EllipticalConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp

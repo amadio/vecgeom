@@ -1,5 +1,5 @@
 /// @file CoaxialCones.h
-/// @author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
+/// @author Raman Sehgal (raman.sehgal@cern.ch)
 
 #ifndef VECGEOM_VOLUMES_COAXIALCONES_H_
 #define VECGEOM_VOLUMES_COAXIALCONES_H_

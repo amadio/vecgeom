@@ -1,11 +1,12 @@
 /// @file CoaxialConesImplementation.h
-/// @author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
+/// @author Raman Sehgal (raman.sehgal@cern.ch)
 
 #ifndef VECGEOM_VOLUMES_KERNEL_COAXIALCONESIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_COAXIALCONESIMPLEMENTATION_H_
 
 #include "base/Vector3D.h"
 #include "volumes/CoaxialConesStruct.h"
+#include "volumes/kernel/ConeImplementation.h"
 #include "volumes/kernel/GenericKernels.h"
 #include <VecCore/VecCore>
 
@@ -98,25 +99,70 @@ struct CoaxialConesImplementation {
     ** and if neither inside nor outside then it is on the surface.
     ** and is used by Inside function
     */
+	    completelyinside  = Bool_v(false);
+	    completelyoutside = Bool_v(true);
+	    Bool_v onSurf(false);
 
+	    for (unsigned int i = 0; i < coaxialcones.fConeStructVector.size(); i++) {
+	      Bool_v compIn(false);
+	      Bool_v compOut(false);
+
+	      ConeHelpers<Real_v, ConeTypes::UniversalCone>::template GenericKernelForContainsAndInside<ForInside>(
+	          *coaxialcones.fConeStructVector[i], point, compIn, compOut);
+	      if (ForInside) {
+	        completelyinside |= compIn;
+	        if (vecCore::MaskFull(completelyinside)) {
+	          completelyoutside = !completelyinside;
+	          return;
+	        }
+
+	        onSurf |= (!compIn && !compOut);
+	        if (vecCore::MaskFull(onSurf)) {
+	          completelyoutside = !onSurf;
+	          return;
+	        }
+	      } else {
+
+	        completelyoutside &= compOut;
+	      }
+	     }
   }
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedStruct_t const &coaxialcones, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
+                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
   {
     /* TODO :  Logic to calculate Distance from outside point to the CoaxialCones surface */
+
+	    distance = kInfLength;
+	    for (unsigned int i = 0; i < coaxialcones.fConeStructVector.size(); i++) {
+	      Real_v dist(kInfLength);
+	      ConeImplementation<ConeTypes::UniversalCone>::template DistanceToIn<Real_v>(*coaxialcones.fConeStructVector[i],
+	                                                                                  point, direction, stepMax, dist);
+
+	      vecCore::MaskedAssign(distance, dist < distance, dist);
+	    }
+
   }
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &coaxialcones, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+                            Vector3D<Real_v> const &direction, Real_v const &stepMax , Real_v &distance)
   {
     /* TODO :  Logic to calculate Distance from inside point to the CoaxialCones surface */
+	    distance = -1.;
+	    for (unsigned int i = 0; i < coaxialcones.fConeStructVector.size(); i++) {
+	      Real_v dist(kInfLength);
+	      ConeImplementation<ConeTypes::UniversalCone>::template DistanceToOut<Real_v>(*coaxialcones.fConeStructVector[i],
+	                                                                                   point, direction, stepMax, dist);
+
+	      vecCore::MaskedAssign(distance, dist > distance, dist);
+	    }
+
   }
 
   template <typename Real_v>
@@ -124,7 +170,16 @@ struct CoaxialConesImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &coaxialcones, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    /* TODO :  Logic to calculate Safety from outside point to the CoaxialCones surface */
+        /* TODO :  Logic to calculate Safety from outside point to the CoaxialCones surface */
+	    safety = kInfLength;
+	    for (unsigned int i = 0; i < coaxialcones.fConeStructVector.size(); i++) {
+	      Real_v safeDist(kInfLength);
+	      ConeImplementation<ConeTypes::UniversalCone>::template SafetyToIn<Real_v>(*coaxialcones.fConeStructVector[i],
+	                                                                                point, safeDist);
+
+	      vecCore::MaskedAssign(safety, safeDist < safety, safeDist);
+	    }
+
   }
 
   template <typename Real_v>
@@ -133,6 +188,15 @@ struct CoaxialConesImplementation {
   static void SafetyToOut(UnplacedStruct_t const &coaxialcones, Vector3D<Real_v> const &point, Real_v &safety)
   {
     /* TODO :  Logic to calculate Safety from inside point to the CoaxialCones surface */
+	    safety = Real_v(-1.);
+	    for (unsigned int i = 0; i < coaxialcones.fConeStructVector.size(); i++) {
+	      Real_v safeDist(kInfLength);
+	      ConeImplementation<ConeTypes::UniversalCone>::template SafetyToOut<Real_v>(*coaxialcones.fConeStructVector[i],
+	                                                                                 point, safeDist);
+
+	      vecCore::MaskedAssign(safety, safeDist > safety, safeDist);
+	    }
+
   }
 
   template <typename Real_v>
