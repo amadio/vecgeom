@@ -31,21 +31,13 @@ UnplacedCoaxialCones::UnplacedCoaxialCones()
  */
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedCoaxialCones::CheckParameters()
-{
-
-}
+void UnplacedCoaxialCones::CheckParameters() {}
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedCoaxialCones::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
-{
-}
+void UnplacedCoaxialCones::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const {}
 
-#if(0)
-Vector3D<Precision> UnplacedCoaxialCones::SamplePointOnSurface() const
-{
-
-}
+#if (0)
+Vector3D<Precision> UnplacedCoaxialCones::SamplePointOnSurface() const {}
 #endif
 
 // VECCORE_ATT_HOST_DEVICE
@@ -68,21 +60,21 @@ std::ostream &UnplacedCoaxialCones::StreamInfo(std::ostream &os) const
 
 void UnplacedCoaxialCones::Print() const
 {
-	//Provided Elliptical Cone Parameters as done for Tube below
-  //printf("CoaxialCones {%.2f, %.2f, %.2f}", fCoaxialCones.fDx, fCoaxialCones.fDy, fCoaxialCones.fDz);
+  // Provided Elliptical Cone Parameters as done for Tube below
+  // printf("CoaxialCones {%.2f, %.2f, %.2f}", fCoaxialCones.fDx, fCoaxialCones.fDy, fCoaxialCones.fDz);
 }
 
 void UnplacedCoaxialCones::Print(std::ostream &os) const
 {
-	//Provided Elliptical Cone Parameters as done for Tube below
-  //os << "CoaxialCones {" << fEllipticalTube.fDx << ", " << fEllipticalTube.fDy << ", " << fEllipticalTube.fDz << "}";
+  // Provided Elliptical Cone Parameters as done for Tube below
+  // os << "CoaxialCones {" << fEllipticalTube.fDx << ", " << fEllipticalTube.fDy << ", " << fEllipticalTube.fDz << "}";
 }
 
 #ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedCoaxialCones::Create(LogicalVolume const *const logical_volume,
-                                              Transformation3D const *const transformation,
-                                              VPlacedVolume *const placement)
+                                            Transformation3D const *const transformation,
+                                            VPlacedVolume *const placement)
 {
   if (placement) {
     new (placement) SpecializedCoaxialCones<trans_code, rot_code>(logical_volume, transformation);
@@ -92,20 +84,20 @@ VPlacedVolume *UnplacedCoaxialCones::Create(LogicalVolume const *const logical_v
 }
 
 VPlacedVolume *UnplacedCoaxialCones::SpecializedVolume(LogicalVolume const *const volume,
-                                                         Transformation3D const *const transformation,
-                                                         const TranslationCode trans_code, const RotationCode rot_code,
-                                                         VPlacedVolume *const placement) const
+                                                       Transformation3D const *const transformation,
+                                                       const TranslationCode trans_code, const RotationCode rot_code,
+                                                       VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedCoaxialCones>(volume, transformation, trans_code, rot_code,
-                                                                       placement);
+                                                                     placement);
 }
 #else
 
 template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCoaxialCones::Create(LogicalVolume const *const logical_volume,
-                                              Transformation3D const *const transformation, const int id,
-                                              VPlacedVolume *const placement)
+                                            Transformation3D const *const transformation, const int id,
+                                            VPlacedVolume *const placement)
 {
   if (placement) {
     new (placement) SpecializedCoaxialCones<trans_code, rot_code>(logical_volume, transformation, id);
@@ -116,12 +108,12 @@ VPlacedVolume *UnplacedCoaxialCones::Create(LogicalVolume const *const logical_v
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCoaxialCones::SpecializedVolume(LogicalVolume const *const volume,
-                                                         Transformation3D const *const transformation,
-                                                         const TranslationCode trans_code, const RotationCode rot_code,
-                                                         const int id, VPlacedVolume *const placement) const
+                                                       Transformation3D const *const transformation,
+                                                       const TranslationCode trans_code, const RotationCode rot_code,
+                                                       const int id, VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedCoaxialCones>(volume, transformation, trans_code, rot_code, id,
-                                                                       placement);
+                                                                     placement);
 }
 
 #endif
@@ -131,26 +123,22 @@ VPlacedVolume *UnplacedCoaxialCones::SpecializedVolume(LogicalVolume const *cons
 DevicePtr<cuda::VUnplacedVolume> UnplacedCoaxialCones::CopyToGpu(
     DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-	/* Transfer the geometry dimension arrays to the GPU and then use construtor
-	 * to create the geometry on GPU
-	 */
-	Precision *rmin1_gpu_ptr = AllocateOnGpu<Precision>(fCoaxialCones.fRmin1Vect.size() * sizeof(Precision));
-	Precision *rmax1_gpu_ptr = AllocateOnGpu<Precision>(fCoaxialCones.fRmax1Vect.size() * sizeof(Precision));
-	Precision *rmin2_gpu_ptr = AllocateOnGpu<Precision>(fCoaxialCones.fRmin2Vect.size() * sizeof(Precision));
-	Precision *rmax2_gpu_ptr = AllocateOnGpu<Precision>(fCoaxialCones.fRmax2Vect.size() * sizeof(Precision));
+  /* Transfer the geometry dimension arrays to the GPU and then use construtor
+   * to create the geometry on GPU
+   */
+  Precision *rmin1_gpu_ptr = AllocateOnGpu<Precision>(fCoaxialCones.fRmin1Vect.size() * sizeof(Precision));
+  Precision *rmax1_gpu_ptr = AllocateOnGpu<Precision>(fCoaxialCones.fRmax1Vect.size() * sizeof(Precision));
+  Precision *rmin2_gpu_ptr = AllocateOnGpu<Precision>(fCoaxialCones.fRmin2Vect.size() * sizeof(Precision));
+  Precision *rmax2_gpu_ptr = AllocateOnGpu<Precision>(fCoaxialCones.fRmax2Vect.size() * sizeof(Precision));
 
-	vecgeom::CopyToGpu(&fCoaxialCones.fRmin1Vect[0], rmin1_gpu_ptr, sizeof(Precision) * fCoaxialCones.fRmin1Vect.size());
-	vecgeom::CopyToGpu(&fCoaxialCones.fRmax1Vect[0], rmax1_gpu_ptr, sizeof(Precision) * fCoaxialCones.fRmax1Vect.size());
-	vecgeom::CopyToGpu(&fCoaxialCones.fRmin2Vect[0], rmin2_gpu_ptr, sizeof(Precision) * fCoaxialCones.fRmin2Vect.size());
-	vecgeom::CopyToGpu(&fCoaxialCones.fRmax2Vect[0], rmax2_gpu_ptr, sizeof(Precision) * fCoaxialCones.fRmax2Vect.size());
+  vecgeom::CopyToGpu(&fCoaxialCones.fRmin1Vect[0], rmin1_gpu_ptr, sizeof(Precision) * fCoaxialCones.fRmin1Vect.size());
+  vecgeom::CopyToGpu(&fCoaxialCones.fRmax1Vect[0], rmax1_gpu_ptr, sizeof(Precision) * fCoaxialCones.fRmax1Vect.size());
+  vecgeom::CopyToGpu(&fCoaxialCones.fRmin2Vect[0], rmin2_gpu_ptr, sizeof(Precision) * fCoaxialCones.fRmin2Vect.size());
+  vecgeom::CopyToGpu(&fCoaxialCones.fRmax2Vect[0], rmax2_gpu_ptr, sizeof(Precision) * fCoaxialCones.fRmax2Vect.size());
 
-
-	DevicePtr<cuda::VUnplacedVolume> gpuCoaxialCones = CopyToGpuImpl<UnplacedCoaxialCones>(
-												in_gpu_ptr,fCoaxialCones.fNumOfCones,
-												rmin1_gpu_ptr,rmax1_gpu_ptr,
-		  	  	  	  	  	  	  	  	  	 	rmin2_gpu_ptr, rmax2_gpu_ptr,
-		  	  	  	  	  	  	  	  	  	 	fCoaxialCones.fDz,fCoaxialCones.fSPhi,
-		  	  	  	  	  	  	  	  	  	 	fCoaxialCones.fDPhi);
+  DevicePtr<cuda::VUnplacedVolume> gpuCoaxialCones = CopyToGpuImpl<UnplacedCoaxialCones>(
+      in_gpu_ptr, fCoaxialCones.fNumOfCones, rmin1_gpu_ptr, rmax1_gpu_ptr, rmin2_gpu_ptr, rmax2_gpu_ptr,
+      fCoaxialCones.fDz, fCoaxialCones.fSPhi, fCoaxialCones.fDPhi);
 
   FreeFromGpu(rmin1_gpu_ptr);
   FreeFromGpu(rmax1_gpu_ptr);
@@ -174,11 +162,10 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedCoaxialCones::CopyToGpu() const
 namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedCoaxialCones>::SizeOf();
-template void DevicePtr<cuda::UnplacedCoaxialCones>::Construct( unsigned int numOfCones,
-																Precision *rmin1, Precision *rmax1,
-																Precision *rmin2, Precision *rmax2,
-																Precision dz,  Precision sPhi,
-																Precision dPhi) const; //const Precision dx, const Precision dy, const Precision dz) const;
+template void DevicePtr<cuda::UnplacedCoaxialCones>::Construct(
+    unsigned int numOfCones, Precision *rmin1, Precision *rmax1, Precision *rmin2, Precision *rmax2, Precision dz,
+    Precision sPhi,
+    Precision dPhi) const; // const Precision dx, const Precision dy, const Precision dz) const;
 
 } // namespace cxx
 

@@ -27,21 +27,20 @@ public:
   // constructor inheritance;
   using Base::Base;
   PlacedCoaxialCones(char const *const label, LogicalVolume const *const logicalVolume,
-                       Transformation3D const *const transformation,
-                       vecgeom::PlacedBox const *const boundingBox)
+                     Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
       : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
   PlacedCoaxialCones(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                       vecgeom::PlacedBox const *const boundingBox)
+                     vecgeom::PlacedBox const *const boundingBox)
       : PlacedCoaxialCones("", logicalVolume, transformation, boundingBox)
   {
   }
 #else
   VECCORE_ATT_DEVICE PlacedCoaxialCones(LogicalVolume const *const logicalVolume,
-                                          Transformation3D const *const transformation,
-                                          PlacedBox const *const boundingBox, const int id)
+                                        Transformation3D const *const transformation,
+                                        PlacedBox const *const boundingBox, const int id)
       : Base(logicalVolume, transformation, boundingBox, id)
   {
   }
@@ -52,7 +51,6 @@ public:
   /*
    * Put the Required Getters and Setters here
    */
-
 
   VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override;

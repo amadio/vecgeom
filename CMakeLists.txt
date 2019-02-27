@@ -641,6 +641,7 @@ set(VECGEOM_SRCS
   source/UnplacedEllipticalTube.cpp
   #source/UnplacedEllipticalCone.cpp
   source/UnplacedCoaxialCones.cpp
+  source/UnplacedGenericPolycone.cpp
   source/UnplacedCone.cpp
   source/UnplacedCutTube.cpp
   source/UnplacedGenTrap.cpp
@@ -658,6 +659,7 @@ set(VECGEOM_SRCS
   source/PlacedEllipticalTube.cpp
   #source/PlacedEllipticalCone.cpp
   source/PlacedCoaxialCones.cpp
+  source/PlacedGenericPolycone.cpp
   source/PlacedCutTube.cpp
   source/PlacedTorus2.cpp
   source/PlacedTrd.cpp
@@ -1052,6 +1054,7 @@ set(TEST_EXECUTABLES_SHAPES
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestEllipticalTube.cpp
   #${CMAKE_SOURCE_DIR}/test/unit_tests/TestEllipticalCone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestCoaxialCones.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestGenericPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestHype.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrd.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrap.cpp
@@ -1092,6 +1095,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTet.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenericPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParallelepiped.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/convention_testTube.cpp

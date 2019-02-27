@@ -26,36 +26,56 @@ struct CoaxialConesStruct {
   Vector<T> fRmax2Vect;
 
   VECCORE_ATT_HOST_DEVICE
-  CoaxialConesStruct(){}
+  CoaxialConesStruct() {}
 
   VECCORE_ATT_HOST_DEVICE
-  CoaxialConesStruct(unsigned int numOfCones, T *rmin1Vect, T *rmax1Vect, T *rmin2Vect, T *rmax2Vect, T dz, T sphi, T dphi): fNumOfCones(numOfCones), fDz(dz), fSPhi(sphi), fDPhi(dphi) {
-	
-	for(unsigned int i = 0 ; i < fNumOfCones ; i++){
-		fRmin1Vect.push_back(rmin1Vect[i]);
-		fRmax1Vect.push_back(rmax1Vect[i]);
-		fRmin2Vect.push_back(rmin2Vect[i]);
-		fRmax2Vect.push_back(rmax2Vect[i]);
+  CoaxialConesStruct(unsigned int numOfCones, T *rmin1Vect, T *rmax1Vect, T *rmin2Vect, T *rmax2Vect, T dz, T sphi,
+                     T dphi)
+      : fNumOfCones(numOfCones), fDz(dz), fSPhi(sphi), fDPhi(dphi)
+  {
 
-	}
+    for (unsigned int i = 0; i < fNumOfCones; i++) {
+      fRmin1Vect.push_back(rmin1Vect[i]);
+      fRmax1Vect.push_back(rmax1Vect[i]);
+      fRmin2Vect.push_back(rmin2Vect[i]);
+      fRmax2Vect.push_back(rmax2Vect[i]);
+    }
 
-	for(unsigned int i = 0 ; i < fNumOfCones ; i++){
-		fConeStructVector.push_back(new ConeStruct<T>(fRmin1Vect[i],fRmax1Vect[i],fRmin2Vect[i],fRmax2Vect[i],dz,sphi,dphi));
-		if(i==0){
-			fMinR = fRmin1Vect[i] < fRmin2Vect[i] ? fRmin1Vect[i] : fRmin2Vect[i] ;
-		}
-		
-		if(i==fNumOfCones-1){
-			fMaxR = fRmax1Vect[i] > fRmax2Vect[i] ? fRmax1Vect[i] : fRmax2Vect[i]; 
-		}
+    for (unsigned int i = 0; i < fNumOfCones; i++) {
+      fConeStructVector.push_back(
+          new ConeStruct<T>(fRmin1Vect[i], fRmax1Vect[i], fRmin2Vect[i], fRmax2Vect[i], dz, sphi, dphi));
+      if (i == 0) {
+        fMinR = fRmin1Vect[i] < fRmin2Vect[i] ? fRmin1Vect[i] : fRmin2Vect[i];
+      }
 
-	}
+      if (i == fNumOfCones - 1) {
+        fMaxR = fRmax1Vect[i] > fRmax2Vect[i] ? fRmax1Vect[i] : fRmax2Vect[i];
+      }
+    }
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  CoaxialConesStruct(Vector<Precision> rmin1Vect, Vector<Precision> rmax1Vect, Vector<Precision> rmin2Vect,
+                     Vector<Precision> rmax2Vect, T dz, T sphi, T dphi)
+      : fNumOfCones(rmin1Vect.size()), fDz(dz), fSPhi(sphi), fDPhi(dphi), fRmin1Vect(rmin1Vect), fRmax1Vect(rmax1Vect),
+        fRmin2Vect(rmin2Vect), fRmax2Vect(rmax2Vect)
+  {
+
+    for (unsigned int i = 0; i < fNumOfCones; i++) {
+      fConeStructVector.push_back(
+          new ConeStruct<T>(fRmin1Vect[i], fRmax1Vect[i], fRmin2Vect[i], fRmax2Vect[i], dz, sphi, dphi));
+      if (i == 0) {
+        fMinR = fRmin1Vect[i] < fRmin2Vect[i] ? fRmin1Vect[i] : fRmin2Vect[i];
+      }
+
+      if (i == fNumOfCones - 1) {
+        fMaxR = fRmax1Vect[i] > fRmax2Vect[i] ? fRmax1Vect[i] : fRmax2Vect[i];
+      }
+    }
   }
 
   // Vector of Cones
   Vector<ConeStruct<T> *> fConeStructVector;
-
-
 
   T fSurfaceArea; // area of the surface
   T fCubicVolume; // volume
@@ -141,7 +161,6 @@ struct CoaxialConesStruct {
     norm.Normalize();
     return valid;
   }
-
 };
 
 } // namespace VECGEOM_IMPL_NAMESPACE

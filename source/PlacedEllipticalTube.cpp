@@ -7,7 +7,7 @@
 #include "TGeoEltu.h"
 #endif
 #ifdef VECGEOM_GEANT4
-#include "G4EllipticalTube.h"
+#include "G4EllipticalTube.hh"
 #endif
 
 #include <stdio.h>

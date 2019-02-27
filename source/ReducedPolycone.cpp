@@ -8,6 +8,7 @@
 #include "volumes/ReducedPolycone.h"
 #include <iostream>
 #include "base/Vector.h"
+//#include "volumes/CoaxialConesStruct.h"
 
 namespace vecgeom {
 
@@ -193,6 +194,7 @@ bool ReducedPolycone::Contour(Vector<Precision> z)
   }
   return contour;
 }
+
 VECCORE_ATT_HOST_DEVICE
 bool ReducedPolycone::ContourCheck(Vector<Precision> z)
 {
@@ -346,12 +348,12 @@ void ReducedPolycone::ProcessContour(Vector<Precision> z)
     }
     assert(sectionLine.size() == 2 && "Got more than two lines for a section");
 
-    CreateSectionFromTwoLines(sectionLine[0], sectionLine[1]);
+    fSectionVect.push_back(CreateSectionFromTwoLines(sectionLine[0], sectionLine[1]));
   }
 }
 
 VECCORE_ATT_HOST_DEVICE
-void ReducedPolycone::CreateSectionFromTwoLines(Line2D l1, Line2D l2)
+Section ReducedPolycone::CreateSectionFromTwoLines(Line2D l1, Line2D l2)
 {
   Precision rmin1 = 0., rmin2 = 0., rmax1 = 0., rmax2 = 0., z1 = 0., z2 = 0.;
 
@@ -374,8 +376,9 @@ void ReducedPolycone::CreateSectionFromTwoLines(Line2D l1, Line2D l2)
   if (rmin2 > rmax2) Swap(rmin2, rmax2);
   if (rmin1 > rmax1) Swap(rmin1, rmax1);
 
-  Section s(rmin1, rmax1, z1, rmin2, rmax2, z2);
-  fSectionVect.push_back(s);
+  return Section(rmin1, rmax1, z1, rmin2, rmax2, z2);
+  // Section s(rmin1, rmax1, z1, rmin2, rmax2, z2);
+  // fSectionVect.push_back(s);
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -398,6 +401,7 @@ bool ReducedPolycone::Check()
   }
   return contour;
 }
+
 VECCORE_ATT_HOST_DEVICE
 bool ReducedPolycone::GetPolyconeParameters(Vector<Precision> &rmin, Vector<Precision> &rmax, Vector<Precision> &z)
 {
@@ -414,6 +418,247 @@ bool ReducedPolycone::GetPolyconeParameters(Vector<Precision> &rmin, Vector<Prec
     }
   }
   return contour;
+}
+
+// New Functions explicitly for GenericPolycone
+
+VECCORE_ATT_HOST_DEVICE
+bool ReducedPolycone::ContourGeneric(Vector<Precision> z)
+{
+  bool contour = true;
+
+  // Getting vector of all the line
+  Vector<Line2D> lineVect = GetLineVector();
+
+#if (0)
+  {
+    // Printing Just for debugging
+    for (unsigned int i = 0; i < lineVect.size(); i++) {
+      lineVect[i].Print();
+    }
+  }
+#endif
+
+  for (int unsigned i = 2; i < lineVect.size(); i++) {
+    for (unsigned int j = 0; j <= (i - 2); j++) {
+      if (i == (lineVect.size() - 1)) {
+        if (j == 0) {
+          Vector2D<Precision> poi;
+          contour &= GetLineIntersection(lineVect[i], lineVect[j], poi);
+          contour &= (poi.x() == lineVect[0].p1.x()) && (poi.y() == lineVect[0].p1.y());
+        } else {
+          bool test = GetLineIntersection(lineVect[i], lineVect[j]);
+          contour &= !test;
+        }
+      } else
+        contour &= !GetLineIntersection(lineVect[i], lineVect[j]);
+    }
+  }
+  return contour;
+}
+
+VECCORE_ATT_HOST_DEVICE
+void ReducedPolycone::ProcessGenericContour(Vector<Precision> z)
+{
+  unsigned int numOfSections = z.size() - 1;
+  for (unsigned int i = 0; i < numOfSections; i++) {
+    Vector<Line2D> sortedLinesVect;
+    sortedLinesVect = GetVectorOfSortedLinesByHorizontalDistance(i);
+    Vector<Section> coaxialCones;
+    for (unsigned int j = 0; j < sortedLinesVect.size();) {
+
+      Section s = CreateSectionFromTwoLines(sortedLinesVect[j], sortedLinesVect[j + 1]);
+      coaxialCones.push_back(s);
+      j += 2;
+    }
+    fCoaxialConesSectionVect.push_back(coaxialCones);
+  }
+}
+
+VECCORE_ATT_HOST_DEVICE
+bool ReducedPolycone::CheckGeneric()
+{
+  CreateNewContour();
+  Vector<Precision> zVect = GetUniqueZVector();
+  bool contour            = ContourGeneric(zVect);
+  if (contour) {
+    ProcessGenericContour(zVect);
+  } else {
+#ifndef VECCORE_CUDA
+    std::cerr << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"
+              << "@@@@@@         Not a VALID Contour....             @@@@@@@ \n"
+              << "@@@@@@     Kindly check Contour Parameters         @@@@@@@\n"
+              << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
+#endif
+    exit(1);
+  }
+  return contour;
+}
+
+VECCORE_ATT_HOST_DEVICE
+Vector<Line2D> ReducedPolycone::FindLinesInASection(unsigned int secIndex)
+{
+  Vector<Line2D> lineVect = GetLineVector();
+  Vector<Precision> zVect = GetUniqueZVector();
+  Vector<Line2D> secLineVect;
+  // for(unsigned int i = 0 ; i <= secIndex) ; i++){
+  for (unsigned int j = 0; j < lineVect.size(); j++) {
+    Line2D line = lineVect[j];
+    if ((line.p1.y() == zVect[secIndex] && line.p2.y() == zVect[secIndex + 1]) ||
+        (line.p2.y() == zVect[secIndex] && line.p1.y() == zVect[secIndex + 1])) {
+      secLineVect.push_back(line);
+    }
+  }
+  //}
+  //============== Printing only for DEBUGGING, Must be removed later ===============
+#if (0)
+  {
+    std::cout << "============ Printing lines in section : " << secIndex << " ===========" << std::endl;
+    for (unsigned int i = 0; i < secLineVect.size(); i++) {
+      secLineVect[i].Print();
+      double midVal = (zVect[secIndex] + zVect[secIndex + 1]) * 0.5;
+      std::cout << "Distance of Line num : " << i << " : " << secLineVect[i].GetHorizontalDistance(midVal) << std::endl;
+    }
+    std::cout << "=======================================================================" << std::endl;
+  }
+#endif
+  //=================================================================================
+
+  return secLineVect;
+}
+
+VECCORE_ATT_HOST_DEVICE
+Vector<Line2D> ReducedPolycone::GetVectorOfSortedLinesByHorizontalDistance(unsigned int secIndex)
+{
+  Vector<Precision> zVect = GetUniqueZVector();
+  Vector<IndexStruct> indexStructVect;
+  Vector<Line2D> secLineVect = FindLinesInASection(secIndex);
+  double midVal              = (zVect[secIndex] + zVect[secIndex + 1]) * 0.5;
+  for (unsigned int i = 0; i < secLineVect.size(); i++) {
+    indexStructVect.push_back(IndexStruct(i, secLineVect[i].GetHorizontalDistance(midVal)));
+  }
+  for (unsigned int i = 0; i < indexStructVect.size() - 1; i++) {
+    for (unsigned int j = 0; j < indexStructVect.size() - i - 1; j++) {
+      if (indexStructVect[j].distance > indexStructVect[j + 1].distance) {
+        IndexStruct temp       = indexStructVect[j];
+        indexStructVect[j]     = indexStructVect[j + 1];
+        indexStructVect[j + 1] = temp;
+      }
+    }
+  }
+
+  Vector<Line2D> finalSecLineVect;
+  for (unsigned int i = 0; i < indexStructVect.size(); i++) {
+    finalSecLineVect.push_back(secLineVect[indexStructVect[i].index]);
+  }
+
+  //=========Print only for DEBUGGING, Must be remove later========
+#if (0)
+  {
+    std::cout << "============= Printing Sorted Lines ==============" << std::endl;
+    for (unsigned int i = 0; i < indexStructVect.size(); i++) {
+
+      secLineVect[indexStructVect[i].index].Print();
+    }
+    std::cout << "==================================================" << std::endl;
+  }
+#endif
+  //===============================================================
+
+  return finalSecLineVect;
+}
+#if (0)
+VECCORE_ATT_HOST_DEVICE
+void ReducedPolycone::GetPolyconeParameters(Vector<Vector<ConeParam>> &sectionsParamVector, Vector<Precision> &zS,
+                                            Vector3D<Precision> &aMin, Vector3D<Precision> &aMax)
+{
+  bool contour = CheckGeneric();
+  if (contour) {
+
+    // Simplest way to calculate extent, but need to be improved later on
+    zS                      = GetUniqueZVector();
+    Vector<Line2D> lineVect = GetLineVector();
+    Precision tempMax       = 0.;
+    for (unsigned int j = 0; j < lineVect.size(); j++) {
+      if (lineVect[j].p1.x() > tempMax) {
+        tempMax = lineVect[j].p1.x();
+      }
+    }
+    aMin.Set(-tempMax, -tempMax, zS[0]);
+    aMax.Set(tempMax, tempMax, zS[zS.size() - 1]);
+
+    for (unsigned int i = 0; i < fCoaxialConesSectionVect.size(); i++) {
+      Vector<ConeParam> coaxialCones;
+      // std::cout << "===================== Section : " << i <<" ====================" << std::endl;
+      for (unsigned int j = 0; j < fCoaxialConesSectionVect[i].size(); j++) {
+        Section sec = fCoaxialConesSectionVect[i][j];
+        coaxialCones.push_back(
+            ConeParam(sec.rMin1, sec.rMax1, sec.rMin2, sec.rMax2, (sec.z2 - sec.z1) * 0.5, 0., 2 * kPi));
+      }
+      sectionsParamVector.push_back(coaxialCones);
+    }
+
+    //=========Print only for DEBUGGING, Must be remove later========
+#if (0)
+    {
+      for (unsigned int i = 0; i < fCoaxialConesSectionVect.size(); i++) {
+        std::cout << "===================== Section : " << i << " ====================" << std::endl;
+        for (unsigned int j = 0; j < fCoaxialConesSectionVect[i].size(); j++) {
+          fCoaxialConesSectionVect[i][j].Print();
+        }
+      }
+    }
+#endif
+    //===============================================================
+  }
+}
+#endif
+
+VECCORE_ATT_HOST_DEVICE
+void ReducedPolycone::GetPolyconeParameters(Vector<Vector<Precision>> &vectOfRmin1Vect,
+                                            Vector<Vector<Precision>> &vectOfRmax1Vect,
+                                            Vector<Vector<Precision>> &vectOfRmin2Vect,
+                                            Vector<Vector<Precision>> &vectOfRmax2Vect, Vector<Precision> &zS,
+                                            Vector3D<Precision> &aMin, Vector3D<Precision> &aMax)
+{
+
+  bool contour = CheckGeneric();
+  if (contour) {
+
+    // Simplest way to calculate extent, but needs to be improved later on
+    zS                      = GetUniqueZVector();
+    Vector<Line2D> lineVect = GetLineVector();
+    Precision tempMax       = 0.;
+    for (unsigned int j = 0; j < lineVect.size(); j++) {
+      if (lineVect[j].p1.x() > tempMax) {
+        tempMax = lineVect[j].p1.x();
+      }
+    }
+    aMin.Set(-tempMax, -tempMax, zS[0]);
+    aMax.Set(tempMax, tempMax, zS[zS.size() - 1]);
+
+    for (unsigned int i = 0; i < fCoaxialConesSectionVect.size(); i++) {
+
+      Vector<Precision> rmin1Vect;
+      Vector<Precision> rmax1Vect;
+      Vector<Precision> rmin2Vect;
+      Vector<Precision> rmax2Vect;
+
+      // std::cout << "===================== Section : " << i <<" ====================" << std::endl;
+      for (unsigned int j = 0; j < fCoaxialConesSectionVect[i].size(); j++) {
+        Section sec = fCoaxialConesSectionVect[i][j];
+        rmin1Vect.push_back(sec.rMin1);
+        rmax1Vect.push_back(sec.rMax1);
+        rmin2Vect.push_back(sec.rMin2);
+        rmax2Vect.push_back(sec.rMax2);
+      }
+
+      vectOfRmin1Vect.push_back(rmin1Vect);
+      vectOfRmax1Vect.push_back(rmax1Vect);
+      vectOfRmin2Vect.push_back(rmin2Vect);
+      vectOfRmax2Vect.push_back(rmax2Vect);
+    }
+  }
 }
 
 } /* namespace vecgeom */

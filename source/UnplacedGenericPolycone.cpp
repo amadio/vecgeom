@@ -1,0 +1,274 @@
+/// @file UnplacedGenericPolycone.cpp
+/// @author Raman Sehgal (raman.sehgal@cern.ch)
+
+#include "volumes/Cone.h"
+#include "volumes/UnplacedCoaxialCones.h"
+#include "management/GeoManager.h"
+#include "volumes/UnplacedGenericPolycone.h"
+#include "management/VolumeFactory.h"
+#include "volumes/SpecializedGenericPolycone.h"
+#include "base/RNG.h"
+#include <stdio.h>
+#include <cmath>
+
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
+
+/*
+ * All the required Parametric Constructor
+ */
+
+#if (1)
+VECCORE_ATT_HOST_DEVICE
+UnplacedGenericPolycone::UnplacedGenericPolycone(Precision phiStart, // initial phi starting angle
+                                                 Precision phiTotal, // total phi angle
+                                                 int numRZ, // number corners in r,z space (must be an even number)
+                                                 Precision const *r, // r coordinate of these corners
+                                                 Precision const *z)
+{
+
+  // std::cout << "Using VecGeom Generic Polycone............." << std::endl;
+  fSPhi  = phiStart;
+  fDPhi  = phiTotal;
+  fNumRZ = numRZ;
+  for (int i = 0; i < numRZ; i++) {
+    fR.push_back(r[i]);
+    fZ.push_back(z[i]);
+  }
+
+  Vector<Vector2D<Precision>> rzVect;
+  for (int i = 0; i < numRZ; i++) {
+    rzVect.push_back(Vector2D<double>(r[i], z[i]));
+  }
+  ReducedPolycone rd(rzVect);
+  Vector<Precision> zS;
+  Vector<Vector<Precision>> vectOfRmin1Vect;
+  Vector<Vector<Precision>> vectOfRmax1Vect;
+  Vector<Vector<Precision>> vectOfRmin2Vect;
+  Vector<Vector<Precision>> vectOfRmax2Vect;
+  rd.GetPolyconeParameters(vectOfRmin1Vect, vectOfRmax1Vect, vectOfRmin2Vect, vectOfRmax2Vect, zS, fAMin, fAMax);
+
+  fGenericPolycone.Set(vectOfRmin1Vect, vectOfRmax1Vect, vectOfRmin2Vect, vectOfRmax2Vect, zS, fSPhi, fDPhi);
+}
+#endif
+
+VECCORE_ATT_HOST_DEVICE
+void UnplacedGenericPolycone::CheckParameters() {}
+
+VECCORE_ATT_HOST_DEVICE
+void UnplacedGenericPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+  /*  Algo : Extent along Z direction will Z[0] and Z[max]
+   *         Extent along X and Y will be from the Extent of
+   *         cone/tube formed with Maximum outer radius
+   */
+  Precision rmax = 0.;
+  for (unsigned int i = 0; i < fR.size(); i++) {
+    if (fR[i] > rmax) {
+      rmax = fR[i];
+    }
+  }
+  auto coneUnplaced = GeoManager::MakeInstance<UnplacedCone>(0., rmax, 0., rmax, 1., fSPhi, fDPhi);
+  coneUnplaced->Extent(aMin, aMax);
+  aMin.z() = fAMin.z();
+  aMax.z() = fAMax.z();
+}
+
+/* Borrowed the definition from Polycone and made the required modifications*/
+VECCORE_ATT_HOST_DEVICE
+bool UnplacedGenericPolycone::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
+{
+  bool valid = true;
+  int index  = fGenericPolycone.GetSectionIndex(point.z() - kTolerance);
+
+  if (index < 0) {
+    valid = false;
+    if (index == -1) norm = Vector3D<Precision>(0., 0., -1.);
+    if (index == -2) norm = Vector3D<Precision>(0., 0., 1.);
+    return valid;
+  }
+  GenericPolyconeSection const &sec = fGenericPolycone.GetSection(index);
+  valid                             = sec.fCoaxialCones->Normal(point - Vector3D<Precision>(0, 0, sec.fShift), norm);
+
+  // if point is within tolerance of a Z-plane between 2 sections, get normal from other section too
+  if (size_t(index + 1) < fGenericPolycone.fSections.size() &&
+      std::abs(point.z() - fGenericPolycone.fZs[index + 1]) < kTolerance) {
+    GenericPolyconeSection const &sec2 = fGenericPolycone.GetSection(index + 1);
+    bool valid2                        = false;
+    Vector3D<Precision> norm2;
+    valid2 = sec2.fCoaxialCones->Normal(point - Vector3D<Precision>(0, 0, sec2.fShift), norm2);
+
+    if (!valid && valid2) {
+      norm  = norm2;
+      valid = valid2;
+    }
+
+    // if both valid && valid2 true, norm and norm2 should be added...
+    if (valid && valid2) {
+
+      // discover exiting direction by moving point a bit (it would be good to have track direction here)
+      // if(sec.fSolid->Contains(point + kTolerance*10*norm - Vector3D<Precision>(0, 0, sec.fShift))){
+
+      //}
+      bool c2;
+      using CI = CoaxialConesImplementation; // ConeImplementation<ConeTypes::UniversalCone>;
+      CI::Contains(*sec2.fCoaxialCones, point + kTolerance * 10 * norm2 - Vector3D<Precision>(0, 0, sec2.fShift), c2);
+      if (c2) {
+        norm = norm2;
+      } else {
+        norm = norm + norm2;
+        // but we might be in the interior of the polycone, and norm2=(0,0,-1) and norm1=(0,0,1) --> norm=(0,0,0)
+        // quick fix:  set a normal pointing to the input point, but setting its z=0 (radial)
+        if (norm.Mag2() < kTolerance) norm = Vector3D<Precision>(point.x(), point.y(), 0);
+      }
+    }
+  }
+  if (valid) norm /= norm.Mag();
+  return valid;
+}
+
+#if (0)
+/* Implementation NOT properly tested, thats why NOT using this and using
+ * the generic one from UnplacedVolume.
+ *
+ * This must be revived later with proper testing
+ */
+Vector3D<Precision> UnplacedGenericPolycone::SamplePointOnSurface() const
+{
+  /* Algo : First select the section
+   *        From the selected section select the cone
+   *        Sample the point from selected cone and return the sampled point
+   */
+  int sectionSelection                             = (int)RNG::Instance().uniform(0., fGenericPolycone.GetNSections());
+  const GenericPolyconeSection &section            = fGenericPolycone.GetSection(sectionSelection);
+  CoaxialConesStruct<Precision> *coaxialCones      = section.fCoaxialCones;
+  Vector<ConeStruct<Precision> *> coneStructVector = coaxialCones->fConeStructVector;
+  int coneSelection                                = (int)RNG::Instance().uniform(0., coneStructVector.size());
+  ConeStruct<Precision> *coneStruct                = coneStructVector[coneSelection];
+  auto coneUnplaced =
+      GeoManager::MakeInstance<UnplacedCone>(coneStruct->fRmin1, coneStruct->fRmax1, coneStruct->fRmin2,
+                                             coneStruct->fRmax2, coneStruct->fDz, coneStruct->fSPhi, coneStruct->fDPhi);
+  return coneUnplaced->SamplePointOnSurface();
+}
+#endif
+
+// VECCORE_ATT_HOST_DEVICE
+std::ostream &UnplacedGenericPolycone::StreamInfo(std::ostream &os) const
+// Definition taken from UGenericPolycone
+{
+  int oldprc = os.precision(16);
+  os << "-----------------------------------------------------------\n"
+     //  << "     *** Dump for solid - " << GetName() << " ***\n"
+     //  << "     ===================================================\n"
+
+     << " Solid type: GenericPolycone\n"
+     << " Parameters: \n"
+
+     << "-----------------------------------------------------------\n";
+  os.precision(oldprc);
+
+  return os;
+}
+
+void UnplacedGenericPolycone::Print() const
+{
+  // Provided Elliptical Cone Parameters as done for Tube below
+  // printf("GenericPolycone {%.2f, %.2f, %.2f}", fGenericPolycone.fDx, fGenericPolycone.fDy, fGenericPolycone.fDz);
+}
+
+void UnplacedGenericPolycone::Print(std::ostream &os) const
+{
+  // Provided Elliptical Cone Parameters as done for Tube below
+  // os << "GenericPolycone {" << fEllipticalTube.fDx << ", " << fEllipticalTube.fDy << ", " << fEllipticalTube.fDz <<
+  // "}";
+}
+
+#ifndef VECCORE_CUDA
+template <TranslationCode trans_code, RotationCode rot_code>
+VPlacedVolume *UnplacedGenericPolycone::Create(LogicalVolume const *const logical_volume,
+                                               Transformation3D const *const transformation,
+                                               VPlacedVolume *const placement)
+{
+  if (placement) {
+    new (placement) SpecializedGenericPolycone<trans_code, rot_code>(logical_volume, transformation);
+    return placement;
+  }
+  return new SpecializedGenericPolycone<trans_code, rot_code>(logical_volume, transformation);
+}
+
+VPlacedVolume *UnplacedGenericPolycone::SpecializedVolume(LogicalVolume const *const volume,
+                                                          Transformation3D const *const transformation,
+                                                          const TranslationCode trans_code, const RotationCode rot_code,
+                                                          VPlacedVolume *const placement) const
+{
+  return VolumeFactory::CreateByTransformation<UnplacedGenericPolycone>(volume, transformation, trans_code, rot_code,
+                                                                        placement);
+}
+#else
+
+template <TranslationCode trans_code, RotationCode rot_code>
+VECCORE_ATT_DEVICE
+VPlacedVolume *UnplacedGenericPolycone::Create(LogicalVolume const *const logical_volume,
+                                               Transformation3D const *const transformation, const int id,
+                                               VPlacedVolume *const placement)
+{
+  if (placement) {
+    new (placement) SpecializedGenericPolycone<trans_code, rot_code>(logical_volume, transformation, id);
+    return placement;
+  }
+  return new SpecializedGenericPolycone<trans_code, rot_code>(logical_volume, transformation, id);
+}
+
+VECCORE_ATT_DEVICE
+VPlacedVolume *UnplacedGenericPolycone::SpecializedVolume(LogicalVolume const *const volume,
+                                                          Transformation3D const *const transformation,
+                                                          const TranslationCode trans_code, const RotationCode rot_code,
+                                                          const int id, VPlacedVolume *const placement) const
+{
+  return VolumeFactory::CreateByTransformation<UnplacedGenericPolycone>(volume, transformation, trans_code, rot_code,
+                                                                        id, placement);
+}
+
+#endif
+
+#ifdef VECGEOM_CUDA_INTERFACE
+
+DevicePtr<cuda::VUnplacedVolume> UnplacedGenericPolycone::CopyToGpu() const
+{
+  return CopyToGpuImpl<UnplacedGenericPolycone>();
+}
+
+DevicePtr<cuda::VUnplacedVolume> UnplacedGenericPolycone::CopyToGpu(
+    DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
+{
+  Precision *z_gpu_ptr = AllocateOnGpu<Precision>(fNumRZ * sizeof(Precision));
+  Precision *r_gpu_ptr = AllocateOnGpu<Precision>(fNumRZ * sizeof(Precision));
+
+  vecgeom::CopyToGpu(&fZ[0], z_gpu_ptr, sizeof(Precision) * fNumRZ);
+  vecgeom::CopyToGpu(&fR[0], r_gpu_ptr, sizeof(Precision) * fNumRZ);
+
+  DevicePtr<cuda::VUnplacedVolume> gpuGenericPolycone =
+      CopyToGpuImpl<UnplacedGenericPolycone>(in_gpu_ptr, fSPhi, fDPhi, fNumRZ, r_gpu_ptr, z_gpu_ptr);
+  // remove temporary space from GPU
+  FreeFromGpu(z_gpu_ptr);
+  FreeFromGpu(r_gpu_ptr);
+
+  return gpuGenericPolycone;
+}
+
+#endif // VECGEOM_CUDA_INTERFACE
+
+} // namespace VECGEOM_IMPL_NAMESPACE
+
+#ifdef VECCORE_CUDA
+
+namespace cxx {
+
+template size_t DevicePtr<cuda::UnplacedGenericPolycone>::SizeOf();
+template void DevicePtr<cuda::UnplacedGenericPolycone>::Construct(Precision phiStart, Precision phiTotal, int numRZ,
+                                                                  Precision *r, Precision *z) const;
+
+} // namespace cxx
+
+#endif
+} // namespace vecgeom

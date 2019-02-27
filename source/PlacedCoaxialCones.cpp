@@ -36,14 +36,14 @@ VPlacedVolume const *PlacedCoaxialCones::ConvertToUnspecialized() const
 #ifdef VECGEOM_ROOT
 TGeoShape const *PlacedCoaxialCones::ConvertToRoot() const
 {
-	return nullptr; // There is no corresponding TGeo shape
+  return nullptr; // There is no corresponding TGeo shape
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedCoaxialCones::ConvertToGeant4() const
 {
-	 return nullptr; // There is no corresponding G4 shape
+  return nullptr; // There is no corresponding G4 shape
 }
 #endif
 

@@ -11,6 +11,7 @@
 #include "base/Vector2D.h"
 #include "base/Vector.h"
 #include <iostream>
+#include "volumes/CoaxialCones.h"
 
 namespace vecgeom {
 
@@ -20,8 +21,17 @@ VECGEOM_DEVICE_FORWARD_DECLARE(struct Section;);
 VECGEOM_DEVICE_DECLARE_CONV(struct, Section);
 VECGEOM_DEVICE_FORWARD_DECLARE(class ReducedPolycone;);
 VECGEOM_DEVICE_DECLARE_CONV(class, ReducedPolycone);
+VECGEOM_DEVICE_FORWARD_DECLARE(struct IndexStruct;);
+VECGEOM_DEVICE_DECLARE_CONV(struct, IndexStruct);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
+// A Container to store index and distance
+struct IndexStruct {
+  unsigned int index;
+  double distance;
+
+  IndexStruct(unsigned int ind, double dist) : index(ind), distance(dist) {}
+};
 
 // Just a Container for 2D Line
 struct Line2D {
@@ -43,7 +53,7 @@ struct Line2D {
 
   void Print()
   {
-    std::cout << p1 << std::endl;
+    std::cout << p1 << " : ";
     std::cout << p2 << std::endl;
   }
 
@@ -52,6 +62,15 @@ struct Line2D {
   {
     p1 = Vector2D<Precision>(0, zval);
     p2 = Vector2D<Precision>(rmax, zval);
+  }
+
+  Precision GetHorizontalDistance(double yVal)
+  {
+    if (p1.x() == p2.x()) {
+      return p1.x();
+    } else {
+      return p1.x() + ((p2.x() - p1.x()) / (p2.y() - p1.y())) * (yVal - p1.y());
+    }
   }
 };
 
@@ -84,10 +103,17 @@ struct Section {
   }
 };
 
+// struct ConeParam;
+
 class ReducedPolycone {
   Vector<Vector2D<Precision>> fRZVect;
   Precision fRMax;
+  // For SimplePolycone
   Vector<Section> fSectionVect;
+
+  // For GenericPolycone
+  // Vector<Section> fCoaxialCones;
+  Vector<Vector<Section>> fCoaxialConesSectionVect;
 
 public:
   VECCORE_ATT_HOST_DEVICE
@@ -113,19 +139,25 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool Contour(Vector<Precision> z);
   VECCORE_ATT_HOST_DEVICE
+  bool ContourGeneric(Vector<Precision> z);
+  VECCORE_ATT_HOST_DEVICE
   bool PointExist(Vector2D<Precision> pt);
   VECCORE_ATT_HOST_DEVICE
   void CreateNewContour();
   VECCORE_ATT_HOST_DEVICE
   void ProcessContour(Vector<Precision> z);
   VECCORE_ATT_HOST_DEVICE
+  void ProcessGenericContour(Vector<Precision> z);
+  VECCORE_ATT_HOST_DEVICE
   Vector<Vector<Precision>> GetRandZVectorAtDiffZ(Vector<Vector2D<Precision>> poiVect, Vector<Precision> &dz);
   VECCORE_ATT_HOST_DEVICE
-  void CreateSectionFromTwoLines(Line2D l1, Line2D l2);
+  Section CreateSectionFromTwoLines(Line2D l1, Line2D l2);
   VECCORE_ATT_HOST_DEVICE
   void Swap(Precision &a, Precision &b);
   VECCORE_ATT_HOST_DEVICE
   bool Check();
+  VECCORE_ATT_HOST_DEVICE
+  bool CheckGeneric();
   VECCORE_ATT_HOST_DEVICE
   bool GetPolyconeParameters(Vector<Precision> &rmin, Vector<Precision> &rmax, Vector<Precision> &z);
 
@@ -148,6 +180,23 @@ public:
     return GetLineIntersection(l1.p1.x(), l1.p1.y(), l1.p2.x(), l1.p2.y(), l2.p1.x(), l2.p1.y(), l2.p2.x(), l2.p2.y(),
                                &poi.x(), &poi.y());
   }
+
+  VECCORE_ATT_HOST_DEVICE
+  Vector<Line2D> FindLinesInASection(unsigned int secIndex);
+
+  VECCORE_ATT_HOST_DEVICE
+  Vector<Line2D> GetVectorOfSortedLinesByHorizontalDistance(unsigned int secIndex);
+
+  /*
+    VECCORE_ATT_HOST_DEVICE
+    void GetPolyconeParameters(Vector<Vector<ConeParam>> &sectionsParamVector, Vector<Precision> &zS,
+                               Vector3D<Precision> &aMin, Vector3D<Precision> &aMax);
+  */
+
+  VECCORE_ATT_HOST_DEVICE
+  void GetPolyconeParameters(Vector<Vector<Precision>> &vectOfRmin1Vect, Vector<Vector<Precision>> &vectOfRmax1Vect,
+                             Vector<Vector<Precision>> &vectOfRmin2Vect, Vector<Vector<Precision>> &vectOfRmax2Vect,
+                             Vector<Precision> &zS, Vector3D<Precision> &aMin, Vector3D<Precision> &aMax);
 };
 
 } // namespace VECGEOM_IMPL_NAMESPACE

@@ -32,12 +32,13 @@ public:
    *
    */
   VECCORE_ATT_HOST_DEVICE
-  UnplacedCoaxialCones(){}
+  UnplacedCoaxialCones() {}
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedCoaxialCones(unsigned int numOfCones, Precision *rmin1Vect, Precision *rmax1Vect, Precision*rmin2Vect, Precision *rmax2Vect,
-		  	  	  	   Precision dz, Precision sphi, Precision dphi):
-		  	  	  	   fCoaxialCones(numOfCones,rmin1Vect,rmax1Vect,rmin2Vect,rmax2Vect,dz,sphi,dphi){
+  UnplacedCoaxialCones(unsigned int numOfCones, Precision *rmin1Vect, Precision *rmax1Vect, Precision *rmin2Vect,
+                       Precision *rmax2Vect, Precision dz, Precision sphi, Precision dphi)
+      : fCoaxialCones(numOfCones, rmin1Vect, rmax1Vect, rmin2Vect, rmax2Vect, dz, sphi, dphi)
+  {
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -48,10 +49,10 @@ public:
    *
    */
 
-/*
- * Required Getters and Setters
- *
- */
+  /*
+   * Required Getters and Setters
+   *
+   */
 
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
@@ -60,12 +61,12 @@ public:
 
   Precision SurfaceArea() const override { return fCoaxialCones.fSurfaceArea; }
 
-  //Vector3D<Precision> SamplePointOnSurface() const override;
+  // Vector3D<Precision> SamplePointOnSurface() const override;
 
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
   {
-	  return fCoaxialCones.Normal(p, normal);
+    return fCoaxialCones.Normal(p, normal);
   }
 
   std::string GetEntityType() const { return "CoaxialCones"; }

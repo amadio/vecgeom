@@ -59,6 +59,42 @@ struct ConeImplementation {
   {
   }
 
+  /* A Function that will just check if the point is on the CONICAL (circle) edge
+   * assuming that it is on either lowerZ or upperZ
+   *
+   * Beware : It will not do any checks on Z
+   */
+  template <typename Real_v, bool ForInnerSurface, bool ForLowerZ>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static typename vecCore::Mask_v<Real_v> IsOnRing(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point)
+  {
+    using Bool_v = typename vecCore::Mask_v<Real_v>;
+
+    Real_v rad2 = point.Perp2();
+    Bool_v onRing(false);
+
+    if (ForLowerZ) {
+      if (ForInnerSurface) {
+        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin1, cone.fRmin1 * cone.fRmin1)) &&
+                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin1, cone.fRmin1 * cone.fRmin1));
+      } else {
+        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax1, cone.fRmax1 * cone.fRmax1)) &&
+                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax1, cone.fRmax1 * cone.fRmax1));
+      }
+    } else {
+      if (ForInnerSurface) {
+        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin2, cone.fRmin2 * cone.fRmin2)) &&
+                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin2, cone.fRmin2 * cone.fRmin2));
+      } else {
+        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax2, cone.fRmax2 * cone.fRmax2)) &&
+                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax2, cone.fRmax2 * cone.fRmax2));
+      }
+    }
+
+    return onRing;
+  }
+
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -489,7 +525,7 @@ struct ConeImplementation {
     }
   }
 };
-}
-}
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif
