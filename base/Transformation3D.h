@@ -31,7 +31,7 @@ enum RotationId { kGeneric = -1, kDiagonal = 0x111, kIdentity = 0x200 };
 namespace translation {
 enum TranslationId { kGeneric = -1, kIdentity = 0 };
 }
-}
+} // namespace vecgeom
 
 namespace vecgeom {
 
@@ -122,6 +122,26 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   ~Transformation3D() {}
+
+  VECCORE_ATT_HOST_DEVICE
+  void Clear()
+  {
+    fTranslation[0] = 0.;
+    fTranslation[1] = 0.;
+    fTranslation[2] = 0.;
+    fRotation[0]    = 1.;
+    fRotation[1]    = 0.;
+    fRotation[2]    = 0.;
+    fRotation[3]    = 0.;
+    fRotation[4]    = 1.;
+    fRotation[5]    = 0.;
+    fRotation[6]    = 0.;
+    fRotation[7]    = 0.;
+    fRotation[8]    = 1.;
+    fIdentity       = true;
+    fHasRotation    = false;
+    fHasTranslation = false;
+  }
 
   int MemorySize() const { return sizeof(*this); }
 
@@ -368,7 +388,7 @@ public:
     inverse.fIdentity       = fIdentity;
   }
 
-// Utility and CUDA
+  // Utility and CUDA
 
 #ifdef VECGEOM_CUDA_INTERFACE
   size_t DeviceSizeOf() const { return DevicePtr<cuda::Transformation3D>::SizeOf(); }
@@ -865,6 +885,6 @@ Vector3D<InputType> Transformation3D::TransformDirection(Vector3D<InputType> con
 
 std::ostream &operator<<(std::ostream &os, Transformation3D const &trans);
 }
-} // End global namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_BASE_TRANSFORMATION3D_H_

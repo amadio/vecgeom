@@ -118,12 +118,18 @@ private:
       fCurrentLevel; // value indicating the next free slot in the fPath array ( ergo the current geometry depth )
   // we choose unsigned char in order to save memory, thus supporting geometry depths up to 255 which seems large enough
 
-  bool fOnBoundary; // flag indicating whether track is on boundary of the "Top()" placed volume
-
   // a member to cache some state information across state usages
   // one particular example could be a calculated index for this state
   // if fCache == -1 it means the we have to recalculate it; otherwise we don't
   short fCache;
+
+  bool fOnBoundary; // flag indicating whether track is on boundary of the "Top()" placed volume
+
+#ifdef VECGEOM_CACHED_TRANS
+  // Cached transformation for top level
+  bool fCacheM = true; // flag indicating whether the global matrix for the state is cached
+  Transformation3D fTopTrans;
+#endif
 
   // pointer data follows; has to be last
   veccore::VariableSizeObj<Value_t> fPath;
@@ -137,7 +143,11 @@ private:
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   NavigationState(size_t new_size, NavigationState &other)
-      : fCurrentLevel(other.fCurrentLevel), fOnBoundary(other.fOnBoundary), fCache(-1), fPath(new_size, other.fPath)
+      : fCurrentLevel(other.fCurrentLevel), fCache(-1), fOnBoundary(other.fOnBoundary),
+#ifdef VECGEOM_CACHED_TRANS
+        fCacheM(other.fCacheM), fTopTrans(other.fTopTrans),
+#endif
+        fPath(new_size, other.fPath)
   {
     // Raw memcpy of the content to another existing state.
     //
@@ -337,6 +347,13 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void TopMatrix(Transformation3D &) const;
 
+#ifdef VECGEOM_CACHED_TRANS
+  /* @brief Update the cached top matrix */
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  void UpdateTopMatrix(Transformation3D *top_matrix = nullptr);
+#endif
+
   // returning a "delta" transformation that can transform
   // coordinates given in reference frame of this->Top() to the reference frame of other->Top()
   // simply with otherlocalcoordinate = delta.Transform( thislocalcoordinate )
@@ -425,6 +442,12 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool IsOnBoundary() const { return fOnBoundary; }
 
+#ifdef VECGEOM_CACHED_TRANS
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  bool IsMatrixCached() const { return fCacheM; }
+#endif
+
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   void SetBoundaryState(bool b) { fOnBoundary = b; }
@@ -454,9 +477,12 @@ NavigationState &NavigationState::operator=(NavigationState const &rhs)
 {
   if (this != &rhs) {
     fCurrentLevel = rhs.fCurrentLevel;
-    fOnBoundary   = rhs.fOnBoundary;
     fCache        = rhs.fCache;
-
+    fOnBoundary   = rhs.fOnBoundary;
+#ifdef VECGEOM_CACHED_TRANS
+    fCacheM   = rhs.fCacheM;
+    fTopTrans = rhs.fTopTrans;
+#endif
     // Use memcpy.  Potential truncation if this is smaller than rhs.
     fPath = rhs.fPath;
   }
@@ -476,16 +502,14 @@ NavigationState::NavigationState( NavigationState const & rhs ) :
 */
 
 // private implementation of standard constructor
-NavigationState::NavigationState(size_t nvalues) : fCurrentLevel(0), fOnBoundary(false), fCache(-1), fPath(nvalues)
+NavigationState::NavigationState(size_t nvalues) : fCurrentLevel(0), fCache(-1), fOnBoundary(false), fPath(nvalues)
 {
   // clear the buffer
   std::memset(fPath.GetValues(), 0, nvalues * sizeof(NavStateIndex_t));
 }
 
 VECCORE_ATT_HOST_DEVICE
-NavigationState::~NavigationState()
-{
-}
+NavigationState::~NavigationState() {}
 
 void NavigationState::Pop()
 {
@@ -493,6 +517,10 @@ void NavigationState::Pop()
     fCurrentLevel--;
     // note that we are not invalidating the "popped volume" here
     // in order to be able to query the last "exited volume" later
+    fCache = -1;
+#ifdef VECGEOM_CACHED_TRANS
+    fCacheM = false;
+#endif
   }
 }
 
@@ -501,6 +529,9 @@ void NavigationState::Clear()
   fCurrentLevel = 0;
   fOnBoundary   = false;
   fCache        = -1;
+#ifdef VECGEOM_CACHED_TRANS
+  fCacheM = true;
+#endif
 }
 
 void NavigationState::Push(VPlacedVolume const *v)
@@ -509,6 +540,9 @@ void NavigationState::Push(VPlacedVolume const *v)
   assert(fCurrentLevel < GetMaxLevel());
 #endif
   fPath[fCurrentLevel++] = ToIndex(v);
+#ifdef VECGEOM_CACHED_TRANS
+  fCacheM = false;
+#endif
 }
 
 void NavigationState::PushIndexType(NavStateIndex_t v)
@@ -517,6 +551,9 @@ void NavigationState::PushIndexType(NavStateIndex_t v)
   assert(fCurrentLevel < GetMaxLevel());
 #endif
   fPath[fCurrentLevel++] = v;
+#ifdef VECGEOM_CACHED_TRANS
+  fCacheM = false;
+#endif
 }
 
 VPlacedVolume const *NavigationState::Top() const
@@ -532,10 +569,36 @@ VECCORE_ATT_HOST_DEVICE
 void NavigationState::TopMatrix(Transformation3D &global_matrix) const
 {
   // this could be actually cached in case the path does not change ( particle stays inside a volume )
+#ifdef VECGEOM_CACHED_TRANS
+  if (fCacheM) {
+    global_matrix = fTopTrans;
+    return;
+  }
+#endif
   for (int i = 1; i < fCurrentLevel; ++i) {
     global_matrix.MultiplyFromRight(*(ToPlacedVolume(fPath[i])->GetTransformation()));
   }
 }
+
+#ifdef VECGEOM_CACHED_TRANS
+// Update the cached top matrix
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void NavigationState::UpdateTopMatrix(Transformation3D *top_matrix)
+{
+  // Update cached top transformation
+  if (fCacheM) return;
+  if (top_matrix) {
+    fTopTrans = *top_matrix;
+  } else {
+    // need to recompute
+    fTopTrans.Clear();
+    TopMatrix(fTopTrans);
+  }
+  // Flag matrix as cached
+  fCacheM = true;
+}
+#endif
 
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
@@ -622,8 +685,8 @@ inline void NavigationState::ConvertToCPUPointers()
     fPath[i] = ToIndex(vecgeom::CudaManager::Instance().LookupPlacedCPUPtr((const void *)ToPlacedVolume(fPath[i])));
 #endif
 }
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #if defined(GCC_DIAG_POP_NEEDED)
 #pragma GCC diagnostic pop

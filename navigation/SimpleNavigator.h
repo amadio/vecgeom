@@ -95,8 +95,8 @@ public:
                    ) const;
 
   /**
-  * A function to navigate ( find next boundary and/or the step to do )
-  */
+   * A function to navigate ( find next boundary and/or the step to do )
+   */
   VECCORE_ATT_HOST_DEVICE
   inline void FindNextBoundaryAndStep(Vector3D<Precision> const & /* global point */,
                                       Vector3D<Precision> const & /* global dir */,
@@ -230,8 +230,8 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
       int size;
       ABBoxManager::ABBoxContainer_v alignedbboxes =
           ABBoxManager::Instance().GetABBoxes_v(candvolume->GetLogicalVolume(), size);
-// here the loop is over groups of bounding boxes
-// it is basically linear but vectorizable search
+      // here the loop is over groups of bounding boxes
+      // it is basically linear but vectorizable search
 
 #ifdef CROSSCHECKLOCAL
       int boxcrosscheckid = -1;
@@ -424,7 +424,7 @@ bool SimpleNavigator::HasSamePath(Vector3D<Precision> const &globalpoint, Naviga
   Transformation3D m;
   currentstate.TopMatrix(m);
   Vector3D<Precision> localpoint = m.Transform(globalpoint);
-  newstate                       = currentstate;
+  currentstate.CopyTo(&newstate);
   RelocatePointFromPath(localpoint, newstate);
   return currentstate.HasSamePathAsOther(newstate);
 }
@@ -591,10 +591,10 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
   // nav->SetCurrentDirection( globaldir.x(), globaldir.y(), globaldir.z() );
   TGeoNode const *nextnode = nav->FindNextBoundaryAndStep(pstep);
 
-  VPlacedVolume const *vecgeomcmpnext  = NULL;
+  VPlacedVolume const *vecgeomcmpnext = NULL;
   if (nextnode != NULL) vecgeomcmpnext = RootGeoManager::Instance().GetPlacedVolume(nextnode);
 
-  VPlacedVolume const *vecgeomcmpcur  = NULL;
+  VPlacedVolume const *vecgeomcmpcur = NULL;
   if (orignode != NULL) vecgeomcmpcur = RootGeoManager::Instance().GetPlacedVolume(orignode);
 
 #ifndef VECCORE_CUDA
@@ -615,7 +615,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
               << "\n";
     std::cout << "  ROOT next volume " << ((nextnode != NULL) ? nextnode->GetVolume()->GetName() : " NULL ") << "\n";
     std::cout << "  VecGeom next volume " << ((newstate.Top() != NULL) ? newstate.Top()->GetLabel() : " NULL ") << "\n";
-// now list all distances to daughters and mother
+    // now list all distances to daughters and mother
 
 #ifdef VECGEOM_GEANT4
     // we can now do a comparison with G4 also
@@ -824,7 +824,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Container3D const &globalpoints, C
     }
   } // end loop over tracks for relocation
 }
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* SIMPLE_NAVIGATOR_H_ */
