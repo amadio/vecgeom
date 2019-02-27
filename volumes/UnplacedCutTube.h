@@ -67,7 +67,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  virtual ~UnplacedCutTube() = default;
+  virtual ~UnplacedCutTube() {}
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedCutTube(UnplacedCutTube const &other) : fCutTube(other.fCutTube) {}
@@ -134,18 +134,16 @@ public:
   VECGEOM_FORCE_INLINE
   Precision ZlimitBottom(Precision rVal, Precision phiVal) const
   {
-    return (-z() -
-            (rVal / BottomNormal().z()) *
-                (BottomNormal().x() * vecCore::math::Cos(phiVal) + BottomNormal().y() * vecCore::math::Sin(phiVal)));
+    return (-z() - (rVal / BottomNormal().z()) * (BottomNormal().x() * vecCore::math::Cos(phiVal) +
+                                                  BottomNormal().y() * vecCore::math::Sin(phiVal)));
   }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision ZlimitTop(Precision rVal, Precision phiVal) const
   {
-    return (z() -
-            (rVal / TopNormal().z()) *
-                (TopNormal().x() * vecCore::math::Cos(phiVal) + TopNormal().y() * vecCore::math::Sin(phiVal)));
+    return (z() - (rVal / TopNormal().z()) *
+                      (TopNormal().x() * vecCore::math::Cos(phiVal) + TopNormal().y() * vecCore::math::Sin(phiVal)));
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -153,10 +151,11 @@ public:
   Precision GetLateralArea(Precision rVal) const
   {
     return (2. * rVal * z() * dphi() -
-            rVal * rVal * (((TopNormal().x() / TopNormal().z() - BottomNormal().x() / BottomNormal().z()) *
-                            (fCutTube.fSinPhi2 - fCutTube.fSinPhi1)) -
-                           ((TopNormal().y() / TopNormal().z() - BottomNormal().y() / BottomNormal().z()) *
-                            (fCutTube.fCosPhi2 - fCutTube.fCosPhi1))));
+            rVal * rVal *
+                (((TopNormal().x() / TopNormal().z() - BottomNormal().x() / BottomNormal().z()) *
+                  (fCutTube.fSinPhi2 - fCutTube.fSinPhi1)) -
+                 ((TopNormal().y() / TopNormal().z() - BottomNormal().y() / BottomNormal().z()) *
+                  (fCutTube.fCosPhi2 - fCutTube.fCosPhi1))));
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -178,8 +177,9 @@ public:
   Precision GetLateralPhi1Area() const
   {
     if (dphi() == kTwoPi) return 0.;
-    return (0.5 * (rmax() - rmin()) * ((ZlimitTop(rmin(), sphi()) - ZlimitBottom(rmin(), sphi())) +
-                                       (ZlimitTop(rmax(), sphi()) - ZlimitBottom(rmax(), sphi()))));
+    return (0.5 * (rmax() - rmin()) *
+            ((ZlimitTop(rmin(), sphi()) - ZlimitBottom(rmin(), sphi())) +
+             (ZlimitTop(rmax(), sphi()) - ZlimitBottom(rmax(), sphi()))));
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -187,8 +187,9 @@ public:
   Precision GetLateralPhi2Area() const
   {
     if (dphi() == kTwoPi) return 0.;
-    return (0.5 * (rmax() - rmin()) * ((ZlimitTop(rmin(), sphi() + dphi()) - ZlimitBottom(rmin(), sphi() + dphi())) +
-                                       (ZlimitTop(rmax(), sphi() + dphi()) - ZlimitBottom(rmax(), sphi() + dphi()))));
+    return (0.5 * (rmax() - rmin()) *
+            ((ZlimitTop(rmin(), sphi() + dphi()) - ZlimitBottom(rmin(), sphi() + dphi())) +
+             (ZlimitTop(rmax(), sphi() + dphi()) - ZlimitBottom(rmax(), sphi() + dphi()))));
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -242,7 +243,7 @@ private:
 #endif
                                            VPlacedVolume *const placement = NULL) const final;
 };
-} // end inline namespace
-} // end vecgeom namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_UNPLACEDCUTTUBE_H_

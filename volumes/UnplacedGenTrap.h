@@ -37,10 +37,10 @@ public:
   UnplacedGenTrap() : fGenTrap() {}
 
   /** @brief UnplacedGenTrap constructor
-    * @param verticesx X positions of vertices in array form
-    * @param verticesy Y positions of vertices in array form
-    * @param halfzheight The half-height of the GenTrap
-    */
+   * @param verticesx X positions of vertices in array form
+   * @param verticesy Y positions of vertices in array form
+   * @param halfzheight The half-height of the GenTrap
+   */
   VECCORE_ATT_HOST_DEVICE
   UnplacedGenTrap(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
       : fGenTrap(verticesx, verticesy, halfzheight)
@@ -50,7 +50,7 @@ public:
 
   /** @brief UnplacedGenTrap destructor */
   VECCORE_ATT_HOST_DEVICE
-  virtual ~UnplacedGenTrap() = default;
+  virtual ~UnplacedGenTrap() {}
 
   VECCORE_ATT_HOST_DEVICE
   bool Initialize(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
@@ -209,7 +209,7 @@ private:
                                            VPlacedVolume *const placement = NULL) const final;
 
 }; // end of class declaration
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_UNPLACEDGENTRAP_H_

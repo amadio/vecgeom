@@ -23,7 +23,7 @@ public:
   CutPlanes() {}
 
   VECCORE_ATT_HOST_DEVICE
-  ~CutPlanes() = default;
+  ~CutPlanes() {}
 
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -169,8 +169,8 @@ void CutPlanes::SafetyToOut(Vector3D<Real_v> const &point, Real_v &distance) con
   distance = vecCore::math::Min(d0, d1);
 }
 
-} // End inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_CUTPLANES_H_

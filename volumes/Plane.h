@@ -30,7 +30,7 @@ public:
   Plane() : fNormal(), fDistance(0.) {}
 
   VECCORE_ATT_HOST_DEVICE
-  ~Plane() = default;
+  ~Plane() {}
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -190,8 +190,8 @@ void Plane::SafetyToOut(Vector3D<Real_v> const &point, Real_v &distance) const
   distance = -DistPlane(point);
 }
 
-} // End inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLANE_H_

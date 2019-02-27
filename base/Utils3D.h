@@ -39,6 +39,7 @@ struct Plane {
   double fDist = 0.;      ///< Distance to plane (positive if origin on same side as normal)
 
   Plane() : fNorm() {}
+
   Plane(Vector3D<double> const &norm, double dist)
   {
     fNorm = norm;
@@ -68,12 +69,15 @@ struct Polygon {
   vector_t<Vec_t> fSides; ///< [fN] Side vectors
 
   /// @brief Constructor taking the number of vertices, a reference to a vector of vertices and the convexity
+  VECCORE_ATT_HOST_DEVICE
   Polygon(size_t n, vector_t<Vec_t> &vertices, bool convex = false);
 
   // @brief Fast constructor with no checks in case of convex polygons, providing the normal vector (normalized)
+  VECCORE_ATT_HOST_DEVICE
   Polygon(size_t n, vector_t<Vec_t> &vertices, Vec_t const &norm);
 
   /// @brief Copy constructor ignoring the computed segments
+  VECCORE_ATT_HOST_DEVICE
   Polygon(const Polygon &other)
       : fN(other.fN), fConvex(other.fConvex), fHasNorm(other.fHasNorm), fDist(other.fDist), fNorm(other.fNorm),
         fVert(other.fVert), fInd(fN), fSides(fN)
@@ -82,6 +86,7 @@ struct Polygon {
   }
 
   /// @brief Assignment operator
+  VECGEOM_FORCE_INLINE
   Polygon &operator=(const Polygon &other)
   {
     if (&other == this) return *this;

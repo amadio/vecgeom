@@ -24,6 +24,7 @@ class UnplacedEllipticalTube : public SIMDUnplacedVolumeImplHelper<EllipticalTub
 private:
   EllipticalTubeStruct<Precision> fEllipticalTube;
 
+  VECCORE_ATT_HOST_DEVICE
   void CheckParameters();
 
 public:
@@ -45,6 +46,8 @@ public:
   VECGEOM_FORCE_INLINE
   Precision GetDz() const { return fEllipticalTube.fDz; }
 
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   void SetParameters(Precision dx, Precision dy, Precision dz)
   {
     fEllipticalTube.fDx = dx;
@@ -52,16 +55,25 @@ public:
     fEllipticalTube.fDz = dz;
     CheckParameters();
   };
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   void SetDx(Precision dx)
   {
     fEllipticalTube.fDx = dx;
     CheckParameters();
   };
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   void SetDy(Precision dy)
   {
     fEllipticalTube.fDy = dy;
     CheckParameters();
   };
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   void SetDz(Precision dz)
   {
     fEllipticalTube.fDz = dz;

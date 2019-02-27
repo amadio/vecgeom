@@ -22,14 +22,14 @@ struct PolyconeSection {
   PolyconeSection() : fSolid(0), fShift(0.0), fTubular(0), fConvex(0) {}
 
   VECCORE_ATT_HOST_DEVICE
-  ~PolyconeSection() = default;
+  ~PolyconeSection() {}
 
   ConeStruct<double> *fSolid;
   double fShift;
   bool fTubular;
   bool fConvex; // TRUE if all points in section are concave in regards to whole polycone, will be determined
 };
-}
-}
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif
