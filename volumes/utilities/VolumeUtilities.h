@@ -730,14 +730,14 @@ inline void FillGlobalPointsAndDirectionsForLogicalVolume(int id, TrackContainer
  *
  * @details Points coordinates are based on the global
  *   reference frame.  The positions have to be within a given logical
- *   volume, and not within any daughters of that logical volume.
+ *   volume, and optionally not within any daughters of that logical volume.
  *
  * * @param np: number of particles
  *
  */
 template <typename TrackContainer>
 inline void FillGlobalPointsForLogicalVolume(LogicalVolume const *lvol, TrackContainer &localpoints,
-                                             TrackContainer &globalpoints, int np)
+                                             TrackContainer &globalpoints, int np, bool maybeindaughters = false)
 {
 
   // we need to generate a list of all the paths ( or placements ) which reference
@@ -750,8 +750,12 @@ inline void FillGlobalPointsForLogicalVolume(LogicalVolume const *lvol, TrackCon
     // get one representative of such a logical volume
     VPlacedVolume const *pvol = allpaths.front()->Top();
 
-    // generate points which are in lvol but not in its daughters
-    FillUncontainedPoints(*pvol, localpoints);
+    if (maybeindaughters) {
+      FillContainedPoints(*pvol, localpoints);
+    } else {
+      // generate points which are in lvol but not in its daughters
+      FillUncontainedPoints(*pvol, localpoints);
+    }
 
     // transform points to global frame
     globalpoints.resize(globalpoints.capacity());
