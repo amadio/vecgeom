@@ -53,12 +53,9 @@ UnplacedGenericPolycone::UnplacedGenericPolycone(Precision phiStart, // initial 
 #endif
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedGenericPolycone::CheckParameters() {}
-
-VECCORE_ATT_HOST_DEVICE
 void UnplacedGenericPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
-  /*  Algo : Extent along Z direction will Z[0] and Z[max]
+  /*  Algo : Extent along Z direction will be Z[0] and Z[max]
    *         Extent along X and Y will be from the Extent of
    *         cone/tube formed with Maximum outer radius
    */
@@ -127,12 +124,6 @@ bool UnplacedGenericPolycone::Normal(Vector3D<Precision> const &point, Vector3D<
   return valid;
 }
 
-#if (0)
-/* Implementation NOT properly tested, thats why NOT using this and using
- * the generic one from UnplacedVolume.
- *
- * This must be revived later with proper testing
- */
 Vector3D<Precision> UnplacedGenericPolycone::SamplePointOnSurface() const
 {
   /* Algo : First select the section
@@ -150,7 +141,6 @@ Vector3D<Precision> UnplacedGenericPolycone::SamplePointOnSurface() const
                                              coneStruct->fRmax2, coneStruct->fDz, coneStruct->fSPhi, coneStruct->fDPhi);
   return coneUnplaced->SamplePointOnSurface();
 }
-#endif
 
 // VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedGenericPolycone::StreamInfo(std::ostream &os) const

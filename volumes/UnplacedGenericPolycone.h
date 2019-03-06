@@ -37,23 +37,11 @@ private:
   Vector3D<Precision> fAMin;
   Vector3D<Precision> fAMax;
 
-  void CheckParameters();
-
 public:
   /*
-   * All the required Parametric GenericPolycone Constructor
+   * All the required GenericPolycone Constructor
    *
    */
-
-  /*
-    // This constructor will be used internally, and NOT to be exposed to the user
-    VECCORE_ATT_HOST_DEVICE
-    UnplacedGenericPolycone(Vector<Vector<ConeParam>> sectionsParamVector, Vector<Precision> zS)
-        : fSectionsParamVector(sectionsParamVector), fGenericPolycone(sectionsParamVector, zS)
-    {
-    }
-  */
-
   VECCORE_ATT_HOST_DEVICE
   UnplacedGenericPolycone() {}
 
@@ -66,11 +54,6 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   GenericPolyconeStruct<Precision> const &GetStruct() const { return fGenericPolycone; }
-
-  /*
-   * Check Parameter function if required
-   *
-   */
 
   /*
    * Required Getters and Setters
@@ -107,8 +90,7 @@ public:
   // Using the Generic implementation from UnplacedVolume
   Precision SurfaceArea() const override { return EstimateSurfaceArea(); }
 
-  // Curently using the Generic Implementation from UnplacedVolume
-  // Vector3D<Precision> SamplePointOnSurface() const override;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   std::string GetEntityType() const { return "GenericPolycone"; }
 

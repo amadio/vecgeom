@@ -26,22 +26,7 @@ int main(int argc, char *argv[])
   UnplacedBox worldUnplaced = UnplacedBox(50., 50., 50.);
   LogicalVolume world("world", &worldUnplaced);
 
-  /*
-    constexpr int numRz = 6;
-    double r[numRz] = {1.,2.,4.,5.,5.,1.};
-    double z[numRz] = {1.,2.,2.,1.,3.,3.};
-    auto genericPolyconeUnplaced = GeoManager::MakeInstance<UnplacedGenericPolycone>(sphi,dphi,numRz,r,z);
-  */
-
-  /*
-    constexpr int numRz = 5;
-    double r[numRz] = {0.,  2.,   3., 3., 0.};
-    double z[numRz] = {-1., -1.,  0., 1., 1.};
-
-   // auto genericPolyconeUnplaced = GeoManager::MakeInstance<UnplacedPolycone>(sphi,dphi,numRz,r,z);
-    auto genericPolyconeUnplaced = GeoManager::MakeInstance<UnplacedGenericPolycone>(sphi,dphi,numRz,r,z);
-  */
-
+  /* GenericPolycone as specified in jira issue 425 */
   const int numRZ1    = 10;
   double polycone_r[] = {1, 5, 3, 4, 9, 9, 3, 3, 2, 1};
   double polycone_z[] = {0, 1, 2, 3, 0, 5, 4, 3, 2, 1};
@@ -69,7 +54,4 @@ int main(int argc, char *argv[])
   std::cout << "Returned Tester code : " << testerCode << std::endl;
   std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
   return testerCode;
-
-  // return tester.RunToInBenchmark();
-  //  return tester.RunToOutBenchmark()+tester.RunInsideBenchmark() + tester.RunToInBenchmark();
 }
