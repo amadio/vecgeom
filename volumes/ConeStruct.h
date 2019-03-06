@@ -14,6 +14,8 @@
 
 namespace vecgeom {
 
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(struct, ConeStruct, typename);
+
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // a plain and lightweight struct to encapsulate data members of a Cone
@@ -76,6 +78,12 @@ struct ConeStruct {
   Precision fZNormOuter;
   Precision fConeTolerance;
 
+  /* Some additional variable to store original Rmax
+   * for the cases when Rmax is modified because of Rmin==Rmax
+   */
+  Precision fOriginalRmax1;
+  Precision fOriginalRmax2;
+
   Precision Capacity() const
   {
     return (fDz * fDPhi / 3.) *
@@ -85,6 +93,9 @@ struct ConeStruct {
   VECCORE_ATT_HOST_DEVICE
   void CalculateCached()
   {
+    fOriginalRmax1 = fRmax1;
+    fOriginalRmax2 = fRmax2;
+
     if (fRmin1 == fRmax1) {
       fRmax1 += kConeTolerance;
     }
@@ -401,7 +412,7 @@ struct ConeStruct {
     // DetectConvexity();
   }
 };
-}
-} // end global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

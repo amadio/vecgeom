@@ -13,6 +13,7 @@
 #include "volumes/ConeStruct.h"
 #include "volumes/kernel/GenericKernels.h"
 #include "volumes/kernel/shapetypes/ConeTypes.h"
+#include "volumes/kernel/TubeImplementation.h"
 #include <cstdio>
 
 #define kConeTolerance 1e-7
@@ -132,19 +133,19 @@ static Real_v GetRadiusOfConeAtPoint(UnplacedStruct_t const &cone, Real_v const 
 #endif
 
 /*
-* Check intersection of the trajectory with a phi-plane
-* All points of the along-vector of a phi plane lie on
-* s * (alongX, alongY)
-* All points of the trajectory of the particle lie on
-* (x, y) + t * (vx, vy)
-* Thefore, it must hold that s * (alongX, alongY) == (x, y) + t * (vx, vy)
-* Solving by t we get t = (alongY*x - alongX*y) / (vy*alongX - vx*alongY)
-* s = (x + t*vx) / alongX = (newx) / alongX
-*
-* If we have two non colinear phi-planes, need to make sure
-* point falls on its positive direction <=> dot product between
-* along vector and hit-point is positive <=> hitx*alongX + hity*alongY > 0
-*/
+ * Check intersection of the trajectory with a phi-plane
+ * All points of the along-vector of a phi plane lie on
+ * s * (alongX, alongY)
+ * All points of the trajectory of the particle lie on
+ * (x, y) + t * (vx, vy)
+ * Thefore, it must hold that s * (alongX, alongY) == (x, y) + t * (vx, vy)
+ * Solving by t we get t = (alongY*x - alongX*y) / (vy*alongX - vx*alongY)
+ * s = (x + t*vx) / alongX = (newx) / alongX
+ *
+ * If we have two non colinear phi-planes, need to make sure
+ * point falls on its positive direction <=> dot product between
+ * along vector and hit-point is positive <=> hitx*alongX + hity*alongY > 0
+ */
 
 template <typename Real_v, typename ConeType, bool PositiveDirectionOfPhiVector, bool insectorCheck>
 VECGEOM_FORCE_INLINE
@@ -244,7 +245,7 @@ static typename vecCore::Mask_v<Real_v> IsOnConicalSurface(UnplacedStruct_t cons
   const Real_v coneRad2  = coneRad * coneRad;
   const Real_v tolerance = (ForInnerSurface) ? cone.fInnerTolerance : cone.fOuterTolerance;
   return (rho >= (coneRad2 - tolerance * coneRad)) && (rho <= (coneRad2 + tolerance * coneRad)) &&
-         (Abs(point.z()) < (cone.fDz + kTolerance));
+         (Abs(point.z()) < (cone.fDz + kConeTolerance));
 }
 
 template <typename Real_v, bool ForInnerSurface>
@@ -327,7 +328,7 @@ static typename vecCore::Mask_v<Real_v> IsOnZPlaneAndMovingOutside(UnplacedStruc
   }
 }
 
-} // End of NS ConeUtilities
+} // namespace ConeUtilities
 
 /* This class is introduced to allow Partial Specialization of selected functions,
 ** and will be very much useful when running Cone and Polycone in Scalar mode
@@ -437,20 +438,20 @@ public:
 
     } else {
 
-      Precision rmax1 = cone.fRmax1;
-      Precision rmax2 = cone.fRmax2;
-      if (rmax1 == rmax2) {
+      // if (rmax1 == rmax2) {
+      if (cone.fOriginalRmax1 == cone.fOriginalRmax2) {
         b = pDotV2D;
         a = direction.Perp2();
-        c = point.Perp2() - rmax2 * rmax2;
+        c = point.Perp2() - cone.fOriginalRmax2 * cone.fOriginalRmax2;
       } else {
 
         Precision t = cone.fTanOuterApexAngle;
         Real_v newPz(0.);
-        if (cone.fRmax2 > cone.fRmax1)
+        // if (cone.fRmax2 > cone.fRmax1)
+        if (cone.fOriginalRmax2 > cone.fOriginalRmax1)
           newPz = (point.z() + fDz + cone.fOuterConeApex) * t;
         else
-          newPz     = (point.z() - fDz - cone.fOuterConeApex) * t;
+          newPz = (point.z() - fDz - cone.fOuterConeApex) * t;
         Real_v dirT = direction.z() * t;
         a           = direction.x() * direction.x() + direction.y() * direction.y() - dirT * dirT;
         b           = pDotV2D - (newPz * dirT);
@@ -510,9 +511,13 @@ public:
     }
 
     // check on RMAX
+    Real_v rmax(0.);
     Real_v r2 = point.x() * point.x() + point.y() * point.y();
     // calculate cone radius at the z-height of position
-    Real_v rmax  = cone.fOuterSlope * point.z() + cone.fOuterOffset;
+    if (cone.fOriginalRmax1 == cone.fOriginalRmax2)
+      rmax = Real_v(cone.fOriginalRmax1);
+    else
+      rmax = cone.fOuterSlope * point.z() + cone.fOuterOffset;
     Real_v rmax2 = rmax * rmax;
 
     completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
@@ -676,26 +681,29 @@ public:
 
     } else {
 
-      if (cone.fRmax1 == cone.fRmax2) {
-        b = pDotV2D;
+      /*if (cone.fRmax1 == cone.fRmax2) {*/
+      if (cone.fOriginalRmax1 == cone.fOriginalRmax2) {
+
         a = direction.Perp2();
-        c = point.Perp2() - cone.fRmax2 * cone.fRmax2;
+        b = pDotV2D;
+        c = (point.Perp2() - cone.fOriginalRmax2 * cone.fOriginalRmax2);
       } else {
 
         Precision newPz(0.);
-        if (cone.fRmax2 > cone.fRmax1)
+        // if (cone.fRmax2 > cone.fRmax1)
+        if (cone.fOriginalRmax2 > cone.fOriginalRmax1)
           newPz = (point.z() + cone.fDz + cone.fOuterConeApex) * cone.fTanOuterApexAngle;
         else
-          newPz        = (point.z() - cone.fDz - cone.fOuterConeApex) * cone.fTanOuterApexAngle;
+          newPz = (point.z() - cone.fDz - cone.fOuterConeApex) * cone.fTanOuterApexAngle;
         Precision dirT = direction.z() * cone.fTanOuterApexAngle;
         a              = direction.x() * direction.x() + direction.y() * direction.y() - dirT * dirT;
-        b              = pDotV2D - (newPz * dirT);
-        c              = point.Perp2() - (newPz * newPz);
+        b              = (pDotV2D - (newPz * dirT));
+        c              = (point.Perp2() - (newPz * newPz));
       }
       Precision b2 = b * b;
       Precision ac = a * c;
-      if (b2 < ac) return false;
-      Precision d2    = b2 - ac;
+      Precision d2 = b2 - ac;
+      if (d2 < 0) return false;
       Precision delta = Sqrt(d2);
 
       if (ForDistToIn) {
@@ -755,7 +763,12 @@ public:
     // check on RMAX
     Precision r2 = point.x() * point.x() + point.y() * point.y();
     // calculate cone radius at the z-height of position
-    Precision rmax  = cone.fOuterSlope * point.z() + cone.fOuterOffset;
+    Precision rmax = 0.;
+    if (cone.fOriginalRmax1 == cone.fOriginalRmax2)
+      rmax = cone.fOriginalRmax1;
+    else
+      rmax = cone.fOuterSlope * point.z() + cone.fOuterOffset;
+
     Precision rmax2 = rmax * rmax;
 
     completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
@@ -793,12 +806,12 @@ public:
   {
     bool completelyinside(false), completelyoutside(false);
     GenericKernelForContainsAndInside<true>(cone, point, completelyinside, completelyoutside);
-    inside                        = EInside::kSurface;
+    inside = EInside::kSurface;
     if (completelyoutside) inside = EInside::kOutside;
-    if (completelyinside) inside  = EInside::kInside;
+    if (completelyinside) inside = EInside::kInside;
   }
 };
-}
-}
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif
