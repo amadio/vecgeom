@@ -318,6 +318,7 @@ struct GenericPolyconeImplementation {
         } else {
           // pn.z() -= section.fShift;
           CoaxialConesImplementation::template DistanceToOut<Real_v>(*section.fCoaxialCones, pn, dir, stepMax, dist);
+          if (dist < 0.) break;
           totalDistance += dist;
           pn += dir * dist;
           pn.z() += section.fShift;
