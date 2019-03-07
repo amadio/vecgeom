@@ -123,10 +123,18 @@ static Real_v GetRadiusOfConeAtPoint(UnplacedStruct_t const &cone, Real_v const 
 {
 
   if (ForInnerRadius) {
-    return cone.fInnerSlope * pointZ + cone.fInnerOffset;
+    if (cone.fRmin1 == cone.fRmin2) {
+      return cone.fRmin1;
+    } else {
+      return cone.fInnerSlope * pointZ + cone.fInnerOffset;
+    }
 
   } else {
-    return cone.fOuterSlope * pointZ + cone.fOuterOffset;
+    if (cone.fOriginalRmax1 == cone.fOriginalRmax2) {
+      return cone.fOriginalRmax1;
+    } else {
+      return cone.fOuterSlope * pointZ + cone.fOuterOffset;
+    }
   }
 }
 
@@ -469,11 +477,14 @@ public:
       } else {
         vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
         vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
+        ok = distance > 0.;
       }
 
       if (vecCore::MaskFull(distance < 0.)) return Bool_t(false);
-      Real_v newZ = point.z() + (direction.z() * distance);
-      ok          = (Abs(newZ) < fDz + kHalfConeTolerance);
+      if (ForDistToIn) {
+        Real_v newZ = point.z() + (direction.z() * distance);
+        ok          = (Abs(newZ) < cone.fDz + kHalfTolerance);
+      }
     }
     vecCore__MaskedAssignFunc(distance, distance < 0., Real_v(kInfLength));
 
@@ -713,23 +724,23 @@ public:
         } else {
           distance = (c / NonZero(-b + delta));
         }
-
+        Precision newZ = point.z() + (direction.z() * distance);
+        ok             = (Abs(newZ) < cone.fDz + kHalfTolerance);
       } else {
         if (b < 0.) {
           distance = (-b + delta) / NonZero(a);
         } else {
           distance = (c / NonZero(-b - delta));
         }
+        ok = distance > 0.;
       }
 
       if (distance < 0.) return false;
-      Precision newZ = point.z() + (direction.z() * distance);
-      ok             = (Abs(newZ) < cone.fDz + kHalfConeTolerance);
     }
-    if (distance < 0.) {
-      distance = kInfLength;
-    }
-
+    /*   if (distance < 0.) {
+         distance = kInfLength;
+       }
+   */
     if (checkPhiTreatment<coneTypeT>(cone)) {
       Precision hitx(0), hity(0);
       bool insector(false);
