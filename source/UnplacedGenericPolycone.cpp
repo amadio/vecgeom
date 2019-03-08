@@ -25,11 +25,10 @@ UnplacedGenericPolycone::UnplacedGenericPolycone(Precision phiStart, // initial 
                                                  Precision const *r, // r coordinate of these corners
                                                  Precision const *z)
 {
-
-  // std::cout << "Using VecGeom Generic Polycone............." << std::endl;
-  fSPhi  = phiStart;
-  fDPhi  = phiTotal;
-  fNumRZ = numRZ;
+  fGlobalConvexity = false;
+  fSPhi            = phiStart;
+  fDPhi            = phiTotal;
+  fNumRZ           = numRZ;
   for (int i = 0; i < numRZ; i++) {
     fR.push_back(r[i]);
     fZ.push_back(z[i]);
@@ -50,7 +49,6 @@ UnplacedGenericPolycone::UnplacedGenericPolycone(Precision phiStart, // initial 
   fGenericPolycone.Set(vectOfRmin1Vect, vectOfRmax1Vect, vectOfRmin2Vect, vectOfRmax2Vect, zS, fSPhi, fDPhi);
 }
 
-VECCORE_ATT_HOST_DEVICE
 void UnplacedGenericPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   /*  Algo : Extent along Z direction will be Z[0] and Z[max]

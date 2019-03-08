@@ -4,11 +4,9 @@
 #include "volumes/PlacedGenericPolycone.h"
 #include "volumes/SpecializedGenericPolycone.h"
 #ifdef VECGEOM_ROOT
-// include header file for ROOT elliptical Cone as done for Tube below
-//#include "TGeoEltu.h"
+
 #endif
 #ifdef VECGEOM_GEANT4
-// include header file for Geant elliptical Cone as done for Tube below
 #include "G4GenericPolycone.hh"
 #endif
 
@@ -38,8 +36,7 @@ VPlacedVolume const *PlacedGenericPolycone::ConvertToUnspecialized() const
 #ifdef VECGEOM_ROOT
 TGeoShape const *PlacedGenericPolycone::ConvertToRoot() const
 {
-  // Return the ROOT EllipticCone object like follows
-  // return new TGeoEltu(GetLabel().c_str(), GetDx(), GetDy(), GetDz());
+  return nullptr; // There is no corresponding TGeo shape
 }
 #endif
 

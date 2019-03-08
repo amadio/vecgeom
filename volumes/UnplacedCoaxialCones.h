@@ -24,8 +24,6 @@ class UnplacedCoaxialCones : public SIMDUnplacedVolumeImplHelper<CoaxialConesImp
 private:
   CoaxialConesStruct<Precision> fCoaxialCones;
 
-  void CheckParameters();
-
 public:
   /*
    * All the required Parametric CoaxialCones Constructor
@@ -44,24 +42,11 @@ public:
   VECCORE_ATT_HOST_DEVICE
   CoaxialConesStruct<Precision> const &GetStruct() const { return fCoaxialCones; }
 
-  /*
-   * Check Parameter function if required
-   *
-   */
-
-  /*
-   * Required Getters and Setters
-   *
-   */
-
-  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
   Precision Capacity() const override { return fCoaxialCones.fCubicVolume; }
 
   Precision SurfaceArea() const override { return fCoaxialCones.fSurfaceArea; }
-
-  // Vector3D<Precision> SamplePointOnSurface() const override;
 
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override

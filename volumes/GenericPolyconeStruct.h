@@ -112,7 +112,7 @@ struct GenericPolyconeStruct {
       }
     }
   */
-
+  VECCORE_ATT_HOST_DEVICE
   Precision Capacity()
   {
     Precision volume = 0.;

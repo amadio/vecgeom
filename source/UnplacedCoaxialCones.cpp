@@ -12,37 +12,9 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-/* Default constructor kept for reference only,
- * May be removed later
- */
-/*
-//VECCORE_ATT_HOST_DEVICE
-UnplacedCoaxialCones::UnplacedCoaxialCones()
-{
-  // Call the SetParameters function if required
-  //SetParameters
-  fGlobalConvexity = true;
-}
-*/
-
-/*
- * All the required Parametric Constructor
- *
- */
-
-VECCORE_ATT_HOST_DEVICE
-void UnplacedCoaxialCones::CheckParameters() {}
-
-VECCORE_ATT_HOST_DEVICE
 void UnplacedCoaxialCones::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const {}
 
-#if (0)
-Vector3D<Precision> UnplacedCoaxialCones::SamplePointOnSurface() const {}
-#endif
-
-// VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedCoaxialCones::StreamInfo(std::ostream &os) const
-// Definition taken from UCoaxialCones
 {
   int oldprc = os.precision(16);
   os << "-----------------------------------------------------------\n"
@@ -60,14 +32,12 @@ std::ostream &UnplacedCoaxialCones::StreamInfo(std::ostream &os) const
 
 void UnplacedCoaxialCones::Print() const
 {
-  // Provided Elliptical Cone Parameters as done for Tube below
-  // printf("CoaxialCones {%.2f, %.2f, %.2f}", fCoaxialCones.fDx, fCoaxialCones.fDy, fCoaxialCones.fDz);
+  printf("CoaxialCones");
 }
 
 void UnplacedCoaxialCones::Print(std::ostream &os) const
 {
-  // Provided Elliptical Cone Parameters as done for Tube below
-  // os << "CoaxialCones {" << fEllipticalTube.fDx << ", " << fEllipticalTube.fDy << ", " << fEllipticalTube.fDz << "}";
+  os << "CoaxialCones";
 }
 
 #ifndef VECCORE_CUDA

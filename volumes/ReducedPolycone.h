@@ -29,7 +29,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 struct IndexStruct {
   unsigned int index;
   double distance;
-
+  VECCORE_ATT_HOST_DEVICE
   IndexStruct(unsigned int ind, double dist) : index(ind), distance(dist) {}
 };
 
@@ -50,20 +50,20 @@ struct Line2D {
     p1 = p1v;
     p2 = p2v;
   }
-
+#ifndef VECCORE_CUDA
   void Print()
   {
     std::cout << p1 << " : ";
     std::cout << p2 << std::endl;
   }
-
+#endif
   VECCORE_ATT_HOST_DEVICE
   Line2D(Precision rmax, Precision zval)
   {
     p1 = Vector2D<Precision>(0, zval);
     p2 = Vector2D<Precision>(rmax, zval);
   }
-
+  VECCORE_ATT_HOST_DEVICE
   Precision GetHorizontalDistance(double yVal)
   {
     if (p1.x() == p2.x()) {
@@ -94,13 +94,14 @@ struct Section {
       : rMin1(rmin1), rMax1(rmax1), rMin2(rmin2), rMax2(rmax2), z1(Z1), z2(Z2)
   {
   }
-
+#ifndef VECCORE_CUDA
   void Print()
   {
 
     std::cout << "Rmin1 : " << rMin1 << " :: Rmax1 : " << rMax1 << " :: Z1 : " << z1 << std::endl
               << "Rmin2 : " << rMin2 << " :: Rmax2 : " << rMax2 << " :: Z2 : " << z2 << std::endl;
   }
+#endif
 };
 
 // struct ConeParam;

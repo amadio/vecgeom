@@ -168,7 +168,7 @@ bool ReducedPolycone::Contour(Vector<Precision> z)
 #ifndef VECCORE_CUDA
     std::cerr << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"
               << "@@@@ Polycone CAN'T handle contours of specified type @@@@ \n"
-              << "@@@@ Kindly use GenericPolycone of Geant4             @@@@\n"
+              << "@@@@        Kindly use GenericPolycone                @@@@\n"
               << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
 #endif
     return contour;
@@ -489,8 +489,8 @@ bool ReducedPolycone::CheckGeneric()
               << "@@@@@@         Not a VALID Contour....             @@@@@@@ \n"
               << "@@@@@@     Kindly check Contour Parameters         @@@@@@@\n"
               << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-#endif
     exit(1);
+#endif
   }
   return contour;
 }

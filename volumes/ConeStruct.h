@@ -84,6 +84,7 @@ struct ConeStruct {
   Precision fOriginalRmax1;
   Precision fOriginalRmax2;
 
+  VECCORE_ATT_HOST_DEVICE
   Precision Capacity() const
   {
     return (fDz * fDPhi / 3.) *
@@ -174,6 +175,7 @@ struct ConeStruct {
   VECCORE_ATT_HOST_DEVICE
   bool IsFullPhi() const { return fDPhi == kTwoPi; }
 
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &norm) const
   {
     int noSurfaces = 0;
@@ -190,8 +192,8 @@ struct ConeStruct {
     norm = sumnorm;
 
     // do not use an extra fabs here -- negative/positive distZ tells us when point is outside or inside
-    distZ = std::fabs(p.z()) - fDz;
-    rho   = std::sqrt(p.x() * p.x() + p.y() * p.y());
+    distZ = vecCore::math::Abs(p.z()) - fDz;
+    rho   = vecCore::math::Sqrt(p.x() * p.x() + p.y() * p.y());
 
     pRMin    = rho - p.z() * fTanRMin;
     widRMin  = fRmin2 - fDz * fTanRMin;
@@ -215,7 +217,7 @@ struct ConeStruct {
 
     if (!IsFullPhi()) {
       if (rho) { // Protected against (0,0,z)
-        pPhi = std::atan2(p.y(), p.x());
+        pPhi = vecCore::math::ATan2(p.y(), p.x());
 
         if (pPhi < fSPhi - kHalfTolerance)
           pPhi += 2 * kPi;
@@ -225,16 +227,16 @@ struct ConeStruct {
         distSPhi = rho * (pPhi - fSPhi);
         distEPhi = rho * (pPhi - fSPhi - fDPhi);
         inside   = inside && (distSPhi > -kTolerance) && (distEPhi < kTolerance);
-        distSPhi = std::abs(distSPhi);
-        distEPhi = std::abs(distEPhi);
+        distSPhi = vecCore::math::Abs(distSPhi);
+        distEPhi = vecCore::math::Abs(distEPhi);
       }
 
       else if (!(fRmin1) || !(fRmin2)) {
         distSPhi = 0.;
         distEPhi = 0.;
       }
-      nPs = Vector3D<Precision>(std::sin(fSPhi), -std::cos(fSPhi), 0);
-      nPe = Vector3D<Precision>(-std::sin(fSPhi + fDPhi), std::cos(fSPhi + fDPhi), 0);
+      nPs = Vector3D<Precision>(vecCore::math::Sin(fSPhi), -vecCore::math::Cos(fSPhi), 0);
+      nPe = Vector3D<Precision>(-vecCore::math::Sin(fSPhi + fDPhi), vecCore::math::Cos(fSPhi + fDPhi), 0);
     }
 
     if (rho > kHalfTolerance) {
