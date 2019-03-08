@@ -18,7 +18,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  * All the required Parametric Constructor
  */
 
-#if (1)
 VECCORE_ATT_HOST_DEVICE
 UnplacedGenericPolycone::UnplacedGenericPolycone(Precision phiStart, // initial phi starting angle
                                                  Precision phiTotal, // total phi angle
@@ -50,7 +49,6 @@ UnplacedGenericPolycone::UnplacedGenericPolycone(Precision phiStart, // initial 
 
   fGenericPolycone.Set(vectOfRmin1Vect, vectOfRmax1Vect, vectOfRmin2Vect, vectOfRmax2Vect, zS, fSPhi, fDPhi);
 }
-#endif
 
 VECCORE_ATT_HOST_DEVICE
 void UnplacedGenericPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
@@ -142,28 +140,21 @@ Vector3D<Precision> UnplacedGenericPolycone::SamplePointOnSurface() const
   return coneUnplaced->SamplePointOnSurface();
 }
 
-// VECCORE_ATT_HOST_DEVICE
-std::ostream &UnplacedGenericPolycone::StreamInfo(std::ostream &os) const
-// Definition taken from UGenericPolycone
-{
-  int oldprc = os.precision(16);
-  os << "-----------------------------------------------------------\n"
-     //  << "     *** Dump for solid - " << GetName() << " ***\n"
-     //  << "     ===================================================\n"
-
-     << " Solid type: GenericPolycone\n"
-     << " Parameters: \n"
-
-     << "-----------------------------------------------------------\n";
-  os.precision(oldprc);
-
-  return os;
-}
-
 void UnplacedGenericPolycone::Print() const
 {
   // Provided Elliptical Cone Parameters as done for Tube below
   // printf("GenericPolycone {%.2f, %.2f, %.2f}", fGenericPolycone.fDx, fGenericPolycone.fDy, fGenericPolycone.fDz);
+  printf("---------------------------------------------------\n");
+  printf(" Solid type: GenericPolycone\n");
+  printf(" Parameters: \n");
+  printf("    starting phi angle : %f radians\n", fSPhi);
+  printf("    ending phi angle : %f radians\n", fDPhi);
+  printf("    number of RZ points : %d\n", fNumRZ);
+  printf("              RZ values (corners): \n");
+  for (int i = 0; i < fNumRZ; i++) {
+    printf("          %f, %f\n", fR[i], fZ[i]);
+  }
+  printf("---------------------------------------------------\n");
 }
 
 void UnplacedGenericPolycone::Print(std::ostream &os) const
@@ -171,6 +162,18 @@ void UnplacedGenericPolycone::Print(std::ostream &os) const
   // Provided Elliptical Cone Parameters as done for Tube below
   // os << "GenericPolycone {" << fEllipticalTube.fDx << ", " << fEllipticalTube.fDy << ", " << fEllipticalTube.fDz <<
   // "}";
+  os << "---------------------------------------------------\n"
+     << " Solid type: GenericPolycone\n"
+     << " Parameters: \n"
+     << "    starting phi angle : " << fSPhi << " radians \n"
+     << "    ending phi angle   : " << fDPhi << " radians \n";
+
+  os << "    number of RZ points: " << fNumRZ << "\n"
+     << "              RZ values (corners): \n";
+  for (int i = 0; i < fNumRZ; i++) {
+    os << "                         " << fR[i] << ", " << fZ[i] << "\n";
+  }
+  os << "-----------------------------------------------------------\n";
 }
 
 #ifndef VECCORE_CUDA

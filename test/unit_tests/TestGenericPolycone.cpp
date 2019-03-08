@@ -215,6 +215,18 @@ bool TestGenericPolycone()
     std::cout << "Moved Point : 		" << (ptToIn + Dist * dirPtToIn) << std::endl;
     std::cout << "Radius of Moved Point : " << (ptToIn + Dist * dirPtToIn).Perp() << std::endl;
     std::cout << "Location of Moved point : " << poly2->Inside(ptToIn + Dist * dirPtToIn) << std::endl;
+
+    {
+      std::cout << "\n======== Dissecting safetytoout ==================" << std::endl;
+      Vec_t pt(-0.5731061999726463351834127, -8.981734202455164961520495, 0.3047303633861303540086851);
+      Vec_t dir(-0.6122635507109631669564465, 0.3466338756867177739451336, -0.7106182524374172748693468);
+      std::cout << pt << std::endl;
+      std::cout << "Location : " << poly2->Inside(pt) << std::endl;
+      Dist = poly2->DistanceToOut(pt, dir);
+      std::cout << "DistanceToOut : " << Dist << std::endl;
+      Dist = poly2->SafetyToOut(pt);
+      std::cout << "SafetyToOut : " << Dist << std::endl;
+    }
   }
 #endif
 

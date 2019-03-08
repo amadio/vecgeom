@@ -34,7 +34,7 @@ struct GenericPolyconeImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void PrintType()
   {
-    //  printf("SpecializedGenericPolycone<%i, %i>", transCodeT, rotCodeT);
+    // printf("SpecializedGenericPolycone<%i, %i>", transCodeT, rotCodeT);
   }
 
   template <typename Stream>
@@ -53,9 +53,7 @@ struct GenericPolyconeImplementation {
   template <typename Stream>
   static void PrintUnplacedType(Stream &st)
   {
-    (void)st;
-    // TODO: this is wrong
-    // st << "UnplacedGenericPolycone";
+    st << "UnplacedGenericPolycone";
   }
 
   template <typename Real_v, bool ForInside>
@@ -67,7 +65,6 @@ struct GenericPolyconeImplementation {
                                        typename vecCore::Mask_v<Real_v> &secFullyOutside)
   {
 
-    // using namespace PolyconeTypes;
     using namespace ConeTypes;
 
     if (isect < 0) {
@@ -271,8 +268,7 @@ struct GenericPolyconeImplementation {
 
     int indexLow  = polycone.GetSectionIndex(point.z() - kTolerance);
     int indexHigh = polycone.GetSectionIndex(point.z() + kTolerance);
-    // std::cout <<"IndexLow : " << indexLow <<" : IndexHigh : " << indexHigh << std::endl;
-    int index = 0;
+    int index     = 0;
     if (indexLow < 0 && indexHigh < 0) {
       distance = -1;
       return;
@@ -304,8 +300,6 @@ struct GenericPolyconeImplementation {
         index                                 = indexLow;
         const GenericPolyconeSection &section = polycone.GetSection(index);
         pn.z() -= section.fShift;
-        // CoaxialConesImplementation::template Inside<Real_v>(*section.fCoaxialCones, point - Vector3D<Precision>(0, 0,
-        // section.fShift), inside);
         CoaxialConesImplementation::template Inside<Real_v>(*section.fCoaxialCones, pn, inside);
         if (inside == EInside::kOutside) {
           if (count == 1) {
@@ -316,7 +310,6 @@ struct GenericPolyconeImplementation {
             return;
           }
         } else {
-          // pn.z() -= section.fShift;
           CoaxialConesImplementation::template DistanceToOut<Real_v>(*section.fCoaxialCones, pn, dir, stepMax, dist);
           if (dist < 0.) break;
           totalDistance += dist;
@@ -326,173 +319,10 @@ struct GenericPolyconeImplementation {
         indexLow += increment;
         indexHigh += increment;
       }
-      //} while(indexLow > -1 && indexHigh < polycone.GetNSections());//end of do-while
     } while (indexLow > -1 && indexLow < polycone.GetNSections()); // end of do-while
     distance = totalDistance;
     return;
   }
-
-#if (0)
-  template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &polycone, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &dir, Real_v const &stepMax, Real_v &distance)
-  {
-    // using namespace PolyconeTypes;
-    distance            = kInfLength;
-    Vector3D<Real_v> pn = point;
-
-    // specialization for N==1??? It should be a cone in the first place
-    if (polycone.GetNSections() == 1) {
-      const GenericPolyconeSection &section = polycone.GetSection(0);
-
-      CoaxialConesImplementation::template DistanceToOut<Real_v>(
-          *section.fCoaxialCones, point - Vector3D<Precision>(0, 0, section.fShift), dir, stepMax, distance);
-
-      return;
-    }
-
-    int indexLow  = polycone.GetSectionIndex(point.z() - kTolerance);
-    int indexHigh = polycone.GetSectionIndex(point.z() + kTolerance);
-    std::cout << "IndexLow : " << indexLow << " : " << indexHigh << std::endl;
-    int index = 0;
-
-    // section index is -1 when out of left-end
-    // section index is -2 when beyond right-end
-
-    if (indexLow < 0 && indexHigh < 0) {
-      distance = -1;
-      return;
-    } else if (indexLow < 0 && indexHigh >= 0) {
-      index                                 = indexHigh;
-      const GenericPolyconeSection &section = polycone.GetSection(index);
-
-      Inside_t inside;
-      //      ConeImplementation<ConeTypes::UniversalCone>::Inside<Real_v>(
-      //          *section.fSolid, point - Vector3D<Precision>(0, 0, section.fShift), inside);
-      CoaxialConesImplementation::template Inside<Real_v>(*section.fCoaxialCones,
-                                                          point - Vector3D<Precision>(0, 0, section.fShift), inside);
-      if (inside == EInside::kOutside) {
-        distance = -1;
-        return;
-      }
-    } else if (indexLow != indexHigh && (indexLow >= 0)) {
-      // we are close to an intermediate Surface, section has to be identified
-      const GenericPolyconeSection &section = polycone.GetSection(indexLow);
-
-      Inside_t inside;
-      //      ConeImplementation<ConeTypes::UniversalCone>::Inside<Real_v>(
-      //        *section.fSolid, point - Vector3D<Precision>(0, 0, section.fShift), inside);
-
-      CoaxialConesImplementation::template Inside<Real_v>(*section.fCoaxialCones,
-                                                          point - Vector3D<Precision>(0, 0, section.fShift), inside);
-
-      if (inside == EInside::kOutside) {
-        index = indexHigh;
-      } else {
-        index = indexLow;
-      }
-    } else {
-      index = indexLow;
-      if (index < 0) index = polycone.GetSectionIndex(point.z());
-    }
-    if (index < 0) {
-      distance = 0.;
-      return;
-    }
-    // Added
-    else {
-      const GenericPolyconeSection &section = polycone.GetSection(index);
-
-      Inside_t inside;
-      //      ConeImplementation<ConeTypes::UniversalCone>::Inside<Real_v>(
-      //          *section.fSolid, point - Vector3D<Precision>(0, 0, section.fShift), inside);
-      CoaxialConesImplementation::template Inside<Real_v>(*section.fCoaxialCones,
-                                                          point - Vector3D<Precision>(0, 0, section.fShift), inside);
-      if (inside == EInside::kOutside) {
-        distance = -1;
-        return;
-      }
-    }
-
-    Precision totalDistance = 0.;
-    Precision dist          = 0.;
-    int increment           = (dir.z() > 0) ? 1 : -1;
-    if (std::fabs(dir.z()) < kTolerance) increment = 0;
-
-    // int counter = 0 ;
-    Precision localCheckZ = point.z();
-    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
-    // What is the relevance of istep?
-    int istep             = 0;
-    bool anotherBreakCond = true;
-    do {
-
-      const GenericPolyconeSection &section = polycone.GetSection(index);
-
-      if ((totalDistance != 0) || (istep < 2)) {
-        pn = point + totalDistance * dir; // point must be shifted, so it could eventually get into another solid
-        pn.z() -= section.fShift;
-        Inside_t inside;
-        //        ConeImplementation<ConeTypes::UniversalCone>::Inside<Real_v>(*section.fSolid, pn, inside);
-        CoaxialConesImplementation::template Inside<Real_v>(*section.fCoaxialCones, pn, inside);
-
-        if (inside == EInside::kOutside) {
-          break;
-        }
-      } else
-        pn.z() -= section.fShift;
-
-      istep++;
-
-      // ConeImplementation<ConeTypes::UniversalCone>::DistanceToOut<Real_v>(*section.fSolid, pn, dir, stepMax, dist);
-      CoaxialConesImplementation::template DistanceToOut<Real_v>(*section.fCoaxialCones, pn, dir, stepMax, dist);
-      if (dist == -1) return;
-
-      // Section Surface case
-      if (std::fabs(dist) < 0.5 * kTolerance) {
-        int index1 = index;
-        if ((index > 0) && (index < polycone.GetNSections() - 1)) {
-          index1 += increment;
-        } else {
-          if ((index == 0) && (increment > 0)) index1 += increment;
-          if ((index == polycone.GetNSections() - 1) && (increment < 0)) index1 += increment;
-        }
-
-        Vector3D<Precision> pte                = point + (totalDistance + dist) * dir;
-        const GenericPolyconeSection &section1 = polycone.GetSection(index1);
-        pte.z() -= section1.fShift;
-        Vector3D<Precision> localp;
-        Inside_t inside22;
-        // ConeImplementation<ConeTypes::UniversalCone>::Inside<Real_v>(*section1.fSolid, pte, inside22);
-        CoaxialConesImplementation::template Inside<Real_v>(*section1.fCoaxialCones, pte, inside22);
-        if (inside22 == 3 || (increment == 0)) {
-          break;
-        }
-      } // end if surface case
-
-      // counter++;
-      std::cout << "localCheckZ before moving : " << localCheckZ << " : dist : " << dist << std::endl;
-      localCheckZ += dist * dir.z();
-      std::cout << "localCheckZ : " << localCheckZ << " : fZs(index+1) : " << polycone.fZs[index + 1] << std::endl;
-
-      totalDistance += dist;
-      std::cout << "TotalDist : " << totalDistance << std::endl;
-      index += increment;
-
-      // anotherBreakCond = (index < polycone.GetNSections()-1) && (localCheckZ == polycone.fZs[index+1]);
-      // anotherBreakCond = (localCheckZ == polycone.fZs[index+1]);
-
-    } while (increment != 0 && index >= 0 && index < polycone.GetNSections() &&
-             anotherBreakCond /* && localCheckZ == polycone.fZs[indexHigh+1] && indexLow==indexHigh*/);
-    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
-
-    distance = totalDistance;
-
-    return;
-  }
-#endif
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
@@ -566,6 +396,11 @@ struct GenericPolyconeImplementation {
       return;
     }
 
+    if (!compIn && !compOut) {
+      safety = 0.;
+      return;
+    }
+
     int index = polycone.GetSectionIndex(point.z());
     if (index < 0) {
       safety = -1;
@@ -575,7 +410,6 @@ struct GenericPolyconeImplementation {
     GenericPolyconeSection const &sec = polycone.GetSection(index);
 
     Vector3D<Real_v> p = point - Vector3D<Precision>(0, 0, sec.fShift);
-    // ConeImplementation<ConeTypes::UniversalCone>::SafetyToOut<Real_v>(*sec.fSolid, p, safety);
     CoaxialConesImplementation::template SafetyToOut<Real_v>(*sec.fCoaxialCones, p, safety);
 
     Precision minSafety = safety;
@@ -595,7 +429,6 @@ struct GenericPolyconeImplementation {
       GenericPolyconeSection const &sect = polycone.GetSection(i);
       p                                  = point - Vector3D<Precision>(0, 0, sect.fShift);
 
-      // ConeImplementation<ConeTypes::UniversalCone>::SafetyToIn<Real_v>(*sect.fSolid, p, safety);
       CoaxialConesImplementation::template SafetyToIn<Real_v>(*sect.fCoaxialCones, p, safety);
 
       if (safety < minSafety) minSafety = safety;
@@ -609,7 +442,6 @@ struct GenericPolyconeImplementation {
         GenericPolyconeSection const &sect = polycone.GetSection(i);
         p                                  = point - Vector3D<Precision>(0, 0, sect.fShift);
 
-        // ConeImplementation<ConeTypes::UniversalCone>::SafetyToIn<Real_v>(*sect.fSolid, p, safety);
         CoaxialConesImplementation::template SafetyToIn<Real_v>(*sect.fCoaxialCones, p, safety);
 
         if (safety < minSafety) minSafety = safety;
@@ -619,18 +451,6 @@ struct GenericPolyconeImplementation {
     safety = minSafety;
     return;
   }
-  /*
-    template <typename Real_v>
-    VECGEOM_FORCE_INLINE
-    VECCORE_ATT_HOST_DEVICE
-    static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &genericPolycone, Vector3D<Real_v> const &point,
-                                         typename vecCore::Mask_v<Real_v> &valid)
-    {
-      // Computes the normal on a surface and returns it as a unit vector
-      Vector3D<Real_v> normal(0., 0., 0.);
-      return normal;
-    }
-  */
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

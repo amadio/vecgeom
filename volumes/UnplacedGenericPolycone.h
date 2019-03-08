@@ -8,7 +8,7 @@
 #include "base/AlignedBase.h"
 #include "base/Vector3D.h"
 #include "volumes/UnplacedVolume.h"
-#include "volumes/GenericPolyconeStruct.h" // the pure GenericPolycone struct
+#include "volumes/GenericPolyconeStruct.h"
 #include "volumes/kernel/GenericPolyconeImplementation.h"
 #include "volumes/UnplacedVolumeImplHelper.h"
 #include "volumes/ReducedPolycone.h"
@@ -23,7 +23,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedGenericPolycone : public LoopUnplacedVolumeImplHelper<GenericPolyconeImplementation>, public AlignedBase {
 
 private:
-  // Vector<Vector<ConeParam>> fSectionsParamVector;
   GenericPolyconeStruct<Precision> fGenericPolycone;
 
   // Original Polycone Parameters
@@ -82,6 +81,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
+
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const override;
 
@@ -93,8 +93,6 @@ public:
   Vector3D<Precision> SamplePointOnSurface() const override;
 
   std::string GetEntityType() const { return "GenericPolycone"; }
-
-  std::ostream &StreamInfo(std::ostream &os) const;
 
 public:
   virtual int MemorySize() const final { return sizeof(*this); }
