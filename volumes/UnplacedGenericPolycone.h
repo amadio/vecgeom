@@ -79,6 +79,7 @@ public:
   VECGEOM_FORCE_INLINE
   Vector<Precision> GetZ() const { return fZ; }
 
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
   VECCORE_ATT_HOST_DEVICE

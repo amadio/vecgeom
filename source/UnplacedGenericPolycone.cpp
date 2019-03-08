@@ -49,6 +49,7 @@ UnplacedGenericPolycone::UnplacedGenericPolycone(Precision phiStart, // initial 
   fGenericPolycone.Set(vectOfRmin1Vect, vectOfRmax1Vect, vectOfRmin2Vect, vectOfRmax2Vect, zS, fSPhi, fDPhi);
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedGenericPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   /*  Algo : Extent along Z direction will be Z[0] and Z[max]
@@ -61,10 +62,17 @@ void UnplacedGenericPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precisi
       rmax = fR[i];
     }
   }
-  auto coneUnplaced = GeoManager::MakeInstance<UnplacedCone>(0., rmax, 0., rmax, 1., fSPhi, fDPhi);
+  /* Using the simplest extent for the time being, because
+   * currently it's not possible to generate a Cone using
+   * factory on GPU. Once it becomes possible then the code
+   * written below can be used.
+   */
+  aMin.Set(-rmax, -rmax, fAMin.z());
+  aMin.Set(rmax, rmax, fAMax.z());
+  /*auto coneUnplaced = GeoManager::MakeInstance<UnplacedCone>(0., rmax, 0., rmax, 1., fSPhi, fDPhi);
   coneUnplaced->Extent(aMin, aMax);
   aMin.z() = fAMin.z();
-  aMax.z() = fAMax.z();
+  aMax.z() = fAMax.z();*/
 }
 
 /* Borrowed the definition from Polycone and made the required modifications*/

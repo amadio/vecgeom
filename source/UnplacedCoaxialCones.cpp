@@ -12,6 +12,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCoaxialCones::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const {}
 
 std::ostream &UnplacedCoaxialCones::StreamInfo(std::ostream &os) const

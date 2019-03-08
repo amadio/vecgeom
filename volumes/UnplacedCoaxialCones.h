@@ -42,6 +42,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   CoaxialConesStruct<Precision> const &GetStruct() const { return fCoaxialCones; }
 
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
   Precision Capacity() const override { return fCoaxialCones.fCubicVolume; }
