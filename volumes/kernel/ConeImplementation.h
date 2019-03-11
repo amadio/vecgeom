@@ -240,14 +240,14 @@ struct ConeImplementation {
 
       Float_t dist_phi;
       Bool_t ok_phi;
-      PhiPlaneTrajectoryIntersection<Real_v, coneTypeT, SectorType<coneTypeT>::value != kPi, true>(
+      PhiPlaneTrajectoryIntersection<Real_v, coneTypeT, SectorType<coneTypeT>::value != kOnePi, true>(
           cone.fAlongPhi1x, cone.fAlongPhi1y, w.GetNormal1().x(), w.GetNormal1().y(), cone, point, dir, dist_phi,
           ok_phi);
       ok_phi &= dist_phi < distance;
       vecCore::MaskedAssign(distance, !done && ok_phi, dist_phi);
       done |= ok_phi;
 
-      if (SectorType<coneTypeT>::value != kPi) {
+      if (SectorType<coneTypeT>::value != kOnePi) {
 
         PhiPlaneTrajectoryIntersection<Real_v, coneTypeT, true, true>(cone.fAlongPhi2x, cone.fAlongPhi2y,
                                                                       w.GetNormal2().x(), w.GetNormal2().y(), cone,
@@ -350,14 +350,14 @@ struct ConeImplementation {
       Real_v dist_phi;
       Bool_t ok_phi;
       evolution::Wedge const &w = cone.fPhiWedge;
-      PhiPlaneTrajectoryIntersection<Real_v, coneTypeT, SectorType<coneTypeT>::value != kPi, false>(
+      PhiPlaneTrajectoryIntersection<Real_v, coneTypeT, SectorType<coneTypeT>::value != kOnePi, false>(
           cone.fAlongPhi1x, cone.fAlongPhi1y, w.GetNormal1().x(), w.GetNormal1().y(), cone, point, direction, dist_phi,
           ok_phi);
       ok_phi &= dist_phi < distance;
       vecCore::MaskedAssign(distance, !done && ok_phi, dist_phi);
       done |= ok_phi;
 
-      if (SectorType<coneTypeT>::value != kPi) {
+      if (SectorType<coneTypeT>::value != kOnePi) {
         ConeUtilities::PhiPlaneTrajectoryIntersection<Real_v, coneTypeT, true, false>(
             cone.fAlongPhi2x, cone.fAlongPhi2y, w.GetNormal2().x(), w.GetNormal2().y(), cone, point, direction,
             dist_phi, ok_phi);

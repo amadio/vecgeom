@@ -90,7 +90,7 @@ static void PointInCyclicalSector(UnplacedStruct_t const &volume, Real_v const &
   if (SectorType<ShapeType>::value == kUnknownAngle)
     smallerthanpi = volume.fDPhi <= M_PI;
   else
-    smallerthanpi = SectorType<ShapeType>::value == kPi || SectorType<ShapeType>::value == kSmallerThanPi;
+    smallerthanpi = SectorType<ShapeType>::value == kOnePi || SectorType<ShapeType>::value == kSmallerThanPi;
 
   Real_v startCheck = (-x * starty) + (y * startx);
   Real_v endCheck   = (-endx * y) + (endy * x);
