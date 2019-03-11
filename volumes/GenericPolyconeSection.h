@@ -1,9 +1,6 @@
-/*
- * ConeStruct.h
- *
- *  Created on: May 11, 2017
- *      Author: Raman Sehgal
- */
+/// @file GenericPolyconeSection.h
+/// @author Raman Sehgal (raman.sehgal@cern.ch)
+
 #ifndef VECGEOM_GENERICPOLYCONESECTION_H_
 #define VECGEOM_GENERICPOLYCONESECTION_H_
 
@@ -23,9 +20,8 @@ struct GenericPolyconeSection {
   GenericPolyconeSection() : fCoaxialCones(0), fShift(0.0), fTubular(0), fConvex(0) {}
 
   VECCORE_ATT_HOST_DEVICE
-  ~GenericPolyconeSection() = default;
+  ~GenericPolyconeSection() {}
 
-  // Vector<ConeStruct<double>*> fConeStructVector;
   CoaxialConesStruct<Precision> *fCoaxialCones;
   double fShift;
   bool fTubular;
