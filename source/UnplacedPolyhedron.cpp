@@ -173,15 +173,14 @@ Precision UnplacedPolyhedron::Capacity() const
         Vector3D<Precision> d = outercorners[3][0];
         Precision volume      = VolumeHelperFunc(a, b, c, d); // outer volume
 
-        if (GetZSegment(j).hasInnerRadius) {
-          if (GetZSegment(j).inner.size() > 0) {
-            auto innercorners = GetZSegment(j).inner.GetCorners();
-            a                 = innercorners[0][0];
-            b                 = innercorners[1][0];
-            c                 = innercorners[2][0];
-            d                 = innercorners[3][0];
-            volume -= VolumeHelperFunc(a, b, c, d); // subtract inner volume
-          }
+        if (GetZSegment(j).inner.size() > 0) {
+          auto innercorners = GetZSegment(j).inner.GetCorners();
+
+          a = innercorners[0][0];
+          b = innercorners[1][0];
+          c = innercorners[2][0];
+          d = innercorners[3][0];
+          volume -= VolumeHelperFunc(a, b, c, d); // subtract inner volume
         }
         fPoly.fCapacity += volume;
       }
@@ -206,7 +205,7 @@ Precision UnplacedPolyhedron::SurfaceArea() const
       area = GetZSegment(j).outer.GetQuadrilateralArea(0) * GetSideCount();
       totArea += area;
 
-      if (GetZSegment(j).hasInnerRadius) {
+      if (GetZSegment(j).inner.size() > 0) {
         area = GetZSegment(j).inner.GetQuadrilateralArea(0) * GetSideCount();
         totArea += area;
       }
@@ -223,7 +222,7 @@ Precision UnplacedPolyhedron::SurfaceArea() const
     Vector3D<Precision> point1 = GetZSegment(0).outer.GetCorners()[0][0];
     Vector3D<Precision> point2 = GetZSegment(0).outer.GetCorners()[1][0];
     Vector3D<Precision> point3, point4;
-    if (GetZSegment(0).hasInnerRadius) {
+    if (GetZSegment(0).inner.size() > 0) {
       point3 = GetZSegment(0).inner.GetCorners()[0][0];
       point4 = GetZSegment(0).inner.GetCorners()[1][0];
       aTop   = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
@@ -238,7 +237,7 @@ Precision UnplacedPolyhedron::SurfaceArea() const
     point1 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][0];
     point2 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[3][0];
 
-    if (GetZSegment(GetZSegmentCount() - 1).hasInnerRadius) {
+    if (GetZSegment(GetZSegmentCount() - 1).inner.size() > 0) {
       point3  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[2][0];
       point4  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[3][0];
       aBottom = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
@@ -362,7 +361,7 @@ Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
     area = GetZSegment(j).outer.GetQuadrilateralArea(0);
     totArea += area * GetSideCount();
     aVector1.push_back(area);
-    if (GetZSegment(j).hasInnerRadius) {
+    if (GetZSegment(j).inner.size() > 0) {
       area = GetZSegment(j).inner.GetQuadrilateralArea(0);
       totArea += area * GetSideCount();
       aVector2.push_back(area);
@@ -384,7 +383,7 @@ Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
   Vector3D<Precision> point1 = GetZSegment(0).outer.GetCorners()[0][0];
   Vector3D<Precision> point2 = GetZSegment(0).outer.GetCorners()[1][0];
   Vector3D<Precision> point3, point4;
-  if (GetZSegment(0).hasInnerRadius) {
+  if (GetZSegment(0).inner.size() > 0) {
     point3 = GetZSegment(0).inner.GetCorners()[0][0];
     point4 = GetZSegment(0).inner.GetCorners()[1][0];
     aTop   = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
@@ -397,7 +396,7 @@ Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
   point1 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][0];
   point2 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[3][0];
 
-  if (GetZSegment(GetZSegmentCount() - 1).hasInnerRadius) {
+  if (GetZSegment(GetZSegmentCount() - 1).inner.size() > 0) {
     point3  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[2][0];
     point4  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[3][0];
     aBottom = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
@@ -423,7 +422,7 @@ Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
       point1 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][Flag];
       point2 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[3][Flag];
       // Avoid generating points on degenerated triangles
-      if (GetZSegment(GetZSegmentCount() - 1).hasInnerRadius) {
+      if (GetZSegment(GetZSegmentCount() - 1).inner.size() > 0) {
         point3 = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[2][Flag];
         point4 = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[3][Flag];
         if ((point4 - point3).Mag2() < kTolerance || RNG::Instance().uniform(0.0, 1.0) < 0.5)
@@ -439,7 +438,7 @@ Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
       point1 = GetZSegment(0).outer.GetCorners()[0][Flag];
       point2 = GetZSegment(0).outer.GetCorners()[1][Flag];
 
-      if (GetZSegment(0).hasInnerRadius) {
+      if (GetZSegment(0).inner.size() > 0) {
         point3 = GetZSegment(0).inner.GetCorners()[0][Flag];
         point4 = GetZSegment(0).inner.GetCorners()[1][Flag];
         // Avoid generating points on degenerated triangles
@@ -524,7 +523,7 @@ void UnplacedPolyhedron::PrintSegments() const
       fPoly.fZSegments[i].phi.Print();
       printf("\n");
     }
-    if (fPoly.fZSegments[i].hasInnerRadius) {
+    if (fPoly.fZSegments[i].inner.size() > 0) {
       printf("  Inner: ");
       fPoly.fZSegments[i].inner.Print();
       printf("\n");
