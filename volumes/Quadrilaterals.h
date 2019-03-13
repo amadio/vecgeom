@@ -220,9 +220,6 @@ Quadrilaterals::Corners_t const &Quadrilaterals::GetCorners() const
 VECCORE_ATT_HOST_DEVICE
 Precision Quadrilaterals::GetTriangleArea(int index, int iCorner1, int iCorner2) const
 {
-  assert(index < fCorners[0].size());
-  assert(index < fCorners[iCorner1].size());
-  assert(index < fCorners[iCorner2].size());
   Precision fArea          = 0.;
   Vector3D<Precision> vec1 = fCorners[iCorner1][index] - fCorners[0][index];
   Vector3D<Precision> vec2 = fCorners[iCorner2][index] - fCorners[0][index];

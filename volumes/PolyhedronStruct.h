@@ -42,7 +42,7 @@ struct ZSegment {
   Quadrilaterals outer; ///< Should always be non-empty.
   Quadrilaterals phi;   ///< Is empty if fHasPhiCutout is false.
   Quadrilaterals inner; ///< Is empty hasInnerRadius is false.
-  bool hasInnerRadius;  ///< Indicates whether any inner quadrilaterals are present in this segment.
+  bool hasInnerRadius() const { return inner.size() > 0; }
 };
 
 // a plain and lightweight struct to encapsulate data members of a polyhedron
@@ -262,7 +262,7 @@ struct PolyhedronStruct {
       // Z-planes must be monotonically increasing
       assert(zPlanes[i] <= zPlanes[i + 1]);
 
-      fZSegments[i].hasInnerRadius = rMin[i] > 0 || rMin[i + 1] > 0;
+      bool hasInnerRadius = rMin[i] > 0 || rMin[i + 1] > 0;
 
       int multiplier = (zPlanes[i] == zPlanes[i + 1] && rMax[i] == rMax[i + 1]) ? 0 : 1;
 
@@ -277,7 +277,7 @@ struct PolyhedronStruct {
 
       multiplier = (zPlanes[i] == zPlanes[i + 1] && rMin[i] == rMin[i + 1]) ? 0 : 1;
 
-      if (fZSegments[i].hasInnerRadius) {
+      if (hasInnerRadius && multiplier > 0) {
         new (&fZSegments[i].inner) Quadrilaterals(sideCount * multiplier);
         fHasInnerRadii = true;
       }
@@ -374,15 +374,13 @@ struct PolyhedronStruct {
           fZSegments[iPlane].outer.FlipSign(iSide);
         }
       }
-      if (fZSegments[iPlane].hasInnerRadius) {
-        for (int iSide = 0; iSide < fZSegments[iPlane].inner.size(); ++iSide) {
-          fZSegments[iPlane].inner.Set(
-              iSide, innerVertices[VertixIndex(iPlane, iSide)], innerVertices[VertixIndex(iPlane, iSide + 1)],
-              innerVertices[VertixIndex(iPlane + 1, iSide + 1)], innerVertices[VertixIndex(iPlane + 1, iSide)]);
-          // Normal has to point away from Z-axis
-          if (WrongNormal(fZSegments[iPlane].inner.GetNormal(iSide), innerVertices[VertixIndex(iPlane, iSide)])) {
-            fZSegments[iPlane].inner.FlipSign(iSide);
-          }
+      for (int iSide = 0; iSide < fZSegments[iPlane].inner.size(); ++iSide) {
+        fZSegments[iPlane].inner.Set(
+            iSide, innerVertices[VertixIndex(iPlane, iSide)], innerVertices[VertixIndex(iPlane, iSide + 1)],
+            innerVertices[VertixIndex(iPlane + 1, iSide + 1)], innerVertices[VertixIndex(iPlane + 1, iSide)]);
+        // Normal has to point away from Z-axis
+        if (WrongNormal(fZSegments[iPlane].inner.GetNormal(iSide), innerVertices[VertixIndex(iPlane, iSide)])) {
+          fZSegments[iPlane].inner.FlipSign(iSide);
         }
       }
 

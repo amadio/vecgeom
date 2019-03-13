@@ -399,7 +399,7 @@ Real_v PolyhedronImplementation<innerRadiiT, phiCutoutT>::DistanceToInZSegment(U
   if (vecCore::MaskFull(done)) return distance;
 
   // Finally treat inner shell
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+  if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
     vecCore__MaskedAssignFunc(distance, !done, (segment.inner.DistanceToIn<Real_v, true>(point, direction)));
   }
 
@@ -424,7 +424,7 @@ Real_v PolyhedronImplementation<innerRadiiT, phiCutoutT>::DistanceToOutZSegment(
   ZSegment const &segment = unplaced.fZSegments[segmentIndex];
 
   // Check inner shell first, as it would always be the correct result
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+  if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
     distance = segment.inner.DistanceToIn<Real_v, false>(point, direction);
     done     = distance < InfinityLength<Real_v>();
     if (vecCore::MaskFull(done)) return distance;
@@ -473,7 +473,7 @@ Precision PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarSafetyToZSegm
       // inner part if there is a large cutout
       if (in_cutout) {
         if (LargePhiCutout<phiCutoutT>(unplaced.fHasLargePhiCutout) &&
-            TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+            TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
           if (segment.inner.size() > 0) {
             Precision safetySquaredInner = segment.inner.ScalarDistanceSquared(0, point);
             if (safetySquaredInner < safetySquared) {
@@ -518,7 +518,7 @@ Precision PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarSafetyToZSegm
       }
     }
     Precision safetySquaredInner = InfinityLength<Precision>();
-    if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+    if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
       if (segment.inner.size() > 0) {
         safetySquaredInner = segment.inner.ScalarDistanceSquared(0, point);
         if (safetySquaredInner < safetySquared) {
@@ -546,7 +546,7 @@ Precision PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarSafetyToZSegm
 
   // And finally the inner
   Precision safetySquaredInner = InfinityLength<Precision>();
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+  if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
     if (segment.inner.size() > 0) safetySquaredInner = segment.inner.ScalarDistanceSquared(phiIndex, point);
   }
   if (safetySquaredInner < safetySquared) {
@@ -604,7 +604,7 @@ void PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarDistanceToEndcaps(
   Vector3D<Precision> intersection = point + distanceTest * direction;
   // Intersection point must be inside outer shell and outside inner shell
   if (!segment->outer.Contains<Precision>(intersection)) return;
-  if (TreatInner<innerRadiiT>(segment->hasInnerRadius)) {
+  if (TreatInner<innerRadiiT>(segment->hasInnerRadius())) {
     if (segment->inner.Contains<Precision>(intersection)) return;
   }
   // Intersection point must not be in phi cutout wedge
@@ -643,7 +643,7 @@ void PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarSafetyToEndcapsSqu
   // Check if projection is within the endcap bounds
   Vector3D<Precision> intersection(point[0], point[1], point[2] + distanceTest);
   if (!segment.outer.Contains<Precision>(intersection)) return;
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+  if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
     if (segment.inner.Contains<Precision>(intersection)) return;
   }
   if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
@@ -688,7 +688,7 @@ bool PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarSegmentContainsKer
   if (!segment.outer.Contains<Precision>(point)) return false;
 
   // Check that the point is not in the inner shell
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+  if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
     if (segment.inner.Contains<Precision>(point)) return false;
   }
 
@@ -745,7 +745,7 @@ bool PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarContainsKernel(Unp
   if (!segment.outer.Contains<Precision>(point)) return false;
 
   // Check that the point is not in the inner shell
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+  if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
     if (segment.inner.Contains<Precision>(point)) return false;
   }
 
@@ -793,7 +793,7 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideKernel(U
   }
 
   // Check that the point is not in the inner shell
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+  if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
     Inside_t insideInner = segment.inner.Inside<Precision, Inside_t>(point);
     if (insideInner == EInside::kInside) return EInside::kOutside;
     if (insideInner == EInside::kSurface) return EInside::kSurface;
@@ -879,7 +879,7 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideSegPhi(U
   }
 
   // Check that the point is not in the inner shell
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+  if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
     Inside_t insideInner = segment.inner.Inside<Precision, Inside_t>(point, phiIndex);
     if (insideInner == EInside::kInside) return EInside::kOutside;
     if (insideInner == EInside::kSurface) return EInside::kSurface;
