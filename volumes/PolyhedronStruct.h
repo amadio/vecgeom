@@ -280,6 +280,8 @@ struct PolyhedronStruct {
       if (hasInnerRadius && multiplier > 0) {
         new (&fZSegments[i].inner) Quadrilaterals(sideCount * multiplier);
         fHasInnerRadii = true;
+      } else {
+        new (&fZSegments[i].inner) Quadrilaterals(0);
       }
     }
 
