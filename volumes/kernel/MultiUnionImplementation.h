@@ -145,7 +145,7 @@ struct MultiUnionImplementation {
       // requested limit or than the current distance
       if (hitbox.second > vecCore::math::Min(stepMax, distance)) return true;
       // Compute distance to the cluster (in both ToIn or ToOut assumptions)
-      auto distance_crt                     = munion.fVolumes[hitbox.first]->DistanceToIn(point, direction, stepMax);
+      auto distance_crt = munion.fVolumes[hitbox.first]->DistanceToIn(point, direction, stepMax);
       if (distance_crt < distance) distance = distance_crt;
       return false;
     };
@@ -166,7 +166,7 @@ struct MultiUnionImplementation {
     // Locate the component containing the point
     int comp;
     InsideComponent(munion, point, comp);
-    if (comp < 0) distance = -1.; // Point not inside
+    if (comp < 0) return; // Point not inside
     // Compute distance to exit current component
     distance              = -eps;
     Real_v dstep          = 1.;
@@ -274,13 +274,13 @@ struct MultiUnionImplementation {
 
     Vector3D<Real_v> local = munion.fVolumes[comp]->GetTransformation()->Transform(point);
     Vector3D<Real_v> ldir;
-    valid                = munion.fVolumes[comp]->Normal(local, ldir);
+    valid = munion.fVolumes[comp]->Normal(local, ldir);
     if (valid) direction = munion.fVolumes[comp]->GetTransformation()->InverseTransformDirection(ldir);
     return direction;
   }
 
 }; // end MultiUnionImplementation
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_MULTIUNIONIMPLEMENTATION_H_
