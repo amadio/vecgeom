@@ -42,6 +42,8 @@ struct ZSegment {
   Quadrilaterals outer; ///< Should always be non-empty.
   Quadrilaterals phi;   ///< Is empty if fHasPhiCutout is false.
   Quadrilaterals inner; ///< Is empty hasInnerRadius is false.
+
+  VECCORE_ATT_HOST_DEVICE
   bool hasInnerRadius() const { return inner.size() > 0; }
 };
 
