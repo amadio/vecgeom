@@ -13,7 +13,7 @@
 #include "ApproxEqual.h"
 #include "base/Vector.h"
 #include "volumes/GenericPolyconeStruct.h"
-
+#include "base/FpeEnable.h"
 bool testvecgeom = false;
 
 using vecgeom::kInfLength;

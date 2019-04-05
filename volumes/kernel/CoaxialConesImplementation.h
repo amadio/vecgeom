@@ -212,17 +212,6 @@ struct CoaxialConesImplementation {
       vecCore::MaskedAssign(safety, safeDist > safety, safeDist);
     }
   }
-
-  template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &coaxialcones, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
-  {
-    // Computes the normal on a surface and returns it as a unit vector
-    Vector3D<Real_v> normal(0., 0., 0.);
-    return normal;
-  }
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

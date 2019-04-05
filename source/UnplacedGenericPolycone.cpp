@@ -68,7 +68,7 @@ void UnplacedGenericPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precisi
    * written below can be used.
    */
   aMin.Set(-rmax, -rmax, fAMin.z());
-  aMin.Set(rmax, rmax, fAMax.z());
+  aMax.Set(rmax, rmax, fAMax.z());
   /*auto coneUnplaced = GeoManager::MakeInstance<UnplacedCone>(0., rmax, 0., rmax, 1., fSPhi, fDPhi);
   coneUnplaced->Extent(aMin, aMax);
   aMin.z() = fAMin.z();

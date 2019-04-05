@@ -10,7 +10,7 @@
 #include "volumes/EllipticUtilities.h"
 #include "volumes/CoaxialCones.h"
 #include "ApproxEqual.h"
-
+#include "base/FpeEnable.h"
 bool testvecgeom = false;
 
 using vecgeom::kInfLength;
