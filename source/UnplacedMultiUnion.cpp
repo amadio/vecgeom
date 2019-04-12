@@ -155,12 +155,14 @@ size_t DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementati
 
 template <>
 template <>
-void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
-                                                  rotation::kGeneric>>::Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int) const
+void DevicePtr<
+    cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric, rotation::kGeneric>>::
+    Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>,
+              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int) const
 {
   return;
 }
-//template void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
+// template void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
 //                                                           rotation::kGeneric>>::Construct() const;
 
 } // namespace cxx
