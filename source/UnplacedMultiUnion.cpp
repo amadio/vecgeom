@@ -142,7 +142,7 @@ template void DevicePtr<cuda::UnplacedMultiUnion>::Construct() const;
 namespace cuda {
 // class UnplacedMultiUnion {};
 }
-namespace cxx {
+inline namespace cxx {
 
 template <>
 size_t DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
@@ -150,18 +150,18 @@ size_t DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementati
 {
   return 0;
 }
-template size_t DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
-                                                             rotation::kGeneric>>::SizeOf();
+// template size_t DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
+//                                                             rotation::kGeneric>>::SizeOf();
 
 template <>
-template <typename... ArgsTypes>
+template <>
 void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
-                                                  rotation::kGeneric>>::Construct(ArgsTypes... params) const
+                                                  rotation::kGeneric>>::Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int) const
 {
   return;
 }
-template void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
-                                                           rotation::kGeneric>>::Construct() const;
+//template void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
+//                                                           rotation::kGeneric>>::Construct() const;
 
 } // namespace cxx
 #endif
