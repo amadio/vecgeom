@@ -324,13 +324,11 @@ public:
                                                                               points, output);
   }
 
-  virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
+  virtual void SafetyToInMinimize(SOA3D<Precision> const & /* points */, Precision *const /* safeties */) const override
   {
     throw std::runtime_error("SafetyToInMinimize unimplemented");
     // we do no longer need this (probably)
     // SafetyToInMinimizeTemplate(points, safeties);
-    (void)points;
-    (void)safeties;
   }
 
   virtual void DistanceToIn(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
@@ -364,7 +362,6 @@ public:
   virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                                     int daughterindex, Precision *const output, int *const nextnodeids) const override
   {
-    throw std::runtime_error("DistanceToInMinimize unimplemented");
     // we do no longer need this (probably)
     // DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
     (void)points;
@@ -372,6 +369,7 @@ public:
     (void)daughterindex;
     (void)output;
     (void)nextnodeids;
+    throw std::runtime_error("DistanceToInMinimize unimplemented");
   }
 
   virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override
@@ -459,9 +457,9 @@ public:
 
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
   {
-    throw std::runtime_error("SafetyToInMinimize unimplemented");
     (void)points;
     (void)safeties;
+    throw std::runtime_error("SafetyToInMinimize unimplemented");
   }
 
   virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override
@@ -516,12 +514,12 @@ public:
   virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                                     int daughterindex, Precision *const output, int *const nextnodeids) const override
   {
-    throw std::runtime_error("DistanceToInMinimize unimplemented");
     (void)points;
     (void)directions;
     (void)daughterindex;
     (void)output;
     (void)nextnodeids;
+    throw std::runtime_error("DistanceToInMinimize unimplemented");
     // DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
   }
 
