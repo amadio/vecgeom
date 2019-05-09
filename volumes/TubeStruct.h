@@ -37,13 +37,15 @@ struct TubeStruct {
   T fTolOrmin;
   T fTolIrmax;
   T fTolOrmax;
+  T fMaxVal;
   evolution::Wedge fPhiWedge;
 
   VECCORE_ATT_HOST_DEVICE
   void UpdatedZ()
   {
-    fTolIz = fZ - kHalfTolerance;
-    fTolOz = fZ + kHalfTolerance;
+    fTolIz  = fZ - kHalfTolerance;
+    fTolOz  = fZ + kHalfTolerance;
+    fMaxVal = vecCore::math::Max(fRmax, fZ);
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -64,6 +66,7 @@ struct TubeStruct {
     fTolIrmax  = (fRmax - kHalfTolerance);
     fTolOrmax2 = fTolOrmax * fTolOrmax;
     fTolIrmax2 = fTolIrmax * fTolIrmax;
+    fMaxVal    = vecCore::math::Max(fRmax, fZ);
   }
 
 public:
@@ -155,6 +158,8 @@ public:
 
     GetAlongVectorToPhiSector(fSphi, fAlongPhi1x, fAlongPhi1y);
     GetAlongVectorToPhiSector(fSphi + fDphi, fAlongPhi2x, fAlongPhi2y);
+
+    fMaxVal = vecCore::math::Max(fRmax, fZ);
   }
 
 public:
@@ -169,7 +174,7 @@ public:
     // DetectConvexity();
   }
 };
-}
-} // end global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

@@ -129,12 +129,19 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
     /* if dist > 100*tube.fRmax, then instead of solving quadratic again,
     ** use Newton method to recalculate the root, taking previous distance
     ** as initial guess for newton method.
+    **
+    ** Commenting the code for root recalculation, coz  that sometimes overfits
+    ** and ShapeTester starts complaining for TestAccuracyDistanceToIn tests
+    ** The condition is handled in DistanceToIn itself.
+    **
+    ** Still keeping the code in comments for reference.
+    **
+    ** Real_v x(0.), y(0.);
+    ** vecCore::MaskedAssign(x, dist > 100 * tube.fRmax, pos.x() + dist * dir.x());
+    ** vecCore::MaskedAssign(y, dist > 100 * tube.fRmax, pos.y() + dist * dir.y());
+    ** vecCore::MaskedAssign(dist, dist > 100 * tube.fRmax,
+    **      dist - (x * x + y * y - tube.fRmax2) * 0.5 / NonZero(dir.x() * x + dir.y() * y));
     */
-    Real_v x(0.), y(0.);
-    vecCore::MaskedAssign(x, dist > 100 * tube.fRmax, pos.x() + dist * dir.x());
-    vecCore::MaskedAssign(y, dist > 100 * tube.fRmax, pos.y() + dist * dir.y());
-    vecCore::MaskedAssign(dist, dist > 100 * tube.fRmax,
-                          dist - (x * x + y * y - tube.fRmax2) * 0.5 / NonZero(dir.x() * x + dir.y() * y));
 
     Real_v hitz = pos.z() + dist * dir.z();
     ok &= (Abs(hitz) <= tube.fZ);
@@ -464,8 +471,37 @@ struct TubeImplementation {
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
+  static void DistanceToIn(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pointt, Vector3D<Real_v> const &dir,
                            Real_v const &stepMax, Real_v &distance)
+  {
+    Vector3D<Real_v> point = pointt;
+    Real_v ptDist          = point.Mag();
+    Real_v distToMove(0.);
+    using Bool_v    = vecCore::Mask_v<Real_v>;
+    Precision order = 100.;
+    Bool_v cond     = (ptDist > order * tube.fMaxVal);
+    /* if the point is at a distance (DIST) of more than 100 times of the maximum dimension
+     * (of the shape) from the origin of shape, then before calculating distance, first
+     * manually move the point with distance ( distToMove = DIST-100.*maxDim) along the
+     * direction, and then calculate DistanceToIn of new moved point using DistanceToInKernel,
+     *
+     * The final distance will be (distToMove + DistanceToIn),
+     *
+     * This logic no longer requires the recalculation of the roots using Newton method in
+     * CircleTrajectoryIntersection function, and will also give consistent results with
+     * ShapeTester
+     */
+    vecCore__MaskedAssignFunc(distToMove, cond, (ptDist - Real_v(order * tube.fMaxVal)));
+    vecCore__MaskedAssignFunc(point, cond, point + distToMove * dir);
+    DistanceToInKernel<Real_v>(tube, point, dir, stepMax, distance);
+    distance += distToMove;
+  }
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static void DistanceToInKernel(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
+                                 Vector3D<Real_v> const &dir, Real_v const &stepMax, Real_v &distance)
   {
     (void)stepMax;
     using namespace TubeUtilities;
