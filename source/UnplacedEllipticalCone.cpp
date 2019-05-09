@@ -262,8 +262,8 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedEllipticalCone::CopyToGpu() const
 namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedEllipticalCone>::SizeOf();
-template void DevicePtr<cuda::UnplacedEllipticalCone>::Construct(const Precision dx, const Precision dy,
-                                                                 const Precision dz) const;
+template void DevicePtr<cuda::UnplacedEllipticalCone>::Construct(const Precision a, const Precision b,
+                                                                 const Precision h, const Precision zcut) const;
 
 } // namespace cxx
 
