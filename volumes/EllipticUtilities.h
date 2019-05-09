@@ -47,7 +47,7 @@ Precision comp_ellint_2(Precision e)
   return 0.5 * kHalfPi * ((a + b) * (a + b) - S) / (x + y);
 }
 
-// Compute the perimeter of an ellipse (X/A)^2 + (Y/B)^2 = 1
+// Compute perimeter of ellipse (X/A)^2 + (Y/B)^2 = 1
 //
 VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
@@ -62,7 +62,28 @@ Precision EllipsePerimeter(Precision A, Precision B)
   return 4. * a * comp_ellint_2(e);
 }
 
-// Pick a random point in ellipse (x/a)^2 + (y/b)^2 = 1
+// Compute lateral surface area of elliptic cone:
+// pA - x semi-axis of base (ellipse at z = 0)
+// pB - y semi-axis of base (ellipse at z = 0)
+// pH - height
+//
+VECCORE_ATT_HOST_DEVICE
+VECGEOM_FORCE_INLINE
+Precision EllipticalConeLateralArea(Precision pA, Precision pB, Precision pH)
+{
+  Precision x  = vecCore::math::Abs(pA);
+  Precision y  = vecCore::math::Abs(pB);
+  Precision h  = vecCore::math::Abs(pH);
+  Precision a  = vecCore::math::Max(x, y);
+  Precision b  = vecCore::math::Min(x, y);
+  Precision aa = a * a;
+  Precision bb = b * b;
+  Precision hh = h * h;
+  Precision e  = vecCore::math::Sqrt(((a - b) * (a + b) * hh) / ((hh + bb) * aa));
+  return 2. * a * vecCore::math::Sqrt(hh + bb) * comp_ellint_2(e);
+}
+
+// Pick random point in ellipse (x/a)^2 + (y/b)^2 = 1
 // (rejection sampling)
 //
 VECCORE_ATT_HOST_DEVICE
@@ -79,7 +100,7 @@ Vector2D<Precision> RandomPointInEllipse(Precision a, Precision b)
   return Vector2D<Precision>(0., 0.);
 }
 
-// Pick a random point on ellipse (x/a)^2 + (y/b)^2 = 1
+// Pick random point on ellipse (x/a)^2 + (y/b)^2 = 1
 // (rejection sampling)
 //
 VECCORE_ATT_HOST_DEVICE
@@ -103,8 +124,8 @@ Vector2D<Precision> RandomPointOnEllipse(Precision a, Precision b)
   return Vector2D<Precision>(A * x, B * y);
 }
 
-} /* namespace EllipticUtilities */
-} /* namespace VECGEOM_IMPL_NAMESPACE */
-} /* namespace vecgeom */
+} // namespace EllipticUtilities
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_ELLIPTICUTILITIES_H_ */
