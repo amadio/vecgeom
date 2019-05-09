@@ -245,7 +245,7 @@ VPlacedVolume *UnplacedEllipticalCone::SpecializedVolume(LogicalVolume const *co
 DevicePtr<cuda::VUnplacedVolume> UnplacedEllipticalCone::CopyToGpu(
     DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-  return CopyToGpuImpl<UnplacedEllipticalCone>(in_gpu_ptr, GetDx(), GetDy(), GetDz());
+  return CopyToGpuImpl<UnplacedEllipticalCone>(in_gpu_ptr, GetSemiAxisX(), GetSemiAxisY(), GetZMax(), GetZTopCut());
 }
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedEllipticalCone::CopyToGpu() const
