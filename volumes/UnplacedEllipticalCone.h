@@ -25,6 +25,7 @@ private:
   EllipticalConeStruct<Precision> fEllipticalCone;
 
 private:
+  VECCORE_ATT_HOST_DEVICE
   void CheckParameters();
 
   Vector3D<Precision> SamplePointOnLateralSurface() const;
@@ -52,6 +53,8 @@ public:
   VECGEOM_FORCE_INLINE
   Precision GetZTopCut() const { return fEllipticalCone.fZCut; }
 
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   void SetParameters(Precision a, Precision b, Precision h, Precision zcut)
   {
     fEllipticalCone.fDx   = a;

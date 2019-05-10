@@ -8,7 +8,7 @@
 // #include "TGeoEltu.h"
 #endif
 #ifdef VECGEOM_GEANT4
-#include "G4EllipticalCone.h"
+#include "G4EllipticalCone.hh"
 #endif
 
 #include <stdio.h>
