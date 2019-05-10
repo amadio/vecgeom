@@ -72,6 +72,12 @@ struct CutTubeImplementation {
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
+  static void DistanceToInKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                 Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
 
@@ -129,17 +135,46 @@ void CutTubeImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Re
   }
   // Check the tube
   TubeImplementation<TubeTypes::UniversalTube>::Inside<Real_v, Inside_t>(unplaced.GetTubeStruct(), point, inside);
-  vecCore::MaskedAssign(inside, (inside_cutplanes == EInside::kOutside) ||
-                                    (inside_cutplanes == EInside::kSurface && inside != EInside::kOutside),
+  vecCore::MaskedAssign(inside,
+                        (inside_cutplanes == EInside::kOutside) ||
+                            (inside_cutplanes == EInside::kSurface && inside != EInside::kOutside),
                         inside_cutplanes);
 }
 
+template <typename Real_v>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &pointT,
+                                         Vector3D<Real_v> const &dir, Real_v const &stepMax, Real_v &distance)
+{
+
+  Vector3D<Real_v> point = pointT;
+  Real_v ptDist          = point.Mag();
+  Real_v distToMove(0.);
+  using Bool_v    = vecCore::Mask_v<Real_v>;
+  Precision order = 100.;
+  // Bool_v cond = (ptDist > order*unplaced.fTubeStruct.fMaxVal);
+  Bool_v cond = (ptDist > order * unplaced.fMaxVal);
+  /* if the point is at a distance (DIST) of more than 100 times of the maximum dimension
+   * (of the shape) from the origin of shape, then before calculating distance, first
+   * manually move the point with distance ( distToMove = DIST-100.*maxDim) along the
+   * direction, and then calculate DistanceToIn of new moved point using DistanceToInKernel,
+   *
+   * The final distance will be (distToMove + DistanceToIn),
+   */
+  // vecCore__MaskedAssignFunc(distToMove,cond,(ptDist-Real_v(order*unplaced.fTubeStruct.fMaxVal)));
+  vecCore__MaskedAssignFunc(distToMove, cond, (ptDist - Real_v(order * unplaced.fMaxVal)));
+  vecCore__MaskedAssignFunc(point, cond, point + distToMove * dir);
+  DistanceToInKernel<Real_v>(unplaced, point, dir, stepMax, distance);
+  distance += distToMove;
+}
 //______________________________________________________________________________
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                         Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+void CutTubeImplementation::DistanceToInKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                               Vector3D<Real_v> const &direction, Real_v const &stepMax,
+                                               Real_v &distance)
 {
 
 #define USE_CONV_WRONG_SIDE 1
@@ -156,8 +191,9 @@ void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   Inside_v instart;
   // Check the tube
   TubeImplementation<TubeTypes::UniversalTube>::Inside<Real_v, Inside_v>(unplaced.GetTubeStruct(), point, instart);
-  vecCore::MaskedAssign(instart, (inside_cutplanes == EInside::kOutside) ||
-                                     (inside_cutplanes == EInside::kSurface && instart != EInside::kOutside),
+  vecCore::MaskedAssign(instart,
+                        (inside_cutplanes == EInside::kOutside) ||
+                            (inside_cutplanes == EInside::kSurface && instart != EInside::kOutside),
                         inside_cutplanes);
   // Points already inside have to return negative distance
   vecCore__MaskedAssignFunc(distance, instart == EInside::kInside, Real_v(-1.));
@@ -224,8 +260,8 @@ void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
 
   // Compute distance to tube
   Real_v dtube = InfinityLength<Real_v>();
-  TubeImplementation<TubeTypes::UniversalTube>::DistanceToIn<Real_v>(unplaced.GetTubeStruct(), propagated, direction,
-                                                                     stepMax, dtube);
+  TubeImplementation<TubeTypes::UniversalTube>::DistanceToInKernel<Real_v>(unplaced.GetTubeStruct(), propagated,
+                                                                           direction, stepMax, dtube);
   vecCore__MaskedAssignFunc(dtube, dexit < dtube, InfinityLength<Real_v>());
   vecCore__MaskedAssignFunc(distance, !done && (dtube + dplanes) < stepMax, dtube + dplanes);
 // The line below is needed for the convention
@@ -319,7 +355,7 @@ void CutTubeImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vecto
 //*****************************
 //**** Implementations end here
 //*****************************
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_VOLUMES_KERNEL_CUTTUBEIMPLEMENTATION_H_ */

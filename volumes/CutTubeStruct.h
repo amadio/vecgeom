@@ -28,6 +28,7 @@ struct CutTubeStruct {
   T fSinPhi1; //< Sine of phi
   T fCosPhi2; //< Cosine of phi+dphi
   T fSinPhi2; //< Sine of phi+dphi
+  T fMaxVal;
 
   // constructors
 
@@ -45,6 +46,7 @@ struct CutTubeStruct {
     fSinPhi1 = vecCore::math::Sin(sphi);
     fCosPhi2 = vecCore::math::Cos(sphi + dphi);
     fSinPhi2 = vecCore::math::Sin(sphi + dphi);
+    fMaxVal  = vecCore::math::Max(rmax, z);
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -55,7 +57,7 @@ struct CutTubeStruct {
   VECGEOM_FORCE_INLINE
   CutPlanes const &GetCutPlanes() const { return fCutPlanes; }
 };
-}
-} // end global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif
