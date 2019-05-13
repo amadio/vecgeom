@@ -1092,6 +1092,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCone.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTube.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testEllipticalTube.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testHype.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrd.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrapezoid.cpp
