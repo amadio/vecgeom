@@ -85,8 +85,8 @@ struct ParallelepipedStruct {
     fNormals[1] = v.Cross(vx);
     fNormals[1].Normalize();
     fNormals[2].Set(0., 0., 1.);
-    fCtx = abs(fNormals[0].x());
-    fCty = abs(fNormals[1].y());
+    fCtx = vecCore::math::Abs(fNormals[0].x());
+    fCty = vecCore::math::Abs(fNormals[1].y());
   }
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
