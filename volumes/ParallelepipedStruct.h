@@ -85,8 +85,8 @@ struct ParallelepipedStruct {
     fNormals[1] = v.Cross(vx);
     fNormals[1].Normalize();
     fNormals[2].Set(0., 0., 1.);
-    fCtx = 1.0 / sqrt(1. + fTanAlpha * fTanAlpha + fTanThetaCosPhi * fTanThetaCosPhi);
-    fCty = 1.0 / sqrt(1. + fTanThetaSinPhi * fTanThetaSinPhi);
+    fCtx = abs(fNormals[0].x());
+    fCty = abs(fNormals[1].y());
   }
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
