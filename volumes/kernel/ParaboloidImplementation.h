@@ -171,17 +171,25 @@ struct ParaboloidImplementation {
 
     Bool_v done(false);
     distance = InfinityLength<Real_v>();
+    Real_v offset(0.);
+    Vector3D<Real_v> p(point);
 
-    Real_v absZ   = Abs(point.z());
-    Real_v rho2   = point.Perp2(); // point.x()*point.x()+point.y()*point.y();
-    Bool_v checkZ = point.z() * direction.z() >= 0;
+    // Move point closer, if required
+    Precision Rsph = 1.5 * vecCore::math::Max(paraboloid.fDx, paraboloid.fDz);
+    Real_v Rfar2(1024. * Rsph * Rsph); // 1024 = 32 * 32
+    vecCore__MaskedAssignFunc(offset, ((p.Mag2() > Rfar2) && (direction.Dot(p) < 0.)), p.Mag() - 2. * Rsph);
+    p += offset * direction;
+
+    Real_v absZ   = Abs(p.z());
+    Real_v rho2   = p.Perp2(); // p.x()*p.x()+p.y()*p.y();
+    Bool_v checkZ = p.z() * direction.z() >= 0;
 
     // check if the point is distancing in Z
     Bool_v isDistancingInZ = (absZ > paraboloid.fDz && checkZ);
     done |= isDistancingInZ;
     if (vecCore::MaskFull(done)) return;
 
-    Real_v paraRho2 = paraboloid.fK1 * point.z() + paraboloid.fK2;
+    Real_v paraRho2 = paraboloid.fK1 * p.z() + paraboloid.fK2;
     Real_v diff     = rho2 - paraRho2;
 
     vecCore__MaskedAssignFunc(distance, !done, Real_v(-1.));
@@ -196,7 +204,7 @@ struct ParaboloidImplementation {
     done |= isOnZPlaneAndMovingInside;
     if (vecCore::MaskFull(done)) return;
 
-    Vector3D<Real_v> normal(point.x(), point.y(), Real_v(-paraboloid.fK1 * 0.5));
+    Vector3D<Real_v> normal(p.x(), p.y(), Real_v(-paraboloid.fK1 * 0.5));
     Bool_v isOnParabolicSurfaceAndMovingInside = diff > -kTolerance && diff < kTolerance && direction.Dot(normal) < 0.;
     vecCore__MaskedAssignFunc(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
     done |= isOnParabolicSurfaceAndMovingInside;
@@ -208,20 +216,20 @@ struct ParaboloidImplementation {
      * In this case it will either intsect with parabolic surface or not intersect at all.
      */
     if (!vecCore::MaskFull(absZ < paraboloid.fDz)) {
-      Real_v distZ(InfinityLength<Real_v>());                                // = (absZ - paraboloid.fDz) / absDirZ;
-      Bool_v bottomPlane = point.z() < -paraboloid.fDz && direction.z() > 0; //(true);
-      Bool_v topPlane    = point.z() > paraboloid.fDz && direction.z() < 0;
-      vecCore__MaskedAssignFunc(distZ, topPlane, (paraboloid.fDz - point.z()) / direction.z());
-      vecCore__MaskedAssignFunc(distZ, bottomPlane, (-paraboloid.fDz - point.z()) / direction.z());
-      Real_v xHit    = point.x() + distZ * direction.x();
-      Real_v yHit    = point.y() + distZ * direction.y();
+      Real_v distZ(InfinityLength<Real_v>());                            // = (absZ - paraboloid.fDz) / absDirZ;
+      Bool_v bottomPlane = p.z() < -paraboloid.fDz && direction.z() > 0; //(true);
+      Bool_v topPlane    = p.z() > paraboloid.fDz && direction.z() < 0;
+      vecCore__MaskedAssignFunc(distZ, topPlane, (paraboloid.fDz - p.z()) / direction.z());
+      vecCore__MaskedAssignFunc(distZ, bottomPlane, (-paraboloid.fDz - p.z()) / direction.z());
+      Real_v xHit    = p.x() + distZ * direction.x();
+      Real_v yHit    = p.y() + distZ * direction.y();
       Real_v rhoHit2 = xHit * xHit + yHit * yHit;
 
-      vecCore::MaskedAssign(distance, !done && topPlane && rhoHit2 <= paraboloid.fRhi2, distZ);
+      vecCore::MaskedAssign(distance, !done && topPlane && rhoHit2 <= paraboloid.fRhi2, distZ + offset);
       done |= topPlane && rhoHit2 < paraboloid.fRhi2;
       if (vecCore::MaskFull(done)) return;
 
-      vecCore::MaskedAssign(distance, !done && bottomPlane && rhoHit2 <= paraboloid.fRlo2, distZ);
+      vecCore::MaskedAssign(distance, !done && bottomPlane && rhoHit2 <= paraboloid.fRlo2, distZ + offset);
       done |= (bottomPlane && rhoHit2 <= paraboloid.fRlo2); // || (topPlane && rhoHit2 <= paraboloid.fRhi2);
       if (vecCore::MaskFull(done)) return;
     }
@@ -230,22 +238,22 @@ struct ParaboloidImplementation {
      * top Z plane Radius of point is less the Rhi. In this case depending upon the
      * direction it will either intersect with top Z plane or not intersect at all
      */
-    if (!vecCore::MaskFull(point.z() > paraboloid.fDz && rho2 < paraboloid.fRhi2)) {
+    if (!vecCore::MaskFull(p.z() > paraboloid.fDz && rho2 < paraboloid.fRhi2)) {
       // Quadratic Solver for Parabolic surface
       Real_v dirRho2 = direction.Perp2();
-      Real_v pDotV2D = point.x() * direction.x() + point.y() * direction.y();
+      Real_v pDotV2D = p.x() * direction.x() + p.y() * direction.y();
       Real_v a       = paraboloid.fA * dirRho2;
       Real_v b       = 0.5 * direction.z() - paraboloid.fA * pDotV2D;
-      Real_v c       = (paraboloid.fB + paraboloid.fA * point.Perp2() - point.z());
+      Real_v c       = (paraboloid.fB + paraboloid.fA * p.Perp2() - p.z());
       Real_v d2      = b * b - a * c;
       done |= d2 < 0.;
       if (vecCore::MaskFull(done)) return;
 
       Real_v distParab = InfinityLength<Real_v>();
-      vecCore__MaskedAssignFunc(distParab, !done && (b > 0.), (b - Sqrt(d2)) / a);
-      vecCore__MaskedAssignFunc(distParab, !done && (b <= 0.), (c / (b + Sqrt(d2))));
-      Real_v zHit = point.z() + distParab * direction.z();
-      vecCore::MaskedAssign(distance, Abs(zHit) <= paraboloid.fDz && distParab > 0., distParab);
+      vecCore__MaskedAssignFunc(distParab, !done && (b <= 0.), (b - Sqrt(d2)) / a);
+      vecCore__MaskedAssignFunc(distParab, !done && (b > 0.), (c / (b + Sqrt(d2))));
+      Real_v zHit = p.z() + distParab * direction.z();
+      vecCore::MaskedAssign(distance, Abs(zHit) <= paraboloid.fDz && distParab > 0., distParab + offset);
     }
   }
 
@@ -487,7 +495,7 @@ struct ParaboloidImplementation {
     return normal.Normalized();
   }
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_ORBIMPLEMENTATION_H_
