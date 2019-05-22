@@ -1,3 +1,11 @@
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENCE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief Declaration of the unplaced volume interfaces.
+/// \file volumes/UnplacedVolume.h
+
+
 #ifndef VECGEOM_VOLUMES_UNPLACEDVOLUME_H_
 #define VECGEOM_VOLUMES_UNPLACEDVOLUME_H_
 
@@ -17,7 +25,13 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class LogicalVolume;
 class VPlacedVolume;
 
-// The abstract interface class for unplaced volumes
+/**
+ * The abstract interface class for unplaced volumes.
+ *
+ * An unplaced volume represents a geometry shape (primitive) and offers
+ * interfaces to query distance, location, containment, etc. in its "natural"
+ * system of coordinates.
+ */
 class VUnplacedVolume {
 
 private:
@@ -36,30 +50,53 @@ public:
 
   // ---------------- Contains --------------------------------------------------------------------
 
+  /*!
+   * Returns whether a space point pos is contained or not in the shape.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual bool Contains(Vector3D<Precision> const &p) const = 0;
+  virtual bool Contains(Vector3D<Precision> const &pos) const = 0;
 
+  /*!
+   * Returns whether a space point pos is inside, on the surface or outside
+   * the shape. The surface is defined by a thickness constant.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual EnumInside Inside(Vector3D<Precision> const &p) const = 0;
+  virtual EnumInside Inside(Vector3D<Precision> const &pos) const = 0;
 
   // ---------------- DistanceToOut functions -----------------------------------------------------
 
+  /*!
+   * Returns the distance from an internal or surface space point pos to the surface
+   * of the shape along the normalized direction dir.
+   * Does not have to look for surfaces beyond an optional distance of step_max.
+   * Calling it with an outside point might result in undefined behaviour.
+   *
+   * TODO: Clarify return value in case step_max is non-default.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
+  virtual Precision DistanceToOut(Vector3D<Precision> const &pos, Vector3D<Precision> const &dir,
                                   Precision step_max = kInfLength) const = 0;
 
-  // the USolid/GEANT4-like interface for DistanceToOut (returning also exiting normal)
+  /*!
+   * Same as DistanceToOut(pos, dir, step_max) but in addition returns
+   * @param normal The unit normal vector at the point of exit (pointing out tbc)
+   * @param convex Whether the shape lies in the half-space behind the plane defined by the exit point and the normal.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                  Vector3D<Precision> &normal, bool &convex, Precision step_max = kInfLength) const
-      /* = 0  */;
+  virtual Precision DistanceToOut(Vector3D<Precision> const &pos, Vector3D<Precision> const &dir,
+                                  Vector3D<Precision> &normal, bool &convex, Precision step_max = kInfLength) const;
 
-  // an explicit SIMD interface
+  /*!
+   * Same as DistanceToOut(pos, dir, step_max) but treating vectored input/output of type Real_v.
+   * Real_v represents typically a SIMD register type.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d, Real_v const &step_max) const
-      /* = 0 */;
+  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &pos, Vector3D<Real_v> const &dir,
+                                  Real_v const &step_max) const;
 
-  // a helper tramponline to dispatch to SafetyToInVec if type is not scalar
+  /*!
+   * Helper "trampoline" to dispatch to DistanceToOutVec if type is not scalar.
+   */
   template <typename T>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -68,20 +105,33 @@ public:
     return DistanceToOutVec(p, d, step_max);
   }
 
-  // the container/basket interface (possibly to be deprecated)
+  /*!
+   * Same as DistanceToOut(pos, dir, step_max) but processing a collection of points and directions.
+   * @param output The vector/container of distances
+   */
   virtual void DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                             Precision const *const step_max, Precision *const output) const /* = 0 */;
+                             Precision const *const step_max, Precision *const output) const;
 
   // ---------------- SafetyToOut functions -----------------------------------------------------
 
+  /*!
+   * Returns the estimated minimum distance from an internal or surface space point pos to the
+   * boundary of the shape. The estimate will be strictly smaller or equal to the true value.
+   * Calling it with an outside point might result in undefined behaviour.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual Precision SafetyToOut(Vector3D<Precision> const &p) const = 0;
+  virtual Precision SafetyToOut(Vector3D<Precision> const &pos) const = 0;
 
-  // an explicit SIMD interface
+  /*!
+   * Like SafetToOut(Vector3D<Precision> const &pos) but processing SIMD vector
+   * input.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const /* = 0 */;
+  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const;
 
-  // the tramponline to dispatch to SafetyToOutVec if type is not scalar
+  /*!
+   * Helper trampoline to dispatch to SafetyToOutVec if type is not scalar.
+   */
   template <typename T>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -90,21 +140,38 @@ public:
     return SafetyToOutVec(p);
   }
 
-  // the container/basket interface (possibly to be deprecated)
+  /*!
+   * Like SafetyToOut(Vector3D<Precision> const &pos) but processing a collection
+   * of input points.
+   */
   virtual void SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const /* = 0*/;
 
   // ---------------- DistanceToIn functions -----------------------------------------------------
 
+  /*!
+   * Returns the distance from an outside space point pos to the surface
+   * of the shape along the normalized direction dir.
+   * Does not have to look for surfaces beyond an optional distance of step_max.
+   * Calling it with an inside point might result in undefined behaviour.
+   *
+   * TODO: Clarify return value in case step_max is non-default.
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                  const Precision step_max = kInfLength) const = 0;
 
+  /*!
+   * Same as DistanceToIn(pos, dir, step_max) but treating vectored input/output of type Real_v.
+   * Real_v represents typically a SIMD register type.
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
                                  const Real_v &step_max = Real_v(kInfLength)) const /* = 0 */;
 
-  // the tramponline to dispatch to SafetyToInVec if type is not scalar
-  // the T = Precision this template will not instantiate as the compiler finds another matching function
+  /*!
+   * Helper trampoline to dispatch to DistanceToInVec if type is not scalar.
+   * The T = Precision this template will not instantiate as the compiler finds another matching function
+   */
   template <typename T>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -115,14 +182,24 @@ public:
 
   // ---------------- SafetyToIn functions -------------------------------------------------------
 
+  /*!
+   * Returns the estimated minimum distance from an outside or surface space point pos to the
+   * boundary of the shape. The estimate will be strictly smaller or equal to the true value.
+   * Calling it with an inside point is undefined behaviour.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
+  virtual Precision SafetyToIn(Vector3D<Precision> const &pos) const = 0;
 
-  // explicit SIMD interface
+  /*!
+   * Like SafetyToIn(Vector3D<Precision> const &) but processing SIMD vector
+   * input.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const /* = 0 */;
+  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const;
 
-  // the tramponline to dispatch to SafetyToInVec if type is not scalar
+  /*!
+   *  Helper trampoline to dispatch to SafetyToInVec if type is not scalar.
+   */
   template <typename T>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -133,53 +210,89 @@ public:
 
   // ---------------- Normal ---------------------------------------------------------------------
 
+  /*!
+   * Calculates the surface normal unit vector for a space point pos, assuming
+   * that pos is on the surface (i.e. Inside(pos) == kSurface).
+   * The behaviour for a point not on the surface is undefined.
+   * TODO: Clarify whether normal always points outwards.
+   */
   VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const /* = 0 */;
+  virtual bool Normal(Vector3D<Precision> const &pos, Vector3D<Precision> &normal) const /* = 0 */;
 
   // ---------------- SamplePointOnSurface ----------------------------------------------------------
+  /*!
+   * Generates random point pos on the surface of the shape.
+   * The returned point satisfies Inside(pos)==kSurface.
+   */
   virtual Vector3D<Precision> SamplePointOnSurface() const /* = 0 */;
 
   // ----------------- Extent --------------------------------------------------------------------
+
+  /*!
+   * Returns the extent of the shape as corner points of the enclosing
+   * bounding box.
+   * @param aMin point of bounding box corner with minimum coordinates
+   * @param aMax point of bounding box corner with maximum coordinates
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const /* = 0 */;
 
-  /** Function to detect whether a volume is globally convex or not.
-   *  Return a boolean, true if volume is convex, otherwise false.
-   *
-   *  Default safe value for all the shapes is set to false.
+  /*!
+   *  Returns whether the shape is (globally) convex or not.
+   *  If not known, returns false.
    */
   VECCORE_ATT_HOST_DEVICE
   bool IsConvex() const { return fGlobalConvexity; }
 
+  /*!
+   *  Returns whether the shape is an assembly
+   */
   VECCORE_ATT_HOST_DEVICE
   bool IsAssembly() const { return fIsAssembly; }
 
   // ----------------- Capacity --------------------------------------------------------------------
+  /*!
+   *  Returns the (exact or estimated) cubic volume/capacity of the shape.
+   */
   virtual double Capacity() const = 0;
+
+  /*!
+   *  Calculates an estimate of the cubic volume of the shape via a sampling technique.
+   *  @params nStat number of sample points to be used
+   */
   double EstimateCapacity(int nStat = 100000) const;
 
   // ----------------- Surface Area ----------------------------------------------------------------
+  /*!
+   *  Returns the (exact or estimated) surface area of the shape.
+   */
   virtual double SurfaceArea() const = 0;
+
+  /*!
+   *  Calculates an estimate of the surface area of the shape via a sampling technique.
+   *  @params nStat number of sample points to be used
+   */
   double EstimateSurfaceArea(int nStat = 100000) const;
 
-  /**
-   * Uses the virtual print method.
-   * \sa print(std::ostream &ps)
+  /*!
+   * Standard output operator for a textual representation.
+   * (Uses the virtual method print(std::ostream &ps))
    */
   friend std::ostream &operator<<(std::ostream &os, VUnplacedVolume const &vol);
 
-  /**
-   * Should return the size of bytes of the deriving class. Necessary for
+  /*!
+   * Return the size of the deriving class in bytes. Necessary for
    * copying to the GPU.
    */
   virtual int MemorySize() const = 0;
 
-/**
- * Constructs the deriving class on the GPU and returns a pointer to GPU
- * memory where the object has been instantiated.
- */
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const                                                                      = 0;
+
+  /*!
+   * Constructs the deriving class on the GPU and returns a pointer to GPU
+   * memory where the object has been instantiated.
+   */
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const                                               = 0;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const = 0;
 
@@ -205,19 +318,22 @@ public:
 
 #endif
 
-  /**
-   * Virtual print to accommodate outstreams.
+  /*!
+   * Print a textual representation of the shape to a given outstream os.
+   * This should typically tell the parameters, class, etc. of the shape.
    */
   virtual void Print(std::ostream &os) const = 0;
 
   /**
    * C-style printing for CUDA purposes.
+   * TODO: clarify relation to other Print.
    */
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const = 0;
 
   // Is not static because a virtual function must be called to initialize
   // specialized volume as the shape of the deriving class.
+  // TODO: clarify
   VPlacedVolume *PlaceVolume(char const *const label, LogicalVolume const *const volume,
                              Transformation3D const *const transformation, VPlacedVolume *const placement = NULL) const;
 
@@ -242,6 +358,10 @@ private:
 #endif
 };
 
+/*!
+ * A template structure used to create specialized instances
+ * of a shape. Used by the shape factory mechanism.
+ */
 template <typename Shape_t>
 struct Maker {
   template <typename... ArgTypes>
