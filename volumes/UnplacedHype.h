@@ -357,6 +357,7 @@ struct Maker<UnplacedHype> {
                                     const Precision stOut, const Precision dz);
 };
 
+/** Specialized version of the unplaced hyperboloid, supporting universal/hollow/non-hollow types.*/
 template <typename HypeType = HypeTypes::UniversalHype>
 class SUnplacedHype : public SIMDUnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>,
                       public AlignedBase {
