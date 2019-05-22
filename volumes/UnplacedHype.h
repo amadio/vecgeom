@@ -1,16 +1,11 @@
-//===-- volumes/UnplacedHype.h - Instruction class definition -------*- C++ -*-===//
-//
-//                     GeantV - VecGeom
-//
-// This file is distributed under the LGPL
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
-///
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENCE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief Declaration of the unplaced hyperboloid shape
 /// \file volumes/UnplacedHype.h
-/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
-/// \brief This file contains the declaration of the UnplacedHype class
-///
+/// \author First version created by Marilena Bandieramonte.
+
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDHYPE_H_
 #define VECGEOM_VOLUMES_UNPLACEDHYPE_H_
