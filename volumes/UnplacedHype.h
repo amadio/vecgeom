@@ -6,7 +6,6 @@
 /// \file volumes/UnplacedHype.h
 /// \author First version created by Marilena Bandieramonte.
 
-
 #ifndef VECGEOM_VOLUMES_UNPLACEDHYPE_H_
 #define VECGEOM_VOLUMES_UNPLACEDHYPE_H_
 
@@ -44,107 +43,143 @@ private:
   HypeStruct<Precision> fHype;
 
 public:
-  // constructor
+  /// Default constructor for the unplaced hyperboloid.
+  /** The constructor takes 5 parameters: inner and outer radius, stereo angles and half length in Z.
+      @param rMin  Inner radius.
+      @param rMax  Outer radius.
+      @param stIn  Stereo angle for inner surface.
+      @param stOut Stereo angle for outer surface.
+      @param dz    Half length in Z.
+  */
   VECCORE_ATT_HOST_DEVICE
   UnplacedHype(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut,
                const Precision dz)
       : fHype(rMin, rMax, stIn, stOut, dz)
   {
-
     DetectConvexity();
   }
 
+  /// Getter for the structure storing hyperboloid data.
   VECCORE_ATT_HOST_DEVICE
   HypeStruct<double> const &GetStruct() const { return fHype; }
 
+  /// Getter for tolerance relative to the Z half-length.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetZToleranceLevel() const { return fHype.zToleranceLevel; }
 
+  /// Getter for tolerance relative to the inner radius.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetInnerRadToleranceLevel() const { return fHype.innerRadToleranceLevel; }
 
+  /// Getter for tolerance relative to the outer radius.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetOuterRadToleranceLevel() const { return fHype.outerRadToleranceLevel; }
 
+  /// Getter for the inner radius.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRmin() const { return fHype.fRmin; }
 
+  /// Getter for the outer radius.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRmax() const { return fHype.fRmax; }
 
+  /// Getter for the squared inner radius.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRmin2() const { return fHype.fRmin2; }
 
+  /// Getter for the squared outer radius.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRmax2() const { return fHype.fRmax2; }
 
+  /// Getter for the inner angle of the inner surface.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetStIn() const { return fHype.fStIn; }
 
+  /// Getter for the inner angle of the outer surface.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetStOut() const { return fHype.fStOut; }
 
+  /// Getter for the tangent of the inner stereo angle.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTIn() const { return fHype.fTIn; }
 
+  /// Getter for the tangent of the outer stereo angle.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTOut() const { return fHype.fTOut; }
 
+  /// Getter for the squared tangent of the inner stereo angle.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTIn2() const { return fHype.fTIn2; }
 
+  /// Getter for the squared tangent of the outer stereo angle.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTOut2() const { return fHype.fTOut2; }
 
+  /// Getter for the inverse of the tangent of the inner stereo angle.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTIn2Inv() const { return fHype.fTIn2Inv; }
 
+  /// Getter for the inverse of the tangent of the outer stereo angle.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTOut2Inv() const { return fHype.fTOut2Inv; }
 
+  /// Getter for the half-length in Z.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDz() const { return fHype.fDz; }
 
+  /// Getter for the squared half-length in Z.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDz2() const { return fHype.fDz2; }
 
+  /// Getter for the inner radius of endcaps.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetEndInnerRadius() const { return fHype.fEndInnerRadius; }
 
+  /// Getter for the squared inner radius of endcaps.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetEndInnerRadius2() const { return fHype.fEndInnerRadius2; }
 
+  /// Getter for the outer radius of endcaps.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetEndOuterRadius() const { return fHype.fEndOuterRadius; }
 
+  /// Getter for the squared outer radius of endcaps.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetEndOuterRadius2() const { return fHype.fEndOuterRadius2; }
 
+  /// Getter for the side of the square inscribed in the inner circle.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetInSqSide() const { return fHype.fInSqSide; }
 
+  /// Method to set the parameters of the hyperboloid, used by the constructor.
+  /** @param rMin  Inner radius.
+      @param rMax  Outer radius.
+      @param stIn  Stereo angle for inner surface.
+      @param stOut Stereo angle for outer surface.
+      @param dz    Half length in Z.
+  */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetParameters(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut,
@@ -154,21 +189,34 @@ public:
     DetectConvexity();
   }
 
+  /// Method to compute the volume of the inner/outer hyperboloids.
+  /** @param  outer Flag if it is about outer surface or inner one.
+      @return The value of the volume for the inner/outer hype.
+  */
   VECCORE_ATT_HOST_DEVICE
   Precision Volume(bool outer);
 
+  /// Method to compute the surface area of the inner/outer hyperboloids.
+  /** @param  outer Flag if it is about outer surface or inner one.
+      @return The value of the area for the inner/outer hype.
+  */
   VECCORE_ATT_HOST_DEVICE
   Precision Area(bool outer);
 
+  /// Method to compute the area of hyperboloid endcaps.
+  /** @return The value of the area for endcaps.*/
   VECCORE_ATT_HOST_DEVICE
   Precision AreaEndCaps();
 
+  /// Method to compute and cache the capacity of the hyperboloid.
   VECCORE_ATT_HOST_DEVICE
   void CalcCapacity();
 
+  /// Method to compute and cache the surface area of the hyperboloid.
   VECCORE_ATT_HOST_DEVICE
   void CalcSurfaceArea();
 
+  /// Method to detect and cache the convexity of the hyperboloid.
   VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
@@ -180,6 +228,11 @@ public:
   // VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const override { return fHype.fSurfaceArea; }
 
+  /// Method to determine the squared hyperboloid radius at a given Z, for either the inner or the outer surfaces
+  /// (template parameter).
+  /** @param  dz Value of the Z coordinate.
+      @return Squared radius of the hyperboloid surface.
+  */
   template <bool ForInnerSurface>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -191,6 +244,10 @@ public:
       return GetRmax2() + GetTOut2() * dz * dz;
   }
 
+  /// Method to check if a point has a Z coordinate compatible with one of the Z surfaces.
+  /** @param  p Point for which the check is made.
+      @return True if point is within Z tolerance.
+  */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool PointOnZSurface(Vector3D<Precision> const &p) const
@@ -198,6 +255,10 @@ public:
     return (p.z() > (GetDz() - GetZToleranceLevel())) && (p.z() < (GetDz() + GetZToleranceLevel()));
   }
 
+  /// Method to check if a point is on the inner/outer hype surface (template parameter).
+  /** @param  p Point for which the check is made.
+      @return True if point is on the hype surface within the outer radius tolerance.
+  */
   template <bool ForInnerSurface>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -241,8 +302,14 @@ public:
 
   Vector3D<Precision> SamplePointOnSurface() const override;
 
+  /// Get the solid type as string.
+  /** @return Name of the solid type.*/
   std::string GetEntityType() const;
 
+  /// Get list of hyperboloid parameters as an array.
+  /** @param[in]  aNumber Not used.
+      @param[out] aArray User array to be filled (rMin, stIn, rMax, stOut, dz)
+  */
   VECCORE_ATT_HOST_DEVICE
   void GetParametersList(int aNumber, Precision *aArray) const;
 
@@ -251,9 +318,8 @@ public:
 
   std::ostream &StreamInfo(std::ostream &os) const;
 
-  VECCORE_ATT_HOST_DEVICE
-  void ComputeBBox() const;
-
+  /// Method to determine of the inner surface exists.
+  /** @return True if the inner radius is zero. */
   VECCORE_ATT_HOST_DEVICE
   bool InnerSurfaceExists() const;
 
