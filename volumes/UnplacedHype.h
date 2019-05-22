@@ -25,8 +25,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, SUnplacedHype, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-/// Class for hyperboloid shape primitive.
-/**
+/** Class for hyperboloid shape primitive.
+
   Hyperboloid class is defined by 5 parameters
   A Hype is the solid bounded by the following surfaces:
   - 2 planes parallel with XY cutting the Z axis at Z=-dz and Z=+dz
