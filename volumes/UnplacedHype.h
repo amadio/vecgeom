@@ -11,18 +11,6 @@
 /// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 /// \brief This file contains the declaration of the UnplacedHype class
 ///
-/// _____________________________________________________________________________
-/// Hyperboloid class is defined by 5 parameters
-/// A Hype is the solid bounded by the following surfaces:
-/// - 2 planes parallel with XY cutting the Z axis at Z=-dz and Z=+dz
-///- Inner and outer lateral surfaces. These represent the surfaces
-/// described by the revolution of 2 hyperbolas about the Z axis:
-/// r^2 - (t*z)^2 = a^2 where:
-/// r = distance between hyperbola and Z axis at coordinate z
-/// t = tangent of the stereo angle (angle made by hyperbola asimptotic lines and Z axis). t=0 means cylindrical
-/// surface.
-/// a = distance between hyperbola and Z axis at z=0
-//===----------------------------------------------------------------------===//
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDHYPE_H_
 #define VECGEOM_VOLUMES_UNPLACEDHYPE_H_
@@ -42,6 +30,20 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, SUnplacedHype, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+/*!
+  \brief Class for hyperboloid shape primitive.
+
+  Hyperboloid class is defined by 5 parameters
+  A Hype is the solid bounded by the following surfaces:
+  - 2 planes parallel with XY cutting the Z axis at Z=-dz and Z=+dz
+  - Inner and outer lateral surfaces. These represent the surfaces
+  described by the revolution of 2 hyperbolas about the Z axis:
+  r^2 - (t*z)^2 = a^2 where:
+  r = distance between hyperbola and Z axis at coordinate z
+  t = tangent of the stereo angle (angle made by hyperbola asimptotic lines and Z axis). t=0 means cylindrical
+  surface.
+  a = distance between hyperbola and Z axis at z=0
+*/
 class UnplacedHype : public VUnplacedVolume {
 
 private:
