@@ -7,7 +7,7 @@ include(ExternalProject)
 
 project(VecGeom)
 
-set(VECGEOM_VERSION 1.1.0)
+set(VECGEOM_VERSION 1.1.1)
 set(VECGEOM ON)
 
 enable_language(CXX)
