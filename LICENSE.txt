@@ -17,4 +17,3 @@ See APACHE-LICENSE-2.0.txt next to this file or
    http://www.apache.org/licenses/LICENSE-2.0
 for the text of the Apache License, Version 2.0.
 
-For questions regarding the VecGeom license, please contact geant-dev@cern.ch.
