@@ -6,20 +6,15 @@
 It is possible to run Geant4 jobs replacing the original Geant4 solids with
 VecGeom implementations.
 Geant4 itself can be configured to build with VecGeom shapes.
-VecGeom implements the evolution (currently under active develpment) of the
-USolids source code, and can be transparently adopted, providing a properly
-configured Geant4 installation. No code changes are necessary for the user
-code in a standard Geant4 application.
+VecGeom can be transparently adopted, providing a properly configured Geant4
+installation. No code changes are necessary for the user code in a standard
+Geant4 application.
 
 
 * Building VecGeom
   ================
 
 The VecGeom library needs to be built and installed before configuring Geant4.
-These are the CMake switches required for building VecGeom library:
-
-  -DBACKEND=Scalar -DGEANT4=OFF
-
 Assuming that the VecGeom sources are located under $VGSOURCE:
 
    cd somewhere
@@ -28,7 +23,7 @@ Assuming that the VecGeom sources are located under $VGSOURCE:
    cd VecGeom
    export VGSOURCE=`pwd`
 
-   #.. configuration to use VecGeom algorithms
+   #.. configuration to use VecGeom algorithms in Scalar mode
    mkdir ${TOPDIR}/vecgeom-build
    cd ${TOPDIR}/vecgeom-build
    cmake -DBACKEND=Scalar -DGEANT4=OFF \
@@ -37,6 +32,17 @@ Assuming that the VecGeom sources are located under $VGSOURCE:
        ${VGSOURCE}
    make -j8 install
 
+   #.. configuration to use VecGeom algorithms in Vector mode with Vc
+   mkdir ${TOPDIR}/vecgeom-build
+   cd ${TOPDIR}/vecgeom-build
+   cmake -DBACKEND=Vc -DGEANT4=OFF \
+       [...other optional vecgeom switches...] \
+       -DVECGEOM_VECTOR=native \
+       -DVc_DIR=${TOPDIR}/Vc/install/lib/cmake/Vc \
+       -DVecCore_DIR=${TOPDIR}/VecCore/lib/cmake/VecCore \
+       -DCMAKE_INSTALL_PREFIX=${TOPDIR}/vecgeom \
+       ${VGSOURCE}
+   make -j8 install
 
 * Building Geant4 to use VecGeom
   ==============================
