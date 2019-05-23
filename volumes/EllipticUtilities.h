@@ -1,5 +1,10 @@
-/// @file EllipticUtilities.h
-/// @author Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Collection of auxiliary utilities for elliptical shapes
+/// @file volumes/EllipticUtilities.h
+/// @author Original implementation by Evgueni Tcherniaev (evc)
 
 #ifndef VECGEOM_ELLIPTICUTILITIES_H_
 #define VECGEOM_ELLIPTICUTILITIES_H_
@@ -15,16 +20,17 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 namespace EllipticUtilities {
 
-// Compute Complete Elliptical Integral of the Second Kind
-//
-// The algorithm is based upon Carlson B.C., "Computation of real
-// or complex elliptic integrals", Numerical Algorithms,
-// Volume 10, Issue 1, 1995 (see equations 2.36 - 2.39)
+/// Computes the Complete Elliptical Integral of the Second Kind
+/// @param e eccentricity
 //
 VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
 Precision comp_ellint_2(Precision e)
 {
+  // The algorithm is based upon Carlson B.C., "Computation of real
+  // or complex elliptic integrals", Numerical Algorithms,
+  // Volume 10, Issue 1, 1995 (see equations 2.36 - 2.39)
+  //
   const Precision eps = 1. / 134217728.; // 1 / 2^27
 
   Precision a = 1.;
@@ -47,7 +53,9 @@ Precision comp_ellint_2(Precision e)
   return 0.5 * kHalfPi * ((a + b) * (a + b) - S) / (x + y);
 }
 
-// Compute perimeter of ellipse (X/A)^2 + (Y/B)^2 = 1
+/// Computes perimeter of ellipse (X/A)^2 + (Y/B)^2 = 1
+/// @param A X semi-axis
+/// @param B Y semi-axis
 //
 VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
@@ -62,10 +70,10 @@ Precision EllipsePerimeter(Precision A, Precision B)
   return 4. * a * comp_ellint_2(e);
 }
 
-// Compute lateral surface area of elliptic cone:
-// pA - x semi-axis of base (ellipse at z = 0)
-// pB - y semi-axis of base (ellipse at z = 0)
-// pH - height
+/// Computes the lateral surface area of elliptic cone
+/// @param pA X semi-axis of ellipse at base (Z = 0)
+/// @param pB Y semi-axis of ellipse at base (Z = 0)
+/// @param pH height
 //
 VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
@@ -83,8 +91,9 @@ Precision EllipticalConeLateralArea(Precision pA, Precision pB, Precision pH)
   return 2. * a * vecCore::math::Sqrt(hh + bb) * comp_ellint_2(e);
 }
 
-// Pick random point in ellipse (x/a)^2 + (y/b)^2 = 1
-// (rejection sampling)
+/// Picks random point inside ellipse (x/a)^2 + (y/b)^2 = 1
+/// @param a X semi-axis
+/// @param b Y semi-axis
 //
 VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
@@ -100,8 +109,9 @@ Vector2D<Precision> RandomPointInEllipse(Precision a, Precision b)
   return Vector2D<Precision>(0., 0.);
 }
 
-// Pick random point on ellipse (x/a)^2 + (y/b)^2 = 1
-// (rejection sampling)
+/// Picks random point on ellipse (x/a)^2 + (y/b)^2 = 1
+/// @param a X semi-axis
+/// @param b Y semi-axis
 //
 VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
