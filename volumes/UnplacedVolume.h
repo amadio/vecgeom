@@ -258,7 +258,7 @@ public:
 
   /*!
    *  Calculates an estimate of the cubic volume of the shape via a sampling technique.
-   *  @params nStat number of sample points to be used
+   *  @param nStat number of sample points to be used
    */
   double EstimateCapacity(int nStat = 100000) const;
 
@@ -270,7 +270,7 @@ public:
 
   /*!
    *  Calculates an estimate of the surface area of the shape via a sampling technique.
-   *  @params nStat number of sample points to be used
+   *  @param nStat number of sample points to be used
    */
   double EstimateSurfaceArea(int nStat = 100000) const;
 
