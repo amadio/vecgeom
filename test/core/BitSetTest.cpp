@@ -5,7 +5,7 @@
 #endif
 #include <cassert>
 
-using namespace veccore;
+using namespace vecgeom;
 
 #include <iostream>
 

@@ -33,7 +33,7 @@ class TRootIOCtor;
 #define GCC_DIAG_POP_NEEDED
 #endif
 
-namespace veccore {
+namespace vecgeom {
 
 /**
  * @brief   Fast operation on a set of bit, all information stored contiguously in memory.
@@ -159,12 +159,12 @@ private:
 
     if (offset == 0)
       for (size_t n = 0; n <= limit; ++n)
-        fData[n]    = fData[n + wordshift];
+        fData[n] = fData[n + wordshift];
     else {
       const size_t sub_offset = 8 - offset;
       for (size_t n = 0; n < limit; ++n)
-        fData[n]    = (fData[n + wordshift] >> offset) | (fData[n + wordshift + 1] << sub_offset);
-      fData[limit]  = fData[GetNbytes() - 1] >> offset;
+        fData[n] = (fData[n + wordshift] >> offset) | (fData[n + wordshift + 1] << sub_offset);
+      fData[limit] = fData[GetNbytes() - 1] >> offset;
     }
 
     memset(&(fData[limit + 1]), 0, GetNbytes() - limit - 1);
@@ -750,8 +750,8 @@ public:
 
     size_t i;
     if (startBit >= fNbits) startBit = fNbits - 1;
-    size_t startByte                 = startBit / 8;
-    size_t ibit                      = startBit % 8;
+    size_t startByte = startBit / 8;
+    size_t ibit      = startBit % 8;
     if (ibit < 7) {
       for (i = ibit + 1; i > 0; i--) {
         if ((fData[startByte] & (1 << (i - 1))) == 0) return 8 * startByte + i - 1;
@@ -849,7 +849,7 @@ inline bool operator^(const BitSet::reference &lhs, const BitSet::reference &rhs
 {
   return (bool)lhs ^ rhs;
 }
-}
+} // namespace vecgeom
 
 #if defined(GCC_DIAG_POP_NEEDED)
 

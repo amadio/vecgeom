@@ -12,7 +12,7 @@
 
 class TRootIOCtor;
 
-namespace veccore {
+namespace vecgeom {
 
 /**
  * @brief   Array/vector of items with all information stored contiguously in memory.
@@ -184,6 +184,6 @@ private:
     return (FillUp(nvalues) == alignof(Cont)) ? 0 : FillUp(nvalues);
   }
 };
-}
+} // namespace vecgeom
 
 #endif

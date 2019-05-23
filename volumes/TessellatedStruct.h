@@ -35,7 +35,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 template <size_t NVERT, typename T = double>
 class TessellatedStruct {
 
-  using BitSet = veccore::BitSet;
 #ifndef VECGEOM_ENABLE_CUDA
   using Real_v = vecgeom::VectorBackend::Real_v;
 #else
