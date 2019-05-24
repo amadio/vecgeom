@@ -4,7 +4,7 @@
 
 /// \brief Declaration of the unplaced volume interfaces.
 /// \file volumes/UnplacedVolume.h
-
+/// \author created by Sandro Wenzel
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDVOLUME_H_
 #define VECGEOM_VOLUMES_UNPLACEDVOLUME_H_
