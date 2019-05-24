@@ -40,7 +40,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedHype : public VUnplacedVolume {
 
 private:
-  HypeStruct<Precision> fHype;
+  HypeStruct<Precision> fHype;  ///< Structure holding the data for Hype
 
 public:
   /// Default constructor for the unplaced hyperboloid.
