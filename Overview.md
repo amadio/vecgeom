@@ -9,11 +9,20 @@ tailored for use in cutting edge particle transport simulation
 
 Shape primitives have the full set of methods for intersection, 
 distance to nearest boundary of volume required for navigation of tracks 
-for particle transport simulations.  
-A distinguishing feature of VecGeom is that it provides methods with SIMD
-signatures to cope with multiple tracks in one call, for all appropriate 
-methods of the shape/solid primitives.
+for particle transport simulations.
 
+Associating these shapes with materials, and placing them inside others 
+can be used to create a hierarchial description of an arbitrary geometrical setup.
+
+VecGeom is capable of locating the volume to which a point belongs, and of finding the intersection of ray from such a starting point in a chosen direction.  These navigation capabilities are optimised using a new set of acceleration techniques.
+
+A distinguishing feature of VecGeom is that it provides the set of methods 
+with SIMD signatures to cope with multiple rays/tracks in one call. 
+All appropriate methods of the shape/solid primitives have SIMD versions.
+A selected set of navigation methods, for selecting the bounding boxes of 
+volumes, also have SIMD versions.
+
+**Not part of document - a list of topics to cover**
 List of topics from Google document
 - How we create geometry objects via factories, 
 - The roles of ‘unplaced’, ‘placed’ and ‘specialised’ classes
