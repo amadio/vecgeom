@@ -4,7 +4,7 @@
 
 /// \brief Declaration of the unplaced hyperboloid shape
 /// \file volumes/UnplacedHype.h
-/// \author First version created by Marilena Bandieramonte.
+/// \author First version created by Marilena Bandieramonte (CERN).
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDHYPE_H_
 #define VECGEOM_VOLUMES_UNPLACEDHYPE_H_
