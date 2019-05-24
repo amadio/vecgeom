@@ -17,7 +17,7 @@ better maintainable piece of software within the EU-AIDA program. As such it is 
 
 For further information, we provide
 
-   * An installation guide here: [a relative link](INSTALL.md)
+   * [Installation instructions](INSTALL.md)
    * A user's guide here: tbd
    * Doxygen reference guide here: tbd
    * Issue tracking system: tbd
