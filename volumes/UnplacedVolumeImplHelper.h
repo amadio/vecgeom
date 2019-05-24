@@ -1,3 +1,12 @@
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief A collection of template helpers to automize implementation
+///        of UnplacedVolume interfaces.
+/// \file volumes/UnplacedVolumeImplHelper.h
+/// \author First version created by Sandro Wenzel
+
 #ifndef VOLUMES_UNPLACEDVOLUMEIMPLHELPER_H_
 #define VOLUMES_UNPLACEDVOLUMEIMPLHELPER_H_
 
@@ -57,6 +66,14 @@ static void SafetyToOutLoop(typename Implementation::UnplacedStruct_t const *sha
   }
 }
 
+/*!
+ * A template class with the aim to automatically implement
+ * interfaces of UnplacedVolume by connecting them to the separately
+ * available (reusable) kernels.
+ *
+ * This is an application of the CRT pattern in order to reduce
+ * repeating code.
+ */
 template <class Implementation, class BaseUnplVol = VUnplacedVolume>
 class CommonUnplacedVolumeImplHelper : public BaseUnplVol {
 
@@ -160,7 +177,10 @@ public:
   virtual int MemorySize() const override { return sizeof(*this); }
 };
 
-// helper that dispatches the vector interface to a loop over the SIMD interface
+
+ /*! \brief Template implementation helper for the case of unplaced volumes/shapes
+ * where the vector interface is implemented in terms of SIMD vector instructions.
+ */
 template <class Implementation, class BaseUnplVol = VUnplacedVolume>
 class SIMDUnplacedVolumeImplHelper : public CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol> {
 public:
@@ -239,7 +259,10 @@ public:
   }
 };
 
-// helper that dispatches the vector interface to a loop over the scalar interface
+/*!
+ * \brief Template implementation helper for the case of unplaced volumes/shapes
+ * where the vector interface is implemented in terms of loops over scalar version.
+ */
 template <class Implementation, class BaseUnplVol = VUnplacedVolume>
 class LoopUnplacedVolumeImplHelper : public CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol> {
 public:
@@ -342,8 +365,8 @@ public:
     SafetyToOutLoop<Implementation, Precision>(&shape, 0, points.size(), points, output);
   }
 };
-}
-} // end namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #ifndef __clang__
 #pragma GCC diagnostic pop
