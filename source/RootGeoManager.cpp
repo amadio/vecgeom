@@ -1,3 +1,10 @@
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \file RootGeoManager.cpp
+/// \author created by Johannes de Fine Licht, Sandro Wenzel (CERN)
+
 #include "base/Transformation3D.h"
 #include "base/Stopwatch.h"
 #include "management/GeoManager.h"
