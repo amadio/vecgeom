@@ -1569,7 +1569,7 @@ INCLUDE_FILE_PATTERNS  =
 # undefined via #undef or recursively expanded use the := operator
 # instead of the = operator.
 
-PREDEFINED             = "USE_VECGEOM_NAVIGATOR ARRAY_LOCK_FREE_Q_KEEP_REAL_SIZE __ATOMIC_OPS_H __STAT_DEBUG VECCORE_CUDA_DEVICE_COMPILATION __STAT_DEBUG_TRK CROSSCHECK VERBOSE"
+PREDEFINED             = "VECGEOM_IMPL_NAMESPACE=cxx USE_VECGEOM_NAVIGATOR ARRAY_LOCK_FREE_Q_KEEP_REAL_SIZE __ATOMIC_OPS_H __STAT_DEBUG VECCORE_CUDA_DEVICE_COMPILATION __STAT_DEBUG_TRK CROSSCHECK VERBOSE"
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.
