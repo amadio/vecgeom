@@ -6,7 +6,6 @@
 
 #include "management/GeoManager.h"
 #include "volumes/PlacedVolume.h"
-#include <dlfcn.h>
 #include "navigation/NavigationState.h"
 #include "navigation/ABBoxNavigator.h"
 #include "volumes/UnplacedBooleanVolume.h"
@@ -14,8 +13,6 @@
 #include "volumes/LogicalVolume.h"
 
 #include <dlfcn.h>
-#include "navigation/NavigationState.h"
-
 #include <stdio.h>
 #include <list>
 #include <vector>
