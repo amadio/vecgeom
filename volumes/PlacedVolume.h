@@ -1,5 +1,9 @@
-/// \file placed_volume.h
-/// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \file PlacedVolume.h
+/// \author created by Johannes de Fine Licht, Sandro Wenzel (CERN)
 
 #ifndef VECGEOM_VOLUMES_PLACEDVOLUME_H_
 #define VECGEOM_VOLUMES_PLACEDVOLUME_H_
@@ -32,31 +36,59 @@ class GeoManager;
 template <typename T>
 class SOA3D;
 
+/*!
+ * \brief A placed volume is a positioned logical volume.
+ *
+ * Special features of VecGeom are that:
+ *
+ *   1. Placed volumes offer
+ *      similar geometry interfaces (distance, etc) as unplaced volumes for user convenience.
+ *   2. We can have sub-types of placed volumes, specialized according
+ *      to underlying unplaced volume type as well as per categories
+ *      of placing transformations.
+ *
+ * Given a logical volume and a transformation, factory methods
+ * will generate the most suitable sub-type of a placed volume so that
+ * geometry APIs, such as VPlacedVolume::DistanceToIn(position, direction)
+ * are optimized as much as possible. Some CMake flags allow to select how
+ * far this is done or not.
+ */
 class VPlacedVolume {
   friend class GeoManager;
 
 private:
-  unsigned int id_;
-  int copy_no_ = 0; /** Copy number for the physical volume, used by transport*/
+  unsigned int id_; ///< Integer id
+  int copy_no_ = 0; ///< Copy number for the physical volume, used by transport
 
   // Use a pointer so the string won't be constructed on the GPU
-  std::string *label_;
-  static unsigned int g_id_count;
+  std::string *label_;            ///< Label/name of placed volume
+  static unsigned int g_id_count; ///< Static instance counter
 
 protected:
-  LogicalVolume const *logical_volume_;
+  LogicalVolume const *logical_volume_;  ///< Pointer to positioned logical volume
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
-  Transformation3D fTransformation;
+  Transformation3D fTransformation; ///< The positioning transformation
 #else
-  Transformation3D const *fTransformation;
+  Transformation3D const *fTransformation; ///< The positioning transformation
 #endif
-  PlacedBox const *bounding_box_;
+  PlacedBox const *bounding_box_; ///< Pointer to bounding box (to be deprecated)
 
 #ifndef VECCORE_CUDA
 
+  /** Constructor
+   * \param label Name of logical volume.
+   * \param logical_vol The logical volume to be positioned.
+   * \param transform The positioning transformation.
+   * \param boundingbox Pointer to bounding box (may be null); To be deprecated
+   */
   VPlacedVolume(char const *const label, LogicalVolume const *const logical_vol,
                 Transformation3D const *const transform, PlacedBox const *const boundingbox);
 
+  /** Constructor
+   * \param logical_vol The logical volume to be positioned.
+   * \param transform The positioning transformation.
+   * \param boundingbox Pointer to bounding box (may be null); To be deprecated
+   */
   VPlacedVolume(LogicalVolume const *const logical_vol, Transformation3D const *const transform,
                 PlacedBox const *const boundingbox)
       : VPlacedVolume("", logical_vol, transform, boundingbox)
@@ -64,7 +96,7 @@ protected:
   }
 
 #else
-
+  /// CUDA version of constructor
   VECCORE_ATT_DEVICE VPlacedVolume(LogicalVolume const *const logical_vol, Transformation3D const *const transformation,
                                    PlacedBox const *const boundingbox, unsigned int id)
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
@@ -88,40 +120,51 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual ~VPlacedVolume();
 
+  /// Returns integer index associated to this volume.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   unsigned int id() const { return id_; }
 
+  /// Returns copy number.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int GetCopyNo() const { return copy_no_; }
 
+  /// Returns value of static instance counter
   static unsigned int GetIdCount() { return g_id_count; }
 
+  /// Returns name/label.
   std::string const &GetLabel() const { return *label_; }
 
+  /// Returns pointer to boundinx box.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   PlacedBox const *bounding_box() const { return bounding_box_; }
 
+  /// Returns underlying logical volume.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   LogicalVolume const *GetLogicalVolume() const { return logical_volume_; }
 
+  /// Returns daughter container of logical volume.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector<Daughter> const &GetDaughters() const { return logical_volume_->GetDaughters(); }
 
+  /// Returns name/label.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   const char *GetName() const { return (*label_).c_str(); }
 
+  /// Returns unplaced volume encapsulated in the logical volume.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   VUnplacedVolume const *GetUnplacedVolume() const { return logical_volume_->GetUnplacedVolume(); }
 
+  /// Returns if underlying unplaced volume is an assembly.
   bool IsAssembly() const { return GetUnplacedVolume()->IsAssembly(); }
 
+  /// Returns underlying transformation.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Transformation3D const *GetTransformation() const
@@ -133,9 +176,11 @@ public:
 #endif
   }
 
+  /// Sets logical volume.
   VECCORE_ATT_HOST_DEVICE
   void SetLogicalVolume(LogicalVolume const *const logical_vol) { logical_volume_ = logical_vol; }
 
+  /// Sets transformation.
   VECCORE_ATT_HOST_DEVICE
   void SetTransformation(Transformation3D const *const transform)
   {
@@ -146,70 +191,109 @@ public:
 #endif
   }
 
+  /// Sets name/label.
   void set_label(char const *label)
   {
     if (label_) delete label_;
     label_ = new std::string(label);
   }
 
+  /// Sets copy number.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetCopyNo(int copy_no) { copy_no_ = copy_no; }
 
   friend std::ostream &operator<<(std::ostream &os, VPlacedVolume const &vol);
 
+  /// Returns in-memory size in bytes of deriving objects (used to copy to GPU).
   virtual int MemorySize() const = 0;
 
+  /// Print info about placed volume.
   VECCORE_ATT_HOST_DEVICE
   virtual void Print(const int indent = 0) const;
 
+  /// Print info about placed volume.
   VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const = 0;
 
   // some functions allowing for some very basic "introspection"
-  // print the volume type to an outstream
+
+  /// Print the actual volume type to an outstream
   virtual void PrintType(std::ostream &os) const = 0;
-  // print the implemtation struct of this volume to an outstream
+  /// Print the implementation struct of this volume to an outstream
   virtual void PrintImplementationType(std::ostream &os) const = 0;
-  // print the unplaced type to an outstream
+  /// Print the unplaced type to an outstream
   virtual void PrintUnplacedType(std::ostream &os) const = 0;
 
-  // returns translation and rotation code of the placed volume
+  /// Returns translation code/enumeration of the placed volume
   virtual int GetTransCode() const { return translation::kGeneric; }
+
+  /// Returns rotation code/enumeration of the placed volume
   virtual int GetRotCode() const { return rotation::kGeneric; }
 
   /// Recursively prints contained volumes to standard output.
   VECCORE_ATT_HOST_DEVICE
   void PrintContent(const int depth = 0) const;
 
-  // Geometry functionality
+  // Geometry functionality like in unplaced volume but taking the placement
+  // into account.
 
+  /*!
+   * Returns whether a space point is contained or not in the placed volume.
+   * This is similar to the functionality in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point) const = 0;
 
   virtual void Contains(SOA3D<Precision> const &point, bool *const output) const = 0;
 
-  /// \return The input point transformed to the local reference frame.
+  /*!
+   * Returns whether a space point is contained or not in the placed volume.
+   * Also returns the transformed position.
+   *
+   * \param point A given space point.
+   * \param localPoint The point in the natural reference frame of the shape.
+   *
+   * This is similar to the functionality in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const = 0;
 
-  /// \param localPoint Point in the local reference frame of the volume.
+  /// Direct dispatch to Contains of underlying unplaced volume without coordinate/placement transformation.
   VECCORE_ATT_HOST_DEVICE
   virtual bool UnplacedContains(Vector3D<Precision> const &localPoint) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const = 0;
 
   virtual void Inside(SOA3D<Precision> const &point, Inside_t *const output) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                  const Precision step_max = kInfLength) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   // if we have any SIMD backend, we offer a SIMD interface
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
                                  const Real_v step_max = kInfLength) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   template <typename T>
   VECGEOM_FORCE_INLINE
   T DistanceToIn(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfLength)) const
@@ -217,6 +301,10 @@ public:
     return DistanceToInVec(position, direction, step_max);
   }
 
+  /**
+   * Like similar function in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   virtual void DistanceToIn(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                             Precision const *const step_max, Precision *const output) const = 0;
 
@@ -224,15 +312,25 @@ public:
   virtual void DistanceToInMinimize(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                                     int daughterindex, Precision *const output, int *const nextnodeids) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume. Here position and direction are supposed to be
+   * in the frame of the placed volume!
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                   Precision const step_max = kInfLength) const = 0;
 
-  // define this interface in case we don't have the Scalar interface
-
+  /**
+   * Like similar function in VUnplacedVolume. Here position and direction are supposed to be
+   * in the frame of the placed volume!
+   */
   virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
                                   Real_v const step_max = kInfLength) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume. Here position and direction are supposed to be
+   * in the frame of the placed volume!
+   */
   template <typename T>
   VECGEOM_FORCE_INLINE
   T DistanceToOut(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfLength)) const
@@ -240,42 +338,68 @@ public:
     return DistanceToOutVec(position, direction, step_max);
   }
 
-  // a "placed" version of the distancetoout function; here
-  // the point and direction are first of all transformed into the reference frame of the
-  // callee. The normal DistanceToOut method does not do this
+  /** A "placed" version of the DistanceToOut function; here
+   * the point and direction are first of all transformed into the reference frame of the
+   * shape. So given a position and direction in the reference frame in which the placed volume
+   * is positioned, we transform everything into the coordinate system of the placed volume and
+   * calculate DistanceToOut from there.
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                         Precision const step_max = kInfLength) const = 0;
 
+  /// to be deprecated
   virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                              Precision const *const step_max, Precision *const output) const = 0;
 
+  /// to be deprecated
   virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                              Precision const *const step_max, Precision *const output,
                              int *const nextnodeindex) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &position) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume but taking into account
+   * the positioning of the shape due to the placement.
+   */
   template <typename T>
-  VECGEOM_FORCE_INLINE
-  T SafetyToIn(Vector3D<T> const &p) const
+  VECGEOM_FORCE_INLINE T SafetyToIn(Vector3D<T> const &p) const
   {
     return SafetyToInVec(p);
   }
 
+  /// to be deprecated
   virtual void SafetyToIn(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
 
-  // to be deprecated
+  /// to be deprecated
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume. Here position is supposed to be
+   * in the frame of the placed volume.
+   */
   VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const = 0;
 
+  /**
+   * Like similar function in VUnplacedVolume. Here position is supposed to be
+   * in the frame of the placed volume.
+   */
   virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &position) const = 0;
 
+  /// to be deprecated
   virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
 
   template <typename T>
@@ -285,19 +409,23 @@ public:
     return SafetyToOutVec(p);
   }
 
-  // to be deprecated
+  /// to be deprecated
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;
 
-  /// \brief Return the cubic volume of the shape
-  // It is currently not a const function since some shapes might cache this value, if it is expensive to calculate.
+  /// Simple forward to capacity on VUnplacedVolume
   virtual Precision Capacity();
 
+  /// Simple forward to Extent on VUnplacedVolume. Returns coordinates in the frame of the unplaced volume
+  /// which needs to be revised!!
   VECCORE_ATT_HOST_DEVICE
   virtual void Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const;
 
+  /// Simple forward to Normal on VUnplacedVolume. Returns coordinates in the frame of the unplaced volume
+  /// and expects a point in the same frame as input. Needs to be revised!!
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const;
 
+  /// Like SurfaceArea on VUnplacedVolume
   virtual Precision SurfaceArea() const = 0;
 
 public:
@@ -334,11 +462,14 @@ public:
 #endif
 
 #ifndef VECCORE_CUDA
+  /// A conversion function creating a generic unspecialized instance of the placed volume
   virtual VPlacedVolume const *ConvertToUnspecialized() const = 0;
 #ifdef VECGEOM_ROOT
+  /// A conversion function to a TGeoShape (when TGeo support is available)
   virtual TGeoShape const *ConvertToRoot() const = 0;
 #endif
 #ifdef VECGEOM_GEANT4
+  /// A conversion function to a Geant4 G4VSolid (when G4 support is available)
   virtual G4VSolid const *ConvertToGeant4() const = 0;
 #endif
 #endif // VECCORE_CUDA

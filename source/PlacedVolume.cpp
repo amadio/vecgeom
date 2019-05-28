@@ -1,3 +1,7 @@
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
 /// \file PlacedVolume.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
