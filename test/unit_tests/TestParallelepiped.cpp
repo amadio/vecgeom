@@ -1,11 +1,13 @@
-//
-// File: TestParallelepiped.cpp
-//
-//
-//    Ensure asserts are compiled in
-//
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
 
-//.. ensure asserts are compiled in
+/// Unit test for Paralleliped.
+/// @file test/unit_tests/TestParallelepiped.cpp
+/// @author Created by Mihaela Gheata
+/// @author Revised by Evgueni Tcherniaev
+
+// ensure asserts are compiled in
 #undef NDEBUG
 #include "base/FpeEnable.h"
 
@@ -52,18 +54,46 @@ bool TestParallelepiped()
 
   // check Cubic volume
 
+  int Npoints = 10000000;
+  std::cout << "=== Check Capacity()" << std::endl;
   double vol      = para.Capacity();
-  double volCheck = 8 * dx * dy * dz;
-  assert(ApproxEqual(vol, volCheck));
+  double volCheck = para.GetUnplacedVolume()->EstimateCapacity(Npoints);
+  std::cout << " vol = " << vol << "   mc_estimated = " << volCheck << std::endl;
+  assert(std::abs(vol - volCheck) < 0.01 * vol);
 
   // Check Surface area
 
+  std::cout << "=== Check SurfaceArea()" << std::endl;
   double surf      = para.SurfaceArea();
-  double surfCheck = 8.0 * (dx * dy + dy * dz * sqrt(1. / 0.75 - 1. / 6.) + dx * dz * sqrt(1. / 0.75 - 1. / 6.));
-  assert(ApproxEqual(surf, surfCheck));
+  double surfCheck = para.GetUnplacedVolume()->EstimateSurfaceArea(Npoints);
+  std::cout << " surf = " << surf << "   mc_estimated = " << surfCheck << std::endl;
+  assert(std::abs(surf - surfCheck) < 0.01 * surf);
+
+  // Check Extent
+
+  std::cout << "=== Check Extent()" << std::endl;
+  Vec_t minExtent, maxExtent;
+  Vec_t minCheck(kInfLength, kInfLength, kInfLength);
+  Vec_t maxCheck(-kInfLength, -kInfLength, -kInfLength);
+  para.Extent(minExtent, maxExtent);
+  for (int i = 0; i < Npoints; ++i) {
+    Vec_t p = para.GetUnplacedVolume()->SamplePointOnSurface();
+    minCheck.Set(std::min(p.x(), minCheck.x()), std::min(p.y(), minCheck.y()), std::min(p.z(), minCheck.z()));
+    maxCheck.Set(std::max(p.x(), maxCheck.x()), std::max(p.y(), maxCheck.y()), std::max(p.z(), maxCheck.z()));
+  }
+  std::cout << " calculated: min = " << minExtent << " max = " << maxExtent << std::endl;
+  std::cout << " estimated:  min = " << minCheck << " max = " << maxCheck << std::endl;
+
+  assert(std::abs(minExtent.x() - minCheck.x()) < 0.001 * std::abs(minExtent.x()));
+  assert(std::abs(minExtent.y() - minCheck.y()) < 0.001 * std::abs(minExtent.y()));
+  assert(minExtent.z() == minCheck.z());
+  assert(std::abs(maxExtent.x() - maxCheck.x()) < 0.001 * std::abs(maxExtent.x()));
+  assert(std::abs(maxExtent.y() - maxCheck.y()) < 0.001 * std::abs(maxExtent.y()));
+  assert(maxExtent.z() == maxCheck.z());
 
   // Check Inside
 
+  std::cout << "=== Check Inside()" << std::endl;
   assert(para.Inside(pzero) == vecgeom::EInside::kInside);
   assert(para.Inside(pbigz) == vecgeom::EInside::kOutside);
   assert(para.Inside(ponxside) == vecgeom::EInside::kSurface);
@@ -96,13 +126,123 @@ bool TestParallelepiped()
 
   // Check Surface Normal
 
-  valid = para.Normal(ponzside, normal);
-  assert(valid && ApproxEqual(normal, Vec_t(0, 0, 1)));
-  valid = para.Normal(ponmzside, normal);
-  assert(valid && ApproxEqual(normal, Vec_t(0, 0, -1)));
+  std::cout << "=== Check Normal()" << std::endl;
+  Vec_t pp[8], nn[3], ptest;
+  pp[0].Set(-dx, -dy, -dz);
+  pp[1].Set(dx, -dy, -dz);
+  pp[2].Set(dx, dy, -dz);
+  pp[3].Set(-dx, dy, -dz);
+  pp[4].Set(-dx, -dy, dz);
+  pp[5].Set(dx, -dy, dz);
+  pp[6].Set(dx, dy, dz);
+  pp[7].Set(-dx, dy, dz);
+  for (int i = 0; i < 8; ++i) {
+    pp[i].x() += para.GetTanAlpha() * pp[i].y() + para.GetTanThetaCosPhi() * pp[i].z();
+    pp[i].y() += para.GetTanThetaSinPhi() * pp[i].z();
+  }
+  nn[0] = para.GetUnplacedVolume()->GetNormal(0);
+  nn[1] = para.GetUnplacedVolume()->GetNormal(1);
+  nn[2] = Vec_t(0, 0, 1);
 
-  // SafetyToOut/Outside(P)
+  // check facets
+  ptest = Vec_t(dx, 0, 0);
+  valid = para.Normal(ptest, normal);
+  assert(valid && normal == nn[0]);
+  valid = para.Normal(1.1 * ptest, normal);
+  assert(!valid && normal == nn[0]);
+  valid = para.Normal(0.9 * ptest, normal);
+  assert(!valid && normal == nn[0]);
 
+  ptest = Vec_t(-dx, 0, 0);
+  valid = para.Normal(ptest, normal);
+  assert(valid && normal == -nn[0]);
+  valid = para.Normal(1.1 * ptest, normal);
+  assert(!valid && normal == -nn[0]);
+  valid = para.Normal(0.9 * ptest, normal);
+  assert(!valid && normal == -nn[0]);
+
+  ptest = Vec_t(0, dy, 0);
+  valid = para.Normal(ptest, normal);
+  assert(valid && normal == nn[1]);
+  valid = para.Normal(1.1 * ptest, normal);
+  assert(!valid && normal == nn[1]);
+  valid = para.Normal(0.9 * ptest, normal);
+  assert(!valid && normal == nn[1]);
+
+  ptest = Vec_t(0, -dy, 0);
+  valid = para.Normal(ptest, normal);
+  assert(valid && normal == -nn[1]);
+  valid = para.Normal(1.1 * ptest, normal);
+  assert(!valid && normal == -nn[1]);
+  valid = para.Normal(0.9 * ptest, normal);
+  assert(!valid && normal == -nn[1]);
+
+  ptest = Vec_t(0, 0, dz);
+  valid = para.Normal(ptest, normal);
+  assert(valid && normal == nn[2]);
+  valid = para.Normal(1.1 * ptest, normal);
+  assert(!valid && normal == nn[2]);
+  valid = para.Normal(0.9 * ptest, normal);
+  assert(!valid && normal == nn[2]);
+
+  ptest = Vec_t(0, 0, -dz);
+  valid = para.Normal(ptest, normal);
+  assert(valid && normal == -nn[2]);
+  valid = para.Normal(1.1 * ptest, normal);
+  assert(!valid && normal == -nn[2]);
+  valid = para.Normal(0.9 * ptest, normal);
+  assert(!valid && normal == -nn[2]);
+
+  // check edges
+  valid = para.Normal((pp[0] + pp[1]) / 2, normal);
+  assert(valid && normal == (-nn[2] - nn[1]).Unit());
+  valid = para.Normal((pp[1] + pp[2]) / 2, normal);
+  assert(valid && normal == (-nn[2] + nn[0]).Unit());
+  valid = para.Normal((pp[2] + pp[3]) / 2, normal);
+  assert(valid && normal == (-nn[2] + nn[1]).Unit());
+  valid = para.Normal((pp[3] + pp[0]) / 2, normal);
+  assert(valid && normal == (-nn[2] - nn[0]).Unit());
+
+  valid = para.Normal((pp[4] + pp[5]) / 2, normal);
+  assert(valid && normal == (nn[2] - nn[1]).Unit());
+  valid = para.Normal((pp[5] + pp[6]) / 2, normal);
+  assert(valid && normal == (nn[2] + nn[0]).Unit());
+  valid = para.Normal((pp[6] + pp[7]) / 2, normal);
+  assert(valid && normal == (nn[2] + nn[1]).Unit());
+  valid = para.Normal((pp[7] + pp[4]) / 2, normal);
+  assert(valid && normal == (nn[2] - nn[0]).Unit());
+
+  valid = para.Normal((pp[0] + pp[4]) / 2, normal);
+  assert(valid && normal == (-nn[0] - nn[1]).Unit());
+  valid = para.Normal((pp[1] + pp[5]) / 2, normal);
+  assert(valid && normal == (nn[0] - nn[1]).Unit());
+  valid = para.Normal((pp[2] + pp[6]) / 2, normal);
+  assert(valid && normal == (nn[0] + nn[1]).Unit());
+  valid = para.Normal((pp[3] + pp[7]) / 2, normal);
+  assert(valid && normal == (-nn[0] + nn[1]).Unit());
+
+  // check nodes
+  valid = para.Normal(pp[0], normal);
+  assert(valid && normal == (-nn[2] - nn[1] - nn[0]).Unit());
+  valid = para.Normal(pp[1], normal);
+  assert(valid && normal == (-nn[2] - nn[1] + nn[0]).Unit());
+  valid = para.Normal(pp[2], normal);
+  assert(valid && normal == (-nn[2] + nn[1] + nn[0]).Unit());
+  valid = para.Normal(pp[3], normal);
+  assert(valid && normal == (-nn[2] + nn[1] - nn[0]).Unit());
+
+  valid = para.Normal(pp[4], normal);
+  assert(valid && normal == (nn[2] - nn[1] - nn[0]).Unit());
+  valid = para.Normal(pp[5], normal);
+  assert(valid && normal == (nn[2] - nn[1] + nn[0]).Unit());
+  valid = para.Normal(pp[6], normal);
+  assert(valid && normal == (nn[2] + nn[1] + nn[0]).Unit());
+  valid = para.Normal(pp[7], normal);
+  assert(valid && normal == (nn[2] + nn[1] - nn[0]).Unit());
+
+  // Check SafetyToOut
+
+  std::cout << "=== Check SafetyToOut()" << std::endl;
   Dist = para.SafetyToOut(pzero);
   assert(Dist < dx);
 
@@ -124,6 +264,9 @@ bool TestParallelepiped()
   Dist = para.SafetyToOut(ponmzside);
   assert(Dist == 0.);
 
+  // Check SafetyToIn
+
+  std::cout << "=== Check SafetyToIn()" << std::endl;
   Dist = para.SafetyToIn(pzero);
   assert(Dist < dx);
 
@@ -151,6 +294,7 @@ bool TestParallelepiped()
 
   // DistanceToOut(P,V)
 
+  std::cout << "=== Check DistanceToOut()" << std::endl;
   Dist = para.DistanceToOut(pzero, vx);
   assert(ApproxEqual(Dist, dx));
   Dist = para.DistanceToOut(pzero, vmx);
@@ -179,6 +323,7 @@ bool TestParallelepiped()
 
   // DistanceToIn(P,V)
 
+  std::cout << "=== Check DistanceToIn()" << std::endl;
   Dist = para.DistanceToIn(pbigx, vmx);
   assert(ApproxEqual(Dist, 100 - dx));
   Dist = para.DistanceToIn(pbigmx, vx);
@@ -196,14 +341,52 @@ bool TestParallelepiped()
   Dist = para.DistanceToIn(pbigmx, vxy);
   assert(ApproxEqual(Dist, kInfLength));
 
-  // CalculateExtent
-  Vec_t minExtent, maxExtent;
-  para.Extent(minExtent, maxExtent);
-  std::cout << " min=" << minExtent << " max=" << maxExtent << std::endl;
-  assert(ApproxEqual(minExtent,
-                     Vec_t(-dx - dy / sqrt(3.) - dz * 0.5 * sqrt(2. / 3.), -dy - dz * 0.5 * sqrt(2. / 3.), -dz)));
-  assert(
-      ApproxEqual(maxExtent, Vec_t(dx + dy / sqrt(3.) + dz * 0.5 * sqrt(2. / 3.), dy + dz * 0.5 * sqrt(2. / 3.), dz)));
+  // Check SamplePointOnSurface()
+
+  std::cout << "=== Check SamplePointOnSurface()" << std::endl;
+  Vec_t Vx(1., 0., 0.);
+  Vec_t Vy(para.GetTanAlpha(), 1., 0.);
+  Vec_t Vz(para.GetTanThetaCosPhi(), para.GetTanThetaSinPhi(), 1.);
+  Vec_t Nx = Vy.Cross(Vz);
+  Vec_t Ny = Vz.Cross(Vx);
+  Vec_t Nz(0., 0., 1.);
+  double sx = 4. * para.GetY() * para.GetZ() * Nx.Mag();
+  double sy = 4. * para.GetZ() * para.GetX() * Ny.Mag();
+  double sz = 4. * para.GetX() * para.GetY();
+  Nx.Normalize();
+  Ny.Normalize();
+  double Dx = -Nx.x() * para.GetX();
+  double Dy = -Ny.y() * para.GetY();
+  int nxneg = 0, nxpos = 0, nyneg = 0, nypos = 0, nzneg = 0, nzpos = 0;
+  int nfactor = 100, ntot = 2. * (sx + sy + sz) * nfactor;
+  for (int i = 0; i < ntot; i++) {
+    Vec_t p = para.GetUnplacedVolume()->SamplePointOnSurface();
+    assert(para.Inside(p) == vecgeom::kSurface);
+    if (std::abs(Nx.Dot(p) - Dx) < kHalfTolerance) {
+      ++nxneg;
+    } else if (std::abs(Nx.Dot(p) + Dx) < kHalfTolerance) {
+      ++nxpos;
+    } else if (std::abs(Ny.Dot(p) - Dy) < kHalfTolerance) {
+      ++nyneg;
+    } else if (std::abs(Ny.Dot(p) + Dy) < kHalfTolerance) {
+      ++nypos;
+    } else if (p.z() == -para.GetZ()) {
+      ++nzneg;
+    } else {
+      ++nzpos;
+    }
+  }
+  std::cout << "facet surface -/+x, -/+y, -/+z: "
+            << "\t" << sx << ", \t" << sx << ", \t" << sy << ", \t" << sy << ", \t" << sz << ", \t" << sz << std::endl;
+  std::cout << "n. of samples -/+x, -/+y, -/+z: "
+            << "\t" << nxneg << ", \t" << nxpos << ", \t" << nyneg << ", \t" << nypos << ", \t" << nzneg << ", \t"
+            << nzpos << std::endl;
+  assert(std::abs(nxneg - sx * nfactor) < 0.01 * sx * nfactor);
+  assert(std::abs(nxpos - sx * nfactor) < 0.01 * sx * nfactor);
+  assert(std::abs(nyneg - sy * nfactor) < 0.01 * sy * nfactor);
+  assert(std::abs(nypos - sy * nfactor) < 0.01 * sy * nfactor);
+  assert(std::abs(nzneg - sz * nfactor) < 0.01 * sz * nfactor);
+  assert(std::abs(nzpos - sz * nfactor) < 0.01 * sz * nfactor);
 
   return true;
 }
@@ -212,6 +395,6 @@ int main(int argc, char *argv[])
 {
 
   TestParallelepiped<vecgeom::SimpleParallelepiped>();
-  std::cout << "VecGeom Parallelepiped passed\n";
+  std::cout << "\nVecGeom Parallelepiped passed\n" << std::endl;
   return 0;
 }

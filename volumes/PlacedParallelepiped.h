@@ -1,6 +1,10 @@
-/// \file PlacedParallelepiped.h
-/// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
-///  Modified and completed: mihaela.gheata@cern.ch
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Declaration of the placed parallelepiped volume.
+/// @file volumes/PlacedParallelepiped.h
+/// @author Johannes de Fine Licht, Mihaela Gheata
 
 #ifndef VECGEOM_VOLUMES_PLACEDPARALLELEPIPED_H_
 #define VECGEOM_VOLUMES_PLACEDPARALLELEPIPED_H_
@@ -8,7 +12,7 @@
 #include "base/Global.h"
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
-//#include "volumes/kernel/ParallelepipedImplementation.h"
+#include "volumes/kernel/ParallelepipedImplementation.h"
 #include "volumes/PlacedVolImplHelper.h"
 #include "volumes/UnplacedParallelepiped.h"
 
@@ -19,19 +23,28 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedParallelepiped);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+/// Class for the positioned parallelepiped volume
 class PlacedParallelepiped : public PlacedVolumeImplHelper<UnplacedParallelepiped, VPlacedVolume> {
   using Base = PlacedVolumeImplHelper<UnplacedParallelepiped, VPlacedVolume>;
 
 public:
 #ifndef VECCORE_CUDA
-  // constructor inheritance;
   using Base::Base;
+  /// Constructor
+  /// @param label Name of logical volume.
+  /// @param logical_volume The logical volume to be positioned.
+  /// @param transformation The positioning transformation.
+  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
   PlacedParallelepiped(char const *const label, LogicalVolume const *const logical_volume,
                        Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
       : Base(label, logical_volume, transformation, boundingBox)
   {
   }
 
+  /// Constructor
+  /// @param logical_volume The logical volume to be positioned.
+  /// @param transformation The positioning transformation.
+  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
   PlacedParallelepiped(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                        vecgeom::PlacedBox const *const boundingBox)
       : PlacedParallelepiped("", logical_volume, transformation, boundingBox)
@@ -39,7 +52,7 @@ public:
   }
 
 #else
-
+  /// CUDA version of constructor
   VECCORE_ATT_DEVICE PlacedParallelepiped(LogicalVolume const *const logical_volume,
                                           Transformation3D const *const transformation,
                                           PlacedBox const *const boundingBox, const int id)
@@ -48,60 +61,56 @@ public:
   }
 
 #endif
+  /// Destructor
   VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedParallelepiped() {}
 
+  /// Getter for unplaced volume
   VECCORE_ATT_HOST_DEVICE
   UnplacedParallelepiped const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedParallelepiped const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
+  /// Accessor for dimentions
   VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> const &GetDimensions() const { return GetUnplacedVolume()->GetDimensions(); }
 
+  /// Accessor for x dimension
   VECCORE_ATT_HOST_DEVICE
   Precision GetX() const { return GetUnplacedVolume()->GetX(); }
 
+  /// Accessor for y dimension
   VECCORE_ATT_HOST_DEVICE
   Precision GetY() const { return GetUnplacedVolume()->GetY(); }
 
+  /// Accessor for z dimension
   VECCORE_ATT_HOST_DEVICE
   Precision GetZ() const { return GetUnplacedVolume()->GetZ(); }
 
+  /// Accessor for alpha angle
   VECCORE_ATT_HOST_DEVICE
   Precision GetAlpha() const { return GetUnplacedVolume()->GetAlpha(); }
 
+  /// Accessor for polar angle
   VECCORE_ATT_HOST_DEVICE
   Precision GetTheta() const { return GetUnplacedVolume()->GetTheta(); }
 
+  /// Accessor for azimuthal angle
   VECCORE_ATT_HOST_DEVICE
   Precision GetPhi() const { return GetUnplacedVolume()->GetPhi(); }
 
+  /// Returns tan(alpha)
   VECCORE_ATT_HOST_DEVICE
   Precision GetTanAlpha() const { return GetUnplacedVolume()->GetTanAlpha(); }
 
+  /// Returns tan(alpha)*sin(phi)
   VECCORE_ATT_HOST_DEVICE
   Precision GetTanThetaSinPhi() const { return GetUnplacedVolume()->GetTanThetaSinPhi(); }
 
+  /// Returns tan(alpha)*cos(phi)
   VECCORE_ATT_HOST_DEVICE
   Precision GetTanThetaCosPhi() const { return GetUnplacedVolume()->GetTanThetaCosPhi(); }
-
-#ifndef VECCORE_CUDA
-  virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
-#endif
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
 
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;

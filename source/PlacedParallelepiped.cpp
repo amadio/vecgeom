@@ -1,5 +1,9 @@
-/// @file PlacedParallelepiped.cpp
-/// @author Johannes de Fine Licht (johannes.definelicht@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// @file source/PlacedParallelepiped.cpp
+/// @author Johannes de Fine Licht
 
 #include "volumes/PlacedParallelepiped.h"
 
@@ -39,7 +43,7 @@ G4VSolid const *PlacedParallelepiped::ConvertToGeant4() const
 
 #endif // VECCORE_CUDA
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -47,4 +51,4 @@ VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedParallelepiped)
 
 #endif // VECCORE_CUDA
 
-} // End global namespace
+} // namespace vecgeom

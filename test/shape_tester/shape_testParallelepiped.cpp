@@ -1,5 +1,10 @@
-/// \file shape_testParallelepiped.h
-/// \author: Mihaela Gheata (mihaela.gheata@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Shape test for Paralleliped.
+/// @file test/shape_tester/shape_testParallelepiped.cpp
+/// @author: Ceated by Mihaela Gheata
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"

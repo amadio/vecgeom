@@ -1,6 +1,10 @@
-/// \file UnplacedParallelepiped.cpp
-/// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
-///  Modified and completed: mihaela.gheata@cern.ch
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// @file source/UnplacedParallelepiped.cpp
+/// @author Created by Johannes de Fine Licht
+/// @author Modified and completed by Mihaela Gheata, Evgueni Tcherniaev
 
 #include "volumes/UnplacedParallelepiped.h"
 
@@ -43,69 +47,72 @@ void UnplacedParallelepiped::Extent(Vector3D<Precision> &aMin, Vector3D<Precisio
   aMax.Set(dx, dy, dz);
 }
 
-#ifndef VECCORE_CUDA
 //______________________________________________________________________________
 Vector3D<Precision> UnplacedParallelepiped::SamplePointOnSurface() const
 {
-  // Generate randomly a point on one of the surfaces
-  // Select randomly a surface
-  Vector3D<Precision> point;
-  int isurf    = int(RNG::Instance().uniform(0., 6.));
-  Precision dx = 0, dy = 0, dz = 0;
+  // Set array for selection of facet
+  Precision surf[6];
+  surf[0] = fPara.fAreas[0];
+  surf[1] = surf[0] + fPara.fAreas[0];
+  surf[2] = surf[1] + fPara.fAreas[1];
+  surf[3] = surf[2] + fPara.fAreas[1];
+  surf[4] = surf[3] + fPara.fAreas[2];
+  surf[5] = surf[4] + fPara.fAreas[2];
+
+  // Select facet
+  Precision select = surf[5] * RNG::Instance().uniform();
+  int isurf        = 5;
+  if (select <= surf[4]) isurf = 4;
+  if (select <= surf[3]) isurf = 3;
+  if (select <= surf[2]) isurf = 2;
+  if (select <= surf[1]) isurf = 1;
+  if (select <= surf[0]) isurf = 0;
+
+  // Set working variables
+  Precision Dx               = fPara.fDimensions[0];
+  Precision Dy               = fPara.fDimensions[1];
+  Precision Dz               = fPara.fDimensions[2];
+  Precision DyTanAlpha       = Dy * fPara.fTanAlpha;
+  Precision DzTanThetaCosPhi = Dz * fPara.fTanThetaCosPhi;
+  Precision DzTanThetaSinPhi = Dz * fPara.fTanThetaSinPhi;
+
+  // Sample random point
+  Vector3D<Precision> p0, p1, p2;
   switch (isurf) {
-  case 0:
-  case 1:
-    // top/bottom
-    dx = RNG::Instance().uniform(-fPara.fDimensions[0], fPara.fDimensions[0]);
-    dy = RNG::Instance().uniform(-fPara.fDimensions[1], fPara.fDimensions[1]);
-    dz = (2 * isurf - 1) * fPara.fDimensions[2];
+  case 0: // -x
+    p0.Set(-DzTanThetaCosPhi - DyTanAlpha - Dx, -DzTanThetaSinPhi - Dy, -Dz);
+    p1.Set(-DzTanThetaCosPhi + DyTanAlpha - Dx, -DzTanThetaSinPhi + Dy, -Dz);
+    p2.Set(DzTanThetaCosPhi - DyTanAlpha - Dx, DzTanThetaSinPhi - Dy, Dz);
     break;
-  case 2:
-  case 3:
-    // front/behind
-    dx = RNG::Instance().uniform(-fPara.fDimensions[0], fPara.fDimensions[0]);
-    dy = (2 * (isurf - 2) - 1) * fPara.fDimensions[1];
-    dz = RNG::Instance().uniform(-fPara.fDimensions[2], fPara.fDimensions[2]);
+  case 1: // +x
+    p0.Set(-DzTanThetaCosPhi - DyTanAlpha + Dx, -DzTanThetaSinPhi - Dy, -Dz);
+    p1.Set(DzTanThetaCosPhi - DyTanAlpha + Dx, DzTanThetaSinPhi - Dy, Dz);
+    p2.Set(-DzTanThetaCosPhi + DyTanAlpha + Dx, -DzTanThetaSinPhi + Dy, -Dz);
     break;
-  case 4:
-  case 5:
-    // left/right
-    dx = (2 * (isurf - 4) - 1) * fPara.fDimensions[0];
-    dy = RNG::Instance().uniform(-fPara.fDimensions[1], fPara.fDimensions[1]);
-    dz = RNG::Instance().uniform(-fPara.fDimensions[2], fPara.fDimensions[2]);
+  case 2: // -y
+    p0.Set(-DzTanThetaCosPhi - DyTanAlpha - Dx, -DzTanThetaSinPhi - Dy, -Dz);
+    p1.Set(DzTanThetaCosPhi - DyTanAlpha - Dx, DzTanThetaSinPhi - Dy, Dz);
+    p2.Set(-DzTanThetaCosPhi - DyTanAlpha + Dx, -DzTanThetaSinPhi - Dy, -Dz);
+    break;
+  case 3: // +y
+    p0.Set(-DzTanThetaCosPhi + DyTanAlpha - Dx, -DzTanThetaSinPhi + Dy, -Dz);
+    p1.Set(-DzTanThetaCosPhi + DyTanAlpha + Dx, -DzTanThetaSinPhi + Dy, -Dz);
+    p2.Set(DzTanThetaCosPhi + DyTanAlpha - Dx, DzTanThetaSinPhi + Dy, Dz);
+    break;
+  case 4: // -z
+    p0.Set(-DzTanThetaCosPhi - DyTanAlpha - Dx, -DzTanThetaSinPhi - Dy, -Dz);
+    p1.Set(-DzTanThetaCosPhi - DyTanAlpha + Dx, -DzTanThetaSinPhi - Dy, -Dz);
+    p2.Set(-DzTanThetaCosPhi + DyTanAlpha - Dx, -DzTanThetaSinPhi + Dy, -Dz);
+    break;
+  case 5: // +z
+    p0.Set(DzTanThetaCosPhi - DyTanAlpha - Dx, DzTanThetaSinPhi - Dy, Dz);
+    p1.Set(DzTanThetaCosPhi + DyTanAlpha - Dx, DzTanThetaSinPhi + Dy, Dz);
+    p2.Set(DzTanThetaCosPhi - DyTanAlpha + Dx, DzTanThetaSinPhi - Dy, Dz);
+    break;
   }
-  point[0] = dx + dy * fPara.fTanAlpha + dz * fPara.fTanThetaCosPhi;
-  point[1] = dy + dz * fPara.fTanThetaSinPhi;
-  point[2] = dz;
-  return (point);
-}
-#endif
-
-//______________________________________________________________________________
-VECCORE_ATT_HOST_DEVICE
-bool UnplacedParallelepiped::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
-{
-  // Compute safety
-  Vector3D<Precision> safetyVector;
-
-  Vector3D<Precision> local;
-  local[2]        = point[2];
-  local[1]        = point[1] - fPara.fTanThetaSinPhi * point[2];
-  local[0]        = point[0] - fPara.fTanThetaCosPhi * point[2] - fPara.fTanAlpha * local[1];
-  safetyVector[0] = fPara.fCtx * Abs(GetX() - Abs(local[0]));
-  safetyVector[1] = fPara.fCty * Abs(GetY() - Abs(local[1]));
-  safetyVector[2] = Abs(GetZ() - Abs(point[2]));
-
-  int isurf        = 0;
-  Precision safety = safetyVector[0];
-  if (safetyVector[1] < safety) {
-    safety = safetyVector[1];
-    isurf  = 1;
-  }
-  if (safetyVector[2] < safety) isurf = 2;
-  normal                              = fPara.fNormals[isurf];
-  if (local[isurf] < 0) normal *= -1;
-  return true;
+  Precision u = RNG::Instance().uniform();
+  Precision v = RNG::Instance().uniform();
+  return p0 + u * (p1 - p0) + v * (p2 - p0);
 }
 
 //______________________________________________________________________________
@@ -161,7 +168,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedParallelepiped::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -172,8 +179,8 @@ template void DevicePtr<cuda::UnplacedParallelepiped>::Construct(const Precision
                                                                  const Precision z, const Precision alpha,
                                                                  const Precision theta, const Precision phi) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom
