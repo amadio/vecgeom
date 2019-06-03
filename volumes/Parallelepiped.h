@@ -2,7 +2,7 @@
 // conditions in the file LICENSE.txt in the top directory.
 // For the full list of authors see CONTRIBUTORS.txt and `git log`.
 
-/// This filr includes all headers related to the Parallelepied shape.
+/// This file includes all headers related to the Parallelepiped shape.
 /// @file volumes/Parallelepiped.h
 
 #ifndef VECGEOM_VOLUMES_PARALLELEPIPED_H_
