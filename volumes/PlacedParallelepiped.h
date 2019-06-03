@@ -72,7 +72,7 @@ public:
     return static_cast<UnplacedParallelepiped const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  /// Accessor for dimentions
+  /// Accessor for dimensions
   VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> const &GetDimensions() const { return GetUnplacedVolume()->GetDimensions(); }
 
