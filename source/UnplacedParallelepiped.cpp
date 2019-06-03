@@ -12,10 +12,7 @@
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedParallelepiped.h"
 #include "volumes/utilities/GenerationUtilities.h"
-
-#ifndef VECCORE_CUDA
 #include "base/RNG.h"
-#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
