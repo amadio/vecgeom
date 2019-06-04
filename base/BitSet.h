@@ -2,8 +2,8 @@
 /// \author Philippe Canal (pcanal@fnal.gov)
 /// \author Exported from the original version in ROOT (root.cern.ch).
 
-#ifndef VECCORE_BITSET_H
-#define VECCORE_BITSET_H
+#ifndef VECGEOM_BITSET_H
+#define VECGEOM_BITSET_H
 
 // This file will eventually move in VecCore.
 #include "base/Global.h"
@@ -858,4 +858,4 @@ inline bool operator^(const BitSet::reference &lhs, const BitSet::reference &rhs
 
 #endif
 
-#endif
+#endif // VECGEOM_BITSET_H

@@ -1,8 +1,8 @@
 /// \file VecCore/VariableSizeObj.h
 /// \author Philippe Canal (pcanal@fnal.gov)
 
-#ifndef VECCORE_VARIABLESIZEOBJ_H
-#define VECCORE_VARIABLESIZEOBJ_H
+#ifndef VECGEOM_VARIABLESIZEOBJ_H
+#define VECGEOM_VARIABLESIZEOBJ_H
 
 // This file will eventually move in VecCore.
 #include "base/Global.h"
@@ -186,4 +186,4 @@ private:
 };
 } // namespace vecgeom
 
-#endif
+#endif //  VECGEOM_VARIABLESIZEOBJ_H
