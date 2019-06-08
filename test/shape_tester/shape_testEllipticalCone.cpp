@@ -1,3 +1,11 @@
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Shape test for the Elliptical Cone.
+/// @file test/shape_tester/shape_testEllipticalCone.cpp
+/// @author Evgueni Tcherniaev
+
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "volumes/PlacedVolume.h"

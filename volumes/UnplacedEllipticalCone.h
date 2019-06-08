@@ -1,5 +1,10 @@
-/// @file UnplacedEllipticalCone.h
-/// @author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Declaration of the unplaced elliptical cone shape
+/// @file volumes/UnplacedEllipticalCone.h
+/// @author Raman Sehgal, Evgueni Tcherniaev
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDELLIPTICALCONE_H_
 #define VECGEOM_VOLUMES_UNPLACEDELLIPTICALCONE_H_
@@ -19,40 +24,72 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedEllipticalCone);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+/// Class for elliptical cone shape primitive.
+///
+/// Elliptical cone is a full cone with elliptical base which can be cut in z.
+/// The shape is centered at the origin: one base is at z=-zcut, another at z=zcut.
+/// If there is no cut then the base is at z=-h the apex is at z=h.
+/// Lateral surface of an elliptical cone is defined by the equation:
+///
+/// (x / a)^2 + (y / b)^2 = (h - z)^2
+///
+/// - a - undimensioned value, it specifies the inclination of the surface in x
+/// - b - undimensioned value, it specifies the inclination of the surface in y
+/// - h - height, z-coordinate where the uncut surface hits z axis
+///
+/// The semi-major axes at the z=0 plane are equal to a*h and b*h
+///
 class UnplacedEllipticalCone : public SIMDUnplacedVolumeImplHelper<EllipticalConeImplementation>, public AlignedBase {
 
 private:
-  EllipticalConeStruct<Precision> fEllipticalCone;
+  EllipticalConeStruct<Precision> fEllipticalCone; ///< Structure holding the data for Elliptical Cone
 
 private:
+  /// Check correctness of the parameters and set the data members
   VECCORE_ATT_HOST_DEVICE
   void CheckParameters();
 
+  /// Generates random point on the lateral surface of the elliptical cone
   Vector3D<Precision> SamplePointOnLateralSurface() const;
 
 public:
+  /// Constructor
+  /// @param a Inclination of the conical surface in x
+  /// @param b Inclination of the conical surface in y
+  /// @param h Height
+  /// @param zcut cut in z
   VECCORE_ATT_HOST_DEVICE
   UnplacedEllipticalCone(Precision a, Precision b, Precision h, Precision zcut);
 
+  /// Getter for the structure storing elliptical cone data.
   VECCORE_ATT_HOST_DEVICE
   EllipticalConeStruct<Precision> const &GetStruct() const { return fEllipticalCone; }
 
+  /// Getter for the parameter that specifies inclination of the conical surface in x
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetSemiAxisX() const { return fEllipticalCone.fDx; }
 
+  /// Getter for that parameter that specifies inclination of the conical surface in y
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetSemiAxisY() const { return fEllipticalCone.fDy; }
 
+  /// Getter for the height
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetZMax() const { return fEllipticalCone.fDz; }
 
+  /// Getter for the cut in z
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetZTopCut() const { return fEllipticalCone.fZCut; }
 
+  /// Setter for the elliptical cone parameters
+  /// @param a Inclination of the conical surface in x
+  /// @param b Inclination of the conical surface in y
+  /// @param h Height
+  /// @param zcut cut in z
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetParameters(Precision a, Precision b, Precision h, Precision zcut)
@@ -81,6 +118,8 @@ public:
     return valid;
   }
 
+  /// Get the solid type as string.
+  /// @return Name of the solid type
   std::string GetEntityType() const { return "EllipticalCone"; }
 
   std::ostream &StreamInfo(std::ostream &os) const;
@@ -100,8 +139,7 @@ public:
 #endif
 
 #ifndef VECCORE_CUDA
-  // this is the function called from the VolumeFactory
-  // this may be specific to the shape
+  /// Templated factory for creating a placed volume
   template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL);

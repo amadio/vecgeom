@@ -1,9 +1,10 @@
-/*
- * EllipticalConeBenchmark.cpp
- *
- *  Created on: 15-Mar-2019
- *      Author: Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
- */
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Benchmark for the Elliptical Cone.
+/// @file test/benchmark/EllipticalConeBenchmark.cpp
+/// @author Raman Sehgal, Evgueni Tcherniaev
 
 #include "volumes/LogicalVolume.h"
 #include "volumes/EllipticalCone.h"

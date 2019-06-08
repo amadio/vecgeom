@@ -1,7 +1,10 @@
-//
-// File:   TestEllipticalCone.cpp  - unit tests for EllipticalCone
-// Author: Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
-//
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Unit test for the Elliptical Cone.
+/// @file test/unit_teststest/TestEllipticalCone.cpp
+/// @author Evgueni Tcherniaev
 
 // ensure asserts are compiled in
 #undef NDEBUG
