@@ -1,39 +1,22 @@
-//===-- kernel/ParaboloidImplementation.h - Instruction class definition -------*- C++ -*-===//
-//===----------------------------------------------------------------------===//
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// This file implements the algorithms for Paraboloid shape
+/// @file volumes/kernel/ParaboloidImplementation.h
+/// @author Marilena Bandieramonte
 ///
-/// \file
-/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
-/// \brief This file implements the Paraboloid shape
-///
-///
-/// _____________________________________________________________________________
 /// A paraboloid is the solid bounded by the following surfaces:
-/// - 2 planes parallel with XY cutting the Z axis at Z=-dz and Z=+dz
-/// - the surface of revolution of a parabola described by:
-/// z = a*(x*x + y*y) + b
+/// - 2 planes parallel with XY cutting the Z axis at z = -dz and z = +dz
+/// - the surface of revolution of a parabola described by: z = a * (x^2 + y^2) + b
+///
 /// The parameters a and b are automatically computed from:
-/// - rlo is the radius of the circle of intersection between the
+/// - rlo - radius of the circle of intersection between the
 /// parabolic surface and the plane z = -dz
-/// - rhi is the radius of the circle of intersection between the
+/// - rhi - the radius of the circle of intersection between the
 /// parabolic surface and the plane z = +dz
-/// -dz = a*rlo^2 + b
-/// dz = a*rhi^2 + b      where: rhi>rlo, both >= 0
-///
-/// note:
-/// dd = 1./(rhi^2 - rlo^2);
-/// a = 2.*dz*dd;
-/// b = - dz * (rlo^2 + rhi^2)*dd;
-///
-/// in respect with the G4 implementation we have:
-/// k1=1/a
-/// k2=-b/a
-///
-/// a=1/k1
-/// b=-k2/k1
-///
-//===----------------------------------------------------------------------===//
-///
-/// revision + moving to new backend structure : Raman Sehgal (raman.sehgal@cern.ch)
+/// - dz = a * rhi^2 + b and  -dz = a * rlo^2 + b, where rhi > rlo, both >= 0
+/// - a = 2 * dz * dd and b = -dz * (rlo^2 + rhi^2) * dd, where dd = 1 / (rhi^2 - rlo^2)
 
 #ifndef VECGEOM_VOLUMES_KERNEL_PARABOLOIDIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_PARABOLOIDIMPLEMENTATION_H_

@@ -1,5 +1,10 @@
-/// @file ParaboloidTest.cpp
-/// @author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Test for Paralleliped
+/// @file test/root/ParaboloidTest.cpp
+/// @author Marilena Bandieramonte
 
 #include "volumes/LogicalVolume.h"
 #include "volumes/Box.h"
@@ -72,8 +77,8 @@ int main(int argc, char *argv[])
 
   bool inside;
 
-  Vector3D<Precision> *points = new Vector3D<Precision>[ np ];
-  Vector3D<Precision> *dir    = new Vector3D<Precision>[ np ];
+  Vector3D<Precision> *points = new Vector3D<Precision>[np];
+  Vector3D<Precision> *dir    = new Vector3D<Precision>[np];
   TRandom3 r3;
   r3.SetSeed(time(NULL));
 
@@ -277,7 +282,7 @@ int main(int argc, char *argv[])
 
   TGeoVolume *someVolume = gGeoManager->MakeParaboloid("myParab", med, paraboloidUnplaced.GetRlo(),
                                                        paraboloidUnplaced.GetRhi(), paraboloidUnplaced.GetDz());
-  TGeoParaboloid *par = new TGeoParaboloid("myParab", paraboloidUnplaced.GetRlo(), paraboloidUnplaced.GetRhi(),
+  TGeoParaboloid *par    = new TGeoParaboloid("myParab", paraboloidUnplaced.GetRlo(), paraboloidUnplaced.GetRhi(),
                                            paraboloidUnplaced.GetDz());
 
   top->AddNode(someVolume, 1);

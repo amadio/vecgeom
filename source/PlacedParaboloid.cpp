@@ -1,5 +1,9 @@
-/// \file PlacedParaboloid.cpp
-/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// @file source/PlacedParaboloid.cpp
+/// @author Marilena Bandieramonte
 
 #include "volumes/PlacedParaboloid.h"
 #include "volumes/SpecializedParaboloid.h"
@@ -49,7 +53,7 @@ G4VSolid const *PlacedParaboloid::ConvertToGeant4() const
 
 #endif // VECCORE_CUDA
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 

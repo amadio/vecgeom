@@ -1,7 +1,10 @@
-/// @file SpecializedParaboloid.h
-/// Original Implementation Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
-///
-/// revision + moving to new backend structure : Raman Sehgal (raman.sehgal@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Declaration of the specialized paraboloid volume.
+/// @file volumes/SpecializedParaboloid.h
+/// @author Marilena Bandieramonte
 
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDPARABOLOID_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDPARABOLOID_H_
@@ -22,7 +25,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 using SpecializedParaboloid = SIMDSpecializedVolImplHelper<ParaboloidImplementation, transCodeT, rotCodeT>;
 
 using SimpleParaboloid = SpecializedParaboloid<translation::kGeneric, rotation::kGeneric>;
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDPARABOLOID_H_

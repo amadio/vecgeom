@@ -1,7 +1,9 @@
-/// \file UnplacedParaboloid.cpp
-/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
 
-/// revision + moving to new backend structure : Raman Sehgal (raman.sehgal@cern.ch)
+/// @file source/UnplacedParaboloid.cpp
+/// @author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 
 #include "volumes/UnplacedParaboloid.h"
 #include "management/VolumeFactory.h"
@@ -56,7 +58,7 @@ void UnplacedParaboloid::CalcSurfaceArea()
   if (h2 != 0)
     A2 = kPi * fParaboloid.fRlo / 6 / (h2 * h2) * (Sqrt(A2) - fParaboloid.fRlo2 * fParaboloid.fRlo);
   else
-    A2         = 0.;
+    A2 = 0.;
   fSurfaceArea = (A1 - A2 + (fParaboloid.fRlo2 + fParaboloid.fRhi2) * kPi);
 }
 
@@ -207,7 +209,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedParaboloid::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -217,7 +219,7 @@ template size_t DevicePtr<cuda::UnplacedParaboloid>::SizeOf();
 template void DevicePtr<cuda::UnplacedParaboloid>::Construct(const Precision rlo, const Precision rhi,
                                                              const Precision dz) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
-} // End global namespace
+} // namespace vecgeom

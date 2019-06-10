@@ -1,9 +1,10 @@
-/*
- * TestParaboloid.cpp
- *
- *  Created on: Jun 7, 2016
- *      Author: Raman Sehgal (raman.sehgal@cern.ch)
- */
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Unit test for Paralleliped.
+/// @file test/unit_tests/TestParaboloid.cpp
+/// @author Raman Sehgal
 
 #undef NDEBUG
 #include "base/FpeEnable.h"

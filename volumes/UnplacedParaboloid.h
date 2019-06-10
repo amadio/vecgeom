@@ -1,36 +1,10 @@
-///===-- volumes/UnplacedParaboloid.h - Instruction class definition -------*- C++ -*-===//
-///
-/// \file volumes/UnplacedParaboloid.h
-/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
-/// \brief This file contains the declaration of the UnplacedParaboloid class
-///
-/// _____________________________________________________________________________
-/// A paraboloid is the solid bounded by the following surfaces:
-/// - 2 planes parallel with XY cutting the Z axis at Z=-dz and Z=+dz
-/// - the surface of revolution of a parabola described by:
-/// z = a*(x*x + y*y) + b
-/// The parameters a and b are automatically computed from:
-/// - rlo is the radius of the circle of intersection between the
-/// parabolic surface and the plane z = -dz
-/// - rhi is the radius of the circle of intersection between the
-/// parabolic surface and the plane z = +dz
-/// -dz = a*rlo^2 + b
-/// dz = a*rhi^2 + b      where: rhi>rlo, both >= 0
-///
-/// note:
-/// dd = 1./(rhi^2 - rlo^2);
-/// a = 2.*dz*dd;
-/// b = - dz * (rlo^2 + rhi^2)*dd;
-///
-/// in respect with the G4 implementation we have:
-/// k1=1/a
-/// k2=-b/a
-///
-/// a=1/k1
-/// b=-k2/k1
-//===----------------------------------------------------------------------===//
-///
-/// revision + moving to new backend structure : Raman Sehgal (raman.sehgal@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// @brief This file contains the declaration of the UnplacedParaboloid class
+/// @file volumes/UnplacedParaboloid.h
+/// @author Marilena Bandieramonte
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDPARABOLOID_H_
 #define VECGEOM_VOLUMES_UNPLACEDPARABOLOID_H_
@@ -50,44 +24,71 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedParaboloid);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+/// Class for paraboloid shape primitive
+///
+/// A paraboloid is the solid bounded by the following surfaces:
+/// - 2 planes parallel with XY cutting the Z axis at z = -dz and z = +dz
+/// - the surface of revolution of a parabola described by: z = a * (x^2 + y^2) + b
+///
+/// The parameters a and b are automatically computed from:
+/// - rlo - radius of the circle of intersection between the
+/// parabolic surface and the plane z = -dz
+/// - rhi - the radius of the circle of intersection between the
+/// parabolic surface and the plane z = +dz
+/// - dz = a * rhi^2 + b and  -dz = a * rlo^2 + b, where rhi > rlo, both >= 0
+/// - a = 2 * dz * dd and b = -dz * (rlo^2 + rhi^2) * dd, where dd = 1 / (rhi^2 - rlo^2)
+///
 class UnplacedParaboloid : public SIMDUnplacedVolumeImplHelper<ParaboloidImplementation>, public AlignedBase {
 
 private:
-  ParaboloidStruct<double> fParaboloid;
+  ParaboloidStruct<double> fParaboloid; ///< The paraboloid structure
 
-  // Varibale to store Cached values of Volume and SurfaceArea
-  Precision fCubicVolume, fSurfaceArea;
+  Precision fCubicVolume; ///< Cached value of the volume
+  Precision fSurfaceArea; ///< Cached value of the surface area
 
 public:
+  /// Default constructor
   VECCORE_ATT_HOST_DEVICE
   UnplacedParaboloid();
 
+  /// Constructor
+  /// @param rlo Radius of the circle at z = -dz
+  /// @param rhi Radius of the circle at z = +dz
+  /// @param dz Half size in z
   VECCORE_ATT_HOST_DEVICE
   UnplacedParaboloid(const Precision rlo, const Precision rhi, const Precision dz);
 
+  /// Getter for the structure storing the paraboloid data
   VECCORE_ATT_HOST_DEVICE
   ParaboloidStruct<double> const &GetStruct() const { return fParaboloid; }
 
+  /// Getter for the raduis of the circle at z = -dz
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRlo() const { return fParaboloid.fRlo; }
 
+  /// Getter for the raduis of the circle at z = +dz
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRhi() const { return fParaboloid.fRhi; }
 
+  /// Getter for the half size in z
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDz() const { return fParaboloid.fDz; }
 
+  /// Returns the parameter a of the paraboloid surface
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetA() const { return fParaboloid.fA; }
 
+  /// Returns the parameter b of the paraboloid surface
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetB() const { return fParaboloid.fB; }
 
+  /// Sets the raduis of the circle at z = -dz
+  /// @param val Value of the radius
   VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetRlo(Precision val)
@@ -97,6 +98,8 @@ public:
     CalcSurfaceArea();
   }
 
+  /// Sets the raduis of the circle at z = +dz
+  /// @param val Value of the radius
   VECCORE_ATT_HOST_DEVICE
   void SetRhi(Precision val)
   {
@@ -105,6 +108,8 @@ public:
     CalcSurfaceArea();
   }
 
+  /// Sets the half size in z
+  /// @param val Value of the half size in z
   VECCORE_ATT_HOST_DEVICE
   void SetDz(Precision val)
   {
@@ -113,6 +118,10 @@ public:
     CalcSurfaceArea();
   }
 
+  /// Sets all parameters of the paraboloid
+  /// @param rlo Radius of the circle at z = -dz
+  /// @param rhi Radius of the circle at z = +dz
+  /// @param dz Half size in z
   VECCORE_ATT_HOST_DEVICE
   void SetRloAndRhiAndDz(Precision rlo, Precision rhi, Precision dz)
   {
@@ -124,15 +133,16 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
+  /// Calculate the volume
   VECCORE_ATT_HOST_DEVICE
   void CalcCapacity();
 
+  /// Calculate the surface area
   VECCORE_ATT_HOST_DEVICE
   void CalcSurfaceArea();
 
   Precision Capacity() const override { return fCubicVolume; }
 
-  // VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const override { return fSurfaceArea; }
 
   virtual Vector3D<Precision> SamplePointOnSurface() const override;
@@ -145,8 +155,11 @@ public:
     return valid;
   }
 
+  /// Get the solid type as string
+  /// @return Name of the solid type
   std::string GetEntityType() const;
 
+  /// Get list of the paraboloid parameters as an array. Not implemented !!!
   VECCORE_ATT_HOST_DEVICE
   void GetParametersList(int aNumber, double *aArray) const;
 
@@ -169,9 +182,8 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
+  /// Templated factory for creating a placed volume
 #ifndef VECCORE_CUDA
-  // this is the function called from the VolumeFactory
-  // this may be specific to the shape
   template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL);
@@ -191,7 +203,7 @@ public:
 
 #endif
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif
