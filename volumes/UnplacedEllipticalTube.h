@@ -1,5 +1,10 @@
-/// @file UnplacedEllipticalTube.h
-/// @author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Declaration of the unplaced elliptical tube shape
+/// @file volumes/UnplacedEllipticalTube.h
+/// @author Raman Sehgal, Evgueni Tcherniaev
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDELLIPTICALTUBE_H_
 #define VECGEOM_VOLUMES_UNPLACEDELLIPTICALTUBE_H_
@@ -19,33 +24,54 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedEllipticalTube);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+/// Class for elliptical tube shape primitive
+///
+/// Elliptical tube is a whole cylinder with elliptic cross section.
+/// The shape is centered at the origin, its half length is equal to dz.
+/// The equation of the ellipse in cross section is:
+///
+/// (x/dx)^2 + (y/dy)^2 = 1
+///
 class UnplacedEllipticalTube : public SIMDUnplacedVolumeImplHelper<EllipticalTubeImplementation>, public AlignedBase {
 
 private:
   EllipticalTubeStruct<Precision> fEllipticalTube;
 
+  /// Check correctness of the parameters and set the data members
   VECCORE_ATT_HOST_DEVICE
   void CheckParameters();
 
 public:
+  /// Constructor
+  /// @param dx Length of x semi-axis
+  /// @param dy Length of y semi-axis
+  /// @param dz Half length in z
   VECCORE_ATT_HOST_DEVICE
   UnplacedEllipticalTube(Precision dx, Precision dy, Precision dz);
 
+  /// Getter for the structure storing elliptical cone data
   VECCORE_ATT_HOST_DEVICE
   EllipticalTubeStruct<Precision> const &GetStruct() const { return fEllipticalTube; }
 
+  /// Getter for x semi-axis
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDx() const { return fEllipticalTube.fDx; }
 
+  /// Getter for y semi-axis
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDy() const { return fEllipticalTube.fDy; }
 
+  /// Getter for the half length in z
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDz() const { return fEllipticalTube.fDz; }
 
+  /// Setter for the elliptical tube parameters
+  /// @param dx Length of x semi-axis
+  /// @param dy Length of y semi-axis
+  /// @param dz Half length in z
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetParameters(Precision dx, Precision dy, Precision dz)
@@ -56,6 +82,7 @@ public:
     CheckParameters();
   };
 
+  /// Set x semi-axis
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDx(Precision dx)
@@ -64,6 +91,7 @@ public:
     CheckParameters();
   };
 
+  /// Set y semi-axis
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDy(Precision dy)
@@ -72,6 +100,7 @@ public:
     CheckParameters();
   };
 
+  /// Set half length in z
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDz(Precision dz)
@@ -97,6 +126,8 @@ public:
     return valid;
   }
 
+  /// Get the solid type as string
+  /// @return Name of the solid type
   std::string GetEntityType() const { return "EllipticalTube"; }
 
   std::ostream &StreamInfo(std::ostream &os) const;
@@ -115,9 +146,8 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
+  /// Templated factory for creating a placed volume
 #ifndef VECCORE_CUDA
-  // this is the function called from the VolumeFactory
-  // this may be specific to the shape
   template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL);

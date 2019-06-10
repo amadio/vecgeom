@@ -1,9 +1,10 @@
-/*
- * EllipticalTubeBenchmark.cpp
- *
- *  Created on: 15-Jan-2019
- *      Author: Raman Sehgal (raman.sehgal@cern.ch)
- */
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Benchmark for the Elliptical Tube
+/// @file test/benchmark/EllipticalTubeBenchmark.cpp
+/// @author Raman Sehgal
 
 #include "volumes/LogicalVolume.h"
 #include "volumes/EllipticalTube.h"
