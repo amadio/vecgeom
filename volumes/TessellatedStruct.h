@@ -114,7 +114,6 @@ class TessellatedStruct {
     GridCell *GetCell(Vector3D<T> const &point, int ind[3])
     {
       Vector3D<T> ratios = (point - fMinExtent) * fInvExtSize;
-      assert(ratios[0] <= 1. && ratios[1] <= 1 && ratios[2] <= 1);
       for (int i = 0; i < 3; ++i) {
         ind[i] = ratios[i] * fNgrid;
         ind[i] = vecCore::math::Max(ind[i], 0);
