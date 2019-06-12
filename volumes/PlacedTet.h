@@ -1,4 +1,10 @@
-/// 2018: initial version (Raman Sehgal, Evgueni Tcherniaev)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Declaration of the placed tetrahedron volume
+/// @file volumes/PlacedTet.h
+/// @author Raman Sehgal, Evgueni Tcherniaev
 
 #ifndef VECGEOM_VOLUMES_PLACEDTET_H_
 #define VECGEOM_VOLUMES_PLACEDTET_H_
@@ -18,6 +24,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedTet);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+/// Class for the positioned tetrahedron volume
 class PlacedTet : public PlacedVolumeImplHelper<UnplacedTet, VPlacedVolume> {
   using Base = PlacedVolumeImplHelper<UnplacedTet, VPlacedVolume>;
 
@@ -25,27 +32,44 @@ public:
 #ifndef VECCORE_CUDA
   // constructor inheritance;
   using Base::Base;
+
+  /// Constructor
+  /// @param label Name of logical volume
+  /// @param logicalVolume The logical volume to be positioned
+  /// @param transformation The positioning transformation
+  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
   PlacedTet(char const *const label, LogicalVolume const *const logicalVolume,
-            Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingTet)
-      : Base(label, logicalVolume, transformation, boundingTet)
+            Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
+  /// Constructor
+  /// @param logicalVolume The logical volume to be positioned
+  /// @param transformation The positioning transformation.
+  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
   PlacedTet(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-            vecgeom::PlacedBox const *const boundingTet)
-      : PlacedTet("", logicalVolume, transformation, boundingTet)
+            vecgeom::PlacedBox const *const boundingBox)
+      : PlacedTet("", logicalVolume, transformation, boundingBox)
   {
   }
 #else
+  /// CUDA version of constructor
   VECCORE_ATT_DEVICE PlacedTet(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                                PlacedBox const *const boundingTet, const int id)
       : Base(logicalVolume, transformation, boundingTet, id)
   {
   }
 #endif
+  /// Destructor
   VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedTet() {}
 
+  /// Getter for the tetrahedron vertices
+  /// @param [out] p0 Point given as 3D vector
+  /// @param [out] p1 Point given as 3D vector
+  /// @param [out] p2 Point given as 3D vector
+  /// @param [out] p3 Point given as 3D vector
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void GetVertices(Vector3D<Precision> &p0, Vector3D<Precision> &p1, Vector3D<Precision> &p2,

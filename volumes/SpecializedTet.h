@@ -1,5 +1,10 @@
-/// @file SpecializedTet.h
-/// @author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Declaration of the specialized tetrahedron volume
+/// @file volumes/SpecializedTet.h
+/// @author Raman Sehgal, Evgueni Tcherniaev
 
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDTET_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDTET_H_

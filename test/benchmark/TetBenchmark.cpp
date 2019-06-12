@@ -1,5 +1,10 @@
-/// \file TetBenchmark.cpp
-/// \author Raman Sehgal (raman.sehgal@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Benchmark for Tetrahedron
+/// @file test/benchmark/TetBenchmark.cpp
+/// @author Raman Sehgal
 
 #include "volumes/LogicalVolume.h"
 #include "volumes/Box.h"

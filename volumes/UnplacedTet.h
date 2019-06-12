@@ -1,5 +1,10 @@
-/// \file UnplacedTet.h
-/// \author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Declaration of the unplaced tetrahedron shape
+/// @file volumes/UnplaceTet.h
+/// @author Raman Sehgal, Evgueni Tcherniaev
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDTET_H_
 #define VECGEOM_VOLUMES_UNPLACEDTET_H_
@@ -19,19 +24,34 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedTet);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+/// Class for tetrahedron shape primitive
+///
+/// Tetrahedron, also known as a triangular pyramid, is a polyhedron composed
+/// by four triangular faces. It is completely defined by its four vertices.
 class UnplacedTet : public SIMDUnplacedVolumeImplHelper<TetImplementation>, public AlignedBase {
 
 private:
-  TetStruct<double> fTet;
+  TetStruct<double> fTet; ///< The structure with the tetrahedron data members
 
 public:
+  /// Default constructor
   VECCORE_ATT_HOST_DEVICE
   UnplacedTet();
 
+  /// Constructor from four points
+  /// @param [in] p0 Point given as 3D vector
+  /// @param [in] p1 Point given as 3D vector
+  /// @param [in] p2 Point given as 3D vector
+  /// @param [in] p3 Point given as 3D vector
   VECCORE_ATT_HOST_DEVICE
   UnplacedTet(const Vector3D<Precision> &p0, const Vector3D<Precision> &p1, const Vector3D<Precision> &p2,
               const Vector3D<Precision> &p3);
 
+  /// Constructor from four points
+  /// @param [in] p0 Point given as array
+  /// @param [in] p1 Point given as array
+  /// @param [in] p2 Point given as array
+  /// @param [in] p3 Point given as array
   VECCORE_ATT_HOST_DEVICE
   UnplacedTet(const Precision p0[], const Precision p1[], const Precision p2[], const Precision p3[])
       : fTet(p0, p1, p2, p3)
@@ -39,11 +59,15 @@ public:
     fGlobalConvexity = true;
   }
 
+  /// Getter for the structure storing the tetrahedron data
   VECCORE_ATT_HOST_DEVICE
   TetStruct<double> const &GetStruct() const { return fTet; }
 
-  // All the Required Getters and Setters
-
+  /// Getter for the tetrahedron vertices
+  /// @param [out] p0 Point given as 3D vector
+  /// @param [out] p1 Point given as 3D vector
+  /// @param [out] p2 Point given as 3D vector
+  /// @param [out] p3 Point given as 3D vector
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void GetVertices(Vector3D<Precision> &p0, Vector3D<Precision> &p1, Vector3D<Precision> &p2,
@@ -72,6 +96,8 @@ public:
     return valid;
   }
 
+  /// Get the solid type as string
+  /// @return Name of the solid type
   std::string GetEntityType() const;
 
   VECCORE_ATT_HOST_DEVICE
@@ -93,9 +119,8 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
+  /// Templated factory for creating a placed volume
 #ifndef VECCORE_CUDA
-  // this is the function called from the VolumeFactory
-  // this may be specific to the shape
   template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL);

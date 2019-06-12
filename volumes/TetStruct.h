@@ -1,9 +1,10 @@
-/*
- * TetStruct.h
- *
- *  Created on: 10.07.2018
- *      Author: Raman Sehgal, Evgueni Tcherniaev
- */
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Declaration of a struct with data members for the UnplacedTet class
+/// @file volumes/TetStruct.h
+/// @author Raman Sehgal, Evgueni Tcherniaev
 
 #ifndef VECGEOM_VOLUMES_TETSTRUCT_H_
 #define VECGEOM_VOLUMES_TETSTRUCT_H_
@@ -14,23 +15,28 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+/// Struct encapsulating data members of the unplaced tetrahedron
 template <typename T = double>
 struct TetStruct {
 
-  Vector3D<T> fVertex[4];
+  Vector3D<T> fVertex[4]; ///< Array of the tetrahedron vertices
   struct {
-    Vector3D<T> n;
-    T d;
-  } fPlane[4];
+    Vector3D<T> n; ///< Normal of the plane
+    T d;           ///< Distance from  origin to the plane
+  } fPlane[4];     ///< The tetrahedron face planes
 
-  /* Add whatever data member you want to be cached
-  ** like Volume and Surface Area, etc..
-  */
-  Precision fCubicVolume, fSurfaceArea;
+  Precision fCubicVolume; ///< Volume of the tetrahedron
+  Precision fSurfaceArea; ///< Surface area of the tetrahedron
 
+  /// Empty constructor
   VECCORE_ATT_HOST_DEVICE
   TetStruct() {}
 
+  /// Constructor from four points
+  /// @param p0 Point given as array
+  /// @param p1 Point given as array
+  /// @param p2 Point given as array
+  /// @param p3 Point given as array
   VECCORE_ATT_HOST_DEVICE
   TetStruct(const T p0[], const T p1[], const T p2[], const T p3[])
   {
@@ -43,6 +49,11 @@ struct TetStruct {
     CalculateCached(vertices[0], vertices[1], vertices[2], vertices[3]);
   }
 
+  /// Constructor from four points
+  /// @param p0 Point given as 3D vector
+  /// @param p1 Point given as 3D vector
+  /// @param p2 Point given as 3D vector
+  /// @param p3 Point given as 3D vector
   VECCORE_ATT_HOST_DEVICE
   TetStruct(const Vector3D<T> p0, const Vector3D<T> p1, const Vector3D<T> p2, const Vector3D<T> p3)
       : fCubicVolume(0.), fSurfaceArea(0.)
@@ -51,6 +62,11 @@ struct TetStruct {
     CalculateCached(p0, p1, p2, p3);
   }
 
+  /// Set the tetrahedron data members
+  /// @param p0 Point given as array
+  /// @param p1 Point given as array
+  /// @param p2 Point given as array
+  /// @param p3 Point given as array
   VECCORE_ATT_HOST_DEVICE
   void CalculateCached(const Vector3D<T> p0, const Vector3D<T> p1, const Vector3D<T> p2, const Vector3D<T> p3)
   {
@@ -94,19 +110,19 @@ struct TetStruct {
     }
   }
 
+  /// Set volume of the tetrahedron
   VECCORE_ATT_HOST_DEVICE
   void CalcCapacity()
   {
-    // fCubicVolume = <Logic to calculate Capacity>
     fCubicVolume =
         vecCore::math::Abs((fVertex[1] - fVertex[0]).Dot((fVertex[2] - fVertex[0]).Cross(fVertex[3] - fVertex[0]))) /
         6.;
   }
 
+  /// Set surface area of the tetrahedron
   VECCORE_ATT_HOST_DEVICE
   void CalcSurfaceArea()
   {
-    // fSurfaceArea = <Logic to calculate SurfaceArea>
     fSurfaceArea = ((fVertex[1] - fVertex[0]).Cross(fVertex[2] - fVertex[0]).Mag() +
                     (fVertex[2] - fVertex[1]).Cross(fVertex[3] - fVertex[1]).Mag() +
                     (fVertex[3] - fVertex[2]).Cross(fVertex[0] - fVertex[2]).Mag() +
@@ -114,13 +130,19 @@ struct TetStruct {
                    0.5;
   }
 
-  // Function to Set the parameters
+  /// Set the tetrahedron
+  /// @param p0 Point given as array
+  /// @param p1 Point given as array
+  /// @param p2 Point given as array
+  /// @param p3 Point given as array
   VECCORE_ATT_HOST_DEVICE
   void SetParameters(const Vector3D<T> p0, const Vector3D<T> p1, const Vector3D<T> p2, const Vector3D<T> p3)
   {
     CalculateCached(p0, p1, p2, p3);
   }
 
+  /// Check correctness of the tetrahedron data
+  /// @return false if tetrahedron is degenerate
   VECCORE_ATT_HOST_DEVICE
   bool CheckDegeneracy()
   {
