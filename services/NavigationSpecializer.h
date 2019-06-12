@@ -87,7 +87,7 @@ private:
   bool fTransIsConstant[3]        = {true, true, true}; // indicates if this component is a constant for all entries
   bool fRotIsConstant[9]          = {true, true, true, true, true,
                             true, true, true, true}; // indicates if this component is a constant for all entries
-  std::vector<std::string> fTransVariableName;       // variable names which are set according to SOA/AOS choices etc
+  std::vector<std::string> fTransVariableName; // variable names which are set according to SOA/AOS choices etc
   std::vector<std::string> fRotVariableName;
   std::vector<std::string> fVecTransVariableName; // variable names which are set according to SOA/AOS choices etc
   std::vector<std::string> fVecRotVariableName;
@@ -139,7 +139,7 @@ public:
   void ProduceSpecializedNavigator(LogicalVolume const *, std::ostream &);
 
 private:
-  typedef std::map<size_t, std::map<size_t, size_t>> PathLevelIndexMap_t;
+  typedef std::map<size_t, std::map<NavigationState::Value_t, size_t>> PathLevelIndexMap_t;
 
   // analysis functions
   void AnalyseLogicalVolume();
@@ -149,7 +149,7 @@ private:
   // &pathclassification,
   //                                 PathLevelIndexMap_t &map);
 
-  void AddToIndexMap(size_t, size_t);
+  void AddToIndexMap(size_t, NavigationState::Value_t);
   size_t PathToIndex(NavigationState const *);
   void AnalyseIndexCorrelations(std::list<NavigationState *> const &);
 
@@ -237,7 +237,7 @@ private:
   std::vector<FinalDepthShapeType_t> fTransitionTargetTypes; // the vector of possible relocation target types
   std::vector<size_t> fTransitionOrder; // the vector keeping the order of indices of relocation transitions (
                                         // as stored in fTransitionTargetsTypes )
-  std::vector<NavigationState::Value_t>
+  std::vector<unsigned int>
       fTargetVolIds; // the ids of the target volumes ( to quickly fetch a representative volume pointer )
 
   std::vector<std::vector<int>>
@@ -248,7 +248,7 @@ private:
   TabulatedTransData fGlobalTransData;
 
 }; // end class
-}
-} // end namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_SERVICES_NAVIGATIONSPECIALIZER_H_ */

@@ -958,7 +958,6 @@ set(TEST_EXECUTABLES_CORE
 # to be enabled when running cleanly
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBooleans.cpp
   ${CMAKE_SOURCE_DIR}/test/core/AssemblyTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestNavigationState.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestMakeInstance.cpp
 #  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestMaskedAssign.cpp
@@ -969,6 +968,12 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/CreateTessels.cpp
   ${CMAKE_SOURCE_DIR}/test/core/CreateExtruded.cpp
 )
+if (USE_INDEXEDNAVSTATES)
+   set(TEST_EXECUTABLES_CORE
+      ${TEST_EXECUTABLES_CORE}
+      ${CMAKE_SOURCE_DIR}/test/core/TestNavigationState.cpp
+   )
+endif()
 
 
 set(TEST_EXECUTABLES_ROOT
@@ -987,7 +992,7 @@ set(TEST_EXECUTABLES_ROOT
 )
 if (EMBREE)
  set(TEST_EXECUTABLES_ROOT 
-      $TEST_EXECUTABLES_ROOT
+      ${TEST_EXECUTABLES_ROOT}
       ${CMAKE_SOURCE_DIR}/test/core/EmbreeManagerTest.cpp
     )
 endif()

@@ -511,7 +511,7 @@ void NavigationSpecializer::DumpStaticInstanceFunction(std::ostream &outstream)
   outstream << "\n";
 }
 
-typedef std::map<size_t, std::map<size_t, size_t>> PathLevelIndexMap_t;
+typedef std::map<size_t, std::map<NavigationState::Value_t, size_t>> PathLevelIndexMap_t;
 template <typename Stream>
 void WriteSwitchStatement(std::pair<int, std::set<NavigationState::Value_t>> const &onelevelclassification,
                           int &sizeaccum, Stream &stream, PathLevelIndexMap_t &map)
@@ -522,7 +522,8 @@ void WriteSwitchStatement(std::pair<int, std::set<NavigationState::Value_t>> con
   int counter = 0;
 
   // fill (in-memory map) at the same time
-  map.insert(std::pair<size_t, std::map<size_t, size_t>>(onelevelclassification.first, std::map<size_t, size_t>()));
+  map.insert(
+      PathLevelIndexMap_t::value_type(onelevelclassification.first, std::map<NavigationState::Value_t, size_t>()));
 
   // iterate over possible values
   for (auto value : onelevelclassification.second) {
@@ -665,18 +666,19 @@ void NavigationSpecializer::AnalyseLogicalVolume()
   AnalyseTargetPaths(inpool, outpool);
 }
 
-void NavigationSpecializer::AddToIndexMap(size_t level, size_t keyvalue)
+void NavigationSpecializer::AddToIndexMap(size_t level, NavigationState::Value_t keyvalue)
 {
   if (fIndexMap.find(level) == fIndexMap.end()) {
     // level does not exist; so create it
-    fIndexMap.insert(std::pair<size_t, std::map<size_t, size_t>>(level, std::map<size_t, size_t>()));
+    fIndexMap.insert(std::pair<size_t, std::map<NavigationState::Value_t, size_t>>(
+        level, std::map<NavigationState::Value_t, size_t>()));
   }
   // keyvalue should not be in level already
   if (fIndexMap[level].find(keyvalue) != fIndexMap[level].end()) {
     std::cerr << "trying to insert value which already exists\n";
   } else {
     size_t index = fIndexMap[level].size();
-    fIndexMap[level].insert(std::pair<size_t, size_t>(keyvalue, index));
+    fIndexMap[level].insert(std::pair<NavigationState::Value_t, size_t>(keyvalue, index));
   }
 }
 
@@ -694,9 +696,10 @@ void NavigationSpecializer::AnalyseIndexCorrelations(std::list<NavigationState *
         size_t combinationcount = fIndexMap[level1.first].size() * fIndexMap[level2.first].size();
 
         // check real number of combinations in the paths
-        std::set<std::pair<size_t, size_t>> realcombinations;
+        std::set<std::pair<NavigationState::Value_t, NavigationState::Value_t>> realcombinations;
         for (auto &path : paths) {
-          realcombinations.insert(std::pair<size_t, size_t>(path->ValueAt(level1.first), path->ValueAt(level2.first)));
+          realcombinations.insert(std::pair<NavigationState::Value_t, NavigationState::Value_t>(
+              path->ValueAt(level1.first), path->ValueAt(level2.first)));
         }
         std::cerr << level1.first << ";" << level2.first << " : COMB " << combinationcount << " vs REAL COMB "
                   << realcombinations.size() << "\n";
@@ -994,7 +997,7 @@ std::vector<size_t> sort_indexes(const std::vector<T> &v)
   // initialize original index locations
   std::vector<size_t> idx(v.size());
   for (size_t i = 0; i != idx.size(); ++i)
-    idx[i]      = i;
+    idx[i] = i;
 
   // sort indexes based on comparing values in v
   std::sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) { return v[i1].first > v[i2].first; });
@@ -1009,7 +1012,7 @@ std::vector<size_t> sort_indexes(const std::vector<T> &v, const std::vector<size
   // initialize original index locations
   std::vector<size_t> idx(v.size());
   for (size_t i = 0; i != idx.size(); ++i)
-    idx[i]      = i;
+    idx[i] = i;
 
   // sort indexes based on comparing values in v then in v2
   std::sort(idx.begin(), idx.end(), [&v, &v2](size_t i1, size_t i2) {
@@ -2003,4 +2006,4 @@ void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstrea
   outstream << "}\n";
 }
 
-} // end namespace
+} // namespace vecgeom
