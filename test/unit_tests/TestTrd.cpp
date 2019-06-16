@@ -1,8 +1,10 @@
-//
-// File: TestTrd.cpp
-//
-//    Ensure asserts are compiled in
-//
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Unit test for Trd
+/// @file test/unit_tests/TestTrd.cpp
+/// @author Tatiana Nikitina
 
 //.. ensure asserts are compiled in
 #undef NDEBUG

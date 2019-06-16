@@ -1,3 +1,10 @@
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// Shape test for Trd
+/// @file test/shape_tester/shape_testTrd.cpp
+
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "volumes/PlacedVolume.h"

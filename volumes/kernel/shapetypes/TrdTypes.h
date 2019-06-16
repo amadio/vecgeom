@@ -1,5 +1,10 @@
-/// @file TrdTypes.h
-/// @author Georgios Bitzes (georgios.bitzes@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// This file defines specialized types for the Trd shape
+/// @file volumes/kernel/shapetypes/TrdTypes.h
+/// @author Georgios Bitzes
 
 #ifndef VECGEOM_VOLUMES_KERNEL_SHAPETYPES_TRDTYPES_H_
 #define VECGEOM_VOLUMES_KERNEL_SHAPETYPES_TRDTYPES_H_
@@ -69,8 +74,8 @@ bool checkVaryingY(const TrdStruct<double> &trd)
     return trd.fDY1 != trd.fDY2;
 }
 
-} // end of TrdTypes
-}
-} // End global namespace
+} // namespace TrdTypes
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_SHAPETYPES_TRDTYPES_H_

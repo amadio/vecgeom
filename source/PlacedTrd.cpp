@@ -1,5 +1,9 @@
-/// @file PlacedTrd.cpp
-/// @author Georgios Bitzes (georgios.bitzes@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// @file source/PlacedTrd.cpp
+/// @author Georgios Bitzes
 
 #include "volumes/Trd.h"
 
