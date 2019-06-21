@@ -1,5 +1,10 @@
-/// \file shape_testOrb.cpp
-/// \author Raman Sehgal (raman.sehgal@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief ShapeTester for the Orb.
+/// \file test/shape_tester/shape_testOrb.cpp
+/// \author Raman Sehgal
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"

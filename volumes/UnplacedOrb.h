@@ -1,5 +1,10 @@
-/// \file UnplacedOrb.h
-/// \author Raman Sehgal (raman.sehgal@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief Declaration of the unplaced Orb shape
+/// \file volumes/UnplacedOrb.h
+/// \author Raman Sehgal
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDORB_H_
 #define VECGEOM_VOLUMES_UNPLACEDORB_H_
@@ -28,45 +33,52 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedOrb : public SIMDUnplacedVolumeImplHelper<OrbImplementation>, public AlignedBase {
 
 private:
-  OrbStruct<double> fOrb;
+  OrbStruct<double> fOrb; ///< Structure holding the data for Orb
 
-  // Caching the Volume and SurfaceArea
-  Precision fCubicVolume, fSurfaceArea;
+  Precision fCubicVolume, fSurfaceArea; ///< Variable to store the cached value of Volume and SurfaceArea
 
-  Precision fEpsilon, fRTolerance;
+  Precision fEpsilon, fRTolerance; ///< Radial Tolerance
 
 public:
   using Kernel = OrbImplementation;
 
+  /// Default constructor for the unplaced orb.
   VECCORE_ATT_HOST_DEVICE
   UnplacedOrb();
 
+  /// Constructor for the unplaced Orb.
+  /** The constructor takes 1 parameter: radius of Orb
+      @param r  Radius of Orb.
+  */
   VECCORE_ATT_HOST_DEVICE
   UnplacedOrb(const Precision r);
 
+  /// Setter for Radial tolerance
   VECCORE_ATT_HOST_DEVICE
   void SetRadialTolerance();
 
+  /// Getter for Radial tolerance
   VECCORE_ATT_HOST_DEVICE
   Precision GetRadialTolerance() const { return fRTolerance; }
 
+  /// Getter for the structure storing Orb data.
   VECCORE_ATT_HOST_DEVICE
   OrbStruct<double> const &GetStruct() const { return fOrb; }
 
+  /// Getter for Radius
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRadius() const { return fOrb.fR; }
 
+  /// Setter for Radius
   VECCORE_ATT_HOST_DEVICE
-  // VECGEOM_FORCE_INLINE
   void SetRadius(Precision r);
 
   VECCORE_ATT_HOST_DEVICE
-  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
   Precision Capacity() const override { return fCubicVolume; }
 
-  // VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const override { return fSurfaceArea; }
 
   virtual Vector3D<Precision> SamplePointOnSurface() const override;
@@ -79,8 +91,14 @@ public:
     return valid;
   }
 
+  /// Get the solid type as string.
+  /** @return Name of the solid type.*/
   std::string GetEntityType() const;
 
+  /// Get list of Orb parameters as an array.
+  /** @param[in]  aNumber Not used.
+      @param[out] aArray User array to be filled (rMin, stIn, rMax, stOut, dz)
+  */
   VECCORE_ATT_HOST_DEVICE
   void GetParametersList(int aNumber, double *aArray) const;
 
@@ -104,8 +122,8 @@ public:
 #endif
 
 #ifndef VECCORE_CUDA
-  // this is the function called from the VolumeFactory
-  // this may be specific to the shape
+  /// this is the function called from the VolumeFactory
+  /// this may be specific to the shape
   template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL);
@@ -125,7 +143,7 @@ public:
 
 #endif
 
-// Comparison specific conversion functions
+/// Comparison specific conversion functions
 #ifndef VECCORE_CUDA
 #ifdef VECGEOM_ROOT
   TGeoShape const *ConvertToRoot(char const *label = "") const;
@@ -136,7 +154,7 @@ public:
 #endif
 #endif // VECCORE_CUDA
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

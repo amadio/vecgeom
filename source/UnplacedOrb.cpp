@@ -1,5 +1,9 @@
-/// \file UnplacedOrb.cpp
-/// \author Raman Sehgal (raman.sehgal@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \file source/UnplacedOrb.cpp
+/// \author Raman Sehgal
 
 #include "volumes/UnplacedOrb.h"
 #include "management/VolumeFactory.h"
@@ -191,7 +195,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedOrb::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -200,7 +204,7 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedOrb>::SizeOf();
 template void DevicePtr<cuda::UnplacedOrb>::Construct(const Precision r) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
-} // End global namespace
+} // namespace vecgeom

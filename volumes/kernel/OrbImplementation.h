@@ -1,5 +1,10 @@
-/// @file orbImplementation.h
-/// @author Raman Sehgal (raman.sehgal@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief This file implements the algorithms for Orb
+/// \file volumes/kernel/orbImplementation.h
+/// \author Raman Sehgal
 
 /// History notes:
 /// 2014 - 2015: original development (abstracted kernels); Raman Sehgal
@@ -93,12 +98,12 @@ struct OrbImplementation {
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &orb, Vector3D<Real_v> const &localPoint,
                                                 Bool_v &completelyinside, Bool_v &completelyoutside)
   {
-    Precision fR                    = orb.fR;
-    Real_v rad2                     = localPoint.Mag2();
-    Real_v tolR                     = fR - Real_v(kTolerance);
+    Precision fR = orb.fR;
+    Real_v rad2  = localPoint.Mag2();
+    Real_v tolR  = fR - Real_v(kTolerance);
     if (ForInside) completelyinside = (rad2 <= tolR * tolR);
-    tolR                            = fR + Real_v(kTolerance);
-    completelyoutside               = (rad2 >= tolR * tolR);
+    tolR              = fR + Real_v(kTolerance);
+    completelyoutside = (rad2 >= tolR * tolR);
     return;
   }
 
@@ -234,7 +239,7 @@ struct OrbImplementation {
     return normal;
   }
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_orbIMPLEMENTATION_H_

@@ -1,5 +1,10 @@
-/// @file SpecializedOrb.h
-/// @author Raman Sehgal (raman.sehgal@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief Declaration of the Specialized Orb volume
+/// \file volumes/SpecializedOrb.h
+/// \author Raman Sehgal
 
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDORB_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDORB_H_
@@ -20,7 +25,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 using SpecializedOrb = SIMDSpecializedVolImplHelper<OrbImplementation, transCodeT, rotCodeT>;
 
 using SimpleOrb = SpecializedOrb<translation::kGeneric, rotation::kGeneric>;
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDORB_H_

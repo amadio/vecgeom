@@ -1,5 +1,9 @@
-/// @file PlacedOrb.cpp
-/// @author Raman Sehgal (raman.sehgal@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \file source/PlacedOrb.cpp
+/// \author Raman Sehgal
 
 #include "volumes/PlacedOrb.h"
 #include "volumes/SpecializedOrb.h"
@@ -26,7 +30,7 @@ VPlacedVolume const *PlacedOrb::ConvertToUnspecialized() const
 }
 #endif // VECCORE_CUDA
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 

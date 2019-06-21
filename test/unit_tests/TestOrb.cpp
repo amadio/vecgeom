@@ -1,7 +1,10 @@
-//
-// File:    TestOrb.cpp
-// Purpose: unit tests for the Orb
-//
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief Unit test for the Orb.
+/// \file test/unit_tests/TestOrb.cpp
+/// \author Raman Sehgal
 
 // ensure asserts are compiled in
 #undef NDEBUG
