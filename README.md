@@ -4,7 +4,7 @@ VecGeom is a geometry modeller library with hit-detection features as needed by 
 It was incubated by a Geant-R&D initiative and the motivation to combine the code of Geant4 and ROOT/TGeo into a single,
 better maintainable piece of software within the EU-AIDA program. As such it is close in scope to TGeo and Geant4 geometry modellers.
 
-**Main features** are
+**Main features** are:
    * Build a hierarchic detector geometry out of simple primitives and use it on the CPU or GPU(CUDA)
    * Calculate distances and other geometrical information
    * Collision detection and navigation in complex scenes 
@@ -15,12 +15,9 @@ better maintainable piece of software within the EU-AIDA program. As such it is 
    * VecGeom also compiles under CUDA
    * Few generic kernels serve many instanteations of various simple or vectored interfaces or the CUDA version.
 
-For further information, we provide
+For further information:
 
    * [Installation instructions](INSTALL.md)
-   * A user's guide here: tbd
-   * Doxygen reference guide here: tbd
-   * Issue tracking system: tbd
-
-## Contact information
-
+   * User's guide - tbd
+   * [Doxygen reference guide](https://epsft-jenkins.cern.ch/job/VecGeom-Doxygen/doxygen)
+   * [Issue tracking system](http://sft.its.cern.ch/jira/projects/VECGEOM)
