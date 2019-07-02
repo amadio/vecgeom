@@ -6,6 +6,7 @@
 
 using namespace vecgeom;
 
+/// Creates an unplaced extruded polyhedron used for benchmarking.
 vecgeom::UnplacedExtruded *ExtrudedMultiLayer(bool convex = false)
 {
   const size_t nvert             = 8;
@@ -54,6 +55,11 @@ vecgeom::UnplacedExtruded *ExtrudedMultiLayer(bool convex = false)
   return xtru;
 }
 
+/// Creates a tessellated orb with arbitrary precision, used for benchmarking.
+/// @param [in] r Orb radius
+/// @param [in] ngrid Number of divisions in theta/phi for representing the orb facets
+/// @param [out] tsl Solid to be constructed
+/// @return Number of facets
 size_t TessellatedOrb(double r, int ngrid, vecgeom::UnplacedTessellated &tsl)
 {
   // Create a tessellated orb divided in ngrid*ngrid theta/phi cells

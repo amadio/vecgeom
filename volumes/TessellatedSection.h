@@ -1,5 +1,10 @@
-/// \file TessellatedSection.h
-/// \author Mihaela Gheata (mihaela.gheata@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief Declaration of a tessellated section.
+/// \file volumes/TessellatedStruct.h
+/// \author Mihaela Gheata (CERN/ISS)
 
 #ifndef VECGEOM_VOLUMES_TESSELLATEDSECTION_H_
 #define VECGEOM_VOLUMES_TESSELLATEDSECTION_H_
@@ -14,22 +19,25 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-// Navigation helper for adjacent quadrilateral facets forming a closed
-// convex section in between 2 Z planes. A base class defines the scalar navigation
-// interfaces.
-
+/// Navigation helper for adjacent quadrilateral facets forming a closed
+/// convex section in between 2 Z planes. A base class defines the scalar navigation
+/// interfaces.
 template <typename T>
-class TessellatedSection /* : public TessellatedSectionBase<T> */ {
+class TessellatedSection {
   // Here we should be able to use vecgeom::Vector
   template <typename U>
-  using vector_t  = std::vector<U>;
-  using Real_v    = vecgeom::VectorBackend::Real_v;
-  using Facet_t   = QuadrilateralFacet<T>;
+  /// Generic vector type
+  using vector_t = std::vector<U>;
+  /// SIMD real type
+  using Real_v = vecgeom::VectorBackend::Real_v;
+  /// Quadrilateral facets for the section
+  using Facet_t = QuadrilateralFacet<T>;
+  /// A cluster of several quadrilateral facets
   using Cluster_t = TessellatedCluster<4, Real_v>;
 
 private:
   size_t fNfacets = 0;    ///< Number of triangle facets on the section
-  T fZ            = 0;    ///<< Z position of the section
+  T fZ            = 0;    ///< Z position of the section
   T fDz           = 0;    ///< Half-length in Z
   T fCubicVolume  = 0;    ///< Cubic volume
   T fSurfaceArea  = 0;    ///< Surface area
@@ -43,6 +51,11 @@ private:
   vector_t<Cluster_t *> fClusters; ///< Vector of facet clusters
 
 protected:
+  /// Method adding a facet to the structure.
+
+  /** The vertices are added to the list of all vertices (including duplications)
+  and the extent is re-adjusted.*/
+  /// @param facet Facet to be added
   VECCORE_ATT_HOST_DEVICE
   void AddFacet(Facet_t *facet)
   {
@@ -58,16 +71,16 @@ protected:
     // Adjust extent
     using vecCore::math::Max;
     using vecCore::math::Min;
-    T xmin = Min(Min(facet->fVertices[0].x(), facet->fVertices[1].x()),
+    T xmin        = Min(Min(facet->fVertices[0].x(), facet->fVertices[1].x()),
                  Min(facet->fVertices[2].x(), facet->fVertices[3].x()));
-    T ymin = Min(Min(facet->fVertices[0].y(), facet->fVertices[1].y()),
+    T ymin        = Min(Min(facet->fVertices[0].y(), facet->fVertices[1].y()),
                  Min(facet->fVertices[2].y(), facet->fVertices[3].y()));
     fMinExtent[0] = Min(fMinExtent[0], xmin);
     fMinExtent[1] = Min(fMinExtent[1], ymin);
     fMinExtent[2] = fZ - fDz;
     T xmax        = Max(Max(facet->fVertices[0].x(), facet->fVertices[1].x()),
                  Max(facet->fVertices[2].x(), facet->fVertices[3].x()));
-    T ymax = Max(Min(facet->fVertices[0].y(), facet->fVertices[1].y()),
+    T ymax        = Max(Min(facet->fVertices[0].y(), facet->fVertices[1].y()),
                  Max(facet->fVertices[2].y(), facet->fVertices[3].y()));
     fMaxExtent[0] = Max(fMaxExtent[0], xmax);
     fMaxExtent[1] = Max(fMaxExtent[1], ymax);
@@ -92,7 +105,7 @@ protected:
     }
   }
 
-  /** &brief Calculate convexity of the section with respect to itself */
+  /// Calculate convexity of the section with respect to itself
   VECCORE_ATT_HOST_DEVICE
   bool CalculateConvexity()
   {
@@ -117,6 +130,10 @@ protected:
   }
 
 public:
+  /// Constructor:
+  /// @param nfacets Number of facets in the section
+  /// @param zmin Minimum Z position
+  /// @param zmax Maximum Z position
   VECCORE_ATT_HOST_DEVICE
   TessellatedSection(int nfacets, T zmin, T zmax) : fNfacets(nfacets), fZ(0.5 * (zmin + zmax)), fDz(0.5 * (zmax - zmin))
   {
@@ -129,6 +146,16 @@ public:
     fMaxExtent.Set(-InfinityLength<T>());
   }
 
+  /// Method for adding a new quadrilateral facet
+  /** @param vt0      First vertex
+      @param vt1      Second vertex
+      @param vt2      Third vertex
+      @param vt3      Fourth vertex
+      @param absolute If true then vt0, vt1, vt2 and vt3 are the vertices to be added in
+        anti-clockwise order looking from the outsider. If false the vertices are relative
+        to the first: vt0, vt0+vt1, vt0+vt2, vt0+vt3 in anti-clockwise order when looking from the
+        outsider.
+  */
   VECCORE_ATT_HOST_DEVICE
   bool AddQuadrilateralFacet(Vector3D<T> const &vt0, Vector3D<T> const &vt1, Vector3D<T> const &vt2,
                              Vector3D<T> const &vt3, bool absolute = true)
@@ -151,7 +178,9 @@ public:
     return true;
   }
 
-  /** @brief Fast check using the extent if the point is outside */
+  /// Fast check using the extent if the point is outside
+  /// @param point Point position
+  /// @return True if point is outside
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool IsOutside(Vector3D<T> const &point)
@@ -159,6 +188,9 @@ public:
     return ((point - fMinExtent).Min() < -kTolerance || (point - fMaxExtent).Max() > kTolerance);
   }
 
+  /// Check if a point is inside the section
+  /// @param point Point position
+  /// @return Enumeration inside/outside/surface
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Inside_t Inside(Vector3D<Real_v> const &point) const
@@ -182,23 +214,29 @@ public:
     return kSurface;
   }
 
+  /// Getter for the number of facets of the section
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   size_t GetNfacets() const { return fFacets.size(); }
 
+  /// Getter for the number of clusters of the section
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   size_t GetNclusters() const { return fClusters.size(); }
 
+  /// Getter for the cluster at a given index
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Cluster_t const &GetCluster(size_t i) const { return *fClusters[i]; }
 
+  /// Getter for the facet at a given index
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Facet_t const &GetFacet(size_t i) const { return *fFacets[i]; }
 
-  /* @brief Check if point is inside the section. Note that the Z range is not checked */
+  /// Check if point is inside the section. Note that the Z range is not checked.
+  /// @param point Point position
+  // @return True if point is inside or on the surface
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool Contains(Vector3D<Real_v> const &point) const
@@ -220,6 +258,12 @@ public:
     return true;
   }
 
+  /// Computes distance to in for the cluster, but may ignore Z checks
+  /// @param [in]  point Point position
+  /// @param [in]  direction Direction for the distance computation
+  /// @param [in]  invdirz Inverse of direction on Z
+  /// @param [in]  stepmax Search limit for the distance
+  /// @return Computed distance
   template <bool skipZ = true>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -264,6 +308,10 @@ public:
     return distance;
   }
 
+  /// Computes distance to out for the cluster, but may ignore Z checks
+  /// @param [in]  point Point position
+  /// @param [in]  direction Direction for the distance computation
+  /// @return Computed distance
   template <bool skipZ = true>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -285,6 +333,11 @@ public:
     return distance;
   }
 
+  /// Compute distance to segment from point inside, returning also the crossed facet.
+  /// @param [in]  point Point position
+  /// @param [in]  direction Direction for the distance computation
+  /// @param [in]  invdirz Inverse of direction on Z
+  /// @return Computed distance
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T DistanceToOutRange(Vector3D<T> const &point, Vector3D<T> const &direction, T invdirz) const
@@ -321,6 +374,11 @@ public:
     return InfinityLength<T>();
   }
 
+  /// Computes distance to out for the cluster, returning also the crossed surface index
+  /// @param [in]  point Point position
+  /// @param [in]  direction Direction for the distance computation
+  /// @param [out] isurf Crossed surface
+  /// @return Computed distance
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, int &isurf) const
@@ -343,6 +401,9 @@ public:
     return distance;
   }
 
+  /// Compute safety from outside point
+  /// @param [in] point Point position
+  /// @return Safety value
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T SafetyToIn(Vector3D<T> const &point) const
@@ -351,13 +412,17 @@ public:
     T safety            = vecCore::math::Max(fZ - fDz - point.z(), point.z() - fZ - fDz);
     const int nclusters = fClusters.size();
     for (int i = 0; i < nclusters; ++i) {
-      const Real_v safcl       = fClusters[i]->DistPlanes(point);
-      const T saf              = vecCore::ReduceMax(safcl);
+      const Real_v safcl = fClusters[i]->DistPlanes(point);
+      const T saf        = vecCore::ReduceMax(safcl);
       if (saf > safety) safety = saf;
     }
     return safety;
   }
 
+  /// Compute safety squared from outside point and closest surface
+  /// @param [in] point Point position
+  /// @param [out] isurf Closest surface
+  /// @return Safety squared value
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T SafetyToInSq(Vector3D<Real_v> const &point, int &isurf) const
@@ -378,6 +443,9 @@ public:
     return safetysq;
   }
 
+  /// Compute safety from point inside
+  /// @param [in] point Point position
+  /// @return Safety value
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T SafetyToOut(Vector3D<T> const &point) const
@@ -386,13 +454,17 @@ public:
     T safety            = vecCore::math::Max(fZ - fDz - point.z(), point.z() - fZ - fDz);
     const int nclusters = fClusters.size();
     for (int i = 0; i < nclusters; ++i) {
-      const Real_v safcl       = fClusters[i]->DistPlanes(point);
-      const T saf              = vecCore::ReduceMax(safcl);
+      const Real_v safcl = fClusters[i]->DistPlanes(point);
+      const T saf        = vecCore::ReduceMax(safcl);
       if (saf > safety) safety = saf;
     }
     return -safety;
   }
 
+  /// Compute safety squared from point inside and closest surface
+  /// @param [in] point Point position
+  /// @param [out] isurf Closest surface
+  /// @return Safety squared value
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T SafetyToOutSq(Vector3D<Real_v> const &point, int &isurf) const
@@ -413,12 +485,10 @@ public:
     return safetysq;
   }
 
+  /// Compute normal to segment surface in given point near surface.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void Normal(Vector3D<T> const & /*point*/, Vector3D<T> & /*normal*/, bool & /*valid*/) const
-  {
-    // Compute normal to segment surface in given point near surface.
-  }
+  void Normal(Vector3D<T> const & /*point*/, Vector3D<T> & /*normal*/, bool & /*valid*/) const {}
 };
 
 std::ostream &operator<<(std::ostream &os, TessellatedSection<double> const &ts);

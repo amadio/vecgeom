@@ -1,5 +1,8 @@
-/// \file TessellatedStruct.h
-/// \author Mihaela Gheata (mihaela.gheata@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+/// \file volumes/TessellatedStruct.h
+/// \author Mihaela Gheata
 
 #ifndef VECGEOM_VOLUMES_TESSELLATEDCLUSTER_H_
 #define VECGEOM_VOLUMES_TESSELLATEDCLUSTER_H_
@@ -12,7 +15,6 @@
 #include "base/Vector.h"
 #include "volumes/kernel/GenericKernels.h"
 #include "Tile.h"
-//#include "TriangleFacet.h"
 
 namespace vecgeom {
 
@@ -22,13 +24,17 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 constexpr size_t kVecSize = vecCore::VectorSize<vecgeom::VectorBackend::Real_v>();
 
-//______________________________________________________________________________
-// Structure used for vectorizing queries on groups of triangles. Stores Real_v
-// types matched with the compiled SIMD vectors of double.
+/** Structure used for vectorizing queries on groups of triangles.
+
+The class represents a cluster of as many facets as the SIMD vector length for double
+precision operations.
+*/
 template <size_t NVERT, typename Real_v>
 class TessellatedCluster : public AlignedBase {
 public:
-  using T       = typename vecCore::ScalarType<Real_v>::Type;
+  /// Scalar double precision type
+  using T = typename vecCore::ScalarType<Real_v>::Type;
+  /// A facet of the cluster
   using Facet_t = Tile<NVERT, T>;
 
   Vector3D<Real_v> fNormals;            ///< Normals to facet components
@@ -41,6 +47,7 @@ public:
   Vector3D<T> fMaxExtent;               ///< Maximum extent
   bool fConvex = false;                 ///< Convexity of the cluster with respect to the solid it belongs to
 
+  /// Deafult constructor.
   VECCORE_ATT_HOST_DEVICE
   TessellatedCluster()
   {
@@ -48,10 +55,12 @@ public:
     fMaxExtent.Set(-InfinityLength<T>());
   }
 
+  /// Convexity getter
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   bool IsConvex() const { return fConvex; }
 
+  /// Method to calculate convexity
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   bool CalculateConvexity()
@@ -62,6 +71,10 @@ public:
     return convex;
   }
 
+  /// Getter for a vertex position.
+  /// @param [in]  ifacet Facet index
+  /// @param[ in]  ivert Vertex number
+  /// @param [out] vertex Vertex position
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   void GetVertex(size_t ifacet, size_t ivert, Vector3D<T> &vertex) const
@@ -71,18 +84,22 @@ public:
     vertex[2] = vecCore::Get(fVertices[ivert].z(), ifacet);
   }
 
+  /// Getter for a facet of the cluster.
+  /// @param ifacet Facet index
+  /// @return Facet at given index
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   Facet_t *GetFacet(size_t ifacet) const { return fFacets[ifacet]; }
 
+  /// Calculate cluster sparsity
+  /// @param [out]  nblobs Number of separate blobs
+  /// @param [out] nfacets Number of non-replicated facets
+  /// @return Dispersion as ratio between maximum facet size and maximum distance from a
+  /// facet to the cluster centroid
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   T ComputeSparsity(int &nblobs, int &nfacets)
   {
-    // Calculate cluster sparsity (number of separate blobs)
-    // Number of facets represent the number of non-replicated facets
-    // Returns ratio between maximum facet distance and maximum facet size
-
     // Find cluster center
     Vector3D<T> clcenter;
     for (unsigned ifacet = 0; ifacet < kVecSize; ++ifacet) {
@@ -99,8 +116,8 @@ public:
         if (lensq > facetsizesq) facetsizesq = lensq;
       }
       if (facetsizesq > maxsize) maxsize = facetsizesq;
-      lensq                              = (fFacets[ifacet]->fCenter - clcenter).Mag2();
-      if (lensq > dmax) dmax             = lensq;
+      lensq = (fFacets[ifacet]->fCenter - clcenter).Mag2();
+      if (lensq > dmax) dmax = lensq;
     }
     T dispersion = vecCore::math::Sqrt(dmax / maxsize);
 
@@ -145,10 +162,10 @@ public:
     return dispersion;
   }
 
-  /** @brief Fill the components 'i' of the cluster with facet data
-   * @param index Triangle index, equivalent to SIMD lane index
-   * @param facet Triangle facet data
-   */
+  /// Fill the components of the cluster with facet data
+  /// @param index Triangle index, equivalent to SIMD lane index
+  /// @param facet Triangle facet data
+  /// @param ifacet Facet index
   VECCORE_ATT_HOST_DEVICE
   void AddFacet(size_t index, Facet_t *facet, size_t ifacet)
   {
@@ -161,15 +178,15 @@ public:
     vecCore::Set(fDistances, index, facet->fDistance);
     // Compute side vectors and fill them using the store operation per SIMD lane
     for (size_t ivert = 0; ivert < NVERT; ++ivert) {
-      Vector3D<T> c0                            = facet->fVertices[ivert];
+      Vector3D<T> c0 = facet->fVertices[ivert];
       if (c0.x() < fMinExtent[0]) fMinExtent[0] = c0.x();
       if (c0.y() < fMinExtent[1]) fMinExtent[1] = c0.y();
       if (c0.z() < fMinExtent[2]) fMinExtent[2] = c0.z();
       if (c0.x() > fMaxExtent[0]) fMaxExtent[0] = c0.x();
       if (c0.y() > fMaxExtent[1]) fMaxExtent[1] = c0.y();
       if (c0.z() > fMaxExtent[2]) fMaxExtent[2] = c0.z();
-      Vector3D<T> c1                            = facet->fVertices[(ivert + 1) % NVERT];
-      Vector3D<T> sideVector                    = facet->fNormal.Cross(c1 - c0).Normalized();
+      Vector3D<T> c1         = facet->fVertices[(ivert + 1) % NVERT];
+      Vector3D<T> sideVector = facet->fNormal.Cross(c1 - c0).Normalized();
       vecCore::Set(fSideVectors[ivert].x(), index, sideVector.x());
       vecCore::Set(fSideVectors[ivert].y(), index, sideVector.y());
       vecCore::Set(fSideVectors[ivert].z(), index, sideVector.z());
@@ -184,7 +201,8 @@ public:
 
   // === Navigation functionality === //
 
-  /** @brief Check if a scalar point is inside any of the cluster tiles */
+  /// Check if a scalar point is inside any of the cluster tiles
+  /// @param point Point position
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   bool Contains(Vector3D<T> point)
@@ -197,12 +215,12 @@ public:
     return (!vecCore::MaskEmpty(inside));
   }
 
+  /// Check if the points are inside some of the triangles. The points are assumed
+  /// to be already propagated on the triangle planes.
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   void InsideCluster(Vector3D<Real_v> const &point, typename vecCore::Mask<Real_v> &inside) const
   {
-    // Check if the points are inside some of the triangles. The points are assumed
-    // to be already propagated on the triangle planes.
     using Bool_v = vecCore::Mask<Real_v>;
 
     inside = Bool_v(true);
@@ -212,20 +230,23 @@ public:
     }
   }
 
+  /// Compute distance from point to all facet planes. This is positive if the point is on
+  /// the outside halfspace, negative otherwise.
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  Real_v DistPlanes(Vector3D<Real_v> const &point) const
-  {
-    // Returns distance from point to plane. This is positive if the point is on
-    // the outside halfspace, negative otherwise.
-    return (point.Dot(fNormals) + fDistances);
-  }
+  Real_v DistPlanes(Vector3D<Real_v> const &point) const { return (point.Dot(fNormals) + fDistances); }
 
+  /// Computes both distance to in and distance to out for the cluster
+  /// @param[in] point Point position
+  /// @param [in] direction Input direction
+  /// @param [out] distanceToIn Distance in case the point is outside
+  /// @param [out] distanceToOut Distance in case the point is inside
+  /// @param [out] isurfToIn Index of hit surface if point is outside
+  /// @param [out] isurfToOut Index of hit surface if point is inside
   VECCORE_ATT_HOST_DEVICE
   void DistanceToCluster(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, T &distanceToIn,
                          T &distanceToOut, int &isurfToIn, int &isurfToOut) const
   {
-    // Computes both distance to in and distance to out for the cluster
     using Bool_v = vecCore::Mask<Real_v>;
 
     distanceToIn  = InfinityLength<T>();
@@ -277,6 +298,11 @@ public:
     }
   }
 
+  /// Computes distance from point outside for the cluster
+  /// @param [in]  point Point position
+  /// @param [in]  direction Direction for the distance computation
+  /// @param [out] distance Distance to the cluster
+  /// @param [out] isurf Surface crossed
   VECCORE_ATT_HOST_DEVICE
   void DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, T const & /*stepMax*/,
                     T &distance, int &isurf) const
@@ -313,9 +339,12 @@ public:
     }
   }
 
-  /** @brief Compute distance from point outside within limit. Returns
-             validity of the computed distance.
-  */
+  /// Compute distance from point outside for the convex case.
+  /// @param [in]  point Point position
+  /// @param [in]  direction Direction for the distance computation
+  /// @param [out] distance Distance to the cluster
+  /// @param [out] limit Search limit
+  /// @return validity of the computed distance.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool DistanceToInConvex(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, T &distance, T &limit) const
@@ -351,6 +380,11 @@ public:
     return true;
   }
 
+  /// Computes distance to out for the cluster
+  /// @param [in]  point Point position
+  /// @param [in]  direction Direction for the distance computation
+  /// @param [out] distance Distance to the cluster
+  /// @param [out] isurf Surface crossed
   VECCORE_ATT_HOST_DEVICE
   void DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, T const & /*stepMax*/,
                      T &distance, int &isurf) const
@@ -396,6 +430,11 @@ public:
     }
   }
 
+  /// Compute distance from point inside for the convex case.
+  /// @param [in]  point Point position
+  /// @param [in]  direction Direction for the distance computation
+  /// @param [out] distance Distance to the cluster
+  /// @return validity of the computed distance.
   VECCORE_ATT_HOST_DEVICE
   bool DistanceToOutConvex(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, T &distance) const
   {
@@ -419,15 +458,19 @@ public:
     return true;
   }
 
-  /* @brief Compute distance to in/out for the convex case. */
+  /// Compute distance to in/out for the convex case.
+  /// @param [in]  point Point position
+  /// @param [in]  direction Direction for the distance computation
+  /// @param [out] dtoin Distance in case the point is outside
+  /// @param [out] dtoout Distance in case the point is inside
   VECCORE_ATT_HOST_DEVICE
   bool DistanceToInOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, T &dtoin, T &dtoout) const
   {
     using Bool_v = vecCore::Mask<Real_v>;
-    using vecCore::math::Min;
-    using vecCore::math::Max;
-    using vecCore::ReduceMin;
     using vecCore::ReduceMax;
+    using vecCore::ReduceMin;
+    using vecCore::math::Max;
+    using vecCore::math::Min;
 
     // Direction projected to all facets
     Real_v projdir_v   = NonZero(direction.Dot(fNormals));
@@ -452,6 +495,9 @@ public:
     return true;
   }
 
+  /// Compute safety squared from point to closest facet.
+  /// @param [in] point Point position
+  /// @param [out] isurf Closest facet index
   template <bool ToIn>
   VECCORE_ATT_HOST_DEVICE
   T SafetySq(Vector3D<Real_v> const &point, int &isurf) const

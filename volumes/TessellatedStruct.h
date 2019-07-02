@@ -1,5 +1,10 @@
-/// \file TessellatedStruct.h
-/// \author Mihaela Gheata (mihaela.gheata@cern.ch)
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief Declaration of the data structure for the tessellated shape.
+/// \file volumes/TessellatedStruct.h
+/// \author First version created by Mihaela Gheata (CERN/ISS)
 
 #ifndef VECGEOM_VOLUMES_TESSELLATEDSTRUCT_H_
 #define VECGEOM_VOLUMES_TESSELLATEDSTRUCT_H_
@@ -32,6 +37,17 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 #define USEEMBREE 1
 #endif
 
+/** Templated class holding the data structures for the tessellated solid.
+
+  The class is templated on the number of edges for the composing facets and on the floating precision type
+  used to represent the data and perform all calculations. It provides API for:
+  - Adding triangular or quadrilateral facets
+  - Initializing internally all data structures after adding all the facets that compose a closed tessellated
+  surface. This creates a temporary helper data structure of the type GridHelper, used to clusterize facets in
+  groups having as many elements as the vector size. The clusters are then used to construct a special navigation
+  acceleration structure.
+  - retrieving the hit clusters and the hit facets selected during navigation
+*/
 template <size_t NVERT, typename T = double>
 class TessellatedStruct {
 
@@ -54,17 +70,28 @@ class TessellatedStruct {
   using BVHStructure2 = HybridManager2::HybridBoxAccelerationStructure; // EmbreeManager::EmbreeAccelerationStructure;
 #endif
 
-  //__________________________________________________________________________
-  struct GridCell {
-    vector_t<int> fArray; // Array of facet indices
-    bool fUsed = false;   // Used flag
+  /** Structure representing a cell of a uniform grid embedding the tessellated solid bounding volume.
 
+  The cell just stores an array of indices for the facets intersecting it. The cell coordinates are known by the
+  GridHelper data structure owning it.
+  */
+  struct GridCell {
+    vector_t<int> fArray; ///< Array of facet indices
+    bool fUsed = false;   ///< Flag for cell usage
+
+    /// Default constructor for a grid cell.
     VECCORE_ATT_HOST_DEVICE
     GridCell()
     { /* fArray.reserve(4); */
     }
   };
 
+  /** Helper structure representing a grid of equal cells dividing the bounding box of a tessellated solid.
+
+  The grid helper is defined by the number of cells in X/Y/Z. It provides methods to retrieve the cell
+  containing a space point, or associated to a triplet of indices on (x, y, z). The helper is used by the
+  TessellatedStruct for the facet clusterization.
+  */
   //__________________________________________________________________________
   struct GridHelper {
     int fNgrid       = 0;           ///< Grid size
@@ -76,8 +103,10 @@ class TessellatedStruct {
     Vector3D<T> fInvExtSize;        ///< Inverse extent size
     vector_t<Vector3D<T>> fAllVert; ///< Full list of vertices
 
+    /// Default constructor for the grid helper structure.
     GridHelper() {}
 
+    /// Destructor of the grid helper, deleting the cells and their content.
     ~GridHelper()
     {
       if (fGrid) {
@@ -87,6 +116,8 @@ class TessellatedStruct {
       }
     }
 
+    /// Create all the cells corresponding to a given grid division number.
+    /** @param ngrid Number of cells on each axis.*/
     void CreateCells(int ngrid)
     {
       if (fNgrid) return;
@@ -97,6 +128,7 @@ class TessellatedStruct {
         fGrid[i] = new GridCell();
     }
 
+    /// Clears the content of all cells.
     VECCORE_ATT_HOST_DEVICE
     VECGEOM_FORCE_INLINE
     void ClearCells()
@@ -105,10 +137,19 @@ class TessellatedStruct {
         fGrid[icell]->fArray.clear();
     }
 
+    /// Retrive a cell by its index triplet on (x,y,z).
+    /** @param ind array of cell indices on (x,y,z)
+        @return GridCell corresponding to the given indices
+    */
     VECCORE_ATT_HOST_DEVICE
     VECGEOM_FORCE_INLINE
     GridCell *GetCell(int ind[3]) { return fGrid[fNgrid * fNgrid * ind[0] + fNgrid * ind[1] + ind[2]]; }
 
+    /// Retreive a cell containing a space point and fill its indices triplet.
+    /** @param[in]  point Space point
+        @param[out] ind   Triplet of indices of the cell containing the point
+        @return           Grid cell containing the space point
+    */
     VECCORE_ATT_HOST_DEVICE
     VECGEOM_FORCE_INLINE
     GridCell *GetCell(Vector3D<T> const &point, int ind[3])
@@ -147,6 +188,7 @@ public:
   int fNcldist[kVecSize + 1] = {0};                        ///< Distribution of number of cluster size
 
 private:
+  /// Creates the navigation acceleration structure based ob the pre-computed clusters of facets.
   void CreateABBoxes()
   {
     using Boxes_t           = ABBoxManager::ABBoxContainer_t;
@@ -167,6 +209,7 @@ private:
   }
 
 public:
+  /// Default constructor.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   TessellatedStruct()
@@ -176,6 +219,7 @@ public:
     fHelper    = new GridHelper();
   }
 
+  /// Destructor.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   ~TessellatedStruct()
@@ -184,12 +228,15 @@ public:
     if (fSelected) BitSet::ReleaseInstance(fSelected);
   }
 
+  /// Adds a pre-defined facet and re-computes the extent.
+  /** The vertices are added to the list of all vertices (including duplications) and the extent
+    is re-adjusted.
+    @param facet Pre-computed facet to be added
+  */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void AddFacet(Facet_t *facet)
   {
-    // Method adding a facet to the structure. The vertices are added to the
-    // list of all vertices (including duplications) and the extent is re-adjusted.
     using vecCore::math::Max;
     using vecCore::math::Min;
 
@@ -208,13 +255,16 @@ public:
     }
   }
 
+  /// Add a non-duplicated vertex to the solid.
+  /** Duplications are only checked in the grid cell containing the vertex. An index to the unique vertex is
+    added to the cell, while the vertex position is added to the list fVertices.
+    @param  vertex Space point to be added as vertex.
+    @return Unique vertex id after removing duplicates.
+  */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int AddVertex(Vector3D<T> const &vertex)
   {
-    // Add a non-duplicated vertex to the solid. Duplications are only checked
-    // in the grid cell containing the vertex. An index to the unique vertex is
-    // added to the cell, while the vertex positionis added to the list fVertices
     // Get the cell in which to add the vertex
     int ind[3];
     GridCell *cell = fHelper->GetCell(vertex, ind);
@@ -232,6 +282,10 @@ public:
     return ivertnew;
   }
 
+  /// Retrieval of the extent of the tessellated structure.
+  /** @param[out] amin Box corner having minimum coordinates
+      @param[out] amax Box corner having maximum coordinates
+  */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void Extent(Vector3D<T> &amin, Vector3D<T> &amax) const
@@ -240,10 +294,16 @@ public:
     amax = fMaxExtent;
   }
 
+  /// Method performing all tasks for initializing and closing the data structures.
+
+  /** The following sequence of operations is executed:
+    - Creation of the grid of cells
+    - Removal of duplicate facet indices and update of facets with  the unique vertex indices
+    - Filling the cells with facet indices crossing them and creation of clusters
+    - Creation of the navigation acceleration structures
+  */
   void Close()
   {
-    // The solid becomes now closed. A cell grid is computed base on the extent
-    // to fasten up the search for duplicates and neighbors.
     int ind[3];
     fInvExtSize = fMaxExtent - fMinExtent;
     if (fInvExtSize[0] * fInvExtSize[1] * fInvExtSize[2] < kTolerance) {
@@ -335,9 +395,10 @@ public:
     fSolidClosed = true;
   }
 
+  /// Generate and store a random direction used for Contains and Inside navigation queries.
+  /** @param[out] direction Random direction generated */
   void RandomDirection(Vector3D<double> &direction)
   {
-
     double phi    = RNG::Instance().uniform(0., 2. * kPi);
     double theta  = std::acos(1. - 2. * RNG::Instance().uniform(0, 1));
     direction.x() = std::sin(theta) * std::cos(phi);
@@ -345,9 +406,9 @@ public:
     direction.z() = std::cos(theta);
   }
 
+  /// Loop over facets and group them in clusters in the order of definition.
   void CreateDummyClusters()
   {
-    // Loop over facets and group them in clusters in the order of definition
     TessellatedCluster<NVERT, Real_v> *tcl = nullptr;
     int i                                  = 0;
     int j                                  = 0;
@@ -364,6 +425,8 @@ public:
       tcl->AddFacet(i, tcl->fFacets[0], tcl->fIfacets[0]);
   }
 
+  /// Create the next cluster of closest neighbour facets using the GridHelper structure.
+  /** @return Created cluster of neighbour facets */
   TessellatedCluster<NVERT, Real_v> *CreateCluster()
   {
     // Create cluster starting from fCandidates list
@@ -396,9 +459,10 @@ public:
     return tcl;
   }
 
+  /// Create partial cluster starting from fCandidates list
+  /** @return Created cluster*/
   TessellatedCluster<NVERT, Real_v> *MakePartialCluster()
   {
-    // Create partial cluster starting from fCandidates list
     for (auto ifacet : fCandidates) {
       fCluster.push_back(ifacet);
     }
@@ -417,6 +481,12 @@ public:
     return tcl;
   }
 
+  /// Add candidates to and existing cluster.
+  /** A neighbourhood weight is computed for each facet candidate according the number of vertices
+    contained in grid cells already occupied by the cluster.
+    @param  weightmin Minimum accepted weight
+    @return New size of the cluster
+  */
   int AddCandidatesToCluster(int weightmin)
   {
     // Add all candidate having the required weight to the cluster, until cluster
@@ -433,9 +503,12 @@ public:
     return fCluster.size();
   }
 
+  /// Compute the weight of neighbourhood of a facet with respect to a cluster.
+  /** @param ifacet Facet index
+      @return Number of facet vertices contained by grid cells occupied by the cluster
+  */
   int NeighborToCluster(int ifacet)
   {
-    // Get neighborhood 'weight' of a candidate with respect to the existing cluster
     Facet_t *facet = fFacets[ifacet];
     int weight     = 0;
     for (auto icand : fCluster) {
@@ -445,6 +518,8 @@ public:
     return weight;
   }
 
+  /// Add all facets touching a cell to the list of candidates to be added to the next cluster.
+  /** @param ind Triplet of cell indices on (x,y,z) */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void AddCandidatesFromCell(int ind[3])
@@ -460,10 +535,14 @@ public:
     cell->fUsed = true;
   }
 
+  /// Gather candidates from cells neighboring the cell containing the center of the facet
+  /** @param  ifacet Facet index for which neighbours are searched
+      @param  rank   Maximum distance between the reference cell containing the center of the facet
+        and the other cells where neighbours are looked for
+      @return Size of the list of candidates.
+  */
   int GatherNeighborCandidates(int ifacet, int rank)
   {
-    // Gather candidates from cells neighboring the cell containing the center
-    // of the facet
     int ind0[3], ind[3];
     const Facet_t *facet = fFacets[ifacet];
     fHelper->GetCell(facet->fCenter, ind0);
@@ -504,14 +583,14 @@ public:
     return (fCandidates.size());
   }
 
-  /* @brief Methods for adding a new facet
-   * @detailed The method akes 4 parameters to define the three fVertices:
-   *      1) UFacetvertexType = "ABSOLUTE": in this case Pt0, vt1 and vt2 are
-   *         the 3 fVertices in anti-clockwise order looking from the outsider.
-   *      2) UFacetvertexType = "RELATIVE": in this case the first vertex is Pt0,
-   *         the second vertex is Pt0+vt1 and the third vertex is Pt0+vt2, all
-   *         in anti-clockwise order when looking from the outsider.
-   */
+  /// Method for adding a new triangular facet
+  /** @param vt0      First vertex
+      @param vt1      Second vertex
+      @param vt2      Third vertex
+      @param absolute If true then vt0, vt1 and vt2 are the vertices to be added in
+        anti-clockwise order looking from the outsider. If false the vertices are relative
+        to the first: vt0, vt0+vt1, vt0+vt2, in anti-clockwise order when looking from the outsider.
+  */
   VECCORE_ATT_HOST_DEVICE
   bool AddTriangularFacet(Vector3D<T> const &vt0, Vector3D<T> const &vt1, Vector3D<T> const &vt2, bool absolute = true)
   {
@@ -530,6 +609,16 @@ public:
     return true;
   }
 
+  /// Method for adding a new quadrilateral facet
+  /** @param vt0      First vertex
+      @param vt1      Second vertex
+      @param vt2      Third vertex
+      @param vt3      Fourth vertex
+      @param absolute If true then vt0, vt1, vt2 and vt3 are the vertices to be added in
+        anti-clockwise order looking from the outsider. If false the vertices are relative
+        to the first: vt0, vt0+vt1, vt0+vt2, vt0+vt3 in anti-clockwise order when looking from the
+        outsider.
+  */
   VECCORE_ATT_HOST_DEVICE
   bool AddQuadrilateralFacet(Vector3D<T> const &vt0, Vector3D<T> const &vt1, Vector3D<T> const &vt2,
                              Vector3D<T> const &vt3, bool absolute = true)
