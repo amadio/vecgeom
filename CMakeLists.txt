@@ -145,6 +145,10 @@ endif()
 # Which version of VecCore do we need.
 set(VecCore_VERSION "0.5.2")
 
+if (POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 # Let's see if we can find VecCore
 if (NOT BUILTIN_VECCORE)
   # Find VecCore with selected components turned on (CUDA and backend)
