@@ -23,7 +23,7 @@
 #include "volumes/utilities/VolumeUtilities.h"
 #include "base/SOA3D.h"
 #include "navigation/NavigationState.h"
-#include "navigation/SimpleNavigator.h"
+#include "navigation/GlobalLocator.h"
 #include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "management/RootGeoManager.h"
@@ -165,11 +165,10 @@ int main()
   NavigationState **states2    = new NavigationState *[NPOINTS];
   TGeoBranchArray **rootstates = new TGeoBranchArray *[NPOINTS];
 
-  SimpleNavigator nav;
   for (int i = 0; i < NPOINTS; ++i) {
     states1[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
     states2[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
-    nav.LocatePoint(GeoManager::Instance().GetWorld(), testpoints[i], *states1[i], true);
+    GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), testpoints[i], *states1[i], true);
   }
 
   // exporting to ROOT file
@@ -197,7 +196,7 @@ int main()
   RootGeoManager::Instance().LoadRootGeometry("geom1.root");
 
   for (int i = 0; i < NPOINTS; ++i) {
-    nav.LocatePoint(GeoManager::Instance().GetWorld(), testpoints[i], *states2[i], true);
+    GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), testpoints[i], *states2[i], true);
   }
 
   for (int i = 0; i < NPOINTS; ++i) {

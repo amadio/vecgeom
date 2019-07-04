@@ -2,7 +2,7 @@
 #include "navigation/NavigationState.h"
 #include "navigation/NavStatePool.h"
 #include "management/CudaManager.h"
-#include "navigation/SimpleNavigator.h"
+#include "navigation/GlobalLocator.h"
 #include "backend/cuda/Backend.h"
 
 #include <stdio.h>

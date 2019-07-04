@@ -1,5 +1,6 @@
 #include "navigation/NavigationState.h"
 #include "navigation/NavStatePool.h"
+#include "navigation/GlobalLocator.h"
 #include "base/Global.h"
 #include "management/RootGeoManager.h"
 #include "management/GeoManager.h"
@@ -7,7 +8,6 @@
 #include "management/CudaManager.h"
 #endif
 #include "volumes/utilities/VolumeUtilities.h"
-#include "navigation/SimpleNavigator.h"
 
 #include <iostream>
 using namespace vecgeom;
@@ -42,9 +42,6 @@ int main()
   // generate some points in the world
   volumeUtilities::FillContainedPoints(*GeoManager::Instance().GetWorld(), testpoints, false);
 
-  // generat
-  SimpleNavigator nav;
-
   NavStatePool pool(npoints, GeoManager::Instance().getMaxDepth());
   pool.Print();
   std::cerr << "#################" << std::endl;
@@ -52,7 +49,7 @@ int main()
   // fill states
   for (unsigned int i = 0; i < testpoints.size(); ++i) {
     //     std::cerr << testpoints[i] << "\n";
-    nav.LocatePoint(GeoManager::Instance().GetWorld(), testpoints[i], *pool[i], true);
+    GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), testpoints[i], *pool[i], true);
   }
   pool.Print();
   std::cerr << "sizeof navigation state on CPU: " << sizeof(vecgeom::cxx::NavigationState) << " and "

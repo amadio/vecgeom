@@ -7,7 +7,7 @@
 #include "management/GeoManager.h"
 #include "volumes/PlacedVolume.h"
 #include "navigation/NavigationState.h"
-#include "navigation/ABBoxNavigator.h"
+#include "management/ABBoxManager.h"
 #include "volumes/UnplacedBooleanVolume.h"
 #include "volumes/UnplacedScaledShape.h"
 #include "volumes/LogicalVolume.h"

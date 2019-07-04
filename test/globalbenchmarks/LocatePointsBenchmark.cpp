@@ -10,7 +10,7 @@
 #include "base/Global.h"
 #include "base/Vector3D.h"
 #include "base/SOA3D.h"
-#include "navigation/SimpleNavigator.h"
+#include "navigation/GlobalLocator.h"
 #include "navigation/NavStatePool.h"
 #include "navigation/NavigationState.h"
 #include "volumes/PlacedVolume.h"
@@ -44,9 +44,8 @@ void benchVecGeom(SOA3D<Precision> const &points, NavStatePool &statepool)
 {
   Stopwatch timer;
   timer.Start();
-  SimpleNavigator nav;
   for (unsigned int i = 0; i < points.size(); ++i) {
-    nav.LocatePoint(GeoManager::Instance().GetWorld(), points[i], *(statepool[i]), true);
+    GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), points[i], *(statepool[i]), true);
   }
   timer.Stop();
   std::cout << "VecGeom locate took " << timer.Elapsed() << " s\n";

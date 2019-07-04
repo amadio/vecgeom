@@ -3,7 +3,7 @@
 #ifdef VECGEOM_CUDA_INTERFACE
 #include "management/CudaManager.h"
 #endif
-#include "navigation/SimpleNavigator.h"
+#include "navigation/GlobalLocator.h"
 #include "navigation/NavigationState.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/Box.h"
@@ -53,10 +53,9 @@ int main()
   std::cerr << "Printing world content:\n";
   world_placed->PrintContent();
 
-  SimpleNavigator nav;
   Vector3D<Precision> point(2, 2, 2);
   NavigationState *path = NavigationState::MakeInstance(4);
-  nav.LocatePoint(world_placed, point, *path, true);
+  GlobalLocator::LocateGlobalPoint(world_placed, point, *path, true);
   path->Print();
 
   GeoManager::Instance().FindLogicalVolume("Large box");

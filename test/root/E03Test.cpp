@@ -11,7 +11,7 @@
 #include "management/RootGeoManager.h"
 #include "management/GeoManager.h"
 #include "navigation/NavigationState.h"
-#include "navigation/SimpleNavigator.h"
+#include "navigation/GlobalLocator.h"
 #include "base/Vector3D.h"
 #include "volumes/UnplacedBox.h"
 
@@ -28,7 +28,6 @@ void locatetest()
 {
   VolumePath_t *a;
   a = VolumePath_t::MakeInstance(3);
-  SimpleNavigator nav;
 
   vecgeom::UnplacedBox *const box =
       (vecgeom::UnplacedBox * const)GeoManager::Instance().GetWorld()->GetUnplacedVolume();
@@ -43,7 +42,7 @@ void locatetest()
   std::cerr << box->Capacity() << "\n"; // not OK
   box->Print();                         // OK
 
-  nav.LocatePoint(GeoManager::Instance().GetWorld(), Vector3D<Precision>(-8, 0, 0), *a, true);
+  GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), Vector3D<Precision>(-8, 0, 0), *a, true);
   a->Print();
   if (a->GetCurrentNode() != NULL) {
     a->GetCurrentNode()->GetVolume()->Print();

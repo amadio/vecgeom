@@ -14,7 +14,8 @@
 #include "volumes/PlacedBox.h"
 #include "volumes/LogicalVolume.h"
 #include "navigation/NavigationState.h"
-#include "navigation/SimpleNavigator.h"
+#include "navigation/VNavigator.h"
+#include "navigation/GlobalLocator.h"
 #include "management/GeoManager.h"
 #include <cstdio>
 #ifdef VECGEOM_ROOT
@@ -673,11 +674,11 @@ inline void FillGlobalPointsAndDirectionsForLogicalVolume(LogicalVolume const *l
         // do extensive cross tests
         s1->Clear();
         s2->Clear();
-        SimpleNavigator nav;
-        nav.LocatePoint(GeoManager::Instance().GetWorld(), globalpoints[placedcount], *s1, true);
+        GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), globalpoints[placedcount], *s1, true);
         assert(s1->Top()->GetLogicalVolume() == lvol);
         double step = vecgeom::kInfLength;
-        nav.FindNextBoundaryAndStep(globalpoints[placedcount], directions[placedcount], *s1, *s2, vecgeom::kInfLength,
+        auto nav = s1->Top()->GetLogicalVolume()->GetNavigator();
+        nav->FindNextBoundaryAndStep(globalpoints[placedcount], directions[placedcount], *s1, *s2, vecgeom::kInfLength,
                                     step);
 #ifdef DEBUG
         if (!hitsdaughter) assert(s1->Distance(*s2) > s2->GetCurrentLevel() - s1->GetCurrentLevel());

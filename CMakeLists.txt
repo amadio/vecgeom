@@ -702,7 +702,6 @@ set(VECGEOM_SRCS
   source/UnplacedExtruded.cpp
   source/UnplacedVolume.cpp
   source/NavigationState.cpp
-  source/SimpleNavigator.cpp
 
   source/UnplacedOrb.cpp
   source/PlacedOrb.cpp
@@ -714,8 +713,7 @@ set(VECGEOM_SRCS
   source/Wedge_Evolution.cpp
   source/ABBoxManager.cpp
   source/HybridManager2.cpp
-  source/ABBoxNavigator.cpp
-
+ 
   source/MessageLogger.cpp
 
   services/NavigationSpecializer.cpp
@@ -768,7 +766,6 @@ endforeach()
 # file prefixes that won't be compiled for CUDA
 set(NOT_FOR_CUDA
    ABBoxManager
-   ABBoxNavigator
    HybridManager2
    Medium
    G4GeoManager
@@ -829,14 +826,14 @@ if (BENCHMARK)
   )
   set(SRC_CUDA ${SRC_CUDA}
     source/benchmarking/Benchmarker.cu
-    source/benchmarking/NavigationBenchmarker.cu
+   # source/benchmarking/NavigationBenchmarker.cu
   )
   add_subdirectory(test/benchmark)
 endif()
 set(SRC_CPP ${SRC_CPP} ${SRC_EXTERNAL}
   source/GeoManager.cpp
   source/CppExporter.cpp
-  source/benchmarking/NavigationBenchmarker.cpp
+ # source/benchmarking/NavigationBenchmarker.cpp
 )
 
 # some CUDA kernel code in "userspace" and test
@@ -1007,7 +1004,7 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/SafetyKernelBenchmarker.cpp
   ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationKernelBenchmarker.cpp
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
+  # ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
   ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
   ${CMAKE_SOURCE_DIR}/services/NavigationSpecializerTest.cpp

@@ -14,7 +14,9 @@
 #include "base/Global.h"
 #include "base/Vector3D.h"
 #include "base/Stopwatch.h"
-#include "navigation/SimpleNavigator.h"
+#include "navigation/GlobalLocator.h"
+#include "navigation/VNavigator.h"
+#include "navigation/VSafetyEstimator.h"
 #include "base/Transformation3D.h"
 #include "base/SOA3D.h"
 #include <iostream>
@@ -150,9 +152,8 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
 
   // set start point of XRay
   Vector3D<Precision> p(0, 0, 0);
-  SimpleNavigator nav;
   curnavstate->Clear();
-  nav.LocatePoint(GeoManager::Instance().GetWorld(), p, *curnavstate, true);
+  GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), p, *curnavstate, true);
 
 #ifdef VECGEOM_DISTANCE_DEBUG
   gGeoManager->GetCurrentNavigator()->FindNode(p.x(), p.y(), p.z());
@@ -170,9 +171,9 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
     double step = 0;
     newnavstate->Clear();
 
-    double safety = nav.GetSafety(p, *curnavstate);
-
-    nav.FindNextBoundaryAndStep(p, dir, *curnavstate, *newnavstate, 1e20, step);
+    auto nav = curnavstate->Top()->GetLogicalVolume()->GetNavigator();
+    double safety = nav->GetSafetyEstimator()->ComputeSafety(p, *curnavstate);
+    nav->FindNextBoundaryAndStep(p, dir, *curnavstate, *newnavstate, 1e20, step);
 
     distancetravelled += step;
 
@@ -212,97 +213,98 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
 } // end XRayWithVecGeom
 
 // stressing the vector interface of navigator
-void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
-                            double axis1_start, double axis1_end, double axis2_start, double axis2_end, int data_size_x,
-                            int data_size_y, double pixel_axis, int *image)
-{
-  int counter = 0;
-
-  // we need N navstates ( where N should be a multiple of the SIMD width )
-  unsigned int N                 = 8;
-  NavigationState **newnavstates = new NavigationState *[N];
-  NavigationState **curnavstates = new NavigationState *[N];
-  for (unsigned int j = 0; j < N; ++j) {
-    newnavstates[j] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
-    curnavstates[j] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
-  }
-
-  SOA3D<Precision> points(N);
-  SOA3D<Precision> dirs(N);
-  SOA3D<Precision> workspaceforlocalpoints(N);
-  SOA3D<Precision> workspaceforlocaldirs(N);
-
-  // initialize dirs from dir
-  for (unsigned int j = 0; j < N; ++j)
-    dirs.set(j, dir.x(), dir.y(), dir.z());
-
-  double *steps          = new double[N];
-  double *psteps         = new double[N];
-  double *safeties       = new double[N];
-  int *nextnodeworkspace = new int[N]; // some workspace for the navigator; not important here
-  // initialize physical steps to infinity
-  for (unsigned int j = 0; j < N; ++j)
-    psteps[j]         = vecgeom::kInfLength;
-
-  Stopwatch internaltimer;
-  internaltimer.Start();
-  SimpleNavigator nav;
-  // initialize points and locate them is serialized
-  for (unsigned int j = 0; j < N; ++j) {
-    points.set(j, 0, 0, 0);
-    curnavstates[j]->Clear();
-    nav.LocatePoint(GeoManager::Instance().GetWorld(), points[j], *curnavstates[j], true);
-  }
-
-  double distancetravelled = 0.;
-  int crossedvolumecount   = 0;
-  if (VERBOSE) {
-    std::cout << " StartPoint(" << points[0].x() << ", " << points[1].y() << ", " << points[2].z() << ")";
-    std::cout << " Direction <" << dirs[0].x() << ", " << dirs[1].y() << ", " << dirs[2].z() << ">" << std::endl;
-  }
-
-  // we do the while loop only over the first "particle index"
-  // the rest of the particles should follow exactly the same path
-  while (!curnavstates[0]->IsOutside()) {
-    nav.FindNextBoundaryAndStep(points, dirs, workspaceforlocalpoints, workspaceforlocaldirs, curnavstates,
-                                newnavstates, psteps, safeties, steps, nextnodeworkspace);
-
-    // std::cout << "step " << step << "\n";
-    distancetravelled += steps[0];
-
-    // TODO: DO HERE AN ASSERTION THAT ALL STEPS AGREE
-
-    if (VERBOSE) {
-      if (newnavstates[0]->Top() != NULL)
-        std::cout << " *VGV " << counter++ << " * point" << points[0] << " goes to "
-                  << " VolumeName: " << newnavstates[0]->Top()->GetLabel();
-      else
-        std::cout << "  NULL: ";
-
-      std::cout << " step[" << steps[0] << "]";
-      std::cout << " boundary[" << newnavstates[0]->IsOnBoundary() << "]\n";
-    }
-
-    // here we have to propagate particle ourselves and adjust navigation state
-    // propagate points
-    for (unsigned int j = 0; j < N; ++j) {
-      points.set(j, points[j] + dirs[j] * (steps[0] + 1E-6));
-      newnavstates[j]->CopyTo(curnavstates[j]);
-    }
-
-    // Increase passed_volume
-    // TODO: correct counting of travel in "world" bounding box
-    if (steps[0] > 0) crossedvolumecount++;
-  } // end while
-
-  internaltimer.Stop();
-  std::cout << "VecGeom vec time (per track) " << internaltimer.Elapsed() / N << "\n";
-
-  for (unsigned int j = 0; j < N; ++j) {
-    NavigationState::ReleaseInstance(curnavstates[j]);
-    NavigationState::ReleaseInstance(newnavstates[j]);
-  }
-} // end XRayWithVecGeomVectorInterface
+// TODO: This needs adjustment to new VNavigator interface
+//void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
+//                            double axis1_start, double axis1_end, double axis2_start, double axis2_end, int data_size_x,
+//                            int data_size_y, double pixel_axis, int *image)
+//{
+//  int counter = 0;
+//
+//  // we need N navstates ( where N should be a multiple of the SIMD width )
+//  unsigned int N                 = 8;
+//  NavigationState **newnavstates = new NavigationState *[N];
+//  NavigationState **curnavstates = new NavigationState *[N];
+//  for (unsigned int j = 0; j < N; ++j) {
+//    newnavstates[j] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
+//    curnavstates[j] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
+//  }
+//
+//  SOA3D<Precision> points(N);
+//  SOA3D<Precision> dirs(N);
+//  SOA3D<Precision> workspaceforlocalpoints(N);
+//  SOA3D<Precision> workspaceforlocaldirs(N);
+//
+//  // initialize dirs from dir
+//  for (unsigned int j = 0; j < N; ++j)
+//    dirs.set(j, dir.x(), dir.y(), dir.z());
+//
+//  double *steps          = new double[N];
+//  double *psteps         = new double[N];
+//  double *safeties       = new double[N];
+//  int *nextnodeworkspace = new int[N]; // some workspace for the navigator; not important here
+//  // initialize physical steps to infinity
+//  for (unsigned int j = 0; j < N; ++j)
+//    psteps[j]         = vecgeom::kInfLength;
+//
+//  Stopwatch internaltimer;
+//  internaltimer.Start();
+//  // initialize points and locate them is serialized
+//  for (unsigned int j = 0; j < N; ++j) {
+//    points.set(j, 0, 0, 0);
+//    curnavstates[j]->Clear();
+//    GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), points[j], *curnavstates[j], true);
+//  }
+//
+//  double distancetravelled = 0.;
+//  int crossedvolumecount   = 0;
+//  if (VERBOSE) {
+//    std::cout << " StartPoint(" << points[0].x() << ", " << points[1].y() << ", " << points[2].z() << ")";
+//    std::cout << " Direction <" << dirs[0].x() << ", " << dirs[1].y() << ", " << dirs[2].z() << ">" << std::endl;
+//  }
+//
+//  // we do the while loop only over the first "particle index"
+//  // the rest of the particles should follow exactly the same path
+//  while (!curnavstates[0]->IsOutside()) {
+//	auto nav = curnavstates[0]->Top()->GetLogicalVolume()->GetNavigator();
+//    nav->FindNextBoundaryAndStep(points, dirs, workspaceforlocalpoints, workspaceforlocaldirs, curnavstates,
+//                                newnavstates, psteps, safeties, steps, nextnodeworkspace);
+//
+//    // std::cout << "step " << step << "\n";
+//    distancetravelled += steps[0];
+//
+//    // TODO: DO HERE AN ASSERTION THAT ALL STEPS AGREE
+//
+//    if (VERBOSE) {
+//      if (newnavstates[0]->Top() != NULL)
+//        std::cout << " *VGV " << counter++ << " * point" << points[0] << " goes to "
+//                  << " VolumeName: " << newnavstates[0]->Top()->GetLabel();
+//      else
+//        std::cout << "  NULL: ";
+//
+//      std::cout << " step[" << steps[0] << "]";
+//      std::cout << " boundary[" << newnavstates[0]->IsOnBoundary() << "]\n";
+//    }
+//
+//    // here we have to propagate particle ourselves and adjust navigation state
+//    // propagate points
+//    for (unsigned int j = 0; j < N; ++j) {
+//      points.set(j, points[j] + dirs[j] * (steps[0] + 1E-6));
+//      newnavstates[j]->CopyTo(curnavstates[j]);
+//    }
+//
+//    // Increase passed_volume
+//    // TODO: correct counting of travel in "world" bounding box
+//    if (steps[0] > 0) crossedvolumecount++;
+//  } // end while
+//
+//  internaltimer.Stop();
+//  std::cout << "VecGeom vec time (per track) " << internaltimer.Elapsed() / N << "\n";
+//
+//  for (unsigned int j = 0; j < N; ++j) {
+//    NavigationState::ReleaseInstance(curnavstates[j]);
+//    NavigationState::ReleaseInstance(newnavstates[j]);
+//  }
+//} // end XRayWithVecGeomVectorInterface
 
 #ifdef VECGEOM_GEANT4
 G4VPhysicalVolume *SetupGeant4Geometry(std::string volumename, Vector3D<Precision> worldbbox)
@@ -580,14 +582,14 @@ int main(int argc, char *argv[])
 
     std::cout << " VecGeom Elapsed time : " << timer.Elapsed() << std::endl;
 
-    // use the vector interface
-    timer.Start();
-    XRayWithVecGeom_VecNav(axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz),
-                           dir, axis1_start, axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis,
-                           volume_result);
-    timer.Stop();
-    std::cout << std::endl;
-    std::cout << " VecGeom Vector Interface Elapsed time : " << timer.Elapsed() << std::endl;
+//    // use the vector interface
+//    timer.Start();
+//    XRayWithVecGeom_VecNav(axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz),
+//                           dir, axis1_start, axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis,
+//                           volume_result);
+//    timer.Stop();
+//    std::cout << std::endl;
+//    std::cout << " VecGeom Vector Interface Elapsed time : " << timer.Elapsed() << std::endl;
 
     delete[] volume_result;
   }

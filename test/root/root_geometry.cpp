@@ -5,7 +5,7 @@
 #include "management/GeoManager.h"
 #include "management/RootGeoManager.h"
 #include "navigation/NavigationState.h"
-#include "navigation/SimpleNavigator.h"
+#include "navigation/GlobalLocator.h"
 #include "volumes/PlacedVolume.h"
 
 #include "TGeoBBox.h"
@@ -34,12 +34,10 @@ int main()
   VPlacedVolume const *const world = GeoManager::Instance().GetWorld();
   VPlacedVolume const *const tube  = *world->GetDaughters().begin();
 
-  SimpleNavigator navigator;
-
   auto CheckPoint = [&](const Precision x, const Precision y, const Precision z, VPlacedVolume const *const volume) {
     Vector3D<Precision> const point = Vector3D<Precision>(x, y, z);
     NavigationState *path           = NavigationState::MakeInstance(2);
-    assert(navigator.LocatePoint(world, point, *path, true) == volume);
+    assert(GlobalLocator::LocateGlobalPoint(world, point, *path, true) == volume);
   };
 
   CheckPoint(0, 0, 0, world);

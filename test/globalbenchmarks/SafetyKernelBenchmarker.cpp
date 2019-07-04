@@ -11,7 +11,6 @@
 #include "base/Vector3D.h"
 #include "base/SOA3D.h"
 #include "base/RNG.h"
-#include "navigation/SimpleNavigator.h"
 #include "navigation/GlobalLocator.h"
 #include "navigation/NavStatePool.h"
 #include "navigation/NavigationState.h"
@@ -211,7 +210,6 @@ int main(int argc, char *argv[])
   volumeUtilities::FillGlobalPointsForLogicalVolume<SOA3D<Precision>>(
       GeoManager::Instance().FindLogicalVolume(volname.c_str()), localpoints, points, npoints);
   std::cerr << "points filled\n";
-  SimpleNavigator nav;
   for (size_t i = 0; i < points.size(); ++i) {
     GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), points[i], *(statepool[i]), true);
     if (statepool[i]->Top()->GetLogicalVolume() != GeoManager::Instance().FindLogicalVolume(volname.c_str())) {

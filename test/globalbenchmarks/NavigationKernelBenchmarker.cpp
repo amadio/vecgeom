@@ -3,7 +3,6 @@
 #include "base/Vector3D.h"
 #include "base/SOA3D.h"
 #include "base/RNG.h"
-#include "navigation/SimpleNavigator.h"
 #include "navigation/GlobalLocator.h"
 #include "navigation/NavStatePool.h"
 #include "navigation/NavigationState.h"
@@ -12,7 +11,6 @@
 #include "management/RootGeoManager.h"
 #include "management/GeoManager.h"
 #include "base/Stopwatch.h"
-#include "navigation/SimpleNavigator.h"
 #include "navigation/NewSimpleNavigator.h"
 #include "navigation/SimpleABBoxNavigator.h"
 #include "navigation/SimpleABBoxLevelLocator.h"
@@ -532,30 +530,6 @@ __attribute__((noinline)) void benchVectorNavigatorNoReloc(SOA3D<Precision> cons
   delete[] outpoolarray;
 }
 
-void benchmarkOldNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs, NavStatePool &inpool)
-{
-  Precision *steps          = new Precision[points.size()];
-  NavigationState *newstate = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
-  Stopwatch timer;
-  SimpleNavigator nav;
-  size_t hittargetchecksum = 0L;
-  timer.Start();
-  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
-    nav.FindNextBoundaryAndStep(points[i], dirs[i], *inpool[i], *newstate, vecgeom::kInfLength, steps[i]);
-    //    std::cerr << "** " << newstate->Top()->GetLabel() << "\n";
-    if (newstate->Top()) hittargetchecksum += (size_t)newstate->Top()->id();
-  }
-  timer.Stop();
-  std::cerr << timer.Elapsed() << "\n";
-  double accum(0.);
-  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
-    accum += steps[i];
-  }
-  delete[] steps;
-  std::cerr << "accum  OldSimpleNavigator " << accum << " target checksum " << hittargetchecksum << "\n";
-  NavigationState::ReleaseInstance(newstate);
-}
-
 template <bool WithSafety = false>
 void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs, NavStatePool &pool,
                               NavStatePool &outpool, std::string outfilenamebase)
@@ -620,8 +594,6 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
   }
 #endif
 
-  RUNBENCH(benchmarkOldNavigator(points, dirs, pool));
-  std::cerr << "##\n";
 #ifdef VECGEOM_ROOT
   benchmarkROOTNavigator<WithSafety>(points, dirs);
 #ifdef VECGEOM_GEANT4
