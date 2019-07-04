@@ -12,6 +12,7 @@
 #include "base/Vector3D.h"
 #include "volumes/LogicalVolume.h"
 #include "navigation/VLevelLocator.h"
+#include "navigation/NavigationState.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -66,7 +67,7 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
       }
     }
   }
-  return candvolume;
+  return candvolume ? path.Top() : nullptr;
 }
 
 // special version of locate point function that excludes searching a given volume
