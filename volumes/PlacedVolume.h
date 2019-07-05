@@ -308,10 +308,6 @@ public:
   virtual void DistanceToIn(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                             Precision const *const step_max, Precision *const output) const = 0;
 
-  // to be deprecated
-  virtual void DistanceToInMinimize(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                                    int daughterindex, Precision *const output, int *const nextnodeids) const = 0;
-
   /**
    * Like similar function in VUnplacedVolume. Here position and direction are supposed to be
    * in the frame of the placed volume!
@@ -408,9 +404,6 @@ public:
   {
     return SafetyToOutVec(p);
   }
-
-  /// to be deprecated
-  virtual void SafetyToOutMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;
 
   /// Simple forward to capacity on VUnplacedVolume
   virtual Precision Capacity();

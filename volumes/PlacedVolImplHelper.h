@@ -126,12 +126,6 @@ public:
     GetUnplacedVolume()->UnplacedShape_t::SafetyToOut(points, output);
   }
 
-  virtual void SafetyToOutMinimize(SOA3D<Precision> const & /* points */,
-                                   Precision *const /* safeties */) const override
-  {
-    // interface not implemented (deprecated)
-  }
-
 }; // End class PlacedVolumeImplHelper
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

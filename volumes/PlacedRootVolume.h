@@ -68,9 +68,6 @@ public:
   virtual void DistanceToIn(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                             Precision const *const stepMax, Precision *const output) const override;
 
-  virtual void DistanceToInMinimize(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                                    int daughterindex, Precision *const output, int *const nextnodeids) const override;
-
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                   Precision const stepMax) const override;
@@ -89,8 +86,6 @@ public:
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const override;
 
   virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const override;
-
-  virtual void SafetyToOutMinimize(SOA3D<Precision> const &position, Precision *const safeties) const override;
 
   VECGEOM_FORCE_INLINE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const override;

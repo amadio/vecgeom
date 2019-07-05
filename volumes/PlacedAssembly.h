@@ -124,13 +124,6 @@ public:
     throw std::runtime_error("unimplemented function called");
   }
 
-  virtual void DistanceToInMinimize(SOA3D<Precision> const & /*position*/, SOA3D<Precision> const & /*direction*/,
-                                    int /*daughterindex*/, Precision *const /*output*/,
-                                    int *const /*nextnodeids*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const & /*position*/, Vector3D<Precision> const & /*direction*/,
@@ -174,11 +167,6 @@ public:
   }
 
   virtual void SafetyToOut(SOA3D<Precision> const & /*position*/, Precision *const /*safeties*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
-  virtual void SafetyToOutMinimize(SOA3D<Precision> const & /*position*/, Precision *const /*safeties*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }

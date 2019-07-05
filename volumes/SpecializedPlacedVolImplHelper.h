@@ -359,19 +359,6 @@ public:
     return output;
   }
 
-  virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                                    int daughterindex, Precision *const output, int *const nextnodeids) const override
-  {
-    // we do no longer need this (probably)
-    // DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
-    (void)points;
-    (void)directions;
-    (void)daughterindex;
-    (void)output;
-    (void)nextnodeids;
-    throw std::runtime_error("DistanceToInMinimize unimplemented");
-  }
-
   virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override
   {
     auto offset = points.size() - points.size() % vecCore::VectorSize<VectorBackend::Real_v>();
@@ -509,18 +496,6 @@ public:
       vecCore::AssignLane(output, i, tmp);
     }
     return output;
-  }
-
-  virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                                    int daughterindex, Precision *const output, int *const nextnodeids) const override
-  {
-    (void)points;
-    (void)directions;
-    (void)daughterindex;
-    (void)output;
-    (void)nextnodeids;
-    throw std::runtime_error("DistanceToInMinimize unimplemented");
-    // DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
   }
 
 #ifdef VECGEOM_CUDA_INTERFACE
