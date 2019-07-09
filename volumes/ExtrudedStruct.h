@@ -203,7 +203,7 @@ public:
       // Check if any of the remaining vertices are in the ear
       for (auto i : vtx) {
         if (i == vtx[i1] || i == vtx[i2] || i == vtx[i3]) continue;
-        if (IsPointInside(i, vtx[i1], vtx[i2], vtx[i3])) {
+        if (IsPointInside(vtx[i1], vtx[i2], vtx[i3], i)) {
           good = false;
           i1++;
           i2++;
@@ -256,15 +256,6 @@ public:
     fTslHelper.Close();
   }
 
-  /** @brief Check if point i is inside triangle (i1, i2, i3) defined clockwise. */
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  bool IsPointInside(size_t i, size_t i1, size_t i2, size_t i3)
-  {
-    if (!IsConvexSide(i1, i2, i) || !IsConvexSide(i2, i3, i) || !IsConvexSide(i3, i1, i)) return false;
-    return true;
-  }
-
   /** @brief Get the number of sections */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -292,6 +283,72 @@ public:
   {
     x = fPolygon.GetVertices().x()[i];
     y = fPolygon.GetVertices().y()[i];
+  }
+
+  /** Return true if i is on the line through i1, i2 */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  bool IsSameLine(size_t i, size_t i1, size_t i2) const
+  {
+    const double *x = fPolygon.GetVertices().x();
+    const double *y = fPolygon.GetVertices().y();
+    if (x[i1] == x[i2]) return std::fabs(x[i] - x[i1]) < kTolerance * 0.5;
+
+    double slope = (y[i2] - y[i1]) / (x[i2] - x[i1]);
+    double predy = y[i1] + slope * (x[i] - x[i1]);
+    double dy    = y[i] - predy;
+
+    // Check perpendicular distance vs tolerance 'directly'
+    const double tol = 0.5 * kTolerance;
+    bool squareComp  = (dy * dy < (1 + slope * slope) * tol * tol);
+    return squareComp;
+  }
+
+  /** @brief Return true if point i is on the line through i1, i2 and lies between i1 and i2 */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  bool IsSameLineSegment(size_t i, size_t i1, size_t i2) const
+  {
+    const double *x = fPolygon.GetVertices().x();
+    const double *y = fPolygon.GetVertices().y();
+    if (x[i] < std::min(x[i1], x[i2]) - kTolerance * 0.5 || x[i] > std::max(x[i1], x[i2]) + kTolerance * 0.5 ||
+        y[i] < std::min(y[i1], y[i2]) - kTolerance * 0.5 || y[i] > std::max(y[i1], y[i2]) + kTolerance * 0.5)
+      return false;
+
+    return IsSameLine(i, i1, i2);
+  }
+
+  /** @brief Return true if i and j are on the same side of the line through i1, i2 */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  bool IsSameSide(size_t i, size_t j, size_t i1, size_t i2) const
+  {
+    const double *x = fPolygon.GetVertices().x();
+    const double *y = fPolygon.GetVertices().y();
+
+    return ((x[i] - x[i1]) * (y[i2] - y[i1]) - (x[i2] - x[i1]) * (y[i] - y[i1])) *
+               ((x[j] - x[i1]) * (y[i2] - y[i1]) - (x[i2] - x[i1]) * (y[j] - y[i1])) >
+           0;
+  }
+
+  /** Return true if i is inside of triangle (i1, i2, i3) or on its edges, else returns false */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  bool IsPointInside(size_t i1, size_t i2, size_t i3, size_t i) const
+  {
+    const double *x = fPolygon.GetVertices().x();
+    const double *y = fPolygon.GetVertices().y();
+
+    // Check extent first
+    if ((x[i] < x[i1] && x[i] < x[i2] && x[i] < x[i3]) || (x[i] > x[i1] && x[i] > x[i2] && x[i] > x[i3]) ||
+        (y[i] < y[i1] && y[i] < y[i2] && y[i] < y[i3]) || (y[i] > y[i1] && y[i] > y[i2] && y[i] > y[i3]))
+      return false;
+
+    bool inside = IsSameSide(i, i1, i2, i3) && IsSameSide(i, i2, i1, i3) && IsSameSide(i, i3, i1, i2);
+
+    bool onEdge = IsSameLineSegment(i, i1, i2) || IsSameLineSegment(i, i2, i3) || IsSameLineSegment(i, i3, i1);
+
+    return inside || onEdge;
   }
 
   /** @brief Check if the polygone segments (i0, i1) and (i1, i2) make a convex side */
