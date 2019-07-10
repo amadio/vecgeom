@@ -94,6 +94,8 @@ public:
 
   virtual void Print(std::ostream &os) const override;
 
+  virtual SolidMesh *CreateMesh3D() const override;
+
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedBox>::SizeOf(); }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;

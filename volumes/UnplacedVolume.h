@@ -12,6 +12,7 @@
 #include "base/Global.h"
 #include "base/Transformation3D.h"
 #include "base/SOA3D.h"
+#include "volumes/SolidMesh.h"
 #include <string>
 #include <ostream>
 
@@ -287,7 +288,7 @@ public:
   virtual int MemorySize() const = 0;
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const                                                                      = 0;
+  virtual size_t DeviceSizeOf() const = 0;
 
   /*!
    * Constructs the deriving class on the GPU and returns a pointer to GPU
@@ -330,6 +331,8 @@ public:
    */
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const = 0;
+
+  virtual SolidMesh *CreateMesh3D() const { return NULL; };
 
   // Is not static because a virtual function must be called to initialize
   // specialized volume as the shape of the deriving class.
@@ -374,8 +377,8 @@ struct Maker {
 
 std::ostream &operator<<(std::ostream &os, VUnplacedVolume const &vol);
 
-} // End inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_UNPLACEDVOLUME_H_
