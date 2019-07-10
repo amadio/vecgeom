@@ -13,9 +13,40 @@
 #include "volumes/SpecializedParallelepiped.h"
 #include "volumes/utilities/GenerationUtilities.h"
 #include "base/RNG.h"
+#include <volumes/SolidMesh.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+SolidMesh *UnplacedParallelepiped::CreateMesh3D() const
+{
+  SolidMesh *sm = new SolidMesh();
+  sm->ResetMesh(8, 6);
+
+  double dx = fPara.fDimensions[0] * 2;
+  double dy = fPara.fDimensions[1] * 2;
+  double dz = fPara.fDimensions[2] * 2;
+
+  double gamma = fPara.fPhi;
+  double alpha = fPara.fTheta;
+  double beta  = fPara.fAlpha;
+
+  double intermediate = (std::cos(alpha) - std::cos(beta) * std::cos(gamma)) / std::sin(gamma);
+
+  Vector3D<double> a = Vector3D<double>(dx, 0, 0);
+  Vector3D<double> b = Vector3D<double>(dy * std::cos(gamma), dy * std::sin(gamma), 0);
+  Vector3D<double> c = Vector3D<double>(dz * std::cos(beta), dz * intermediate,
+                                        dz * std::sqrt(std::pow(std::sin(beta), 2)) - std::pow(intermediate, 2));
+
+  double o = (a + b + c) / 2;
+  // subtract o to move the origin to center
+  const Utils3D::Vec_t vertices[] = {a - o, a + b - o, a + b + c - o, a + c - o, Vector3D<double>() - o,
+                                     b - o, b + c - o, c - o};
+
+  sm->SetVertices(vertices, 8);
+  sm->InitConvexHexahedron();
+  return sm;
+}
 
 //______________________________________________________________________________
 void UnplacedParallelepiped::Print() const

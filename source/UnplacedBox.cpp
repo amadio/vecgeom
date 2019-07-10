@@ -2,10 +2,27 @@
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedBox.h"
 #include "base/RNG.h"
+
+#include "base/Utils3D.h"
 #include <stdio.h>
+#include <volumes/SolidMesh.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+SolidMesh *UnplacedBox::CreateMesh3D() const
+{
+  SolidMesh *sm = new SolidMesh();
+  sm->ResetMesh(8, 6);
+  Vector3D<Precision> const &box  = fBox.fDimensions;
+  const Utils3D::Vec_t vertices[] = {{-box[0], -box[1], -box[2]}, {-box[0], box[1], -box[2]}, {box[0], box[1], -box[2]},
+                                     {box[0], -box[1], -box[2]},  {-box[0], -box[1], box[2]}, {-box[0], box[1], box[2]},
+                                     {box[0], box[1], box[2]},    {box[0], -box[1], box[2]}};
+  sm->SetVertices(vertices, 8);
+  sm->InitConvexHexahedron();
+
+  return sm;
+}
 
 VECCORE_ATT_HOST_DEVICE
 void UnplacedBox::Print() const
@@ -107,7 +124,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBox::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -116,8 +133,8 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedBox>::SizeOf();
 template void DevicePtr<cuda::UnplacedBox>::Construct(const Precision x, const Precision y, const Precision z) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom
