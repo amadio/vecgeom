@@ -10,7 +10,6 @@
 #include "volumes/SpecializedTet.h"
 #include "base/RNG.h"
 #include <stdio.h>
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -128,6 +127,16 @@ std::ostream &UnplacedTet::StreamInfo(std::ostream &os) const
 void UnplacedTet::Print() const {}
 
 void UnplacedTet::Print(std::ostream &os) const {}
+
+SolidMesh *UnplacedTet::CreateMesh3D() const
+{
+  SolidMesh *sm = new SolidMesh();
+  sm->ResetMesh(4, 4);
+  sm->SetVertices(fTet.fVertex, 4);
+  sm->InitTetrahedron(fTet.fPlane[0].n, fTet.fPlane[1].n, fTet.fPlane[2].n, fTet.fPlane[3].n);
+
+  return sm;
+}
 
 #ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>

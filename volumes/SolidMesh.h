@@ -20,6 +20,7 @@ public:
   void SetVertices(const Utils3D::Vec_t vertices[], size_t count) { fMesh.fVert.assign(vertices, vertices + count); }
   void ResetMesh(size_t nvert, size_t nPoly) { fMesh.Reset(nvert, nPoly); }
   void InitConvexHexahedron();
+  void InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, Vector3D<Precision> n2, Vector3D<Precision> n3);
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

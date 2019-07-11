@@ -16,6 +16,7 @@
 #include "volumes/SolidMesh.h"
 #include "volumes/UnplacedParallelepiped.h"
 #include "volumes/UnplacedTrapezoid.h"
+#include "volumes/UnplacedTet.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -92,7 +93,7 @@ int main(int argc, char *argv[])
   UnplacedBox a2 = UnplacedBox(box2);
 
   SolidMesh *sm1       = a1.CreateMesh3D();
-  const Polyhedron &p1 = sm1->GetMesh();
+  const Polyhedron &p = sm1->GetMesh();
 
   UnplacedParallelepiped up = UnplacedParallelepiped(1, 2, 3, 3.14 / 2, 3.14 / 2, 3.14 / 4);
   SolidMesh *smup           = up.CreateMesh3D();
@@ -101,6 +102,11 @@ int main(int argc, char *argv[])
   UnplacedTrapezoid ut  = UnplacedTrapezoid(1., 2., 3., 4.);
   SolidMesh *stup       = ut.CreateMesh3D();
   const Polyhedron &put = stup->GetMesh();
+
+  Vec_t p0(0., 0., 5.), p1(0., 0., 0.), p2(5., 0., 0.), p3(0., 5., 0.);
+  UnplacedTet tetrahedron = UnplacedTet(p0, p1, p2, p3);
+  SolidMesh * sm_tetrahedron = tetrahedron.CreateMesh3D();
+  const Polyhedron &ph_tetra = sm_tetrahedron->GetMesh();
 
   /*
 
@@ -127,7 +133,7 @@ int main(int argc, char *argv[])
   SimpleBox boxshape("box", 7, 7, 7);
   visualizer.AddVolume(boxshape);
   Utils3D::vector_t<Utils3D::Line> lines;
-  DrawPolyhedron(put, visualizer, kBlue);
+  DrawPolyhedron(ph_tetra, visualizer, kBlue);
   // DrawPolyhedron(polyh2, visualizer, kGreen);
   /*
   if (PolyhedronXing(polyh1, polyh2, lines) == Utils3D::kOverlapping) {
