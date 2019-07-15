@@ -36,7 +36,7 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D() const
   Vector3D<double> a = Vector3D<double>(dx, 0, 0);
   Vector3D<double> b = Vector3D<double>(dy * std::cos(gamma), dy * std::sin(gamma), 0);
   Vector3D<double> c = Vector3D<double>(dz * std::cos(beta), dz * intermediate,
-                                        dz * std::sqrt(std::pow(std::sin(beta), 2)) - intermediate*intermediate);
+                                        dz * std::sqrt(1 - std::cos(beta) * std::cos(beta) - intermediate * intermediate ));
 
 
   Utils3D::Vec_t vertices[] = {a, a + b, a + b + c, a + c, Vector3D<double>(),
