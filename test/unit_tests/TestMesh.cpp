@@ -27,8 +27,6 @@
 #include "TPolyLine3D.h"
 #endif
 
-
-
 #ifdef VECGEOM_ROOT
 void DrawPolygon(vecgeom::Utils3D::Polygon const &poly, vecgeom::Visualizer &visualizer, size_t color)
 {
@@ -73,68 +71,58 @@ int main(int argc, char *argv[])
   using vecgeom::Utils3D::Polygon;
   using vecgeom::Utils3D::Polyhedron;
 
-
 #ifdef VECGEOM_ROOT
   OPTION_STRING(v, "noVolume");
   OPTION_BOOL(t, false);
 #endif
 
-
-
-VUnplacedVolume *unplacedvolume;
+  VUnplacedVolume *unplacedvolume;
 
 #ifdef VECGEOM_ROOT
 #define WORLDSIZE 6
 
-  if(!v.compare("noVolume")){
-	  std::cout << "\nUsage:\n"
-			  "./TestMesh -v [str] -t [bool]\n"
-			  "\n"
-			  "Available volumes: \"box\", \"parallelepiped\", \"sextruvolume\", \"tet\", \"trapezoid\", \"trd\".\nUse -t to apply a random transformation.\n"
-			  "\n"
-			  "\n"
-			  "";
-	  return 0;
-  }
-  else if(!v.compare("box")){
-	  unplacedvolume = GeoManager::MakeInstance<UnplacedBox>(3.,3.,3.);
-  }else if(!v.compare("parallelepiped")){
-	  unplacedvolume = GeoManager::MakeInstance<UnplacedParallelepiped>(2.,2.,3., 90., 90., 90.);
-  }else if(!v.compare("sextruvolume")){
-	  #define N 12
-	  double dx = 5;
-  	  double dy = 5;
-  	  double dz = 5;
+  if (!v.compare("noVolume")) {
+    std::cout << "\nUsage:\n"
+                 "./TestMesh -v [str] -t [bool]\n"
+                 "\n"
+                 "Available volumes: \"box\", \"parallelepiped\", \"sextruvolume\", \"tet\", \"trapezoid\", "
+                 "\"trd\".\nUse -t to apply a random transformation.\n"
+                 "\n"
+                 "\n"
+                 "";
+    return 0;
+  } else if (!v.compare("box")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedBox>(3., 3., 3.);
+  } else if (!v.compare("parallelepiped")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedParallelepiped>(2., 2., 3., 90., 90., 90.);
+  } else if (!v.compare("sextruvolume")) {
+#define N 12
+    double dx = 5;
+    double dy = 5;
+    double dz = 5;
 
-  	double x[N], y[N];
-  	  for (size_t i = 0; i < (size_t)N; ++i) {
-  	    x[i] = dx * std::sin(i * (2. * M_PI) / N);
-  	    y[i] = dy * std::cos(i * (2. * M_PI) / N);
-  	 }
-  	  unplacedvolume = GeoManager::MakeInstance<UnplacedSExtruVolume>(N,x,y,-4,4);
-  }else if(!v.compare("trapezoid")){
-	  unplacedvolume = GeoManager::MakeInstance<UnplacedTrapezoid>(5., 0.,
-              0., 3., 4.,
-              5., 0.,
-              3., 4., 5.,
-              0.);
-  }else if(!v.compare("trd")){
-	  unplacedvolume = GeoManager::MakeInstance<UnplacedTrd>(2.,3.,2.,5.);
-  }else if(!v.compare("tet")){
-	  Vec_t p0(0., 0., 5.), p1(-5., -5., -5.), p2(5., -5.,-5.), p3(-5., 5., -5.);
-	  unplacedvolume = GeoManager::MakeInstance<UnplacedTet>(p0,p1,p2,p3);
+    double x[N], y[N];
+    for (size_t i = 0; i < (size_t)N; ++i) {
+      x[i] = dx * std::sin(i * (2. * M_PI) / N);
+      y[i] = dy * std::cos(i * (2. * M_PI) / N);
+    }
+    unplacedvolume = GeoManager::MakeInstance<UnplacedSExtruVolume>(N, x, y, -4, 4);
+  } else if (!v.compare("trapezoid")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedTrapezoid>(5., 0., 0., 3., 4., 5., 0., 3., 4., 5., 0.);
+  } else if (!v.compare("trd")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedTrd>(2., 3., 2., 5.);
+  } else if (!v.compare("tet")) {
+    Vec_t p0(0., 0., 5.), p1(-5., -5., -5.), p2(5., -5., -5.), p3(-5., 5., -5.);
+    unplacedvolume = GeoManager::MakeInstance<UnplacedTet>(p0, p1, p2, p3);
   }
 
-
-Visualizer visualizer;
-SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
-visualizer.AddVolume(boxshape);
-DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), -1)->GetMesh(), visualizer, kBlue);
-visualizer.Show();
+  Visualizer visualizer;
+  SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
+  visualizer.AddVolume(boxshape);
+  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), -1)->GetMesh(), visualizer, kBlue);
+  visualizer.Show();
 
 #endif
-
-
 
   ///* Test box crossings */
 
@@ -163,9 +151,9 @@ visualizer.Show();
   const Polyhedron &ph_tetra = sm_tetrahedron->GetMesh();
 
 
-  	auto unplacedtrd = GeoManager::MakeInstance<UnplacedTrd>(1.,3.,2.,5.);
-  	SolidMesh* unplaced_trd_sm= unplacedtrd->CreateMesh3D();
-  	const Polyhedron &unplaced_trd_mesh = unplaced_trd_sm->GetMesh();
+    auto unplacedtrd = GeoManager::MakeInstance<UnplacedTrd>(1.,3.,2.,5.);
+    SolidMesh* unplaced_trd_sm= unplacedtrd->CreateMesh3D();
+    const Polyhedron &unplaced_trd_mesh = unplaced_trd_sm->GetMesh();
 
 
 
@@ -185,8 +173,8 @@ visualizer.Show();
     const Polyhedron  &p1 = s1->getMesh();
     const Polyhedron  &p2 = s2->getMesh();
     */
- // Utils3D::FillBoxPolyhedron(box1, polyh1);
- // Utils3D::FillBoxPolyhedron(box2, polyh2);
+  // Utils3D::FillBoxPolyhedron(box1, polyh1);
+  // Utils3D::FillBoxPolyhedron(box2, polyh2);
 
   // UnplacedParallelepiped up = UnplacedParallelepiped(5,5,5, 3.14 / 2, 3.14/2, 3.14/4);
   // SolidMesh *s3 = new SolidMesh();
@@ -196,11 +184,7 @@ visualizer.Show();
 
   // s.addPolyGonalMesh
 
-
-
-
-
-	/*
+  /*
 #ifdef VECGEOM_ROOT
 
   Visualizer visualizer;

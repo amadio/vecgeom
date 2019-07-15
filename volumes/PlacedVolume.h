@@ -65,7 +65,7 @@ private:
   static unsigned int g_id_count; ///< Static instance counter
 
 protected:
-  LogicalVolume const *logical_volume_;  ///< Pointer to positioned logical volume
+  LogicalVolume const *logical_volume_; ///< Pointer to positioned logical volume
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
   Transformation3D fTransformation; ///< The positioning transformation
 #else
@@ -175,9 +175,9 @@ public:
     return fTransformation;
 #endif
   }
-
-  SolidMesh *CreateMesh3D(size_t nFaces) const { return GetUnplacedVolume()-> CreateMesh3D(fTransformation, nFaces); }
-
+#ifndef VECCORE_CUDA
+  SolidMesh *CreateMesh3D(size_t nFaces) const { return GetUnplacedVolume()->CreateMesh3D(fTransformation, nFaces); }
+#endif
   /// Sets logical volume.
   VECCORE_ATT_HOST_DEVICE
   void SetLogicalVolume(LogicalVolume const *const logical_vol) { logical_volume_ = logical_vol; }
@@ -373,7 +373,8 @@ public:
    * the positioning of the shape due to the placement.
    */
   template <typename T>
-  VECGEOM_FORCE_INLINE T SafetyToIn(Vector3D<T> const &p) const
+  VECGEOM_FORCE_INLINE
+  T SafetyToIn(Vector3D<T> const &p) const
   {
     return SafetyToInVec(p);
   }

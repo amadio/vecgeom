@@ -12,9 +12,12 @@
 #include "base/Global.h"
 #include "base/Transformation3D.h"
 #include "base/SOA3D.h"
-#include "volumes/SolidMesh.h"
 #include <string>
 #include <ostream>
+
+#ifndef VECCORE_CUDA
+#include "volumes/SolidMesh.h"
+#endif
 
 namespace vecgeom {
 
@@ -332,7 +335,9 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const = 0;
 
+#ifndef VECCORE_CUDA
   virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const { return NULL; };
+#endif
 
   // Is not static because a virtual function must be called to initialize
   // specialized volume as the shape of the deriving class.

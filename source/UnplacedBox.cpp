@@ -5,11 +5,11 @@
 
 #include "base/Utils3D.h"
 #include <stdio.h>
-#include <volumes/SolidMesh.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+#ifndef VECCORE_CUDA
 SolidMesh *UnplacedBox::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
 {
   SolidMesh *sm = new SolidMesh();
@@ -24,6 +24,7 @@ SolidMesh *UnplacedBox::CreateMesh3D(Transformation3D const &trans, const size_t
 
   return sm;
 }
+#endif
 
 VECCORE_ATT_HOST_DEVICE
 void UnplacedBox::Print() const

@@ -128,6 +128,7 @@ void UnplacedTet::Print() const {}
 
 void UnplacedTet::Print(std::ostream &os) const {}
 
+#ifndef VECCORE_CUDA
 SolidMesh *UnplacedTet::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
 {
   SolidMesh *sm = new SolidMesh();
@@ -138,6 +139,7 @@ SolidMesh *UnplacedTet::CreateMesh3D(Transformation3D const &trans, const size_t
 
   return sm;
 }
+#endif
 
 #ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>

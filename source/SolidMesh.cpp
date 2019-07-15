@@ -1,7 +1,10 @@
+#ifndef VECCORE_CUDA
 #include "volumes/SolidMesh.h"
+
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
 
 void SolidMesh::InitConvexHexahedron()
 {
@@ -20,6 +23,7 @@ void SolidMesh::InitConvexHexahedron()
     fMesh.fPolys[i].Init();
 }
 
+
 void SolidMesh::InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, Vector3D<Precision> n2,
                                 Vector3D<Precision> n3)
 {
@@ -33,6 +37,7 @@ void SolidMesh::InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, 
   for (size_t i = 0; i < 4; ++i)
     fMesh.fPolys[i].Init();
 }
+
 
 void SolidMesh::InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex){
 
@@ -67,7 +72,7 @@ void SolidMesh::InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, boo
 
 
   //lateral surfaces
-for(int i = 2; i < nMeshPolygons - 1; i++){
+for(size_t i = 2; i < nMeshPolygons - 1; i++){
 	fMesh.fPolys[i].fInd = {2 * i - 2, 2* i - 4 , 2 * i - 3, 2 * i - 1};
 }
 fMesh.fPolys[nMeshPolygons - 1].fInd = {0,nMeshVertices - 2, nMeshVertices - 1, 1};
@@ -78,9 +83,11 @@ fMesh.fPolys[nMeshPolygons - 1].fInd = {0,nMeshVertices - 2, nMeshVertices - 1, 
 
 }
 
+
 void SolidMesh::ApplyTransformation(const Transformation3D & trans){
 	fMesh.Transform(trans);
 }
+
 
 void SolidMesh::TransformVertices(const Transformation3D& trans){
 	typedef Vector3D<double> Vec_t;
@@ -95,3 +102,4 @@ void SolidMesh::TransformVertices(const Transformation3D& trans){
 } // namespace VECGEOM_IMPL_NAMESPACE
 
 } // namespace vecgeom
+#endif

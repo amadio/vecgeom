@@ -167,8 +167,9 @@ public:
 
   virtual void Print(std::ostream &os) const final;
 
+#ifndef VECCORE_CUDA
   virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const override;
-
+#endif
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 

@@ -13,11 +13,12 @@
 #include "volumes/SpecializedParallelepiped.h"
 #include "volumes/utilities/GenerationUtilities.h"
 #include "base/RNG.h"
-#include <volumes/SolidMesh.h>
+
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+#ifndef VECCORE_CUDA
 SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
 {
   SolidMesh *sm = new SolidMesh();
@@ -54,6 +55,7 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, c
   sm->InitConvexHexahedron();
   return sm;
 }
+#endif
 
 //______________________________________________________________________________
 void UnplacedParallelepiped::Print() const

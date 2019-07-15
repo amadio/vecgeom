@@ -3,7 +3,6 @@
 #include "volumes/SpecializedSExtru.h"
 #include "base/RNG.h"
 #include <stdio.h>
-#include "volumes/SolidMesh.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -19,43 +18,39 @@ void UnplacedSExtruVolume::Print(std::ostream &os) const
   os << "UnplacedSExtruVolume";
 }
 
-SolidMesh* UnplacedSExtruVolume::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const{
-	const PlanarPolygon &polygon = fPolyShell.GetPolygon();
-	const double lowerZ = fPolyShell.GetLowerZ();
-	const double upperZ = fPolyShell.GetUpperZ();
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedSExtruVolume::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+  const PlanarPolygon &polygon = fPolyShell.GetPolygon();
+  const double lowerZ          = fPolyShell.GetLowerZ();
+  const double upperZ          = fPolyShell.GetUpperZ();
 
-	 const double * verticesX = polygon.GetVertices().x();
-	 const double * verticesY = polygon.GetVertices().y();
-	size_t nVertices = polygon.GetVertices().size();
+  const double *verticesX = polygon.GetVertices().x();
+  const double *verticesY = polygon.GetVertices().y();
+  size_t nVertices        = polygon.GetVertices().size();
 
-	size_t nMeshVertices = nVertices * 2;
-	size_t nMeshPolygons = 2 + nVertices;
+  size_t nMeshVertices = nVertices * 2;
+  size_t nMeshPolygons = 2 + nVertices;
 
+  SolidMesh *sm = new SolidMesh();
+  sm->ResetMesh(nMeshVertices, nMeshPolygons);
 
-	SolidMesh *sm = new SolidMesh();
-	sm->ResetMesh(nMeshVertices, nMeshPolygons);
+  typedef Vector3D<double> Vec_t;
+  Vec_t *const vertices = new Vec_t[nMeshVertices];
+  for (size_t i = 0; i < nVertices; i++) {
+    vertices[2 * i]     = Vec_t(verticesX[i], verticesY[i], lowerZ); // even indices hold lower vertices
+    vertices[2 * i + 1] = Vec_t(verticesX[i], verticesY[i], upperZ); // odd indices hold upper vertices
+  }
 
-	typedef Vector3D<double> Vec_t;
-	Vec_t * const vertices = new Vec_t[nMeshVertices];
-	for(size_t i = 0; i < nVertices; i++){
-		vertices[2 *i] = Vec_t(verticesX[i], verticesY[i], lowerZ); // even indices hold lower vertices
-		vertices[2 * i + 1] = Vec_t(verticesX[i], verticesY[i], upperZ); //odd indices hold upper vertices
-	}
+  sm->SetVertices(vertices, nMeshVertices);
+  delete[] vertices;
 
-	sm->SetVertices(vertices, nMeshVertices);
-	delete[] vertices;
+  sm->TransformVertices(trans);
+  sm->InitSExtruVolume(nMeshVertices, nMeshPolygons, polygon.IsConvex());
 
-
-	sm->TransformVertices(trans);
-	sm->InitSExtruVolume(nMeshVertices, nMeshPolygons, polygon.IsConvex());
-
-	return sm;
-
-
-
-
-
+  return sm;
 }
+#endif
 
 #ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>

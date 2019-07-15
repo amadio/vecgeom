@@ -3,16 +3,17 @@
 
 #include "base/Utils3D.h"
 
-//#include <cmath>
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class SolidMesh {
 private:
+#ifndef VECCORE_CUDA
   Utils3D::Polyhedron fMesh;
+#endif
 
 public:
+#ifndef VECCORE_CUDA
   Utils3D::Polyhedron const &GetMesh() { return fMesh; }
   Utils3D::vector_t<Utils3D::Vec_t> const &GetVertices() { return fMesh.fVert; }
   Utils3D::vector_t<Utils3D::Polygon> const &GetPolygons() { return fMesh.fPolys; }
@@ -24,6 +25,7 @@ public:
   void InitConvexHexahedron();
   void InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, Vector3D<Precision> n2, Vector3D<Precision> n3);
   void InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex);
+#endif
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

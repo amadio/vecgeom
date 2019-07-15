@@ -512,12 +512,12 @@ void UnplacedTrapezoid::fromCornersToParameters(TrapCorners const pt)
   fGlobalConvexity = true;
 }
 
+#ifndef VECCORE_CUDA
 SolidMesh *UnplacedTrapezoid::CreateMesh3D(Transformation3D const &trans, size_t nFaces) const
 {
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(8, 6);
   TrapCorners pts;
-
 
   FromParametersToCorners(pts);
   // fix the orientation of the points to fit the init function
@@ -535,6 +535,7 @@ SolidMesh *UnplacedTrapezoid::CreateMesh3D(Transformation3D const &trans, size_t
   sm->InitConvexHexahedron();
   return sm;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //

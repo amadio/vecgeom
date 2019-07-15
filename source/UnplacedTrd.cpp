@@ -95,7 +95,9 @@ void UnplacedTrd::Print(std::ostream &os) const
   os << "UnplacedTrd {" << dx1() << ", " << dx2() << ", " << dy1() << ", " << dy2() << ", " << dz();
 }
 
-SolidMesh* UnplacedTrd::CreateMesh3D(Transformation3D const &trans, size_t nFaces) const{
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedTrd::CreateMesh3D(Transformation3D const &trans, size_t nFaces) const
+{
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(8, 6);
 
@@ -110,14 +112,15 @@ SolidMesh* UnplacedTrd::CreateMesh3D(Transformation3D const &trans, size_t nFace
   double z = fTrd.fDZ;
 
   typedef Vector3D<double> Vec_t;
-  const Vec_t vertices[] = {Vec_t(-x1, -y1, -z), Vec_t(-x1, y1, -z), Vec_t(x1, y1, -z), Vec_t(x1, -y1, -z), Vec_t(-x2, -y2, z)
-  , Vec_t(-x2, y2, z),Vec_t(x2, y2, z), Vec_t(x2, -y2, z)};
+  const Vec_t vertices[] = {Vec_t(-x1, -y1, -z), Vec_t(-x1, y1, -z), Vec_t(x1, y1, -z), Vec_t(x1, -y1, -z),
+                            Vec_t(-x2, -y2, z),  Vec_t(-x2, y2, z),  Vec_t(x2, y2, z),  Vec_t(x2, -y2, z)};
 
   sm->SetVertices(vertices, 8);
   sm->TransformVertices(trans);
   sm->InitConvexHexahedron();
   return sm;
 }
+#endif
 
 Precision UnplacedTrd::Capacity() const
 {
