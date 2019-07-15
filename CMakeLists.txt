@@ -782,6 +782,7 @@ set(NOT_FOR_CUDA
    Tile
    UnplacedExtruded
    PlacedExtruded
+   SolidMesh
 )
 
 
