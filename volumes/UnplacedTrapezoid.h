@@ -382,7 +382,7 @@ public:
 private:
   /// \brief Calculate the 8 corner points using pre-stored parameters, then use corners to build planes
   VECCORE_ATT_HOST_DEVICE
-  void fromParametersToCorners(TrapCorners pt) const;
+  void FromParametersToCorners(TrapCorners pt) const;
 
   // \brief Determine corner points using intersections of the pre-calculated planes
   VECCORE_ATT_HOST_DEVICE

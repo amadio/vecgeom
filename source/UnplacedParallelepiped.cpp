@@ -36,12 +36,16 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D() const
   Vector3D<double> a = Vector3D<double>(dx, 0, 0);
   Vector3D<double> b = Vector3D<double>(dy * std::cos(gamma), dy * std::sin(gamma), 0);
   Vector3D<double> c = Vector3D<double>(dz * std::cos(beta), dz * intermediate,
-                                        dz * std::sqrt(std::pow(std::sin(beta), 2)) - std::pow(intermediate, 2));
+                                        dz * std::sqrt(std::pow(std::sin(beta), 2)) - intermediate*intermediate);
 
-  double o = (a + b + c) / 2;
-  // subtract o to move the origin to center
-  const Utils3D::Vec_t vertices[] = {a - o, a + b - o, a + b + c - o, a + c - o, Vector3D<double>() - o,
-                                     b - o, b + c - o, c - o};
+
+  Utils3D::Vec_t vertices[] = {a, a + b, a + b + c, a + c, Vector3D<double>(),
+                                     b, b + c, c};
+  // subtract to move the origin to center
+  double origin = (a + b + c) / 2;
+  for(auto & vertex: vertices){
+	  vertex -= origin;
+  }
 
   sm->SetVertices(vertices, 8);
   sm->InitConvexHexahedron();

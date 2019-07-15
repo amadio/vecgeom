@@ -434,7 +434,7 @@ void UnplacedTrapezoid::Print(std::ostream &os) const
 }
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedTrapezoid::fromParametersToCorners(TrapCorners pt) const
+void UnplacedTrapezoid::FromParametersToCorners(TrapCorners pt) const
 {
   const TrapezoidStruct<double> &t = fTrap;
 
@@ -519,7 +519,7 @@ SolidMesh *UnplacedTrapezoid::CreateMesh3D() const
   TrapCorners pts;
 
   // god bless who implemented this
-  fromParametersToCorners(pts);
+  FromParametersToCorners(pts);
   // fix the orientation of the points to fit the init function
   std::swap(pts[2], pts[3]);
   std::swap(pts[7], pts[6]);
@@ -599,7 +599,7 @@ VECCORE_ATT_HOST_DEVICE
 bool UnplacedTrapezoid::MakePlanes()
 {
   TrapCorners pt;
-  fromParametersToCorners(pt);
+  FromParametersToCorners(pt);
   return MakePlanes(pt);
 }
 
