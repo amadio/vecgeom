@@ -128,12 +128,13 @@ void UnplacedTet::Print() const {}
 
 void UnplacedTet::Print(std::ostream &os) const {}
 
-SolidMesh *UnplacedTet::CreateMesh3D() const
+SolidMesh *UnplacedTet::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
 {
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(4, 4);
   sm->SetVertices(fTet.fVertex, 4);
   sm->InitTetrahedron(fTet.fPlane[0].n, fTet.fPlane[1].n, fTet.fPlane[2].n, fTet.fPlane[3].n);
+  sm->ApplyTransformation(trans);
 
   return sm;
 }

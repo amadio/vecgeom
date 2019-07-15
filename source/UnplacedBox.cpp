@@ -10,7 +10,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-SolidMesh *UnplacedBox::CreateMesh3D() const
+SolidMesh *UnplacedBox::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
 {
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(8, 6);
@@ -19,6 +19,7 @@ SolidMesh *UnplacedBox::CreateMesh3D() const
                                      {box[0], -box[1], -box[2]},  {-box[0], -box[1], box[2]}, {-box[0], box[1], box[2]},
                                      {box[0], box[1], box[2]},    {box[0], -box[1], box[2]}};
   sm->SetVertices(vertices, 8);
+  sm->TransformVertices(trans);
   sm->InitConvexHexahedron();
 
   return sm;

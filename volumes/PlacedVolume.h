@@ -176,6 +176,8 @@ public:
 #endif
   }
 
+  SolidMesh *CreateMesh3D(size_t nFaces) const { return GetUnplacedVolume()-> CreateMesh3D(fTransformation, nFaces); }
+
   /// Sets logical volume.
   VECCORE_ATT_HOST_DEVICE
   void SetLogicalVolume(LogicalVolume const *const logical_vol) { logical_volume_ = logical_vol; }

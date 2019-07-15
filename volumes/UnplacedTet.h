@@ -113,7 +113,7 @@ public:
 
   virtual void Print(std::ostream &os) const override;
 
-  virtual SolidMesh *CreateMesh3D() const override;
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const override;
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedTet>::SizeOf(); }

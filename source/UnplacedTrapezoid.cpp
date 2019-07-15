@@ -512,19 +512,26 @@ void UnplacedTrapezoid::fromCornersToParameters(TrapCorners const pt)
   fGlobalConvexity = true;
 }
 
-SolidMesh *UnplacedTrapezoid::CreateMesh3D() const
+SolidMesh *UnplacedTrapezoid::CreateMesh3D(Transformation3D const &trans, size_t nFaces) const
 {
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(8, 6);
   TrapCorners pts;
 
-  // god bless who implemented this
+
   FromParametersToCorners(pts);
   // fix the orientation of the points to fit the init function
   std::swap(pts[2], pts[3]);
   std::swap(pts[7], pts[6]);
 
+  std::swap(pts[1], pts[2]);
+  std::swap(pts[0], pts[3]);
+
+  std::swap(pts[4], pts[7]);
+  std::swap(pts[5], pts[6]);
+
   sm->SetVertices(pts, 8);
+  sm->TransformVertices(trans);
   sm->InitConvexHexahedron();
   return sm;
 }

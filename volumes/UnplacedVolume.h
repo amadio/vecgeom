@@ -332,7 +332,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const = 0;
 
-  virtual SolidMesh *CreateMesh3D() const { return NULL; };
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const { return NULL; };
 
   // Is not static because a virtual function must be called to initialize
   // specialized volume as the shape of the deriving class.

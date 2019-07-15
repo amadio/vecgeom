@@ -95,6 +95,30 @@ void UnplacedTrd::Print(std::ostream &os) const
   os << "UnplacedTrd {" << dx1() << ", " << dx2() << ", " << dy1() << ", " << dy2() << ", " << dz();
 }
 
+SolidMesh* UnplacedTrd::CreateMesh3D(Transformation3D const &trans, size_t nFaces) const{
+  SolidMesh *sm = new SolidMesh();
+  sm->ResetMesh(8, 6);
+
+  //-z
+  double x1 = fTrd.fDX1;
+  double y1 = fTrd.fDY1;
+
+  //+z
+  double x2 = fTrd.fDX2;
+  double y2 = fTrd.fDY2;
+
+  double z = fTrd.fDZ;
+
+  typedef Vector3D<double> Vec_t;
+  const Vec_t vertices[] = {Vec_t(-x1, -y1, -z), Vec_t(-x1, y1, -z), Vec_t(x1, y1, -z), Vec_t(x1, -y1, -z), Vec_t(-x2, -y2, z)
+  , Vec_t(-x2, y2, z),Vec_t(x2, y2, z), Vec_t(x2, -y2, z)};
+
+  sm->SetVertices(vertices, 8);
+  sm->TransformVertices(trans);
+  sm->InitConvexHexahedron();
+  return sm;
+}
+
 Precision UnplacedTrd::Capacity() const
 {
   return 2 * (fTrd.fDX1 + fTrd.fDX2) * (fTrd.fDY1 + fTrd.fDY2) * fTrd.fDZ +

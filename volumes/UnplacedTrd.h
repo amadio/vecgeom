@@ -249,6 +249,8 @@ public:
 
   virtual void Print(std::ostream &os) const final;
 
+  virtual SolidMesh* CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const override;
+
   /// Get the solid type as string
   /// @return Name of the solid type
   std::string GetEntityType() const { return "Trd"; }

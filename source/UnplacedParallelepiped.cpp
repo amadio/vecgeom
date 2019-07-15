@@ -18,7 +18,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-SolidMesh *UnplacedParallelepiped::CreateMesh3D() const
+SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
 {
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(8, 6);
@@ -39,15 +39,18 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D() const
                                         dz * std::sqrt(1 - std::cos(beta) * std::cos(beta) - intermediate * intermediate ));
 
 
+
   Utils3D::Vec_t vertices[] = {a, a + b, a + b + c, a + c, Vector3D<double>(),
                                      b, b + c, c};
+
   // subtract to move the origin to center
   double origin = (a + b + c) / 2;
-  for(auto & vertex: vertices){
+  for(auto & vertex: vertices)
 	  vertex -= origin;
-  }
+
 
   sm->SetVertices(vertices, 8);
+  sm->TransformVertices(trans);
   sm->InitConvexHexahedron();
   return sm;
 }
