@@ -1,4 +1,3 @@
-#ifndef VECCORE_CUDA
 #include "volumes/SolidMesh.h"
 
 
@@ -102,4 +101,3 @@ void SolidMesh::TransformVertices(const Transformation3D& trans){
 } // namespace VECGEOM_IMPL_NAMESPACE
 
 } // namespace vecgeom
-#endif
