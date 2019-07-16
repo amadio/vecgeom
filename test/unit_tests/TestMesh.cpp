@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
 #ifdef VECGEOM_ROOT
   OPTION_STRING(v, "noVolume");
-  OPTION_BOOL(t, false);
+  //OPTION_BOOL(t, false);
 #endif
 
   VUnplacedVolume *unplacedvolume;
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
       x[i] = dx * std::sin(i * (2. * M_PI) / N);
       y[i] = dy * std::cos(i * (2. * M_PI) / N);
     }
-    unplacedvolume = GeoManager::MakeInstance<UnplacedSExtruVolume>(N, x, y, -4, 4);
+    unplacedvolume = GeoManager::MakeInstance<UnplacedSExtruVolume>(N, x, y, -dz, dz);
   } else if (!v.compare("trapezoid")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedTrapezoid>(5., 0., 0., 3., 4., 5., 0., 3., 4., 5., 0.);
   } else if (!v.compare("trd")) {
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
   Utils3D::vector_t<Utils3D::Line> lines;
   //DrawPolyhedron(polyhedron, visualizer, kBlue);
   // DrawPolyhedron(polyh2, visualizer, kGreen);
-  /*
+
   if (PolyhedronXing(polyh1, polyh2, lines) == Utils3D::kOverlapping) {
     TPolyLine3D pl(2);
     pl.SetLineColor(kRed);
