@@ -231,7 +231,6 @@ SolidMesh *UnplacedEllipticalCone::CreateMesh3D(Transformation3D const &trans, c
 
     Utils3D::vector_t<size_t> indices;
     indices.reserve(nMeshVertices / 2);
-    indices.clear();
 
     // upper surface
     for (size_t i = 0; i < nMeshVertices; i += 2) {
