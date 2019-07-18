@@ -17,11 +17,15 @@ public:
   void SetPolygons(const Utils3D::Polygon polys[], size_t count) { fMesh.fPolys.assign(polys, polys + count); }
   void SetVertices(const Utils3D::Vec_t vertices[], size_t count) { fMesh.fVert.assign(vertices, vertices + count); }
   void ResetMesh(size_t nvert, size_t nPoly) { fMesh.Reset(nvert, nPoly); }
-  void ApplyTransformation(const Transformation3D & trans);
-  void TransformVertices(const Transformation3D & trans);
+  void AddBatchPolygons(size_t n, size_t N, bool convex);
+  void AddBatchPolygons(size_t n, size_t N, Utils3D::Vec_t const &normal);
+  void SetPolygonIndices(size_t i, const Utils3D::vector_t<size_t> &indices);
+  void ApplyTransformation(const Transformation3D &trans);
+  void TransformVertices(const Transformation3D &trans);
   void InitConvexHexahedron();
   void InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, Vector3D<Precision> n2, Vector3D<Precision> n3);
   void InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex);
+  void InitPolygons();
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

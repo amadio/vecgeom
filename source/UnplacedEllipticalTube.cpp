@@ -139,6 +139,66 @@ void UnplacedEllipticalTube::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
+SolidMesh *UnplacedEllipticalTube::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+  size_t nMeshVertices = (nFaces - 2) * 2;
+
+  double a = GetDx();
+  double b = GetDy();
+  double c = GetDz();
+
+  SolidMesh *sm = new SolidMesh();
+  sm->ResetMesh(nMeshVertices, nFaces);
+
+  typedef Vector3D<double> Vec_t;
+  Vec_t *const vertices = new Vec_t[nMeshVertices];
+  for (size_t i = 0; i < nMeshVertices; i += 2) {
+    vertices[i]     = Vec_t(a * std::cos(i * 2 * M_PI / nMeshVertices), b * std::sin(i * 2 * M_PI / nMeshVertices),
+                        -c); // even indices hold lower vertices
+    vertices[i + 1] = Vec_t(a * std::cos(i * 2 * M_PI / nMeshVertices), b * std::sin(i * 2 * M_PI / nMeshVertices),
+                            c); // odd indices hold upper vertices
+  }
+  sm->SetVertices(vertices, nMeshVertices);
+  delete[] vertices;
+
+  sm->TransformVertices(trans);
+
+  sm->AddBatchPolygons(nMeshVertices / 2, 1, true);
+  sm->AddBatchPolygons(nMeshVertices / 2, 1, true);
+  sm->AddBatchPolygons(4, nFaces - 2, true);
+
+  Utils3D::vector_t<size_t> indices;
+  indices.reserve(nMeshVertices / 2);
+  indices.clear();
+
+  // lower surface
+  for (size_t i = nMeshVertices; i > 0; i -= 2) {
+    indices.push_back(i - 2);
+  }
+
+  sm->SetPolygonIndices(0, indices);
+  indices.clear();
+
+  // upper surface
+  for (size_t i = 0; i < nMeshVertices; i += 2) {
+    indices.push_back(i + 1);
+  }
+
+  sm->SetPolygonIndices(1, indices);
+
+  // lateral surfaces
+  for (size_t i = 2; i < nFaces - 1; i++) {
+    sm->SetPolygonIndices(i, {2 * i - 1, 2 * i - 3, 2 * i - 4, 2 * i - 2});
+  }
+
+  sm->SetPolygonIndices(nFaces - 1, {1, nMeshVertices - 1, nMeshVertices - 2, 0});
+  sm->InitPolygons();
+
+  return sm;
+}
+#endif
+
+#ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedEllipticalTube::Create(LogicalVolume const *const logical_volume,
                                               Transformation3D const *const transformation,

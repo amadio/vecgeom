@@ -197,6 +197,111 @@ void UnplacedEllipticalCone::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
+SolidMesh *UnplacedEllipticalCone::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+
+  double a       = GetSemiAxisX();
+  double b       = GetSemiAxisY();
+  double h       = GetZMax();
+  double zTopCut = GetZTopCut();
+  SolidMesh *sm  = new SolidMesh();
+  typedef Vector3D<double> Vec_t;
+
+  if (zTopCut != h) {
+    size_t nMeshVertices = (nFaces - 2) * 2;
+    sm->ResetMesh(nMeshVertices, nFaces);
+
+    Vec_t *const vertices = new Vec_t[nMeshVertices];
+    for (size_t i = 0; i < nMeshVertices; i += 2) {
+      vertices[i + 1] =
+          Vec_t((h + zTopCut) * a * std::cos(i * 2 * M_PI / nMeshVertices),
+                (h + zTopCut) * std::sin(i * 2 * M_PI / nMeshVertices), -zTopCut); // odd indices hold lower vertices
+      vertices[i] = Vec_t((h - zTopCut) * a * std::cos(i * 2 * M_PI / nMeshVertices),
+                          (h - zTopCut) * b * std::sin(i * 2 * M_PI / nMeshVertices),
+                          zTopCut); // even indices hold upper vertices
+    }
+    sm->SetVertices(vertices, nMeshVertices);
+    delete[] vertices;
+
+    sm->TransformVertices(trans);
+
+    sm->AddBatchPolygons(nMeshVertices / 2, 1, true);
+    sm->AddBatchPolygons(nMeshVertices / 2, 1, true);
+    sm->AddBatchPolygons(4, nFaces - 2, true);
+
+    Utils3D::vector_t<size_t> indices;
+    indices.reserve(nMeshVertices / 2);
+    indices.clear();
+
+    // upper surface
+    for (size_t i = 0; i < nMeshVertices; i += 2) {
+      indices.push_back(i);
+    }
+
+    sm->SetPolygonIndices(0, indices);
+    indices.clear();
+
+    // lower surface
+    for (size_t i = nMeshVertices; i > 0; i -= 2) {
+      indices.push_back(i - 1);
+    }
+
+    sm->SetPolygonIndices(1, indices);
+
+    // lateral surfaces
+    for (size_t i = 2; i < nFaces - 1; i++) {
+      sm->SetPolygonIndices(i, {2 * i - 3, 2 * i - 1, 2 * i - 2, 2 * i - 4});
+    }
+
+    sm->SetPolygonIndices(nFaces - 1, {nMeshVertices - 1, 1, 0, nMeshVertices - 2});
+    sm->InitPolygons();
+
+  } else {
+    size_t nMeshVertices = nFaces;
+    sm->ResetMesh(nMeshVertices, nFaces);
+
+    Vec_t *const vertices = new Vec_t[nMeshVertices];
+
+    for (size_t i = 0; i < nMeshVertices - 1; i++) {
+      vertices[i] = Vec_t((2 * h) * a * std::cos(i * 2 * M_PI / (nMeshVertices - 1)),
+                          (2 * h) * b * std::sin(i * 2 * M_PI / (nMeshVertices - 1)), -h);
+    }
+    vertices[nMeshVertices - 1] = Vec_t(0, 0, h);
+
+    sm->SetVertices(vertices, nMeshVertices);
+    delete[] vertices;
+
+    sm->TransformVertices(trans);
+
+    sm->AddBatchPolygons(nMeshVertices - 1, 1, true);
+    sm->AddBatchPolygons(3, nFaces - 1, true);
+
+    Utils3D::vector_t<size_t> indices;
+    indices.reserve(nMeshVertices - 1);
+    indices.clear();
+
+    // lower surface
+    for (size_t i = nMeshVertices - 1; i > 0; i--) {
+      indices.push_back(i - 1);
+    }
+
+    sm->SetPolygonIndices(0, indices);
+
+    // lateral surfaces
+
+    for (size_t i = 0; i < nFaces - 1; i++) {
+      sm->SetPolygonIndices(i + 1, {i, i + 1, nMeshVertices - 1});
+    }
+
+    sm->SetPolygonIndices(nFaces - 1, {nMeshVertices - 2, 0, nMeshVertices - 1});
+    sm->InitPolygons();
+  }
+
+  return sm;
+}
+#endif
+
+#ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedEllipticalCone::Create(LogicalVolume const *const logical_volume,
                                               Transformation3D const *const transformation,

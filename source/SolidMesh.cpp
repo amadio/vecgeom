@@ -1,9 +1,8 @@
 #include "volumes/SolidMesh.h"
 
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
-
+typedef Utils3D::Polygon Polygon;
 
 void SolidMesh::InitConvexHexahedron()
 {
@@ -22,7 +21,6 @@ void SolidMesh::InitConvexHexahedron()
     fMesh.fPolys[i].Init();
 }
 
-
 void SolidMesh::InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, Vector3D<Precision> n2,
                                 Vector3D<Precision> n3)
 {
@@ -37,65 +35,78 @@ void SolidMesh::InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, 
     fMesh.fPolys[i].Init();
 }
 
-
-void SolidMesh::InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex){
+void SolidMesh::InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex)
+{
 
   size_t nTopVertices = nMeshVertices / 2;
-  fMesh.fPolys.push_back({nTopVertices,fMesh.fVert, convex});
-  fMesh.fPolys.push_back({nTopVertices,fMesh.fVert, convex});
+  fMesh.fPolys.push_back({nTopVertices, fMesh.fVert, convex});
+  fMesh.fPolys.push_back({nTopVertices, fMesh.fVert, convex});
 
-
-  //lateral surfaces
-  for(size_t i = 2; i < nMeshPolygons; i++){
-	  fMesh.fPolys.push_back({4, fMesh.fVert, true});
+  // lateral surfaces
+  for (size_t i = 2; i < nMeshPolygons; i++) {
+    fMesh.fPolys.push_back({4, fMesh.fVert, true});
   }
 
-  fMesh.fPolys[0].fInd.reserve(nTopVertices);
-  fMesh.fPolys[0].fInd.clear();
-
-  fMesh.fPolys[1].fInd.reserve(nTopVertices);
-  fMesh.fPolys[1].fInd.clear();
-
-
-
-  //lower surface
-  for(size_t i = 0; i < nTopVertices; i++){
-	  fMesh.fPolys[0].fInd.push_back(2 * i);
+  // lower surface
+  for (size_t i = 0; i < nTopVertices; i++) {
+    fMesh.fPolys[0].fInd[i] = (2 * i);
   }
 
-  //upper surface
-  for(size_t i = nTopVertices; i > 0; i--){
-  	  fMesh.fPolys[1].fInd.push_back( 2 * i - 1);
-
+  // upper surface
+  for (size_t i = 0; i < nTopVertices; i++) {
+    fMesh.fPolys[1].fInd[nTopVertices - i - 1] = (2 * i + 1);
   }
 
-
-  //lateral surfaces
-for(size_t i = 2; i < nMeshPolygons - 1; i++){
-	fMesh.fPolys[i].fInd = {2 * i - 2, 2* i - 4 , 2 * i - 3, 2 * i - 1};
-}
-fMesh.fPolys[nMeshPolygons - 1].fInd = {0,nMeshVertices - 2, nMeshVertices - 1, 1};
-
+  // lateral surfaces
+  for (size_t i = 2; i < nMeshPolygons - 1; i++) {
+    fMesh.fPolys[i].fInd = {2 * i - 2, 2 * i - 4, 2 * i - 3, 2 * i - 1};
+  }
+  fMesh.fPolys[nMeshPolygons - 1].fInd = {0, nMeshVertices - 2, nMeshVertices - 1, 1};
 
   for (size_t i = 0; i < nMeshPolygons; ++i)
-     fMesh.fPolys[i].Init();
-
+    fMesh.fPolys[i].Init();
 }
 
-
-void SolidMesh::ApplyTransformation(const Transformation3D & trans){
-	fMesh.Transform(trans);
+void SolidMesh::ApplyTransformation(const Transformation3D &trans)
+{
+  fMesh.Transform(trans);
 }
 
+void SolidMesh::TransformVertices(const Transformation3D &trans)
+{
+  typedef Vector3D<double> Vec_t;
+  // Transform vertices
+  for (size_t i = 0; i < fMesh.fVert.size(); ++i) {
+    Vec_t temp;
+    trans.InverseTransform(fMesh.fVert[i], temp);
+    fMesh.fVert[i] = temp;
+  }
+}
 
-void SolidMesh::TransformVertices(const Transformation3D& trans){
-	typedef Vector3D<double> Vec_t;
-	  // Transform vertices
-	  for (size_t i = 0; i < fMesh.fVert.size(); ++i) {
-	    Vec_t temp;
-	    trans.InverseTransform(fMesh.fVert[i], temp);
-	    fMesh.fVert[i] = temp;
-	  }
+void SolidMesh::AddBatchPolygons(size_t n, size_t N, bool convex)
+{
+
+  for (size_t i = 0; i < N; i++) {
+    fMesh.fPolys.push_back({n, fMesh.fVert, convex});
+  }
+}
+
+void SolidMesh::AddBatchPolygons(size_t n, size_t N, Utils3D::Vec_t const &normal)
+{
+  for (size_t i = 0; i < N; i++) {
+    fMesh.fPolys.push_back({n, fMesh.fVert, normal});
+  }
+}
+
+void SolidMesh::SetPolygonIndices(size_t i, const Utils3D::vector_t<size_t> &indices)
+{
+  fMesh.fPolys[i].fInd = indices;
+}
+
+void SolidMesh::InitPolygons()
+{
+  for (size_t i = 0; i < fMesh.fPolys.size(); ++i)
+    fMesh.fPolys[i].Init();
 }
 
 } // namespace VECGEOM_IMPL_NAMESPACE
