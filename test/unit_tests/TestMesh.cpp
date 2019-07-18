@@ -1,6 +1,6 @@
 ///
-/// file:    TestUtils3D.cpp
-/// purpose: Unit tests for the 3D geometry utilities
+/// file:    TestMesh.cpp
+/// purpose: Unit tests for the meshes of 3D models.
 ///
 
 //-- ensure asserts are compiled in
@@ -20,6 +20,8 @@
 #include "volumes/UnplacedTrd.h"
 #include "management/GeoManager.h"
 #include "volumes/UnplacedSExtruVolume.h"
+#include "volumes/UnplacedEllipticalTube.h"
+#include "volumes/UnplacedEllipticalCone.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -76,10 +78,10 @@ int main(int argc, char *argv[])
   //OPTION_BOOL(t, false);
 #endif
 
-  VUnplacedVolume *unplacedvolume;
+  VUnplacedVolume *unplacedvolume = nullptr;
 
 #ifdef VECGEOM_ROOT
-#define WORLDSIZE 6
+#define WORLDSIZE 10
 
   if (!v.compare("noVolume")) {
     std::cout << "\nUsage:\n"
@@ -96,10 +98,10 @@ int main(int argc, char *argv[])
   } else if (!v.compare("parallelepiped")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedParallelepiped>(2., 2., 3., 90., 90., 90.);
   } else if (!v.compare("sextruvolume")) {
-#define N 12
+#define N 10
     double dx = 5;
     double dy = 5;
-    double dz = 5;
+    double dz = 3;
 
     double x[N], y[N];
     for (size_t i = 0; i < (size_t)N; ++i) {
@@ -114,99 +116,20 @@ int main(int argc, char *argv[])
   } else if (!v.compare("tet")) {
     Vec_t p0(0., 0., 5.), p1(-5., -5., -5.), p2(5., -5., -5.), p3(-5., 5., -5.);
     unplacedvolume = GeoManager::MakeInstance<UnplacedTet>(p0, p1, p2, p3);
+  }else if(!v.compare("ellipticaltube")){
+	unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalTube>(2,4,5);
+  }else if(!v.compare("ellipticalcone")){
+	  unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalCone>(1., 1., 5., 3.);
   }
 
   Visualizer visualizer;
   SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
   visualizer.AddVolume(boxshape);
-  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), -1)->GetMesh(), visualizer, kBlue);
+  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 100)->GetMesh(), visualizer, kBlue);
   visualizer.Show();
 
 #endif
 
-  ///* Test box crossings */
-
-  /*
-  Vec_t box1(1., 2., 3.);
-  Vec_t box2(1., 1., 1.);
-  Polyhedron polyh1, polyh2;
-
-  UnplacedBox a1 = UnplacedBox(box1);
-  UnplacedBox a2 = UnplacedBox(box2);
-
-  SolidMesh *sm1       = a1.CreateMesh3D();
-  const Polyhedron &p = sm1->GetMesh();
-
-  UnplacedParallelepiped up = UnplacedParallelepiped(1, 2, 3, 3.14 / 2, 3.14 / 2, 3.14 / 4);
-  SolidMesh *smup           = up.CreateMesh3D();
-  const Polyhedron &pup     = smup->GetMesh();
-
-  UnplacedTrapezoid ut  = UnplacedTrapezoid(1., 2., 3., 4.);
-  SolidMesh *stup       = ut.CreateMesh3D();
-  const Polyhedron &put = stup->GetMesh();
-
-  Vec_t p0(0., 0., 5.), p1(0., 0., 0.), p2(5., 0., 0.), p3(0., 5., 0.);
-  UnplacedTet tetrahedron = UnplacedTet(p0, p1, p2, p3);
-  SolidMesh * sm_tetrahedron = tetrahedron.CreateMesh3D();
-  const Polyhedron &ph_tetra = sm_tetrahedron->GetMesh();
-
-
-    auto unplacedtrd = GeoManager::MakeInstance<UnplacedTrd>(1.,3.,2.,5.);
-    SolidMesh* unplaced_trd_sm= unplacedtrd->CreateMesh3D();
-    const Polyhedron &unplaced_trd_mesh = unplaced_trd_sm->GetMesh();
-
-
-
-
-
-
-
-
-
-*/
-
-  /*
-
-    SolidMesh *s1 = a1.CreateSolidMesh3D();
-    SolidMesh *s2 = a2.CreateSolidMesh3D();
-
-    const Polyhedron  &p1 = s1->getMesh();
-    const Polyhedron  &p2 = s2->getMesh();
-    */
-  // Utils3D::FillBoxPolyhedron(box1, polyh1);
-  // Utils3D::FillBoxPolyhedron(box2, polyh2);
-
-  // UnplacedParallelepiped up = UnplacedParallelepiped(5,5,5, 3.14 / 2, 3.14/2, 3.14/4);
-  // SolidMesh *s3 = new SolidMesh();
-  // s3->createMeshFromParallelepiped(up.GetStruct());
-
-  // Polyhedron &p3 = s3->getMesh();
-
-  // s.addPolyGonalMesh
-
-  /*
-#ifdef VECGEOM_ROOT
-
-  Visualizer visualizer;
-  SimpleBox boxshape("box", 17, 17, 17);
-  visualizer.AddVolume(boxshape);
-  Utils3D::vector_t<Utils3D::Line> lines;
-  //DrawPolyhedron(polyhedron, visualizer, kBlue);
-  // DrawPolyhedron(polyh2, visualizer, kGreen);
-
-  if (PolyhedronXing(polyh1, polyh2, lines) == Utils3D::kOverlapping) {
-    TPolyLine3D pl(2);
-    pl.SetLineColor(kRed);
-    for (auto line : lines) {
-      pl.SetNextPoint(line.fPts[0].x(), line.fPts[0].y(), line.fPts[0].z());
-      pl.SetNextPoint(line.fPts[1].x(), line.fPts[1].y(), line.fPts[1].z());
-      visualizer.AddLine(pl);
-    }
-  }
-
-  visualizer.Show();
-#endif
-  */
 
   return 0;
 }

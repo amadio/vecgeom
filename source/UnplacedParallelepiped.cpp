@@ -45,7 +45,7 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, c
                                      b, b + c, c};
 
   // subtract to move the origin to center
-  double origin = (a + b + c) / 2;
+  double origin = (a + b + c) * 0.5;
   for(auto & vertex: vertices)
 	  vertex -= origin;
 
