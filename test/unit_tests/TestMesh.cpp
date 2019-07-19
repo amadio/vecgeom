@@ -22,6 +22,7 @@
 #include "volumes/UnplacedSExtruVolume.h"
 #include "volumes/UnplacedEllipticalTube.h"
 #include "volumes/UnplacedEllipticalCone.h"
+#include "volumes/UnplacedOrb.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
 
 #ifdef VECGEOM_ROOT
   OPTION_STRING(v, "noVolume");
-  //OPTION_BOOL(t, false);
+  // OPTION_BOOL(t, false);
 #endif
 
   VUnplacedVolume *unplacedvolume = nullptr;
@@ -88,7 +89,7 @@ int main(int argc, char *argv[])
                  "./TestMesh -v [str] -t [bool]\n"
                  "\n"
                  "Available volumes: \"box\", \"parallelepiped\", \"sextruvolume\", \"tet\", \"trapezoid\", "
-                 "\"trd\".\nUse -t to apply a random transformation.\n"
+                 "\"trd\", \"ellipticaltube\", \"ellipticalcone\", \"orb\".\nUse -t to apply a random transformation.\n"
                  "\n"
                  "\n"
                  "";
@@ -116,20 +117,21 @@ int main(int argc, char *argv[])
   } else if (!v.compare("tet")) {
     Vec_t p0(0., 0., 5.), p1(-5., -5., -5.), p2(5., -5., -5.), p3(-5., 5., -5.);
     unplacedvolume = GeoManager::MakeInstance<UnplacedTet>(p0, p1, p2, p3);
-  }else if(!v.compare("ellipticaltube")){
-	unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalTube>(2,4,5);
-  }else if(!v.compare("ellipticalcone")){
-	  unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalCone>(1., 1., 5., 3.);
+  } else if (!v.compare("ellipticaltube")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalTube>(2, 4, 5);
+  } else if (!v.compare("ellipticalcone")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalCone>(1., 1., 5., 3.);
+  } else if (!v.compare("orb")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedOrb>(8.);
   }
 
   Visualizer visualizer;
   SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
   visualizer.AddVolume(boxshape);
-  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 100)->GetMesh(), visualizer, kBlue);
+  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 144)->GetMesh(), visualizer, kBlue);
   visualizer.Show();
 
 #endif
-
 
   return 0;
 }

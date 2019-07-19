@@ -121,6 +121,68 @@ void UnplacedOrb::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
+SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+
+  typedef Vector3D<double> Vec_t;
+  SolidMesh *sm = new SolidMesh();
+
+  size_t nVertical   = std::ceil(std::sqrt(nFaces));
+  size_t nHorizontal = nVertical;
+
+  size_t nMeshVertices = (nVertical + 1) * (nHorizontal + 1);
+  Vec_t *vertices      = new Vec_t[nMeshVertices];
+
+  sm->ResetMesh(nMeshVertices, nVertical * nHorizontal);
+
+  double horizontal_step = 2 * M_PI / nHorizontal;
+  double vertical_step   = M_PI / nVertical;
+  double horizontal_angle, vertical_angle;
+
+  double x, y, z, xy;
+  for (size_t i = 0; i <= nVertical; ++i) {
+    vertical_angle = M_PI / 2 - i * vertical_step; // starting from pi/2 to -pi/2
+    xy             = GetRadius() * std::cos(vertical_angle);
+    z              = GetRadius() * std::sin(vertical_angle);
+
+    for (size_t j = 0; j <= nHorizontal; ++j) {
+      horizontal_angle = j * horizontal_step; // starting from 0 to 2pi
+
+      // vertex position (x, y, z)
+      x                                   = xy * std::cos(horizontal_angle);
+      y                                   = xy * std::sin(horizontal_angle);
+      vertices[i * (nHorizontal + 1) + j] = Vec_t(x, y, z);
+    }
+  }
+  sm->SetVertices(vertices, nMeshVertices);
+
+  sm->AddBatchPolygons(3, nHorizontal, true);
+
+  for (size_t j = 0, k = nHorizontal + 1; j < nHorizontal; j++, k++) {
+    sm->SetPolygonIndices(j, {0, k, k + 1});
+  }
+
+  sm->AddBatchPolygons(3, nHorizontal, true);
+  for (size_t j = 0, k = nHorizontal, l = (nVertical - 1) * (nHorizontal + 1),
+              lastVertexIndex = (nHorizontal + 1) * (nVertical + 1) - 1;
+       j < nHorizontal; j++, k++, l++) {
+    sm->SetPolygonIndices(k, {lastVertexIndex, l + 1, l});
+  }
+
+  sm->AddBatchPolygons(4, nVertical * nHorizontal - 2 * nHorizontal, true);
+  for (size_t j = 1, p = 2 * nHorizontal, k = nHorizontal + 1; j < nVertical - 1; j++, k++) {
+    for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, p++, k++, l++) {
+      sm->SetPolygonIndices(p, {k + 1, k, l, l + 1});
+    }
+  }
+
+  sm->InitPolygons();
+
+  return sm;
+}
+#endif
+
+#ifndef VECCORE_CUDA
 // conversion functions
 #ifdef VECGEOM_ROOT
 TGeoShape const *UnplacedOrb::ConvertToRoot(char const *label) const
