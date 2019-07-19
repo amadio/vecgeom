@@ -155,6 +155,7 @@ SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, const size_t
     }
   }
   sm->SetVertices(vertices, nMeshVertices);
+  delete[] vertices;
 
   sm->AddBatchPolygons(3, nHorizontal, true);
 
