@@ -31,6 +31,7 @@
 #include "volumes/UnplacedGenTrap.h"
 #include "volumes/UnplacedEllipsoid.h"
 #include "volumes/UnplacedCutTube.h"
+#include "volumes/UnplacedTube.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -164,6 +165,8 @@ int main(int argc, char *argv[])
     unplacedvolume = GeoManager::MakeInstance<UnplacedEllipsoid>(3, 4, 5, -3, 3);
   } else if (!v.compare("cuttube")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedCutTube>(3, 5, 7, 0, kPi, Vec_t(1, 0, -1), Vec_t(1, 0, 1));
+  } else if (!v.compare("tube")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedTube>(2., 10., 5., 0., 2*kPi);
   }
 
   Visualizer visualizer;

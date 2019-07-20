@@ -138,6 +138,10 @@ public:
 
   virtual void Print(std::ostream &os) const override;
 
+#ifndef VECCORE_CUDA
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const override;
+#endif
+
   std::string GetEntityType() const { return "Tube"; }
 
 #ifdef VECGEOM_CUDA_INTERFACE

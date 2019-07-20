@@ -11,6 +11,7 @@
 
 #include "volumes/utilities/GenerationUtilities.h"
 #include "management/VolumeFactory.h"
+#include "volumes/UnplacedEllipticalTube.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -24,6 +25,135 @@ void UnplacedTube::Print(std::ostream &os) const
 {
   os << "UnplacedTube {" << rmin() << ", " << rmax() << ", " << z() << ", " << sphi() << ", " << dphi() << "}\n";
 }
+
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedTube::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+  typedef Vector3D<double> Vec_t;
+
+  SolidMesh *sm = nullptr;
+
+  // case 1: use elliptical tube with circle base
+  if (rmin() == 0. && dphi() == 2 * kPi) {
+    VUnplacedVolume *tube = new UnplacedEllipticalTube(rmax(), rmax(), z());
+    sm                    = tube->CreateMesh3D(trans, nFaces);
+    delete tube;
+  }
+  // case 2: partial cylinder (not hollow)
+  else if (rmin() == 0. && dphi() != 2 * kPi) {
+
+    size_t nMeshVertices = (nFaces - 3) * 2 + 2;
+    sm                   = new SolidMesh();
+    sm->ResetMesh(nMeshVertices, nFaces);
+
+    // fill vertex array
+    Vec_t *vertices = new Vec_t[nMeshVertices];
+    double angle, step, rcos, rsin;
+    step  = dphi() / (nMeshVertices - 4);
+    angle = sphi();
+    for (size_t i = 0; i < nMeshVertices - 2; i += 2, angle += 2 * step) {
+      rcos            = rmax() * std::cos(angle);
+      rsin            = rmax() * std::sin(angle);
+      vertices[i]     = Vec_t(rcos, rsin, -z()); // even indices hold lower vertices
+      vertices[i + 1] = Vec_t(rcos, rsin, z());  // odd indices hold upper vertices
+    }
+    vertices[nMeshVertices - 2] = Vec_t(0, 0, -z());
+    vertices[nMeshVertices - 1] = Vec_t(0, 0, z());
+    sm->SetVertices(vertices, nMeshVertices);
+    delete[] vertices;
+    sm->TransformVertices(trans);
+
+    // fill polygon array
+
+    Utils3D::vector_t<size_t> indices;
+    indices.reserve(nFaces - 2);
+
+    // lower surface
+    for (size_t i = nFaces - 3; i > 0; i--) {
+      indices.push_back(2 * (i - 1));
+    }
+    indices.push_back(nMeshVertices - 2);
+    sm->AddPolygon(nFaces - 2, indices, true);
+
+    // upper surface
+    indices.clear();
+    for (size_t i = 0; i < nMeshVertices; i += 2) {
+      indices.push_back(i + 1);
+    }
+    indices.push_back(nMeshVertices - 1);
+    sm->AddPolygon(nFaces - 2, indices, true);
+
+    // surfaces due to cylinder not being full
+
+    sm->AddPolygon(4, {nMeshVertices - 1, nMeshVertices - 3, nMeshVertices - 4, nMeshVertices - 2}, true);
+    sm->AddPolygon(4, {0, 1, nMeshVertices - 1, nMeshVertices - 2}, true);
+
+    // outer surface
+
+    for (size_t i = 0; i < nFaces - 4; i++) {
+      sm->AddPolygon(4, {2 * i, 2 * i + 2, 2 * i + 3, 2 * i + 1}, true);
+    }
+    sm->InitPolygons();
+
+  } // case 3, 4: rmin > 0
+  else {
+
+    size_t nMeshPerRegion = std::ceil(nFaces / 4.);
+    size_t nMeshVertices  = nMeshPerRegion * 4 + 4;
+    sm                    = new SolidMesh();
+    sm->ResetMesh(nMeshVertices, 4 * nMeshPerRegion + 2);
+
+    // fill vertex array
+    Vec_t *vertices = new Vec_t[nMeshVertices];
+    double angle, step, rmincos, rminsin, rmaxcos, rmaxsin;
+    step  = dphi() / (nMeshVertices - 4);
+    angle = sphi();
+    for (size_t i = 0; i < nMeshVertices; i += 4, angle += 4 * step) {
+      rmincos         = rmin() * std::cos(angle);
+      rminsin         = rmin() * std::sin(angle);
+      rmaxcos         = rmax() * std::cos(angle);
+      rmaxsin         = rmax() * std::sin(angle);
+      vertices[i]     = Vec_t(rmincos, rminsin, -z()); // rmin low
+      vertices[i + 1] = Vec_t(rmincos, rminsin, z());  // rmin high
+      vertices[i + 2] = Vec_t(rmaxcos, rmaxsin, -z()); // rmax low
+      vertices[i + 3] = Vec_t(rmaxcos, rmaxsin, z());  // rmax high
+    }
+    sm->SetVertices(vertices, nMeshVertices);
+    delete[] vertices;
+    sm->TransformVertices(trans);
+
+    // fill polygons
+
+    // lower surface
+    for (size_t i = 0; i < nMeshPerRegion; i++) {
+      sm->AddPolygon(4, {4 * i, 4 * (i + 1), 4 * (i + 1) + 2, 4 * i + 2}, true);
+    }
+
+    // upper surface
+    for (size_t i = 0; i < nMeshPerRegion; i++) {
+      sm->AddPolygon(4, {4 * i + 3, 4 * (i + 1) + 3, 4 * (i + 1) + 1, 4 * i + 1}, true);
+    }
+
+    //  inner surface
+    for (size_t i = 0; i < nMeshPerRegion; i++) {
+      sm->AddPolygon(4, {4 * (i + 1), 4 * i, 4 * i + 1, 4 * (i + 1) + 1}, true);
+    }
+
+    // outer surface
+    for (size_t i = 0; i < nMeshPerRegion; i++) {
+      sm->AddPolygon(4, {4 * (i + 1) + 3, 4 * i + 3, 4 * i + 2, 4 * (i + 1) + 2}, true);
+    }
+
+    // surfaces due to cylinder not being full
+    if (dphi() != 2 * kPi) {
+      sm->AddPolygon(4, {2, 3, 1, 0}, true);
+      sm->AddPolygon(4, {nMeshVertices - 4, nMeshVertices - 3, nMeshVertices - 1, nMeshVertices - 2}, true);
+    }
+    sm->InitPolygons();
+  }
+  return sm;
+}
+#endif
 
 template <>
 UnplacedTube *Maker<UnplacedTube>::MakeInstance(const Precision &rmin, const Precision &rmax, const Precision &z,
@@ -169,8 +299,8 @@ void UnplacedTube::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
   auto Dy = rmax() * sin(sphi() + dphi());
 
   // then rewrite box sides whenever each one of those phis are not contained in the tube section
-  if (phi0out) aMax.x()   = Max(Cx, Dx);
-  if (phi90out) aMax.y()  = Max(Cy, Dy);
+  if (phi0out) aMax.x() = Max(Cx, Dx);
+  if (phi90out) aMax.y() = Max(Cy, Dy);
   if (phi180out) aMin.x() = Min(Cx, Dx);
   if (phi270out) aMin.y() = Min(Cy, Dy);
 
@@ -211,7 +341,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTube::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -221,8 +351,8 @@ template size_t DevicePtr<cuda::SUnplacedTube<cuda::TubeTypes::UniversalTube>>::
 template void DevicePtr<cuda::SUnplacedTube<cuda::TubeTypes::UniversalTube>>::Construct(
     const Precision rmin, const Precision rmax, const Precision z, const Precision sphi, const Precision dphi) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom
