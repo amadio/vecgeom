@@ -23,6 +23,7 @@
 #include "volumes/UnplacedEllipticalTube.h"
 #include "volumes/UnplacedEllipticalCone.h"
 #include "volumes/UnplacedOrb.h"
+#include "volumes/UnplacedParaboloid.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -123,12 +124,14 @@ int main(int argc, char *argv[])
     unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalCone>(1., 1., 5., 3.);
   } else if (!v.compare("orb")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedOrb>(8.);
+  } else if (!v.compare("paraboloid")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedParaboloid>(0., 7., 5.);
   }
 
   Visualizer visualizer;
   SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
   visualizer.AddVolume(boxshape);
-  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 144)->GetMesh(), visualizer, kBlue);
+  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 500)->GetMesh(), visualizer, kBlue);
   visualizer.Show();
 
 #endif
