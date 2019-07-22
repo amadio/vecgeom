@@ -241,6 +241,160 @@ void UnplacedHype::Print(std::ostream &os) const
      << fHype.fDz << "}";
 }
 
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedHype::CreateMesh3D(Transformation3D const &trans, size_t nFaces) const
+{
+
+  typedef Vector3D<double> Vec_t;
+  SolidMesh *sm = new SolidMesh();
+
+  bool hasNoInner      = GetRmin() == 0 && GetStIn() == 0;
+
+  size_t nHorizontal, nVertical, nMeshVertices, nMeshPolygons;
+  if (hasNoInner) {
+	  nVertical = nHorizontal   = std::ceil(std::sqrt(nFaces - 2));
+    nMeshVertices = (nHorizontal + 1) * (nVertical + 1);
+    nMeshPolygons = (nHorizontal * nVertical + 2);
+    sm->ResetMesh(nMeshVertices, nMeshPolygons);
+
+    double z_step, z, horizontal_angle, horizontal_step, intermediate;
+
+    z_step           = 2 * GetDz() / nVertical;
+    z                = -GetDz();
+    horizontal_angle = 0;
+    horizontal_step  = 2 * M_PI / nHorizontal;
+
+    Vec_t *vertices = new Vec_t[nMeshVertices];
+
+    size_t idx = 0;
+    for (size_t i = 0; i <= nVertical; ++i, z += z_step, horizontal_angle = 0.) {
+      intermediate = std::sqrt(GetRmax2() + (z * z * GetTOut2()));
+      for (size_t j = 0; j <= nHorizontal; ++j, horizontal_angle += horizontal_step) {
+        vertices[idx++] = Vec_t(intermediate * std::cos(horizontal_angle), intermediate  * std::sin(horizontal_angle), z);
+      }
+    }
+    sm->SetVertices(vertices, nMeshVertices);
+    delete[] vertices;
+    sm->TransformVertices(trans);
+
+    Utils3D::vector_t<size_t> indices;
+    indices.reserve(nHorizontal);
+
+    // lower surface
+    for (size_t i = nHorizontal; i > 0; i--) {
+      indices.push_back(i - 1);
+    }
+    sm->AddPolygon(nHorizontal, indices, true);
+
+    // upper surface
+
+    indices.clear();
+    for (size_t i = 0, k = (nHorizontal + 1) * (nVertical); i < nHorizontal; i++, k++) {
+      indices.push_back(k);
+    }
+    sm->AddPolygon(nHorizontal, indices, true);
+
+    // lateral surface
+    for (size_t j = 0, k = 0; j < nVertical; j++, k++) {
+      for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
+        sm->AddPolygon(4, {l + 1, l, k, k + 1}, true);
+      }
+    }
+
+  } else {
+    nVertical = nHorizontal = std::ceil((-1 + std::sqrt(4 * nFaces + 1)) / 4);
+    nMeshVertices           = (nHorizontal + 1) *
+                    (nVertical + 1); // the total number of vertices is 4 * nMeshVertices
+    nMeshPolygons = 2 * (nHorizontal + 2 * nHorizontal * nVertical);
+    sm->ResetMesh(4 * nMeshVertices, nMeshPolygons);
+
+    double x, y;
+
+    double z_step           = GetDz() / nVertical;
+    double z                = -GetDz();
+    double horizontal_angle = 0;
+    double horizontal_step  = 2 * M_PI / nHorizontal;
+
+    double cos_angle, sin_angle, outerEq, innerEq;
+
+    Vec_t *vertices = new Vec_t[4 * nMeshVertices];
+
+    size_t idx0 = 0;
+    size_t idx1 = nMeshVertices;
+    size_t idx2 = 2*nMeshVertices;
+    size_t idx3 = 3*nMeshVertices;
+
+    for (size_t i = 0; i <= nVertical; ++i, z += z_step, horizontal_angle = 0.) {
+        outerEq          = std::sqrt(GetRmax2() + (z * z * GetTOut2()));
+        innerEq          = std::sqrt(GetRmin2() + (z * z * GetTIn2()));
+      for (size_t j = 0; j <= nHorizontal; ++j, horizontal_angle += horizontal_step) {
+        cos_angle        = std::cos(horizontal_angle);
+        sin_angle        = std::sin(horizontal_angle);
+
+
+        x                                 = outerEq * cos_angle;
+        y                                 = outerEq * sin_angle;
+        vertices[idx0++]                     = Vec_t(x, y, z); // bottom outer
+        vertices[idx2++] = Vec_t(x, y, -z); //top outer
+
+        x                                 = innerEq * cos_angle;
+        y                                 = innerEq * sin_angle;
+        vertices[idx1++]     = Vec_t(x, y, z); //bottom inner
+        vertices[idx3++] = Vec_t(x, y, -z); // top inner
+      }
+    }
+    sm->SetVertices(vertices, 4 * nMeshVertices);
+    delete[] vertices;
+    sm->TransformVertices(trans);
+
+    // lower face
+    for (size_t j = 0, k = nMeshVertices; j < nHorizontal; j++, k++) {
+      sm->AddPolygon(4, {j + 1, j, k, k + 1}, true);
+    }
+
+    // upper face
+    for (size_t i = 0, m = 2 * nMeshVertices, n = 3 * nMeshVertices; i < nHorizontal; i++, m++, n++) {
+      sm->AddPolygon(4, {n + 1, n, m, m + 1}, true);
+    }
+
+    // outer surface (bottom to 0)
+
+    for (size_t j = 0, k = 0; j < nVertical; j++, k++) {
+      for (size_t i = 0, l = k + (nHorizontal + 1); i < nHorizontal; i++, k++, l++) {
+        sm->AddPolygon(4, {l + 1, l, k, k + 1}, true);
+      }
+    }
+
+    // outer surface (0 to top)
+    for (size_t j = 0, k = 2 * nMeshVertices; j < nVertical; j++, k++) {
+      for (size_t i = 0, l = k + (nHorizontal + 1); i < nHorizontal; i++, k++, l++){
+        sm->AddPolygon(4, {k + 1, k, l, l + 1}, true);
+      }
+    }
+
+
+    // inner surface (bottom to 0)
+    for (size_t j = 0, k = nMeshVertices; j < nVertical; j++, k++) {
+      for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
+        sm->AddPolygon(4, {k + 1, k, l, l + 1}, true);
+      }
+    }
+
+
+    // inner surface (0 to top)
+    for (size_t j = 0, k = 3 * nMeshVertices; j < nVertical; j++, k++) {
+      for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
+        sm->AddPolygon(4, {l + 1, l, k, k + 1}, true);
+      }
+    }
+
+  }
+
+  sm->InitPolygons();
+  return sm;
+}
+#endif
+
 #ifdef VECGEOM_CUDA_INTERFACE
 DevicePtr<cuda::VUnplacedVolume> UnplacedHype::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {

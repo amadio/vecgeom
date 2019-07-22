@@ -33,6 +33,7 @@
 #include "volumes/UnplacedCutTube.h"
 #include "volumes/UnplacedTube.h"
 #include "volumes/UnplacedTorus2.h"
+#include "volumes/UnplacedHype.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -170,6 +171,8 @@ int main(int argc, char *argv[])
     unplacedvolume = GeoManager::MakeInstance<UnplacedTube>(2., 10., 5., 0., 2*kPi);
   } else if (!v.compare("torus")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedTorus2>(0., 5., 5., 0, 2*kPi);
+  } else if (!v.compare("hype")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedHype>(0., 4., 45., 45., 5.);
   }
 
   Visualizer visualizer;

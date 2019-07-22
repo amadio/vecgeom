@@ -40,7 +40,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedHype : public VUnplacedVolume {
 
 private:
-  HypeStruct<Precision> fHype;  ///< Structure holding the data for Hype
+  HypeStruct<Precision> fHype; ///< Structure holding the data for Hype
 
 public:
   /// Default constructor for the unplaced hyperboloid.
@@ -329,6 +329,10 @@ public:
   virtual void Print() const override;
 
   virtual void Print(std::ostream &os) const override;
+
+#ifndef VECCORE_CUDA
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const override;
+#endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const override
