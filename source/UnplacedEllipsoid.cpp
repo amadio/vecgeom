@@ -332,8 +332,8 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedEllipsoid::CopyToGpu() const
 namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedEllipsoid>::SizeOf();
-template void DevicePtr<cuda::UnplacedEllipsoid>::Construct(const Precision dx, const Precision dy,
-                                                            const Precision dz) const;
+template void DevicePtr<cuda::UnplacedEllipsoid>::Construct(const Precision dx, const Precision dy, const Precision dz,
+                                                            const Precision zBottomCut, const Precision zTopCut) const;
 
 } // namespace cxx
 
