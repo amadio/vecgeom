@@ -76,13 +76,13 @@ struct Polygon {
   VECCORE_ATT_HOST_DEVICE
   Polygon(size_t n, vector_t<Vec_t> &vertices, Vec_t const &norm);
 
-  /// @brief Copy constructor ignoring the computed segments
+  /// @brief Copy constructor
   VECCORE_ATT_HOST_DEVICE
   Polygon(const Polygon &other)
       : fN(other.fN), fConvex(other.fConvex), fHasNorm(other.fHasNorm), fDist(other.fDist), fNorm(other.fNorm),
-        fVert(other.fVert), fInd(fN), fSides(fN)
+        fVert(other.fVert), fInd(other.fInd), fSides(other.fSides)
   {
-    // do not copy fInd and fSides, these need to be set externally
+
   }
 
   /// @brief Assignment operator
@@ -96,7 +96,8 @@ struct Polygon {
     fDist    = other.fDist;
     fNorm    = other.fNorm;
     fVert    = other.fVert;
-    // do not copy fInd and fSides, these need to be set externally
+    fInd     = other.fInd;
+    fSides   = other.fSides;
     return *this;
   }
 
