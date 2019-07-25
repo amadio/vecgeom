@@ -58,15 +58,51 @@ Polygon::Polygon(size_t n, vector_t<Vec_t> &vertices, Vec_t const &normal)
   assert(fN > 2 && fNorm.IsNormalized());
 }
 
+Polygon::Polygon(size_t n, vector_t<Vec_t>& vertices, vector_t<size_t> const& indices, bool convex):
+		fN(n), fConvex(convex), fNorm(), fVert(vertices), fInd(indices), fSides(n){
+	CheckAndFixDegenerate();
+}
+
+void Polygon::CheckAndFixDegenerate(){
+
+	if(fValid){
+		return;
+	}
+
+	vector_t<size_t> validIndices;
+	validIndices.push_back(fInd[0]);
+	for(size_t i = 1; i < fN; i++){
+		auto diff1 = fVert[fInd[i]] - fVert[validIndices[0] ];
+		auto diff2 = fVert[fInd[i]] - fVert[validIndices[validIndices.size() - 1] ];
+
+		if(diff1.Mag2() > kToleranceSquared && diff2.Mag2() > kToleranceSquared){
+			validIndices.push_back(fInd[i]);
+		}
+	}
+
+
+	fN = validIndices.size();
+	fInd = validIndices;
+	fSides.resize(fN);
+	if(fN > 2){
+		fValid = true;
+
+	}
+
+
+
+}
+
 void Polygon::Init()
 {
+
   // Compute sides
   for (size_t i = 0; i < fN - 1; ++i) {
     fSides[i] = GetVertex(i + 1) - GetVertex(i);
-    assert(fSides[i].Mag2() > kTolerance);
+    assert(fSides[i].Mag2() > kToleranceSquared);
   }
   fSides[fN - 1] = GetVertex(0) - GetVertex(fN - 1);
-  assert(fSides[fN - 1].Mag2() > kTolerance);
+  assert(fSides[fN - 1].Mag2() > kToleranceSquared);
   // Compute normal if not already set
   if (!fHasNorm) {
     fNorm = fSides[0].Cross(fSides[1]);
@@ -114,6 +150,13 @@ void Polyhedron::Transform(Transformation3D const &tr)
   }
   for (size_t i = 0; i < fPolys.size(); ++i)
     fPolys[i].Transform(tr);
+}
+
+bool Polyhedron::AddPolygon(const Polygon& poly){
+	if(!poly.fValid)
+		return false;
+	fPolys.push_back(poly);
+	return true;
 }
 
 void FillBoxPolyhedron(Vec_t const &box, Polyhedron &polyh)
