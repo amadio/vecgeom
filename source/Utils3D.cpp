@@ -84,7 +84,7 @@ void Polygon::CheckAndFixDegenerate()
 
   fN   = validIndices.size();
   fInd = validIndices;
-  fSides.resize(fN);
+  fSides.resize(fN, 0);
   if (fN > 2) {
     fValid = true;
   }
