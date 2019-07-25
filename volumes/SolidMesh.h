@@ -26,6 +26,7 @@ public:
   void InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, Vector3D<Precision> n2, Vector3D<Precision> n3);
   void InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex);
   void InitPolygons();
+  bool AddPolygon(size_t n, Utils3D::vector_t<size_t> const& indices, bool convex){return fMesh.AddPolygon({n, fMesh.fVert, indices, convex});}
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

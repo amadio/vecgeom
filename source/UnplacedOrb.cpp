@@ -121,6 +121,7 @@ void UnplacedOrb::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
+#include "volumes/SolidMesh.h"
 SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
 {
 
@@ -156,26 +157,15 @@ SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, const size_t
   }
   sm->SetVertices(vertices, nMeshVertices);
   delete[] vertices;
+  sm->TransformVertices(trans);
 
-  sm->AddBatchPolygons(3, nHorizontal, true);
 
-  for (size_t j = 0, k = nHorizontal + 1; j < nHorizontal; j++, k++) {
-    sm->SetPolygonIndices(j, {0, k, k + 1});
-  }
-
-  sm->AddBatchPolygons(3, nHorizontal, true);
-  for (size_t j = 0, k = nHorizontal, l = (nVertical - 1) * (nHorizontal + 1),
-              lastVertexIndex = (nHorizontal + 1) * (nVertical + 1) - 1;
-       j < nHorizontal; j++, k++, l++) {
-    sm->SetPolygonIndices(k, {lastVertexIndex, l + 1, l});
-  }
-
-  sm->AddBatchPolygons(4, nVertical * nHorizontal - 2 * nHorizontal, true);
-  for (size_t j = 1, p = 2 * nHorizontal, k = nHorizontal + 1; j < nVertical - 1; j++, k++) {
-    for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, p++, k++, l++) {
-      sm->SetPolygonIndices(p, {k + 1, k, l, l + 1});
+  for (size_t j = 0, k = 0; j < nVertical; j++, k++) {
+    for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
+      sm->AddPolygon(4, {k + 1, k, l, l + 1}, true);
     }
   }
+
 
   sm->InitPolygons();
 
