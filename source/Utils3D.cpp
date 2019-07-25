@@ -58,39 +58,36 @@ Polygon::Polygon(size_t n, vector_t<Vec_t> &vertices, Vec_t const &normal)
   assert(fN > 2 && fNorm.IsNormalized());
 }
 
-Polygon::Polygon(size_t n, vector_t<Vec_t>& vertices, vector_t<size_t> const& indices, bool convex):
-		fN(n), fConvex(convex), fNorm(), fVert(vertices), fInd(indices), fSides(n){
-	CheckAndFixDegenerate();
+Polygon::Polygon(size_t n, vector_t<Vec_t> &vertices, vector_t<size_t> const &indices, bool convex)
+    : fN(n), fConvex(convex), fNorm(), fVert(vertices), fInd(indices), fSides(n)
+{
+  CheckAndFixDegenerate();
 }
 
-void Polygon::CheckAndFixDegenerate(){
+void Polygon::CheckAndFixDegenerate()
+{
 
-	if(fValid){
-		return;
-	}
+  if (fValid) {
+    return;
+  }
 
-	vector_t<size_t> validIndices;
-	validIndices.push_back(fInd[0]);
-	for(size_t i = 1; i < fN; i++){
-		auto diff1 = fVert[fInd[i]] - fVert[validIndices[0] ];
-		auto diff2 = fVert[fInd[i]] - fVert[validIndices[validIndices.size() - 1] ];
+  vector_t<size_t> validIndices;
+  validIndices.push_back(fInd[0]);
+  for (size_t i = 1; i < fN; i++) {
+    auto diff1 = fVert[fInd[i]] - fVert[validIndices[0]];
+    auto diff2 = fVert[fInd[i]] - fVert[validIndices[validIndices.size() - 1]];
 
-		if(diff1.Mag2() > kToleranceSquared && diff2.Mag2() > kToleranceSquared){
-			validIndices.push_back(fInd[i]);
-		}
-	}
+    if (diff1.Mag2() > kToleranceSquared && diff2.Mag2() > kToleranceSquared) {
+      validIndices.push_back(fInd[i]);
+    }
+  }
 
-
-	fN = validIndices.size();
-	fInd = validIndices;
-	fSides.resize(fN);
-	if(fN > 2){
-		fValid = true;
-
-	}
-
-
-
+  fN   = validIndices.size();
+  fInd = validIndices;
+  fSides.resize(fN);
+  if (fN > 2) {
+    fValid = true;
+  }
 }
 
 void Polygon::Init()
@@ -152,11 +149,11 @@ void Polyhedron::Transform(Transformation3D const &tr)
     fPolys[i].Transform(tr);
 }
 
-bool Polyhedron::AddPolygon(const Polygon& poly){
-	if(!poly.fValid)
-		return false;
-	fPolys.push_back(poly);
-	return true;
+bool Polyhedron::AddPolygon(const Polygon &poly)
+{
+  if (!poly.fValid) return false;
+  fPolys.push_back(poly);
+  return true;
 }
 
 void FillBoxPolyhedron(Vec_t const &box, Polyhedron &polyh)

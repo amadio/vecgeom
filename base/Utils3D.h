@@ -62,7 +62,7 @@ struct Polygon {
   size_t fN     = 0;      ///< Number of vertices
   bool fConvex  = false;  ///< Convexity
   bool fHasNorm = false;  ///< Normal is already supplied
-  bool fValid = false;    ///< Polygon is not degenerate
+  bool fValid   = false;  ///< Polygon is not degenerate
   double fDist  = 0.;     ///< Distance to plane in the Hessian form
   Vec_t fNorm;            ///< Unit normal vector to plane
   vector_t<Vec_t> &fVert; ///< Global list of vertices shared with other polygons
@@ -77,15 +77,14 @@ struct Polygon {
   VECCORE_ATT_HOST_DEVICE
   Polygon(size_t n, vector_t<Vec_t> &vertices, Vec_t const &norm);
 
-  Polygon(size_t n, vector_t<Vec_t>& vertices, vector_t<size_t> const& indices, bool convex);
+  Polygon(size_t n, vector_t<Vec_t> &vertices, vector_t<size_t> const &indices, bool convex);
 
   /// @brief Copy constructor
   VECCORE_ATT_HOST_DEVICE
   Polygon(const Polygon &other)
-      : fN(other.fN), fConvex(other.fConvex), fHasNorm(other.fHasNorm), fValid(other.fValid), fDist(other.fDist), fNorm(other.fNorm),
-        fVert(other.fVert), fInd(other.fInd), fSides(other.fSides)
+      : fN(other.fN), fConvex(other.fConvex), fHasNorm(other.fHasNorm), fValid(other.fValid), fDist(other.fDist),
+        fNorm(other.fNorm), fVert(other.fVert), fInd(other.fInd), fSides(other.fSides)
   {
-
   }
 
   /// @brief Assignment operator
@@ -172,8 +171,7 @@ struct Polyhedron {
   /// @brief Transform the polygon by a general transformation
   void Transform(Transformation3D const &tr);
 
-  bool AddPolygon(Polygon const& poly);
-
+  bool AddPolygon(Polygon const &poly);
 };
 
 #ifndef VECCORE_CUDA

@@ -159,13 +159,11 @@ SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, const size_t
   delete[] vertices;
   sm->TransformVertices(trans);
 
-
   for (size_t j = 0, k = 0; j < nVertical; j++, k++) {
     for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
       sm->AddPolygon(4, {k + 1, k, l, l + 1}, true);
     }
   }
-
 
   sm->InitPolygons();
 
