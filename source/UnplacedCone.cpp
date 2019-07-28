@@ -60,6 +60,73 @@ void UnplacedCone::Print(std::ostream &os) const
   os << "UnplacedCone; please implement Print to outstream\n";
 }
 
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedCone::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+
+  typedef Vector3D<double> Vec_t;
+  SolidMesh *sm = new SolidMesh();
+
+  size_t nSegments = 0;
+  if (GetRmin1() == 0. && GetRmin2() == 0.) {
+    nSegments = nFaces / 3;
+    sm->ResetMesh(4 * (nSegments + 1), 3 * nSegments + 2);
+  } else {
+    nSegments = nFaces / 4;
+    sm->ResetMesh(4 * (nSegments + 1), 4 * nSegments + 2);
+  }
+
+  Vec_t *vertices = new Vec_t[4 * (nSegments + 1)];
+
+  double cos, sin;
+  double angle = GetSPhi();
+  double step  = GetDPhi() / nSegments;
+  size_t idx0  = 0;
+  size_t idx1  = nSegments + 1;
+  size_t idx2  = 2 * (nSegments + 1);
+  size_t idx3  = 3 * (nSegments + 1);
+  for (size_t i = 0; i <= nSegments; ++i, angle += step) {
+    cos              = std::cos(angle);
+    sin              = std::sin(angle);
+    vertices[idx0++] = Vec_t(GetRmin1() * cos, GetRmin1() * sin, -GetDz()); // bottom inner
+    vertices[idx1++] = Vec_t(GetRmax1() * cos, GetRmax1() * sin, -GetDz()); // bottom outer
+    vertices[idx2++] = Vec_t(GetRmin2() * cos, GetRmin2() * sin, GetDz());  // top inner
+    vertices[idx3++] = Vec_t(GetRmax2() * cos, GetRmax2() * sin, GetDz());  // top outer
+  }
+  sm->SetVertices(vertices, 4 * (nSegments + 1));
+
+  delete[] vertices;
+  sm->TransformVertices(trans);
+
+  for (size_t j = 0, k = j + nSegments + 1; j < nSegments; j++, k++) {
+    sm->AddPolygon(4, {k + 1, k, j, j + 1}, true); // bottom surface
+  }
+
+  for (size_t j = 0, k = 2 * (nSegments + 1), l = k + nSegments + 1; j < nSegments; j++, k++, l++) {
+    sm->AddPolygon(4, {l, l + 1, k + 1, k}, true); // top surface
+  }
+
+  for (size_t j = 0, k = (nSegments + 1), l = k + 2 * (nSegments + 1); j < nSegments; j++, k++, l++) {
+    sm->AddPolygon(4, {k, k + 1, l + 1, l}, true); // lateral outer surface
+  }
+
+  for (size_t j = 0, k = j + 2 * (nSegments + 1); j < nSegments; j++, k++) {
+    sm->AddPolygon(4, {k, k + 1, j + 1, j}, true); // lateral inner  surface
+  }
+
+  if (GetDPhi() != 2 * kPi) {
+    sm->AddPolygon(4, {0, nSegments + 1, 3 * (nSegments + 1), 2 * (nSegments + 1)}, true);
+    sm->AddPolygon(
+        4, {2 * (nSegments + 1) + nSegments, 3 * (nSegments + 1) + nSegments, nSegments + 1 + nSegments, 0 + nSegments},
+        true);
+  }
+
+  sm->InitPolygons();
+
+  return sm;
+}
+#endif
+
 VECCORE_ATT_HOST_DEVICE
 void UnplacedCone::DetectConvexity()
 {

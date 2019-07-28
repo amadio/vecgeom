@@ -24,6 +24,8 @@
 #include "volumes/UnplacedEllipticalCone.h"
 #include "volumes/UnplacedOrb.h"
 #include "volumes/UnplacedParaboloid.h"
+#include "volumes/UnplacedCone.h"
+#include "volumes/UnplacedParaboloid.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -124,6 +126,8 @@ int main(int argc, char *argv[])
     unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalCone>(1., 1., 5., 3.);
   } else if (!v.compare("orb")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedOrb>(8.);
+  } else if (!v.compare("cone")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedCone>(3., 5, 2., 4., 5, 0, kPi);
   } else if (!v.compare("paraboloid")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedParaboloid>(0., 7., 5.);
   }
