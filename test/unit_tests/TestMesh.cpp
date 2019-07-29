@@ -28,6 +28,7 @@
 #include "volumes/UnplacedParaboloid.h"
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/UnplacedPolyhedron.h"
+#include "volumes/UnplacedGenTrap.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -146,6 +147,17 @@ int main(int argc, char *argv[])
 
     unplacedvolume = GeoManager::MakeInstance<UnplacedPolyhedron>(15 * kDegToRad, 180 * kDegToRad, 5, nPlanes, zPlanes,
                                                                   rInner, rOuter);
+  } else if (!v.compare("gentrap")) {
+    // twisted
+
+    Precision verticesx[8] = {-3, -3, 3, 3, -3.889087296526, 0.35355339059327, 3.889087296526, -0.35355339059327};
+    Precision verticesy[8] = {-3, 3, 3, -3, 0.35355339059327, 3.889087296526, -0.35355339059327, -3.889087296526};
+
+    // no twist
+    //Precision verticesx1[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
+    //Precision verticesy1[8] = {-3, 3, 3, -3, -2, 2, 2, -2};
+
+    unplacedvolume = GeoManager::MakeInstance<UnplacedGenTrap>(verticesx, verticesy, 8);
   }
 
   Visualizer visualizer;

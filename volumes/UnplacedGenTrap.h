@@ -142,6 +142,11 @@ public:
   /** @brief Print parameters of the trapezoid to stream */
   virtual void Print(std::ostream &os) const final;
 
+#ifndef VECCORE_CUDA
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const override;
+#endif
+
+
 #ifdef VECGEOM_CUDA_INTERFACE
   /** @brief Size of object on the device */
   size_t DeviceSizeOf() const final { return DevicePtr<cuda::UnplacedGenTrap>::SizeOf(); }

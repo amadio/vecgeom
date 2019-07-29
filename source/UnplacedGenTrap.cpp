@@ -31,7 +31,7 @@ Vector3D<Precision> UnplacedGenTrap::SamplePointOnSurface() const
     if ((Abs(fGenTrap.fDeltaX[j]) < kTolerance) && (Abs(fGenTrap.fDeltaY[j]) < kTolerance)) nvertices--;
   }
   if (nvertices < 3) degenerate[4] = true;
-  nvertices                        = 4;
+  nvertices = 4;
   // top
   for (unsigned int j = 0; j < 4; ++j) {
     if ((Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) && (Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance)) nvertices--;
@@ -224,6 +224,51 @@ std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const
   return os;
 }
 
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedGenTrap::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+
+  SolidMesh *sm = new SolidMesh();
+  if (IsPlanar()) {
+    sm->SetVertices(GetVertices(), 8);
+    sm->InitConvexHexahedron();
+  } else {
+    typedef Vector3D<double> Vec_t;
+    size_t nSegments      = std::ceil(nFaces / 4);
+    Vec_t *const vertices = new Vec_t[4 * (nSegments + 1)];
+
+    size_t idx = 0;
+    for (int j = 0; j < 4; j++) {
+
+      Vertex_t v1 = GetVertex(j);
+      Vertex_t v3 = GetVertex(j + 4);
+      Vec_t step  = (v3 - v1) / nSegments;
+
+      for (size_t i = 0; i <= nSegments; i++) {
+        v1 += step;
+        vertices[idx++] = v1;
+      }
+    }
+
+    sm->SetVertices(vertices, 4 * (nSegments + 1));
+    delete[] vertices;
+    sm->TransformVertices(trans);
+
+    for (size_t s0 = 0, s1 = nSegments + 1, s2 = 2 * s1, s3 = 3 * s1; s0 < nSegments; s0++, s1++, s2++, s3++) {
+      sm->AddPolygon(4, {s0, s0 + 1, s1 + 1, s1}, true); // lateral surface 0
+      sm->AddPolygon(4, {s1, s1 + 1, s2 + 1, s2}, true); // lateral surface 1
+      sm->AddPolygon(4, {s2, s2 + 1, s3 + 1, s3}, true); // lateral surface 2
+      sm->AddPolygon(4, {s3, s3 + 1, s0 + 1, s0}, true); // lateral surface 3
+    }
+    sm->AddPolygon(4, {0, nSegments + 1, 2 * (nSegments  + 1), 3 * (nSegments + 1)}, true);
+    sm->AddPolygon(4, {3 * (nSegments + 1) + nSegments,2 * (nSegments  + 1) + nSegments, nSegments + 1 + nSegments,  0 + nSegments}, true);
+    sm->InitPolygons();
+  }
+
+  return sm;
+}
+#endif
+
 //______________________________________________________________________________
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const volume,
@@ -257,7 +302,7 @@ VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume
                                                              ,
                                                              id
 #endif
-                                                             );
+    );
     return placement;
   }
   return new SpecializedGenTrap<trans_code, rot_code>(logical_volume, transformation
@@ -265,7 +310,7 @@ VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume
                                                       ,
                                                       id
 #endif
-                                                      );
+  );
 }
 
 //______________________________________________________________________________
@@ -312,7 +357,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -321,8 +366,8 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedGenTrap>::SizeOf();
 template void DevicePtr<cuda::UnplacedGenTrap>::Construct(Precision *, Precision *, Precision) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom
