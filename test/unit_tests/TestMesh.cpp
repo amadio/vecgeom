@@ -27,6 +27,7 @@
 #include "volumes/UnplacedCone.h"
 #include "volumes/UnplacedParaboloid.h"
 #include "volumes/UnplacedPolycone.h"
+#include "volumes/UnplacedPolyhedron.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -137,6 +138,14 @@ int main(int argc, char *argv[])
     double rmax[]  = {5., 4., 8., 9};
     double z[]     = {-3, 0, 3, 8};
     unplacedvolume = GeoManager::MakeInstance<UnplacedPolycone>(0, kPi, Nz, z, rmin, rmax);
+  } else if (!v.compare("polyhedron")) {
+    constexpr int nPlanes      = 5;
+    Precision zPlanes[nPlanes] = {-7, -1, -1, 1, 7};
+    Precision rInner[nPlanes]  = {0, 0, 0, 0, 0};
+    Precision rOuter[nPlanes]  = {8, 9, 9, 9, 10};
+
+    unplacedvolume = GeoManager::MakeInstance<UnplacedPolyhedron>(15 * kDegToRad, 180 * kDegToRad, 5, nPlanes, zPlanes,
+                                                                  rInner, rOuter);
   }
 
   Visualizer visualizer;

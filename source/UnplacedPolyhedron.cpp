@@ -574,6 +574,60 @@ void UnplacedPolyhedron::DetectConvexity()
   }
 }
 
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedPolyhedron::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+
+  typedef Vector3D<double> Vec_t;
+
+  SolidMesh *sm = new SolidMesh();
+
+  size_t n      = GetZSegmentCount();
+  size_t nSides = GetSideCount();
+  double k      = std::cos(0.5 * GetPhiDelta() / nSides); // divide R_side by k to get the R_corner
+
+  Vec_t *vertices = new Vec_t[2 * (n + 1) * (nSides + 1)];
+  size_t idx      = 0;
+  size_t idx2     = ((n + 1) * (nSides + 1));
+  for (size_t i = 0; i <= n; i++) {
+    for (size_t j = 0; j <= nSides; j++) {
+      vertices[idx++]  = GetPhiSection(j) * GetRMax()[i] / k + Vec_t(0, 0, GetZPlane(i));
+      vertices[idx2++] = GetPhiSection(j) * GetRMin()[i] / k + Vec_t(0, 0, GetZPlane(i));
+    }
+  }
+
+  sm->ResetMesh(2 * (n + 1) * (nSides + 1), 2 * n * nSides + 2 * nSides + 2 * n);
+
+  sm->SetVertices(vertices, 2 * (n + 1) * (nSides + 1));
+  delete[] vertices;
+  sm->TransformVertices(trans);
+
+  for (size_t i = 0, p = 0, k = nSides + 1, offset = (n + 1) * (nSides + 1); i < n; i++, p++, k++) {
+    for (size_t j = 0; j < nSides; j++, p++, k++) {
+      sm->AddPolygon(4, {p, p + 1, k + 1, k}, true);                                     // outer
+      sm->AddPolygon(4, {k + offset, k + 1 + offset, p + offset + 1, p + offset}, true); // inner
+    }
+  }
+
+  for (size_t i = 0, l = n * (nSides + 1), k = l + nSides + 1, p = k + l; i < nSides; i++, k++, l++, p++) {
+    sm->AddPolygon(4, {k, k + 1, i + 1, i}, true); // lower
+    sm->AddPolygon(4, {l, l + 1, p + 1, p}, true); // upper
+  }
+
+  if (GetPhiDelta() != kTwoPi) {
+    for (size_t i = 0, j = 0, k = nSides + 1, offset = (n + 1) * (nSides + 1); i < n;
+         i++, j += nSides + 1, k += nSides + 1) {
+      sm->AddPolygon(4, {j, k, k + offset, j + offset}, true); // surface at sPhi
+      sm->AddPolygon(4, {j + offset + nSides, k + offset + nSides, k + nSides, j + nSides},
+                     true); // surface at sPhi + dPhi
+    }
+  }
+  sm->InitPolygons();
+
+  return sm;
+}
+#endif
+
 #ifdef VECGEOM_CUDA_INTERFACE
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedPolyhedron::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpuPtr) const
@@ -612,7 +666,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolyhedron::CopyToGpu() const
 
 #endif
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -624,7 +678,7 @@ template void DevicePtr<cuda::UnplacedPolyhedron>::Construct(Precision phiStart,
                                                              DevicePtr<Precision> rMin,
                                                              DevicePtr<Precision> rMax) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
