@@ -293,6 +293,10 @@ public:
   virtual void Print(std::ostream &os) const final;
 
 #ifndef VECCORE_CUDA
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const override;
+#endif
+
+#ifndef VECCORE_CUDA
 
   template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
