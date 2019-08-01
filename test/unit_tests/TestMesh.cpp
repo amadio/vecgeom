@@ -29,6 +29,7 @@
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/UnplacedPolyhedron.h"
 #include "volumes/UnplacedGenTrap.h"
+#include "volumes/UnplacedEllipsoid.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -154,10 +155,12 @@ int main(int argc, char *argv[])
     Precision verticesy[8] = {-3, 3, 3, -3, 0.35355339059327, 3.889087296526, -0.35355339059327, -3.889087296526};
 
     // no twist
-    //Precision verticesx1[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
-    //Precision verticesy1[8] = {-3, 3, 3, -3, -2, 2, 2, -2};
+    // Precision verticesx1[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
+    // Precision verticesy1[8] = {-3, 3, 3, -3, -2, 2, 2, -2};
 
     unplacedvolume = GeoManager::MakeInstance<UnplacedGenTrap>(verticesx, verticesy, 8);
+  } else if (!v.compare("ellipsoid")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedEllipsoid>(3, 4, 5, -3, 3);
   }
 
   Visualizer visualizer;
