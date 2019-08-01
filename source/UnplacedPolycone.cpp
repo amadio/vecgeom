@@ -256,6 +256,100 @@ void UnplacedPolycone::Print(std::ostream &os) const
   Print();
 }
 
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedPolycone::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+
+  typedef Vector3D<double> Vec_t;
+  SolidMesh *sm = new SolidMesh();
+
+  size_t nPlanes = GetNz();
+
+  // copy each plane to revert values to their originals
+  double *z    = new double[nPlanes];
+  double *rmin = new double[nPlanes];
+  double *rmax = new double[nPlanes];
+
+  for (size_t i = 0; i < nPlanes; i++) {
+    z[i]    = GetZAtPlane(i);
+    rmin[i] = GetRminAtPlane(i);
+    rmax[i] = GetRmaxAtPlane(i) - GetRminAtPlane(i) <= kConeTolerance
+                  ? GetRminAtPlane(i)
+                  : GetRmaxAtPlane(i); // rmin==rmax results in rmax+=1e-7, revert
+  }
+
+  // nSegments calculation
+  size_t k = 0;
+  for (size_t i = 0; i < nPlanes - 1; i++) {
+    if (!(rmin[i] == 0. && rmin[i + 1] == 0.)) k++;
+    if (!(rmax[i] == 0. && rmax[i + 1] == 0.)) k++;
+  }
+
+  if (rmax[0] > rmin[0]) k++;
+  if (rmax[nPlanes - 1] > rmin[nPlanes - 1]) k++;
+
+  size_t nSegments =
+      GetDeltaPhi() != kTwoPi ? std::ceil((nFaces - 2.0 * (nPlanes - 1)) / k) : std::ceil(nFaces / (double)k);
+
+  sm->ResetMesh(2 * nPlanes * (nSegments + 1), 2 * (nPlanes - 1) * nSegments + 2 * nSegments + 2 * (nPlanes - 1));
+
+  // fill vertex array
+  Vec_t *vertices = new Vec_t[2 * nPlanes * (nSegments + 1)];
+  double phi      = GetStartPhi();
+  double phi_step = GetDeltaPhi() / nSegments;
+  size_t idx      = 0;
+  size_t idx2     = nPlanes * (nSegments + 1);
+  for (size_t i = 0; i < nPlanes; i++, phi = GetStartPhi()) {
+    for (size_t j = 0; j <= nSegments; j++, phi += phi_step) {
+      vertices[idx++]  = Vec_t(rmin[i] * std::cos(phi), rmin[i] * std::sin(phi), z[i]);
+      vertices[idx2++] = Vec_t(rmax[i] * std::cos(phi), rmax[i] * std::sin(phi), z[i]);
+    }
+  }
+  delete[] z, delete[] rmin, delete[] rmax;
+
+  sm->SetVertices(vertices, 2 * nPlanes * (nSegments + 1));
+  delete[] vertices;
+  sm->TransformVertices(trans);
+
+  // add polygons
+  for (size_t i = 0, k = 0, l = k + nSegments + 1; i < nPlanes - 1; i++, k++, l++) {
+    for (size_t j = 0; j < nSegments; j++, k++, l++) {
+      sm->AddPolygon(4, {k, l, l + 1, k + 1}, true); // inner
+    }
+  }
+
+  size_t offset = nPlanes * (nSegments + 1);
+  for (size_t i = 0, k = offset, l = k + nSegments + 1; i < nPlanes - 1; i++, k++, l++) {
+    for (size_t j = 0; j < nSegments; j++, k++, l++) {
+      sm->AddPolygon(4, {k, k + 1, l + 1, l}, true); // outer
+    }
+  }
+
+  for (size_t j = 0, k = j + offset; j < nSegments; j++, k++) {
+    sm->AddPolygon(4, {j, j + 1, k + 1, k}, true); // lower
+  }
+
+  for (size_t j = 0, k = (nPlanes - 1) * (nSegments + 1), l = k + offset; j < nSegments; j++, k++, l++) {
+    sm->AddPolygon(4, {k, l, l + 1, k + 1}, true); // upper
+  }
+
+  if (GetDeltaPhi() != kTwoPi) {
+    for (size_t j = 0, k = 0, l = k + nSegments + 1; j < nPlanes - 1; j++, k += nSegments + 1, l += nSegments + 1) {
+      sm->AddPolygon(4, {k, k + offset, l + offset, l}, true); // lat at sPhi
+    }
+
+    for (size_t j = 0, k = nSegments, l = k + nSegments + 1; j < nPlanes - 1;
+         j++, k += nSegments + 1, l += nSegments + 1) {
+      sm->AddPolygon(4, {k, l, l + offset, k + offset}, true); // lat at sPhi + dPhi
+    }
+  }
+
+  sm->InitPolygons();
+
+  return sm;
+}
+#endif
+
 std::ostream &UnplacedPolycone::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);

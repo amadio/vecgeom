@@ -26,6 +26,7 @@
 #include "volumes/UnplacedParaboloid.h"
 #include "volumes/UnplacedCone.h"
 #include "volumes/UnplacedParaboloid.h"
+#include "volumes/UnplacedPolycone.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -130,12 +131,18 @@ int main(int argc, char *argv[])
     unplacedvolume = GeoManager::MakeInstance<UnplacedCone>(3., 5, 2., 4., 5, 0, kPi);
   } else if (!v.compare("paraboloid")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedParaboloid>(0., 7., 5.);
+  } else if (!v.compare("polycone")) {
+    int Nz         = 4;
+    double rmin[]  = {0., 3., 7., 8};
+    double rmax[]  = {5., 4., 8., 9};
+    double z[]     = {-3, 0, 3, 8};
+    unplacedvolume = GeoManager::MakeInstance<UnplacedPolycone>(0, kPi, Nz, z, rmin, rmax);
   }
 
   Visualizer visualizer;
   SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
   visualizer.AddVolume(boxshape);
-  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 500)->GetMesh(), visualizer, kBlue);
+  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 100)->GetMesh(), visualizer, kBlue);
   visualizer.Show();
 
 #endif

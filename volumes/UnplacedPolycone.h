@@ -183,6 +183,11 @@ public:
   virtual void Print() const final;
   virtual void Print(std::ostream &os) const final;
 
+#ifndef VECCORE_CUDA
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const override;
+#endif
+
+
   std::ostream &StreamInfo(std::ostream &os) const;
   std::string GetEntityType() const { return "Polycone"; }
 
