@@ -190,6 +190,73 @@ bool UnplacedCutTube::Normal(Vector3D<Precision> const &point, Vector3D<Precisio
   return valid;
 }
 
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedCutTube::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+{
+
+  SolidMesh *sm = new SolidMesh();
+
+  typedef Vector3D<double> Vec_t;
+  size_t nSegments = std::ceil(nFaces / 4);
+  sm->ResetMesh(4 * (nSegments + 1), 4 * nSegments + 2);
+
+  Vec_t *const vertices = new Vec_t[4 * (nSegments + 1)];
+
+  size_t idx  = 0;
+  size_t idx1 = (nSegments + 1);
+  size_t idx2 = 2 * (nSegments + 1);
+  size_t idx3 = 3 * (nSegments + 1);
+
+  double phi      = sphi();
+  double phi_step = dphi() / nSegments;
+
+  double x, y;
+  for (size_t i = 0; i <= nSegments; i++, phi += phi_step) {
+    x               = rmax() * std::cos(phi);
+    y               = rmax() * std::sin(phi);
+    vertices[idx++] = Vec_t(x, y, (z() - TopNormal().x() * x - TopNormal().y() * y) / TopNormal().z()); // top outer
+    vertices[idx1++] =
+        Vec_t(x, y, (z() - BottomNormal().x() * x - BottomNormal().y() * y) / BottomNormal().z()); // bottom outer
+    x                = rmin() * std::cos(phi);
+    y                = rmin() * std::sin(phi);
+    vertices[idx2++] = Vec_t(x, y, (z() - TopNormal().x() * x - TopNormal().y() * y) / TopNormal().z()); // top inner
+    vertices[idx3++] =
+        Vec_t(x, y, (z() - BottomNormal().x() * x - BottomNormal().y() * y) / BottomNormal().z()); // bottom inner
+  }
+
+  sm->SetVertices(vertices, 4 * (nSegments + 1));
+  delete[] vertices;
+  sm->TransformVertices(trans);
+
+  for (size_t i = 0, j = nSegments + 1; i < nSegments; i++, j++) {
+    sm->AddPolygon(4, {i, j, j + 1, i + 1}, true); // OUTER
+  }
+
+  for (size_t i = 0, j = 2 * (nSegments + 1), k = j + nSegments + 1; i < nSegments; i++, j++, k++) {
+    sm->AddPolygon(4, {j, j + 1, k + 1, k}, true); // inner
+  }
+
+  for (size_t i = 0, j = (nSegments + 1), k = j + 2 * (nSegments + 1); i < nSegments; i++, j++, k++) {
+    sm->AddPolygon(4, {j, k, k + 1, j + 1}, true); // lower
+  }
+
+  for (size_t i = 0, j = 0, k = j + 2 * (nSegments + 1); i < nSegments; i++, j++, k++) {
+    sm->AddPolygon(4, {j, j + 1, k + 1, k}, true); // Upper
+  }
+
+  if (dphi() != kTwoPi) {
+    sm->AddPolygon(4, {0, 2 * (nSegments + 1), 3 * (nSegments + 1), nSegments + 1}, true);
+    sm->AddPolygon(
+        4, {nSegments, nSegments + nSegments + 1, nSegments + 3 * (nSegments + 1), nSegments + 2 * (nSegments + 1)},
+        true);
+  }
+
+  sm->InitPolygons();
+
+  return sm;
+}
+#endif
+
 template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume,
@@ -205,7 +272,7 @@ VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume
                                                              ,
                                                              id
 #endif
-                                                             );
+    );
     return placement;
   }
   return new SpecializedCutTube<trans_code, rot_code>(logical_volume, transformation
@@ -213,7 +280,7 @@ VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume
                                                       ,
                                                       id
 #endif
-                                                      );
+  );
 }
 
 VECCORE_ATT_DEVICE
@@ -248,7 +315,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedCutTube::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -261,8 +328,8 @@ template void DevicePtr<cuda::UnplacedCutTube>::Construct(const Precision rmin, 
                                                           const Precision tx, const Precision ty,
                                                           const Precision tz) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom

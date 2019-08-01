@@ -30,6 +30,7 @@
 #include "volumes/UnplacedPolyhedron.h"
 #include "volumes/UnplacedGenTrap.h"
 #include "volumes/UnplacedEllipsoid.h"
+#include "volumes/UnplacedCutTube.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -161,12 +162,14 @@ int main(int argc, char *argv[])
     unplacedvolume = GeoManager::MakeInstance<UnplacedGenTrap>(verticesx, verticesy, 8);
   } else if (!v.compare("ellipsoid")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedEllipsoid>(3, 4, 5, -3, 3);
+  } else if (!v.compare("cuttube")) {
+    unplacedvolume = GeoManager::MakeInstance<UnplacedCutTube>(3, 5, 7, 0, kPi, Vec_t(1, 0, -1), Vec_t(1, 0, 1));
   }
 
   Visualizer visualizer;
   SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
   visualizer.AddVolume(boxshape);
-  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 100)->GetMesh(), visualizer, kBlue);
+  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 20)->GetMesh(), visualizer, kBlue);
   visualizer.Show();
 
 #endif

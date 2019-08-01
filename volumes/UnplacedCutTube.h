@@ -219,6 +219,10 @@ public:
 
   virtual int MemorySize() const final { return sizeof(*this); }
 
+#ifndef VECCORE_CUDA
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const override;
+#endif
+
 #ifdef VECGEOM_CUDA_INTERFACE
   size_t DeviceSizeOf() const final { return DevicePtr<cuda::UnplacedCutTube>::SizeOf(); }
   DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const final;
