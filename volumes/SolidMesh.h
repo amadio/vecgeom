@@ -28,8 +28,16 @@ public:
   void InitPolygons();
   bool AddPolygon(size_t n, Utils3D::vector_t<size_t> const &indices, bool convex)
   {
-    return fMesh.AddPolygon({n, fMesh.fVert, indices, convex});
+	Utils3D::Polygon poly{n, fMesh.fVert, indices, convex};
+	if(!poly.fValid)
+		return false;
+
+	poly.Init();
+	fMesh.AddPolygon(poly, true);
+	return true;
+
   }
+
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

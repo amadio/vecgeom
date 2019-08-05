@@ -90,6 +90,75 @@ void Polygon::CheckAndFixDegenerate()
   }
 }
 
+// check if fVert[fInd[i]] is convex, fVert[fInd[i  - 1]]-fVert[fInd[i]]-fVert[fInd[ i + 1]] ordered anti clock wise
+bool Polygon::isConvexVertex(size_t i0, size_t i1, size_t i2) const
+{
+  return fNorm.Dot((fVert[i2] - fVert[i1]).Cross(fVert[i0] - fVert[i1])) >= 0.;
+}
+
+// check if a point is inside the triangle formed by fVert[fInd[i - 1]]-fVert[fInd[i]]-fVert[fInd[ i + 1]]
+bool Polygon::isPointInsideTriangle(const Vec_t &p, size_t i0, size_t i1, size_t i2) const
+{
+  Vec_t &A = fVert[i0];
+  Vec_t &B = fVert[i1];
+  Vec_t &C = fVert[i2];
+
+  double area  = std::abs((B - A).Cross(C - A)) / 2;
+  double alpha = std::abs((B - p).Cross(C - p)) / (2 * area);
+  double beta  = std::abs((C - p).Cross(A - p)) / (2 * area);
+  double gamma = 1 - alpha - beta;
+  return 0 <= alpha && alpha <= 1 && 0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1;
+}
+
+void Polygon::TriangulatePolygon(std::vector<Polygon> &polys) const
+{
+
+  std::vector<size_t> ind = fInd;
+
+  for (size_t i0 = 0, i1 = 1, i2 = 2; ind.size() > 2;) {
+
+    while (!isConvexVertex(ind[i0], ind[i1], ind[i2]))
+      i0++, i1++, i2 = (i2 + 1) % ind.size();
+
+    // fVert[ind[i1]] is a convex vertex
+    bool pointInsideTriangle = false;
+    for (size_t j = 0; j < ind.size(); j++) {
+      if (j != i0 && j != i1 && j != i2 && isPointInsideTriangle(fVert[ind[j]], ind[i0], ind[i1], ind[i2])) {
+        pointInsideTriangle = true;
+        i0++, i1++, i2 = (i2 + 1) % ind.size();
+        break;
+      }
+    }
+
+    if (!pointInsideTriangle) {
+      polys.push_back({3, fVert, {ind[i0], ind[i1], ind[i2]}, true});
+      ind.erase(ind.begin() + i1);
+      i0 = 0, i1 = 1, i2 = 2;
+    }
+  }
+}
+
+void Polygon::CalculateNormal()
+{
+  size_t minIndex = 0;
+
+  for (size_t i = 0; i < fInd.size(); i++) {
+    if (fVert[fInd[i]].x() < fVert[fInd[minIndex]].x() ||
+        (fVert[fInd[i]].x() == fVert[fInd[minIndex]].x() &&
+         (fVert[fInd[i]].y() < fVert[fInd[minIndex]].y() ||
+          (fVert[fInd[i]].y() == fVert[fInd[minIndex]].y() && fVert[fInd[i]].z() < fVert[fInd[minIndex]].z())))
+
+    )
+      minIndex = i;
+  }
+
+  fNorm = (fVert[fInd[(minIndex + 1) % fInd.size()]] - fVert[fInd[minIndex]])
+              .Cross(( fVert[fInd[(minIndex + 2) % fInd.size()]] - fVert[fInd[(minIndex + 1) % fInd.size()]]));
+  fNorm.Normalize();
+  fHasNorm = true;
+
+}
+
 void Polygon::Init()
 {
 
@@ -102,8 +171,9 @@ void Polygon::Init()
   assert(fSides[fN - 1].Mag2() > kToleranceSquared);
   // Compute normal if not already set
   if (!fHasNorm) {
-    fNorm = fSides[0].Cross(fSides[1]);
-    fNorm.Normalize();
+    // fNorm = fSides[0].Cross(fSides[1]);
+    // fNorm.Normalize();
+    CalculateNormal();
   }
   assert((fSides[0].Cross(fSides[1])).Dot(fNorm) > 0);
   // Compute convexity if not supplied
@@ -149,11 +219,9 @@ void Polyhedron::Transform(Transformation3D const &tr)
     fPolys[i].Transform(tr);
 }
 
-bool Polyhedron::AddPolygon(const Polygon &poly)
+void Polyhedron::AddPolygon(const Polygon &poly, bool triangulate)
 {
-  if (!poly.fValid) return false;
-  fPolys.push_back(poly);
-  return true;
+  triangulate ? poly.TriangulatePolygon(fPolys) : fPolys.push_back(poly);
 }
 
 void FillBoxPolyhedron(Vec_t const &box, Polyhedron &polyh)

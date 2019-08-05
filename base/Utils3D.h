@@ -127,6 +127,14 @@ struct Polygon {
   void Transform(Transformation3D const &tr);
 
   void CheckAndFixDegenerate();
+
+  void TriangulatePolygon(std::vector<Polygon>& polys) const;
+
+  bool isConvexVertex(size_t i0, size_t i1, size_t i2) const;
+
+  bool isPointInsideTriangle(const Vec_t& point, size_t i0, size_t i1, size_t i2) const;
+
+  void CalculateNormal();
 };
 
 /// @brief A simple polyhedron defined by vertices and polygons
@@ -171,7 +179,7 @@ struct Polyhedron {
   /// @brief Transform the polygon by a general transformation
   void Transform(Transformation3D const &tr);
 
-  bool AddPolygon(Polygon const &poly);
+  void AddPolygon(Polygon const &poly, bool triangulate);
 };
 
 #ifndef VECCORE_CUDA
