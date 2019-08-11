@@ -33,6 +33,15 @@ enum EPlaneXing_t { kParallel = 0, kIdentical, kIntersecting };
 
 enum EBodyXing_t { kDisjoint = 0, kTouching, kOverlapping }; // do not change order
 
+
+
+struct LineIntersection{
+	enum {fParallel, fOverlap, fIntersect, fNoIntersect} fType;
+	double fA;
+	double fB;
+};
+
+
 /// @brief A basic plane in Hessian normal form
 struct Plane {
   Vector3D<double> fNorm; ///< Unit normal vector to plane
@@ -50,10 +59,18 @@ struct Plane {
   void Transform(Transformation3D const &tr);
 };
 
+
+
+
 /// @brief A line segment
 struct Line {
   Vector3D<double> fPts[2]; ///< Points defining the line
+
+  LineIntersection* Intersect(const Line& l2);
+
 };
+
+
 
 /// @brief A polygon defined by vertices and normal
 /* The list of vertices is a reference to an external array. The used vertex indices have to be defined such
@@ -104,6 +121,8 @@ struct Polygon {
     return *this;
   }
 
+
+
   /// @brief Setter for a vertex index
   VECGEOM_FORCE_INLINE
   void SetVertex(size_t ind, size_t ivert) { fInd[ind] = ivert; }
@@ -135,7 +154,14 @@ struct Polygon {
   bool isPointInsideTriangle(const Vec_t& point, size_t i0, size_t i1, size_t i2) const;
 
   void CalculateNormal();
+
+  struct PolygonIntersection* Intersect(const Polygon& clipper);
+
+  //int WindingNumber(const Vec_t& p0, const Vec_t& p1) const;
+
 };
+
+
 
 /// @brief A simple polyhedron defined by vertices and polygons
 struct Polyhedron {
@@ -180,6 +206,15 @@ struct Polyhedron {
   void Transform(Transformation3D const &tr);
 
   void AddPolygon(Polygon const &poly, bool triangulate);
+};
+
+
+struct PolygonIntersection{
+	enum { line, polyhedron} fType;
+	std::vector<Line> fLines;
+	std::vector<Polygon> fPolygons;
+	std::vector<Vec_t> fVertices;
+
 };
 
 #ifndef VECCORE_CUDA
