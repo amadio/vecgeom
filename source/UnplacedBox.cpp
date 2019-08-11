@@ -20,7 +20,14 @@ SolidMesh *UnplacedBox::CreateMesh3D(Transformation3D const &trans, const size_t
                                      {box[0], box[1], box[2]},    {box[0], -box[1], box[2]}};
   sm->SetVertices(vertices, 8);
   sm->TransformVertices(trans);
-  sm->InitConvexHexahedron();
+
+  sm->AddPolygon(4, {0, 1, 2, 3}, true);
+  sm->AddPolygon(4, {4, 7, 6, 5}, true);
+  sm->AddPolygon(4, {0, 4, 5, 1}, true);
+  sm->AddPolygon(4, {1, 5, 6, 2}, true);
+  sm->AddPolygon(4, {2, 6, 7, 3}, true);
+  sm->AddPolygon(4, {3, 7, 4, 0}, true);
+
 
   return sm;
 }

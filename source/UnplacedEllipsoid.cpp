@@ -265,62 +265,60 @@ void UnplacedEllipsoid::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedEllipsoid::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedEllipsoid::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   typedef Vector3D<double> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
-  // nSegments calculation
-  size_t nSegmentsVertical   = std::ceil(std::sqrt(nFaces));
-  size_t nSegmentsHorizontal = nSegmentsVertical;
 
-  sm->ResetMesh((nSegmentsVertical + 1) * (nSegmentsHorizontal + 1), nSegmentsHorizontal * nSegmentsVertical + 2);
+
+  sm->ResetMesh((nSegments + 1) * (nSegments + 1), nSegments * nSegments + 2);
 
   // fill vertex array
-  Vec_t *vertices = new Vec_t[(nSegmentsVertical + 1) * (nSegmentsHorizontal + 1)];
+  Vec_t *vertices = new Vec_t[(nSegments + 1) * (nSegments + 1)];
 
-  double phi_step = 2 * M_PI / nSegmentsHorizontal;
+  double phi_step = 2 * M_PI / nSegments;
   double phi      = 0.;
 
   double theta      = (GetDz() - GetZTopCut()) * kPi / (2 * GetDz());
-  double theta_step = (GetZTopCut() - GetZBottomCut()) / (2 * GetDz()) * kPi / nSegmentsVertical;
+  double theta_step = (GetZTopCut() - GetZBottomCut()) / (2 * GetDz()) * kPi / nSegments;
 
   size_t idx = 0;
-  for (size_t i = 0; i <= nSegmentsVertical; ++i, theta += theta_step, phi = 0.) {
-    for (size_t j = 0; j <= nSegmentsHorizontal; ++j, phi += phi_step) {
+  for (size_t i = 0; i <= nSegments; ++i, theta += theta_step, phi = 0.) {
+    for (size_t j = 0; j <= nSegments; ++j, phi += phi_step) {
       vertices[idx++] = Vec_t(GetDx() * std::sin(theta) * std::cos(phi), GetDy() * std::sin(theta) * std::sin(phi),
                               GetDz() * std::cos(theta));
     }
   }
-  sm->SetVertices(vertices, (nSegmentsVertical + 1) * (nSegmentsHorizontal + 1));
+  sm->SetVertices(vertices, (nSegments + 1) * (nSegments + 1));
   delete[] vertices;
   sm->TransformVertices(trans);
 
   // add polygons
-  for (size_t j = 0, k = 0; j < nSegmentsVertical; j++, k++) {
-    for (size_t i = 0, l = k + nSegmentsHorizontal + 1; i < nSegmentsHorizontal; i++, k++, l++) {
+  for (size_t j = 0, k = 0; j < nSegments; j++, k++) {
+    for (size_t i = 0, l = k + nSegments + 1; i < nSegments; i++, k++, l++) {
       sm->AddPolygon(4, {l + 1, k + 1, k, l}, true);
     }
   }
 
   Utils3D::vector_t<size_t> indices;
-  indices.reserve(nSegmentsHorizontal);
+  indices.reserve(nSegments);
 
   if (GetZTopCut() != GetDz()) {
     // upper surface
-    for (size_t i = 0; i < nSegmentsHorizontal; i++) {
+    for (size_t i = 0; i < nSegments; i++) {
       indices.push_back(i);
     }
-    sm->AddPolygon(nSegmentsHorizontal, indices, true);
+    sm->AddPolygon(nSegments, indices, true);
   }
 
   if (GetZBottomCut() != -GetDz()) {
     // lower surface
     indices.clear();
-    for (size_t i = 0, k = (nSegmentsHorizontal + 1) * (nSegmentsVertical + 1); i < nSegmentsHorizontal; i++, k--) {
+    for (size_t i = 0, k = (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k--) {
       indices.push_back(k - 1);
     }
-    sm->AddPolygon(nSegmentsHorizontal, indices, true);
+    sm->AddPolygon(nSegments, indices, true);
   }
 
   sm->InitPolygons();

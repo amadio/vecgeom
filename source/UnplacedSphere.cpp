@@ -313,34 +313,29 @@ void UnplacedSphere::Print(std::ostream &os) const
 
 #ifndef VECCORE_CUDA
 #include "volumes/SolidMesh.h"
-SolidMesh *UnplacedSphere::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedSphere::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
   typedef Vector3D<double> Vec_t;
   SolidMesh *sm = new SolidMesh();
-
-  size_t nVertical   = std::ceil(std::sqrt(nFaces));
-  size_t nHorizontal = nVertical;
-
-  Vec_t *vertices      = new Vec_t[2 * (nHorizontal + 1) * (nVertical + 1)];
+  Vec_t *vertices      = new Vec_t[2 * (nSegments + 1) * (nSegments + 1)];
 
  // sm->ResetMesh(nMeshVertices, nVertical * nHorizontal);
 
-  double phi_step = GetDPhi() / nHorizontal;
-  double theta_step   = GetDTheta() / nVertical;
-  double phi, theta;
-  phi = GetSPhi();
-  theta = GetSTheta();
+  double phi_step = GetDPhi() / nSegments;
+  double theta_step   = GetDTheta() / nSegments;
+  double phi = GetSPhi();
+  double theta = GetSTheta();
 
   size_t idx = 0;
-  size_t idx2 = (nHorizontal + 1) * (nVertical + 1);
+  size_t idx2 = (nSegments + 1) * (nSegments + 1);
   double z, xy;
-  for (size_t i = 0; i <= nVertical; ++i) {
+  for (size_t i = 0; i <= nSegments; ++i) {
     theta =  M_PI / 2 - GetSTheta() - i * theta_step; // starting from pi/2 to -pi/2
     xy             = GetOuterRadius() * std::cos(theta);
     z              = GetOuterRadius() * std::sin(theta);
 
-    for (size_t j = 0; j <= nHorizontal; ++j) {
+    for (size_t j = 0; j <= nSegments; ++j) {
       phi = GetSPhi() +  j * phi_step; // starting from 0 to 2pi
       vertices[idx++] = Vec_t(xy * std::cos(phi), xy * std::sin(phi), z);
     }
@@ -348,37 +343,37 @@ SolidMesh *UnplacedSphere::CreateMesh3D(Transformation3D const &trans, const siz
     xy             = GetInnerRadius() * std::cos(theta);
     z              = GetInnerRadius() * std::sin(theta);
 
-    for (size_t j = 0; j <= nHorizontal; ++j) {
+    for (size_t j = 0; j <= nSegments; ++j) {
       phi = GetSPhi() +  j * phi_step; // starting from 0 to 2pi
       vertices[idx2++] = Vec_t(xy * std::cos(phi), xy * std::sin(phi), z);
     }
 
   }
-  sm->SetVertices(vertices, 2*(nHorizontal + 1) * (nVertical + 1));
+  sm->SetVertices(vertices, 2*(nSegments + 1) * (nSegments + 1));
   delete[] vertices;
   sm->TransformVertices(trans);
 
 
 
-  for (size_t j = 0, k = 0; j < nVertical; j++, k++) {
-    for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
+  for (size_t j = 0, k = 0; j < nSegments; j++, k++) {
+    for (size_t i = 0, l = k + nSegments + 1; i < nSegments; i++, k++, l++) {
       sm->AddPolygon(4, {k + 1, k, l, l + 1}, true); //outer
     }
   }
 
 
-  for (size_t j = 0, k = (nHorizontal + 1) * (nVertical + 1); j < nVertical; j++, k++) {
-    for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
+  for (size_t j = 0, k = (nSegments + 1) * (nSegments + 1); j < nSegments; j++, k++) {
+    for (size_t i = 0, l = k + nSegments + 1; i < nSegments; i++, k++, l++) {
       sm->AddPolygon(4, {k, k  + 1, l + 1, l}, true); //inner
     }
   }
 
   if(!IsFullThetaSphere()){
-	    for (size_t i = 0, k = 0, l = k + (nHorizontal + 1) * (nVertical + 1); i < nHorizontal; i++, k++, l++) {
+	    for (size_t i = 0, k = 0, l = k + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k++, l++) {
 	      sm->AddPolygon(4, {k, k + 1, l + 1, l}, true); //upper at sTheta
 	    }
 
-	    for (size_t i = 0, k = nHorizontal * (nVertical + 1), l = k + (nHorizontal + 1) * (nVertical + 1); i < nHorizontal; i++, k++, l++) {
+	    for (size_t i = 0, k = nSegments * (nSegments + 1), l = k + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k++, l++) {
 	      sm->AddPolygon(4, {k + 1, k, l, l + 1}, true); //lower at sTheta + dTheta
 	    }
   }
@@ -386,12 +381,12 @@ SolidMesh *UnplacedSphere::CreateMesh3D(Transformation3D const &trans, const siz
 
     if(!IsFullPhiSphere()){
 
-        for (size_t i = 0, k = 0, l = k + (nHorizontal + 1) * (nVertical + 1); i < nHorizontal; i++, k+= nHorizontal + 1, l += nHorizontal + 1) {
-          sm->AddPolygon(4, {k + nHorizontal + 1, k, l, l + nHorizontal + 1}, true); //lateral at sPhi
+        for (size_t i = 0, k = 0, l = k + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k+= nSegments + 1, l += nSegments + 1) {
+          sm->AddPolygon(4, {k + nSegments + 1, k, l, l + nSegments + 1}, true); //lateral at sPhi
         }
 
-        for (size_t i = 0, k = nHorizontal, l = k + (nHorizontal + 1) * (nVertical + 1); i < nHorizontal; i++, k+= nHorizontal + 1, l += nHorizontal + 1) {
-          sm->AddPolygon(4, {k + nHorizontal + 1,l + nHorizontal + 1, l, k}, true); //lateral at sPhi + dPhi
+        for (size_t i = 0, k = nSegments, l = k + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k+= nSegments + 1, l += nSegments + 1) {
+          sm->AddPolygon(4, {k + nSegments + 1,l + nSegments + 1, l, k}, true); //lateral at sPhi + dPhi
         }
 
 

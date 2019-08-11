@@ -336,7 +336,7 @@ public:
   virtual void Print() const = 0;
 
 #ifndef VECCORE_CUDA
-  virtual SolidMesh *CreateMesh3D(Transformation3D const &/*trans*/, const size_t /*nFaces*/) const { return nullptr; };
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &/*trans*/, const size_t /*nSegments*/) const { return nullptr; };
 #endif
 
   // Is not static because a virtual function must be called to initialize

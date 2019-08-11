@@ -149,63 +149,59 @@ void UnplacedParaboloid::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedParaboloid::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedParaboloid::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   typedef Vector3D<double> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
-  size_t nVertical   = std::ceil(std::sqrt(nFaces));
-  size_t nHorizontal = nVertical;
 
-  size_t nMeshVertices = (nVertical + 1) * (nHorizontal + 1);
+  size_t nMeshVertices = (nSegments + 1) * (nSegments + 1);
   Vec_t *vertices      = new Vec_t[nMeshVertices];
 
-  sm->ResetMesh(nMeshVertices, nVertical * nHorizontal + 2);
+  sm->ResetMesh(nMeshVertices, nSegments * nSegments + 2);
 
-  double horizontal_step  = 2 * M_PI / nHorizontal;
-  double horizontal_angle = 0.;
+  double phi_step  = 2 * M_PI / nSegments;
+  double phi = 0.;
 
-  double z_step = 2 * GetDz() / nVertical;
+  double z_step = 2 * GetDz() / nSegments;
   double z      = -GetDz();
 
   size_t idx = 0;
-  for (size_t i = 0; i <= nVertical; ++i, z += z_step, horizontal_angle = 0.) {
+  for (size_t i = 0; i <= nSegments; ++i, z += z_step, phi = 0.) {
     double intermediate = std::sqrt(std::abs((z - GetB()) / GetA()));
-    for (size_t j = 0; j <= nHorizontal; ++j, horizontal_angle += horizontal_step) {
-      vertices[idx++] = Vec_t(intermediate * std::cos(horizontal_angle), intermediate * std::sin(horizontal_angle), z);
+    for (size_t j = 0; j <= nSegments; ++j, phi += phi_step) {
+      vertices[idx++] = Vec_t(intermediate * std::cos(phi), intermediate * std::sin(phi), z);
     }
   }
   sm->SetVertices(vertices, nMeshVertices);
   delete[] vertices;
   sm->TransformVertices(trans);
 
-  for (size_t j = 0, k = 0; j < nVertical; j++, k++) {
-    for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
+  for (size_t j = 0, k = 0; j < nSegments; j++, k++) {
+    for (size_t i = 0, l = k + nSegments + 1; i < nSegments; i++, k++, l++) {
       sm->AddPolygon(4, {l + 1, l, k, k + 1}, true);
     }
   }
 
   Utils3D::vector_t<size_t> indices;
-  indices.reserve(nHorizontal);
+  indices.reserve(nSegments);
 
   if (GetRlo() != 0.) {
     // lower surface
-    for (size_t i = nHorizontal; i > 0; i--) {
+    for (size_t i = nSegments; i > 0; i--) {
       indices.push_back(i - 1);
     }
-    sm->AddPolygon(nHorizontal, indices, true);
+    sm->AddPolygon(nSegments, indices, true);
   }
 
   if (GetRhi() != 0.) {
     // upper surface
     indices.clear();
-    for (size_t i = 0, k = (nHorizontal + 1) * (nVertical); i < nHorizontal; i++, k++) {
+    for (size_t i = 0, k = (nSegments + 1) * (nSegments); i < nSegments; i++, k++) {
       indices.push_back(k);
     }
-    sm->AddPolygon(nHorizontal, indices, true);
+    sm->AddPolygon(nSegments, indices, true);
   }
-
-  sm->InitPolygons();
 
   return sm;
 }

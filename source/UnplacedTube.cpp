@@ -27,13 +27,74 @@ void UnplacedTube::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedTube::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedTube::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   typedef Vector3D<double> Vec_t;
 
-  SolidMesh *sm = nullptr;
+  SolidMesh *sm = new SolidMesh();
+
+  sm->ResetMesh(4*(nSegments + 1), 4*nSegments + 2);
+
+  // fill vertex array
+  Vec_t *vertices = new Vec_t[4*(nSegments + 1)];
+  double angle, step, rcos, rsin;
+
+
+
+  size_t idx  = 0;
+  size_t idx1 = (nSegments + 1);
+  size_t idx2 = 2 * (nSegments + 1);
+  size_t idx3 = 3 * (nSegments + 1);
+
+  double phi      = sphi();
+  double phi_step = dphi() / nSegments;
+
+  double x, y;
+  for (size_t i = 0; i <= nSegments; i++, phi += phi_step) {
+    x               = rmax() * std::cos(phi);
+    y               = rmax() * std::sin(phi);
+    vertices[idx++] = Vec_t(x, y, z()); // top outer
+    vertices[idx1++] = Vec_t(x, y, -z()); // bottom outer
+    x                = rmin() * std::cos(phi);
+    y                = rmin() * std::sin(phi);
+    vertices[idx2++] = Vec_t(x, y, z()); // top inner
+    vertices[idx3++] = Vec_t(x, y, -z()); // bottom inner
+  }
+
+
+
+  sm->SetVertices(vertices, 4*(nSegments + 1));
+  delete[] vertices;
+  sm->TransformVertices(trans);
+
+
+  for (size_t i = 0, j = nSegments + 1; i < nSegments; i++, j++) {
+    sm->AddPolygon(4, {i, j, j + 1, i + 1}, true); // OUTER
+  }
+
+  for (size_t i = 0, j = 2 * (nSegments + 1), k = j + nSegments + 1; i < nSegments; i++, j++, k++) {
+    sm->AddPolygon(4, {j, j + 1, k + 1, k}, true); // inner
+  }
+
+  for (size_t i = 0, j = (nSegments + 1), k = j + 2 * (nSegments + 1); i < nSegments; i++, j++, k++) {
+    sm->AddPolygon(4, {j, k, k + 1, j + 1}, true); // lower
+  }
+
+  for (size_t i = 0, j = 0, k = j + 2 * (nSegments + 1); i < nSegments; i++, j++, k++) {
+    sm->AddPolygon(4, {j, j + 1, k + 1, k}, true); // Upper
+  }
+
+  if (dphi() != kTwoPi) {
+    sm->AddPolygon(4, {0, 2 * (nSegments + 1), 3 * (nSegments + 1), nSegments + 1}, true);
+    sm->AddPolygon(
+        4, {nSegments, nSegments + nSegments + 1, nSegments + 3 * (nSegments + 1), nSegments + 2 * (nSegments + 1)},
+        true);
+  }
 
   // case 1: use elliptical tube with circle base
+
+
+  /*
   if (rmin() == 0. && dphi() == 2 * kPi) {
     VUnplacedVolume *tube = new UnplacedEllipticalTube(rmax(), rmax(), z());
     sm                    = tube->CreateMesh3D(trans, nFaces);
@@ -151,6 +212,8 @@ SolidMesh *UnplacedTube::CreateMesh3D(Transformation3D const &trans, const size_
     }
     sm->InitPolygons();
   }
+  */
+
   return sm;
 }
 #endif

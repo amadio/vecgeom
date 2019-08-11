@@ -4,6 +4,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 typedef Utils3D::Polygon Polygon;
 
+/*
 void SolidMesh::InitConvexHexahedron()
 {
   fMesh.fPolys = {{4, fMesh.fVert, true}, {4, fMesh.fVert, true}, {4, fMesh.fVert, true},
@@ -20,6 +21,7 @@ void SolidMesh::InitConvexHexahedron()
   for (size_t i = 0; i < 6; ++i)
     fMesh.fPolys[i].Init();
 }
+*/
 
 void SolidMesh::InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, Vector3D<Precision> n2,
                                 Vector3D<Precision> n3)
@@ -35,6 +37,7 @@ void SolidMesh::InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, 
     fMesh.fPolys[i].Init();
 }
 
+/*
 void SolidMesh::InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex)
 {
 
@@ -66,6 +69,7 @@ void SolidMesh::InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, boo
   for (size_t i = 0; i < nMeshPolygons; ++i)
     fMesh.fPolys[i].Init();
 }
+*/
 
 void SolidMesh::ApplyTransformation(const Transformation3D &trans)
 {

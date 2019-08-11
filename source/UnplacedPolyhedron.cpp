@@ -575,7 +575,7 @@ void UnplacedPolyhedron::DetectConvexity()
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedPolyhedron::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedPolyhedron::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
   typedef Vector3D<double> Vec_t;

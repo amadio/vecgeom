@@ -191,13 +191,12 @@ bool UnplacedCutTube::Normal(Vector3D<Precision> const &point, Vector3D<Precisio
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedCutTube::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedCutTube::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
   SolidMesh *sm = new SolidMesh();
 
   typedef Vector3D<double> Vec_t;
-  size_t nSegments = std::ceil(nFaces / 4);
   sm->ResetMesh(4 * (nSegments + 1), 4 * nSegments + 2);
 
   Vec_t *const vertices = new Vec_t[4 * (nSegments + 1)];
@@ -250,8 +249,6 @@ SolidMesh *UnplacedCutTube::CreateMesh3D(Transformation3D const &trans, const si
         4, {nSegments, nSegments + nSegments + 1, nSegments + 3 * (nSegments + 1), nSegments + 2 * (nSegments + 1)},
         true);
   }
-
-  sm->InitPolygons();
 
   return sm;
 }

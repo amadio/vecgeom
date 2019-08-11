@@ -19,7 +19,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(8, 6);
@@ -40,7 +40,6 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, c
                                         dz * std::sqrt(1 - std::cos(beta) * std::cos(beta) - intermediate * intermediate ));
 
 
-
   Utils3D::Vec_t vertices[] = {a, a + b, a + b + c, a + c, Vector3D<double>(),
                                      b, b + c, c};
 
@@ -52,7 +51,13 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, c
 
   sm->SetVertices(vertices, 8);
   sm->TransformVertices(trans);
-  sm->InitConvexHexahedron();
+
+  sm->AddPolygon(4, {0, 1, 2, 3}, true);
+  sm->AddPolygon(4, {4, 7, 6, 5}, true);
+  sm->AddPolygon(4, {0, 4, 5, 1}, true);
+  sm->AddPolygon(4, {1, 5, 6, 2}, true);
+  sm->AddPolygon(4, {2, 6, 7, 3}, true);
+  sm->AddPolygon(4, {3, 7, 4, 0}, true);
   return sm;
 }
 #endif

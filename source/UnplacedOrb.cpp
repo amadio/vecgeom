@@ -122,50 +122,47 @@ void UnplacedOrb::Print(std::ostream &os) const
 
 #ifndef VECCORE_CUDA
 #include "volumes/SolidMesh.h"
-SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
   typedef Vector3D<double> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
-  size_t nVertical   = std::ceil(std::sqrt(nFaces));
-  size_t nHorizontal = nVertical;
 
-  size_t nMeshVertices = (nVertical + 1) * (nHorizontal + 1);
-  Vec_t *vertices      = new Vec_t[nMeshVertices];
 
-  sm->ResetMesh(nMeshVertices, nVertical * nHorizontal);
+  Vec_t *vertices      = new Vec_t[(nSegments + 1) * (nSegments + 1)];
 
-  double horizontal_step = 2 * M_PI / nHorizontal;
-  double vertical_step   = M_PI / nVertical;
-  double horizontal_angle, vertical_angle;
+  sm->ResetMesh((nSegments + 1) * (nSegments + 1), nSegments * nSegments);
+
+  double phi_step = 2 * M_PI / nSegments;
+  double theta_step   = M_PI / nSegments;
+  double phi, theta;
 
   double x, y, z, xy;
-  for (size_t i = 0; i <= nVertical; ++i) {
-    vertical_angle = M_PI / 2 - i * vertical_step; // starting from pi/2 to -pi/2
-    xy             = GetRadius() * std::cos(vertical_angle);
-    z              = GetRadius() * std::sin(vertical_angle);
+  for (size_t i = 0; i <= nSegments; ++i) {
+    theta = M_PI / 2 - i * theta_step; // starting from pi/2 to -pi/2
+    xy             = GetRadius() * std::cos(theta);
+    z              = GetRadius() * std::sin(theta);
 
-    for (size_t j = 0; j <= nHorizontal; ++j) {
-      horizontal_angle = j * horizontal_step; // starting from 0 to 2pi
+    for (size_t j = 0; j <= nSegments; ++j) {
+      phi = j * phi_step; // starting from 0 to 2pi
 
       // vertex position (x, y, z)
-      x                                   = xy * std::cos(horizontal_angle);
-      y                                   = xy * std::sin(horizontal_angle);
-      vertices[i * (nHorizontal + 1) + j] = Vec_t(x, y, z);
+      x                                   = xy * std::cos(phi);
+      y                                   = xy * std::sin(phi);
+      vertices[i * (nSegments + 1) + j] = Vec_t(x, y, z);
     }
   }
-  sm->SetVertices(vertices, nMeshVertices);
+  sm->SetVertices(vertices, (nSegments + 1) * (nSegments + 1));
   delete[] vertices;
   sm->TransformVertices(trans);
 
-  for (size_t j = 0, k = 0; j < nVertical; j++, k++) {
-    for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
+  for (size_t j = 0, k = 0; j < nSegments; j++, k++) {
+    for (size_t i = 0, l = k + nSegments + 1; i < nSegments; i++, k++, l++) {
       sm->AddPolygon(4, {k + 1, k, l, l + 1}, true);
     }
   }
 
-  sm->InitPolygons();
 
   return sm;
 }

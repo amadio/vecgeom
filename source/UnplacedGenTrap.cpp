@@ -225,16 +225,22 @@ std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedGenTrap::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedGenTrap::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
   SolidMesh *sm = new SolidMesh();
   if (IsPlanar()) {
     sm->SetVertices(GetVertices(), 8);
-    sm->InitConvexHexahedron();
+    sm->TransformVertices(trans);
+
+    sm->AddPolygon(4, {0, 1, 2, 3}, true);
+    sm->AddPolygon(4, {4, 7, 6, 5}, true);
+    sm->AddPolygon(4, {0, 4, 5, 1}, true);
+    sm->AddPolygon(4, {1, 5, 6, 2}, true);
+    sm->AddPolygon(4, {2, 6, 7, 3}, true);
+    sm->AddPolygon(4, {3, 7, 4, 0}, true);
   } else {
     typedef Vector3D<double> Vec_t;
-    size_t nSegments      = std::ceil(nFaces / 4);
     Vec_t *const vertices = new Vec_t[4 * (nSegments + 1)];
 
     size_t idx = 0;

@@ -257,7 +257,7 @@ void UnplacedPolycone::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedPolycone::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedPolycone::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
   typedef Vector3D<double> Vec_t;
@@ -278,18 +278,7 @@ SolidMesh *UnplacedPolycone::CreateMesh3D(Transformation3D const &trans, const s
                   : GetRmaxAtPlane(i); // rmin==rmax results in rmax+=1e-7, revert
   }
 
-  // nSegments calculation
-  size_t k = 0;
-  for (size_t i = 0; i < nPlanes - 1; i++) {
-    if (!(rmin[i] == 0. && rmin[i + 1] == 0.)) k++;
-    if (!(rmax[i] == 0. && rmax[i + 1] == 0.)) k++;
-  }
 
-  if (rmax[0] > rmin[0]) k++;
-  if (rmax[nPlanes - 1] > rmin[nPlanes - 1]) k++;
-
-  size_t nSegments =
-      GetDeltaPhi() != kTwoPi ? std::ceil((nFaces - 2.0 * (nPlanes - 1)) / k) : std::ceil(nFaces / (double)k);
 
   sm->ResetMesh(2 * nPlanes * (nSegments + 1), 2 * (nPlanes - 1) * nSegments + 2 * nSegments + 2 * (nPlanes - 1));
 

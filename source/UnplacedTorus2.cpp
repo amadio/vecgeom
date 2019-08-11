@@ -21,14 +21,63 @@ void UnplacedTorus2::Print(std::ostream &os) const
 
 #ifndef VECCORE_CUDA
 #include "volumes/SolidMesh.h"
-SolidMesh *UnplacedTorus2::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedTorus2::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   typedef Vector3D<double> Vec_t;
   bool hasInnerRad = rmin() != 0.;
   bool isFull      = dphi() == 2 * kPi;
   SolidMesh *sm    = new SolidMesh();
 
-  size_t nHorizontal, nVertical, nMeshVertices;
+
+  sm->ResetMesh(2*(nSegments + 1) * (nSegments + 1), (nSegments*nSegments) + 2);
+  Vec_t *vertices = new Vec_t[2*(nSegments + 1) * (nSegments + 1)];
+
+     double phi_step  = dphi() / nSegments;
+     double theta_step    = 2 * M_PI / nSegments;
+     double phi = sphi();
+     double theta = 0.;
+     double intermediate1, intermediate2;
+
+     for (size_t p = 0, i = 0; i <= nSegments; ++i, theta += theta_step, phi = sphi()) {
+       intermediate1 = (rtor() + rmax() * std::cos(theta));
+       intermediate2 = (rtor() + rmin() * std::cos(theta));
+       for (size_t j = 0; j <= nSegments; ++j, p++, phi += phi_step) {
+         vertices[p] = Vec_t(intermediate1 * std::cos(phi), intermediate1 * std::sin(phi), rmax() * std::sin(theta));
+         vertices[p + (nSegments + 1)*(nSegments + 1)] = Vec_t(intermediate2 * std::cos(phi), intermediate2 * std::sin(phi), rmin() * std::sin(theta));
+       }
+     }
+
+     sm->SetVertices(vertices, 2 * (nSegments + 1) * (nSegments + 1));
+     delete[] vertices;
+     sm->TransformVertices(trans);
+
+     // outer surface
+      for (size_t j = 0, k = 0; j < nSegments; j++, k++) {
+        for (size_t i = 0, l = k + nSegments + 1; i < nSegments; i++, k++, l++) {
+          sm->AddPolygon(4, {l + 1, l, k, k + 1}, true);
+        }
+      }
+      // inner surface
+      for (size_t j = 0, k = (nSegments + 1)*(nSegments + 1); j < nSegments; j++, k++) {
+        for (size_t i = 0, l = k + nSegments + 1; i < nSegments; i++, k++, l++) {
+          sm->AddPolygon(4, {k + 1, k, l, l + 1}, true);
+        }
+      }
+
+      // surfaces due to torus not being full
+      if (!isFull) {
+
+        for (size_t i = 0, j = 0; i < nSegments; i++, j += nSegments + 1) {
+          sm->AddPolygon(4, {j, j + nSegments + 1, j + nSegments + 1 + (nSegments + 1)*(nSegments + 1), j + (nSegments + 1)*(nSegments + 1)}, true);
+        }
+
+        for (size_t i = 0, j = nSegments; i < nSegments; i++, j += nSegments + 1) {
+          sm->AddPolygon(4, {j + (nSegments + 1)*(nSegments + 1), j + (nSegments + 1)*(nSegments + 1) + nSegments + 1, j + nSegments + 1, j}, true);
+        }
+      }
+
+
+  /*
   if (!hasInnerRad) {
     nHorizontal = nVertical = std::ceil(std::sqrt(nFaces));
     nMeshVertices           = (nVertical + 1) * (nHorizontal + 1);
@@ -142,6 +191,7 @@ SolidMesh *UnplacedTorus2::CreateMesh3D(Transformation3D const &trans, const siz
   }
 
   sm->InitPolygons();
+  */
   return sm;
 }
 #endif

@@ -96,7 +96,7 @@ void UnplacedTrd::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedTrd::CreateMesh3D(Transformation3D const &trans, size_t nFaces) const
+SolidMesh *UnplacedTrd::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(8, 6);
@@ -117,7 +117,14 @@ SolidMesh *UnplacedTrd::CreateMesh3D(Transformation3D const &trans, size_t nFace
 
   sm->SetVertices(vertices, 8);
   sm->TransformVertices(trans);
-  sm->InitConvexHexahedron();
+
+  sm->AddPolygon(4, {0, 1, 2, 3}, true);
+  sm->AddPolygon(4, {4, 7, 6, 5}, true);
+  sm->AddPolygon(4, {0, 4, 5, 1}, true);
+  sm->AddPolygon(4, {1, 5, 6, 2}, true);
+  sm->AddPolygon(4, {2, 6, 7, 3}, true);
+  sm->AddPolygon(4, {3, 7, 4, 0}, true);
+
   return sm;
 }
 #endif

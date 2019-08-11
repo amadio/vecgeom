@@ -61,38 +61,32 @@ void UnplacedCone::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedCone::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedCone::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
   typedef Vector3D<double> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
-  size_t nSegments = 0;
-  if (GetRmin1() == 0. && GetRmin2() == 0.) {
-    nSegments = nFaces / 3;
-    sm->ResetMesh(4 * (nSegments + 1), 3 * nSegments + 2);
-  } else {
-    nSegments = nFaces / 4;
-    sm->ResetMesh(4 * (nSegments + 1), 4 * nSegments + 2);
-  }
 
   Vec_t *vertices = new Vec_t[4 * (nSegments + 1)];
 
   double cos, sin;
-  double angle = GetSPhi();
-  double step  = GetDPhi() / nSegments;
+  double phi = GetSPhi();
+  double phi_step  = GetDPhi() / nSegments;
+
   size_t idx0  = 0;
   size_t idx1  = nSegments + 1;
   size_t idx2  = 2 * (nSegments + 1);
   size_t idx3  = 3 * (nSegments + 1);
-  for (size_t i = 0; i <= nSegments; ++i, angle += step) {
-    cos              = std::cos(angle);
-    sin              = std::sin(angle);
+  for (size_t i = 0; i <= nSegments; ++i, phi += phi_step) {
+    cos              = std::cos(phi);
+    sin              = std::sin(phi);
     vertices[idx0++] = Vec_t(GetRmin1() * cos, GetRmin1() * sin, -GetDz()); // bottom inner
     vertices[idx1++] = Vec_t(GetRmax1() * cos, GetRmax1() * sin, -GetDz()); // bottom outer
     vertices[idx2++] = Vec_t(GetRmin2() * cos, GetRmin2() * sin, GetDz());  // top inner
     vertices[idx3++] = Vec_t(GetRmax2() * cos, GetRmax2() * sin, GetDz());  // top outer
   }
+
   sm->SetVertices(vertices, 4 * (nSegments + 1));
 
   delete[] vertices;
@@ -120,8 +114,6 @@ SolidMesh *UnplacedCone::CreateMesh3D(Transformation3D const &trans, const size_
         4, {2 * (nSegments + 1) + nSegments, 3 * (nSegments + 1) + nSegments, nSegments + 1 + nSegments, 0 + nSegments},
         true);
   }
-
-  sm->InitPolygons();
 
   return sm;
 }

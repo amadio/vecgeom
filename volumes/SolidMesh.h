@@ -22,9 +22,9 @@ public:
   void SetPolygonIndices(size_t i, const Utils3D::vector_t<size_t> &indices);
   void ApplyTransformation(const Transformation3D &trans);
   void TransformVertices(const Transformation3D &trans);
-  void InitConvexHexahedron();
+  //void InitConvexHexahedron();
   void InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, Vector3D<Precision> n2, Vector3D<Precision> n3);
-  void InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex);
+  //void InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex);
   void InitPolygons();
   bool AddPolygon(size_t n, Utils3D::vector_t<size_t> const &indices, bool convex)
   {
@@ -33,7 +33,7 @@ public:
 		return false;
 
 	poly.Init();
-	fMesh.AddPolygon(poly, true);
+	fMesh.AddPolygon(poly, false);
 	return true;
 
   }

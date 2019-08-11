@@ -176,15 +176,118 @@ int main(int argc, char *argv[])
     unplacedvolume = GeoManager::MakeInstance<UnplacedHype>(0., 4., 45., 45., 5.);
   } else if(!v.compare("sphere")) {
 	  unplacedvolume = GeoManager::MakeInstance<UnplacedSphere>(3, 5, 0, kPi, kPi/4 , kPi );
+  } else if(!v.compare("polyx")){
+
+	  /*
+	  Utils3D::Line l1, l2;
+	  l1.fPts[0] = Vec_t(1,0,0);l1.fPts[1] = Vec_t(2,0,0);
+	  l2.fPts[0] = Vec_t(-1,0,-1);l2.fPts[1] = Vec_t(5,0,1);
+
+	  std::cout << l1.Intersect(l2)->fA << ' ' <<  l1.Intersect(l2)->fB << ' ' << l1.Intersect(l2)->fObjectType << '\n';
+	  */
+
+
+	  std::vector<Vec_t> v;
+	  v.push_back(Vec_t(2,2,0));
+	  v.push_back(Vec_t(-2,2,0));
+	  v.push_back(Vec_t(-2,-2,0));
+	  v.push_back(Vec_t(2,-2,0));
+	  Utils3D::Polygon p{4, v, false};
+	  p.fInd = {0,1,2,3};
+	  p.Init();
+
+
+	  v.push_back(Vec_t(-2,0,0));
+	  v.push_back(Vec_t(-3,0,0));
+	  v.push_back(Vec_t(-2.5,1,0));
+
+
+
+	  //v.push_back(Vec_t(3,-2,0));
+	  Utils3D::Polygon p2{3, v, false};
+	  p2.fInd = {4,5,6};
+	  p2.Init();
+
+
+
+
+
+
+	  /*
+	  Utils3D::Polygon p2{5,v,false};
+	  v.push_back(Vec_t(5, 2,-1));
+	  v.push_back(Vec_t(5,2,1));
+	  v.push_back(Vec_t(0,0,0));
+	  v.push_back(Vec_t(-5, 2,1));
+	  v.push_back(Vec_t(-5, 2,-1));
+*/
+
+
+	  /*
+	  Utils3D::Polygon p2{4,v,false};
+	  v.push_back(Vec_t(3,2,0));
+	  v.push_back(Vec_t(-2,2,0));
+	  v.push_back(Vec_t(-2,-3,0));
+	  //v.push_back(Vec_t(1,1,0));
+	  v.push_back(Vec_t(3,-3,0));
+
+
+	  p2.fInd = {5,6,7,8};
+	  p2.Init();
+*/
+
+
+	  Utils3D::PolygonIntersection *pi = p.Intersect(p2);
+
+	  Visualizer visualizer;
+	  SimpleBox boxshape("box", 2, 2, 2);
+	  visualizer.AddVolume(boxshape);
+	  //DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 20)->GetMesh(), visualizer, kBlue);
+	  DrawPolygon(p, visualizer, kGreen);
+	  DrawPolygon(p2, visualizer, kRed);
+
+	  TPolyLine3D pl(2* (pi->fLines.size()));
+	  pl.SetLineColor(kGreen);
+	  for (size_t i = 0; i < pi->fLines.size(); ++i){
+		  visualizer.AddLine((pi->fLines[i].fPts[0]), (pi->fLines[i].fPts[1]));
+	  }
+
+	  for(auto poly: pi->fPolygons){
+		  DrawPolygon(poly, visualizer, kBlue);
+	  }
+
+
+	  /*Line l1{Vec_t(), Vec_t(1,0,0)};
+	  Line l2{Vec_t(1,1,1), Vec_t(1,1,2)};
+	  Utils3D::LineIntersection* li = l1.Intersect(l2);
+	  std::cout << li->fA << ' ' << li-> fB << ' ' << li ->fType << '\n';
+*/
+
+
+
+	  visualizer.Show();
+
+
   }
+
+
 
   Visualizer visualizer;
   SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
   visualizer.AddVolume(boxshape);
-  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 20)->GetMesh(), visualizer, kBlue);
+  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 10)->GetMesh(), visualizer, kBlue);
+  //DrawPolygon(p, visualizer, kBlue);
   visualizer.Show();
 
+
+
+
 #endif
+
+
+
+
+
 
   return 0;
 }

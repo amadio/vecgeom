@@ -19,7 +19,7 @@ void UnplacedSExtruVolume::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-SolidMesh *UnplacedSExtruVolume::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const
+SolidMesh *UnplacedSExtruVolume::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   const PlanarPolygon &polygon = fPolyShell.GetPolygon();
   const double lowerZ          = fPolyShell.GetLowerZ();
@@ -38,15 +38,42 @@ SolidMesh *UnplacedSExtruVolume::CreateMesh3D(Transformation3D const &trans, con
   typedef Vector3D<double> Vec_t;
   Vec_t *const vertices = new Vec_t[nMeshVertices];
   for (size_t i = 0; i < nVertices; i++) {
-    vertices[2 * i]     = Vec_t(verticesX[i], verticesY[i], lowerZ); // even indices hold lower vertices
-    vertices[2 * i + 1] = Vec_t(verticesX[i], verticesY[i], upperZ); // odd indices hold upper vertices
+    vertices[2 * i]     = Vec_t(verticesX[i], verticesY[i], lowerZ); // even lower vertices
+    vertices[2 * i + 1] = Vec_t(verticesX[i], verticesY[i], upperZ); // odd upper vertices
   }
 
   sm->SetVertices(vertices, nMeshVertices);
   delete[] vertices;
 
   sm->TransformVertices(trans);
-  sm->InitSExtruVolume(nMeshVertices, nMeshPolygons, polygon.IsConvex());
+
+
+  std::vector<size_t> indices;
+  indices.reserve(nVertices);
+
+
+  // lower surface
+  for (size_t i = 0; i < 2*nVertices; i+= 2) {
+    indices.push_back(i);
+  }
+  sm->AddPolygon(nVertices, indices, polygon.IsConvex());
+
+  indices.clear();
+  // upper surface
+  for (size_t i = 2*nVertices; i > 0; i-=2) {
+    indices.push_back(i - 1);
+  }
+  sm->AddPolygon(nVertices, indices, polygon.IsConvex());
+
+  //lateral
+  for (size_t i = 0, j = 0; i < (nVertices - 1); i++, j+= 2) {
+	  sm->AddPolygon(4, {j,j + 1,j + 3,j + 2}, true);
+  }
+  sm->AddPolygon(4, {0, nMeshVertices - 2, nMeshVertices - 1, 1}, true);
+
+
+
+  //sm->InitSExtruVolume(nMeshVertices, nMeshPolygons, polygon.IsConvex());
 
   return sm;
 }
