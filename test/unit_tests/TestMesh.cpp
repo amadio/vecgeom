@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
 {
   using namespace vecgeom;
   using namespace vecCore::math;
-  using Vec_t = Vector3D<double>;
 
   using vecgeom::Utils3D::Line;
   using vecgeom::Utils3D::Plane;
@@ -91,9 +90,10 @@ int main(int argc, char *argv[])
   // OPTION_BOOL(t, false);
 #endif
 
-  VUnplacedVolume *unplacedvolume = nullptr;
 
 #ifdef VECGEOM_ROOT
+  VUnplacedVolume *unplacedvolume = nullptr;
+  using Vec_t = Vector3D<double>;
 #define WORLDSIZE 10
 
   if (!v.compare("noVolume")) {
