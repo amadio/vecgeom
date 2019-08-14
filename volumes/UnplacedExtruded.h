@@ -105,6 +105,10 @@ public:
   virtual int memory_size() const final { return sizeof(*this); }
   std::string GetEntityType() const { return "Extruded"; }
 
+#ifndef VECCORE_CUDA
+  virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, size_t nSegments) const override;
+#endif
+
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,

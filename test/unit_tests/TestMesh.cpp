@@ -35,6 +35,7 @@
 #include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedHype.h"
 #include "volumes/UnplacedSphere.h"
+#include "volumes/UnplacedExtruded.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -148,7 +149,7 @@ int main(int argc, char *argv[])
   } else if (!v.compare("polyhedron")) {
     constexpr int nPlanes      = 5;
     Precision zPlanes[nPlanes] = {-7, -1, -1, 1, 7};
-    Precision rInner[nPlanes]  = {0, 0, 0, 0, 0};
+    Precision rInner[nPlanes]  = {3, 4, 5, 5, 7};
     Precision rOuter[nPlanes]  = {8, 9, 9, 9, 10};
 
     unplacedvolume = GeoManager::MakeInstance<UnplacedPolyhedron>(15 * kDegToRad, 180 * kDegToRad, 5, nPlanes, zPlanes,
@@ -197,15 +198,21 @@ int main(int argc, char *argv[])
 	  p.Init();
 
 
-	  v.push_back(Vec_t(-2,0,0));
+	  /*
 	  v.push_back(Vec_t(-3,0,0));
 	  v.push_back(Vec_t(-2.5,1,0));
+	  v.push_back(Vec_t(-2,0,0));
+	  */
 
+	  v.push_back(Vec_t(3,2,0));
+	  v.push_back(Vec_t(-1,2,0));
+	  v.push_back(Vec_t(-1,-2,0));
+	  v.push_back(Vec_t(3,-2,0));
 
 
 	  //v.push_back(Vec_t(3,-2,0));
-	  Utils3D::Polygon p2{3, v, false};
-	  p2.fInd = {4,5,6};
+	  Utils3D::Polygon p2{4, v, false};
+	  p2.fInd = {4,5,6,7};
 	  p2.Init();
 
 
@@ -268,7 +275,80 @@ int main(int argc, char *argv[])
 	  visualizer.Show();
 
 
+  }else if(!v.compare("extruded")){
+#define nvert 10
+#define nsect 5
+
+	  double rmin = 3.;
+	    double rmax = 5.;
+	    bool convex = true;
+
+
+	  vecgeom::XtruVertex2 *vertices = new vecgeom::XtruVertex2[nvert];
+	  vecgeom::XtruSection *sections = new vecgeom::XtruSection[nsect];
+	  double *x                      = new double[nvert];
+	  double *y                      = new double[nvert];
+
+	  double phi = 2. * kPi / nvert;
+	  double r;
+	  for (int i = 0; i < nvert; ++i) {
+	    r = rmax;
+	    if (i % 2 > 0 && !convex) r = rmin;
+	    vertices[i].x = r * vecCore::math::Cos(i * phi);
+	    vertices[i].y = r * vecCore::math::Sin(i * phi);
+	    x[i]          = vertices[i].x;
+	    y[i]          = vertices[i].y;
+	  }
+	  for (int i = 0; i < nsect; ++i) {
+	    sections[i].fOrigin.Set(0, 0, -2. + i * 4. / (nsect - 1));
+	    sections[i].fScale = 1;
+	    if(i == 0)
+	    	sections[0].fScale = 0.5;
+	  }
+
+	  unplacedvolume = GeoManager::MakeInstance<UnplacedExtruded>(nvert, vertices, nsect, sections);
   }
+  else if(!v.compare("polytri")){
+	  std::cout <<"hahaha\n";
+  	  Visualizer visualizer;
+  	  SimpleBox boxshape("box", 2, 2, 2);
+  	visualizer.AddVolume(boxshape);
+
+
+  	  std::vector<Vec_t> v;
+  	  v.push_back(Vec_t(2,2,0));
+  	  v.push_back(Vec_t(-2,2,0));
+  	  v.push_back(Vec_t(-2,-2,0));
+  	  v.push_back(Vec_t(0, 0, 0));
+  	  v.push_back(Vec_t(2,-2,0));
+  	  Utils3D::Polygon p{5, v, false};
+  	  p.fInd = {0,1,2,3,4};
+  	  p.Init();
+
+  	  //DrawPolygon(p, visualizer, kBlue);
+  	  std::vector<Polygon> polys;
+  	  p.TriangulatePolygon(polys);
+	  for(auto poly: polys){
+
+		  DrawPolygon(poly, visualizer, kRed);
+	  }
+
+  	  v.push_back(Vec_t(2,2,1));
+  	  v.push_back(Vec_t(-2,2,1));
+  	  v.push_back(Vec_t(-2,-2,1));
+  	  v.push_back(Vec_t(0, 0, 1));
+  	  v.push_back(Vec_t(2,-2,1));
+  	  Utils3D::Polygon p2{5, v, false};
+  	  p2.fInd = {5,6,7,8,9};
+  	  p2.Init();
+  	DrawPolygon(p2, visualizer, kBlue);
+
+
+
+  	 visualizer.Show();
+    }
+
+
 
 
 
@@ -283,9 +363,6 @@ int main(int argc, char *argv[])
 
 
 #endif
-
-
-
 
 
 

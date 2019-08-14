@@ -370,7 +370,7 @@ public:
   /** @brief Returns the coordinates for a given vertex index at a given section */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Vector3D<double> VertexToSection(size_t ivert, size_t isect)
+  Vector3D<double> VertexToSection(size_t ivert, size_t isect) const
   {
     const double *x = fPolygon.GetVertices().x();
     const double *y = fPolygon.GetVertices().y();

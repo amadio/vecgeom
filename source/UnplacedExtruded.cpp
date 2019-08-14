@@ -234,6 +234,105 @@ bool UnplacedExtruded::Normal(Vector3D<Precision> const &point, Vector3D<Precisi
   return valid;
 }
 
+
+#ifndef VECCORE_CUDA
+SolidMesh *UnplacedExtruded::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
+{
+
+  typedef Vector3D<double> Vec_t;
+
+  SolidMesh *sm = new SolidMesh();
+
+  size_t n      = GetNVertices();
+  size_t nSections = GetNSections();
+
+
+  Vec_t *vertices = new Vec_t[nSections * (n + 1)];
+  size_t idx = 0;
+  for(size_t i = 0; i < nSections; i++){
+	  for(size_t j = n; j > 0; j--){
+		  vertices[idx++] = GetStruct().VertexToSection(j - 1, i);
+	  }
+	  vertices[idx++] = GetStruct().VertexToSection(n-1, i);
+  }
+
+  sm->ResetMesh(nSections * (n + 1), (nSections - 1) * (n) + 2);
+  sm->SetVertices(vertices, nSections * (n + 1));
+  delete[] vertices;
+  sm->TransformVertices(trans);
+
+
+
+  std::vector<size_t> indices;
+  for(size_t i = n; i > 0; i--){
+	  indices.push_back(i - 1);
+  }
+  sm->AddPolygon(n, indices, GetStruct().IsConvexPolygon());
+
+  indices.clear();
+
+  for(size_t i = 0, k = (nSections - 1)*(n+1); i < n; i++,k++ ){
+	  indices.push_back(k);
+  }
+
+  sm->AddPolygon(n, indices, GetStruct().IsConvexPolygon());
+
+
+
+  size_t k = 0;
+  for(size_t i = 0; i < nSections - 1; i++, k++){
+	  for (size_t j = 0; j < n; j++, k++) {
+		  sm->AddPolygon(4, {k,k + 1,k + 1 + n + 1, k + n + 1}, true);
+	  }
+  }
+
+
+
+  /*
+  double k      = std::cos(0.5 * GetPhiDelta() / nSides); // divide R_side by k to get the R_corner
+
+  Vec_t *vertices = new Vec_t[2 * (n + 1) * (nSides + 1)];
+  size_t idx      = 0;
+  size_t idx2     = ((n + 1) * (nSides + 1));
+  for (size_t i = 0; i <= n; i++) {
+    for (size_t j = 0; j <= nSides; j++) {
+      vertices[idx++]  = GetPhiSection(j) * GetRMax()[i] / k + Vec_t(0, 0, GetZPlane(i));
+      vertices[idx2++] = GetPhiSection(j) * GetRMin()[i] / k + Vec_t(0, 0, GetZPlane(i));
+    }
+  }
+
+  sm->ResetMesh(2 * (n + 1) * (nSides + 1), 2 * n * nSides + 2 * nSides + 2 * n);
+
+  sm->SetVertices(vertices, 2 * (n + 1) * (nSides + 1));
+  delete[] vertices;
+  sm->TransformVertices(trans);
+
+  for (size_t i = 0, p = 0, k = nSides + 1, offset = (n + 1) * (nSides + 1); i < n; i++, p++, k++) {
+    for (size_t j = 0; j < nSides; j++, p++, k++) {
+      sm->AddPolygon(4, {p, p + 1, k + 1, k}, true);                                     // outer
+      sm->AddPolygon(4, {k + offset, k + 1 + offset, p + offset + 1, p + offset}, true); // inner
+    }
+  }
+
+  for (size_t i = 0, l = n * (nSides + 1), k = l + nSides + 1, p = k + l; i < nSides; i++, k++, l++, p++) {
+    sm->AddPolygon(4, {k, k + 1, i + 1, i}, true); // lower
+    sm->AddPolygon(4, {l, l + 1, p + 1, p}, true); // upper
+  }
+
+  if (GetPhiDelta() != kTwoPi) {
+    for (size_t i = 0, j = 0, k = nSides + 1, offset = (n + 1) * (nSides + 1); i < n;
+         i++, j += nSides + 1, k += nSides + 1) {
+      sm->AddPolygon(4, {j, k, k + offset, j + offset}, true); // surface at sPhi
+      sm->AddPolygon(4, {j + offset + nSides, k + offset + nSides, k + nSides, j + nSides},
+                     true); // surface at sPhi + dPhi
+    }
+  }
+  sm->InitPolygons();
+*/
+  return sm;
+}
+#endif
+
 #ifdef VECCORE_CUDA
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
