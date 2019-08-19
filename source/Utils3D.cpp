@@ -226,7 +226,7 @@ struct PolygonIntersection* Polygon::Intersect(const Polygon& clipper){
 
 
 
-		for(int i = 0; i < clipper.fInd.size(); i++){
+		for(size_t i = 0; i < clipper.fInd.size(); i++){
 			if(fNorm.Dot(clipper.fSides[i]) == 0.){
 				//line parallel to the plane
 				if((clipper.fVert[clipper.fInd[i]] - fVert[fInd[0]]).Dot(fNorm) == 0.){
@@ -263,7 +263,7 @@ struct PolygonIntersection* Polygon::Intersect(const Polygon& clipper){
 		Line l1{startPoint, endPoint}; //clipper line
 		int windingStartPoint = 0;
 		int windingEndPoint = 0;
-		for(int j = 0; j < fInd.size(); j++){
+		for(size_t j = 0; j < fInd.size(); j++){
 			//find the intersection with each of subject's lines
 			Line l2{fVert[fInd[j]], fVert[fInd[(j + 1) % fInd.size()]]}; //subject line
 
@@ -309,7 +309,7 @@ struct PolygonIntersection* Polygon::Intersect(const Polygon& clipper){
 		//for(auto i :as ){
 		//	std::cout << ' ' <<  i;
 		//}
-		for(int i = 0; i < as.size(); i += 2){
+		for(size_t i = 0; i < as.size(); i += 2){
 			pi->fLines.push_back(Line({l1.fPts[0] + as[i] * (l1.fPts[1] - l1.fPts[0]),l1.fPts[0] + as[i + 1] * (l1.fPts[1] - l1.fPts[0]) }) );
 		}
 
@@ -330,7 +330,7 @@ struct PolygonIntersection* Polygon::Intersect(const Polygon& clipper){
 			double alpha = 0.;
 
 			GreinerHormannVertex(){};
-			GreinerHormannVertex(double alpha, Vec_t coord, bool intersect): coord(coord), alpha(alpha), intersect(intersect){};
+			GreinerHormannVertex(double alpha, Vec_t coord, bool intersect): coord(coord), intersect(intersect), alpha(alpha) {};
 
 			void MakeNeighbor(GreinerHormannVertex* i2){
 				this->neighbor = i2;

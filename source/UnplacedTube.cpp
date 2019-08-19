@@ -37,7 +37,6 @@ SolidMesh *UnplacedTube::CreateMesh3D(Transformation3D const &trans, size_t nSeg
 
   // fill vertex array
   Vec_t *vertices = new Vec_t[4*(nSegments + 1)];
-  double angle, step, rcos, rsin;
 
 
 

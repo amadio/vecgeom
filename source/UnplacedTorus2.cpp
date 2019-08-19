@@ -24,7 +24,6 @@ void UnplacedTorus2::Print(std::ostream &os) const
 SolidMesh *UnplacedTorus2::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   typedef Vector3D<double> Vec_t;
-  bool hasInnerRad = rmin() != 0.;
   bool isFull      = dphi() == 2 * kPi;
   SolidMesh *sm    = new SolidMesh();
 

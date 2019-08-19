@@ -80,22 +80,61 @@ int main(int argc, char *argv[])
 {
   using namespace vecgeom;
   using namespace vecCore::math;
+  using namespace std;
 
   using vecgeom::Utils3D::Line;
   using vecgeom::Utils3D::Plane;
   using vecgeom::Utils3D::Polygon;
   using vecgeom::Utils3D::Polyhedron;
 
-#ifdef VECGEOM_ROOT
-  OPTION_STRING(v, "noVolume");
-  // OPTION_BOOL(t, false);
-#endif
+  if(argc == 1){
+	    std::cout << "\nUsage:\n"
+	                 "./TestMesh -v [volume] -p [p1 p2 ...]\n"
+	                 "Specify all angles in degrees \n"
+
+	                 "\nAvailable volumes:\n"
+	                 " \"box\": dx dy dz \n"
+	    			 " \"parallelepiped\": dx dy dz alpha theta phi \n"
+	    		     " \"trd\": x1 x2 y1 y2 z \n"
+	    		     " \"trapezoid\": dz theta phi dy1 dx1 dx2 alpha1 dy2 dx3 dx4 alpha2 \n"
+	    		     " \"tet\": x1 y1 z1  x2 y2 z2  x3 y3 z3  x4 y4 z4 \n\n"
+
+	    		     " \"ellipticaltube\": dx dy dz \n"
+	    		     " \"ellipticalcone\": a b h zcut \n"
+	    		     " \"orb\": r \n"
+	    		     " \"cone\": rmin1 rmax1 rmin2 rmax2 dz sphi dphi \n"
+	    		     " \"tube\": rmin rmax z sphi dphi \n"
+	    		     " \"cuttube\": rmin rmax z sphi dphi x1 y1 z1(bottomNormal) x2 y2 z2(topNormal) \n\n"
 
 
+	    		     " \"paraboloid\": rlo rhi dz \n"
+	    		     " \"hype\": rmin rmax stIn stOut dz \n"
+	    		     " \"torus\": rmin rmax rtor sphi dphi \n"
+	    		     " \"ellipsoid\": dx dy dz zBottomCut zTopCut \n"
+	    		     " \"sphere\": rmin rmax sPhi dPhi sTheta dTheta \n"
+
+
+
+	                 "\n"
+	                 "\n"
+	                 "";
+	    return 0;
+  }
+
+  string v = "noVolume";
+  v = argv[2];
+  vector<double> ps;
+  for(int i = 3; i < argc; i++){
+	  ps.push_back(stod(string(argv[i]), NULL));
+  }
+
+
+
 #ifdef VECGEOM_ROOT
+  #define WORLDSIZE 10
   VUnplacedVolume *unplacedvolume = nullptr;
   using Vec_t = Vector3D<double>;
-#define WORLDSIZE 10
+
 
   if (!v.compare("noVolume")) {
     std::cout << "\nUsage:\n"
@@ -108,174 +147,49 @@ int main(int argc, char *argv[])
                  "";
     return 0;
   } else if (!v.compare("box")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedBox>(3., 3., 3.);
+    unplacedvolume = GeoManager::MakeInstance<UnplacedBox>(ps[0],ps[1],ps[2]);
   } else if (!v.compare("parallelepiped")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedParallelepiped>(2., 2., 3., 90., 90., 90.);
-  } else if (!v.compare("sextruvolume")) {
-#define N 10
-    double dx = 5;
-    double dy = 5;
-    double dz = 3;
-
-    double x[N], y[N];
-    for (size_t i = 0; i < (size_t)N; ++i) {
-      x[i] = dx * std::sin(i * (2. * M_PI) / N);
-      y[i] = dy * std::cos(i * (2. * M_PI) / N);
-    }
-    unplacedvolume = GeoManager::MakeInstance<UnplacedSExtruVolume>(N, x, y, -dz, dz);
+	  unplacedvolume = GeoManager::MakeInstance<UnplacedParallelepiped>(ps[0], ps[1], ps[2], kDegToRad * ps[3],kDegToRad* ps[4],kDegToRad* ps[5]);
   } else if (!v.compare("trapezoid")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedTrapezoid>(5., 0., 0., 3., 4., 5., 0., 3., 4., 5., 0.);
+    //unplacedvolume = GeoManager::MakeInstance<UnplacedTrapezoid>(5., 0., 0., 3., 4., 5., 0., 3., 4., 5., 0.);
+	unplacedvolume = GeoManager::MakeInstance<UnplacedTrapezoid>(ps[0], kDegToRad*ps[1], kDegToRad*ps[2], ps[3], ps[4], ps[5], kDegToRad*ps[6], ps[7], ps[8], ps[9], kDegToRad*ps[10]);
   } else if (!v.compare("trd")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedTrd>(2., 3., 2., 5.);
+    unplacedvolume = GeoManager::MakeInstance<UnplacedTrd>(2., 5., 2.,5., 5.);
   } else if (!v.compare("tet")) {
-    Vec_t p0(0., 0., 5.), p1(-5., -5., -5.), p2(5., -5., -5.), p3(-5., 5., -5.);
-    unplacedvolume = GeoManager::MakeInstance<UnplacedTet>(p0, p1, p2, p3);
+    //Vec_t p0(0., 0., 5.), p1(-5., -5., -5.), p2(5., -5., -5.), p3(-5., 5., -5.);
+    //unplacedvolume = GeoManager::MakeInstance<UnplacedTet>(p0, p1, p2, p3);
+	Vec_t p0(ps[0], ps[1], ps[2]), p1(ps[3], ps[4], ps[5]), p2(ps[6], ps[7], ps[8]), p3(ps[9], ps[10], ps[11]);
+	unplacedvolume = GeoManager::MakeInstance<UnplacedTet>(p0, p1, p2, p3);
   } else if (!v.compare("ellipticaltube")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalTube>(2, 4, 5);
+    unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalTube>(ps[0], ps[1], ps[2]);
   } else if (!v.compare("ellipticalcone")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalCone>(1., 1., 5., 3.);
+	  // 1 1 5 3
+    unplacedvolume = GeoManager::MakeInstance<UnplacedEllipticalCone>(ps[0], ps[1], ps[2], ps[3]);
   } else if (!v.compare("orb")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedOrb>(8.);
+    unplacedvolume = GeoManager::MakeInstance<UnplacedOrb>(ps[0]);
   } else if (!v.compare("cone")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedCone>(3., 5, 2., 4., 5, 0, kPi);
+    //unplacedvolume = GeoManager::MakeInstance<UnplacedCone>(3., 5, 2., 4., 5, 0, kPi);
+    unplacedvolume = GeoManager::MakeInstance<UnplacedCone>(ps[0], ps[1], ps[2], ps[3], ps[4], kDegToRad*ps[5], kDegToRad*ps[6]);
+
   } else if (!v.compare("paraboloid")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedParaboloid>(0., 7., 5.);
-  } else if (!v.compare("polycone")) {
-    int Nz         = 4;
-    double rmin[]  = {0., 3., 7., 8};
-    double rmax[]  = {5., 4., 8., 9};
-    double z[]     = {-3, 0, 3, 8};
-    unplacedvolume = GeoManager::MakeInstance<UnplacedPolycone>(0, kPi, Nz, z, rmin, rmax);
-  } else if (!v.compare("polyhedron")) {
-    constexpr int nPlanes      = 5;
-    Precision zPlanes[nPlanes] = {-7, -1, -1, 1, 7};
-    Precision rInner[nPlanes]  = {3, 4, 5, 5, 7};
-    Precision rOuter[nPlanes]  = {8, 9, 9, 9, 10};
-
-    unplacedvolume = GeoManager::MakeInstance<UnplacedPolyhedron>(15 * kDegToRad, 180 * kDegToRad, 5, nPlanes, zPlanes,
-                                                                  rInner, rOuter);
-  } else if (!v.compare("gentrap")) {
-    // twisted
-
-    Precision verticesx[8] = {-3, -3, 3, 3, -3.889087296526, 0.35355339059327, 3.889087296526, -0.35355339059327};
-    Precision verticesy[8] = {-3, 3, 3, -3, 0.35355339059327, 3.889087296526, -0.35355339059327, -3.889087296526};
-
-    // no twist
-    // Precision verticesx1[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
-    // Precision verticesy1[8] = {-3, 3, 3, -3, -2, 2, 2, -2};
-
-    unplacedvolume = GeoManager::MakeInstance<UnplacedGenTrap>(verticesx, verticesy, 8);
+	  //0 7 5
+    unplacedvolume = GeoManager::MakeInstance<UnplacedParaboloid>(ps[0], ps[1], ps[2]);
   } else if (!v.compare("ellipsoid")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedEllipsoid>(3, 4, 5, -3, 3);
+    unplacedvolume = GeoManager::MakeInstance<UnplacedEllipsoid>(ps[0], ps[1], ps[2], ps[3], ps[4]);
   } else if (!v.compare("cuttube")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedCutTube>(3, 5, 7, 0, kPi, Vec_t(1, 0, -1), Vec_t(1, 0, 1));
+	  // 1 0 - 1       1 0 1 normals
+    unplacedvolume = GeoManager::MakeInstance<UnplacedCutTube>(ps[0], ps[1], ps[2], kDegToRad* ps[3], kDegToRad* ps[4], Vec_t(ps[5], ps[6], ps[7]), Vec_t(ps[8], ps[9], ps[10]));
   } else if (!v.compare("tube")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedTube>(2., 10., 5., 0., 2*kPi);
+    //unplacedvolume = GeoManager::MakeInstance<UnplacedTube>(2., 10., 5., 0., 2*kPi);
+	unplacedvolume = GeoManager::MakeInstance<UnplacedTube>(ps[0], ps[1], ps[2], kDegToRad*ps[3], kDegToRad*ps[4]);
   } else if (!v.compare("torus")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedTorus2>(0., 5., 5., 0, 2*kPi);
+    unplacedvolume = GeoManager::MakeInstance<UnplacedTorus2>(ps[0], ps[1], ps[2], kDegToRad* ps[3], kDegToRad* ps[4]);
   } else if (!v.compare("hype")) {
-    unplacedvolume = GeoManager::MakeInstance<UnplacedHype>(0., 4., 45., 45., 5.);
+	  //(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut, const Precision dz)
+    unplacedvolume = GeoManager::MakeInstance<UnplacedHype>(ps[0], ps[1], kDegToRad*ps[2], kDegToRad*ps[3], ps[4]);
   } else if(!v.compare("sphere")) {
-	  unplacedvolume = GeoManager::MakeInstance<UnplacedSphere>(3, 5, 0, kPi, kPi/4 , kPi );
-  } else if(!v.compare("polyx")){
-
-	  /*
-	  Utils3D::Line l1, l2;
-	  l1.fPts[0] = Vec_t(1,0,0);l1.fPts[1] = Vec_t(2,0,0);
-	  l2.fPts[0] = Vec_t(-1,0,-1);l2.fPts[1] = Vec_t(5,0,1);
-
-	  std::cout << l1.Intersect(l2)->fA << ' ' <<  l1.Intersect(l2)->fB << ' ' << l1.Intersect(l2)->fObjectType << '\n';
-	  */
-
-
-	  std::vector<Vec_t> v;
-	  v.push_back(Vec_t(2,2,0));
-	  v.push_back(Vec_t(-2,2,0));
-	  v.push_back(Vec_t(-2,-2,0));
-	  v.push_back(Vec_t(2,-2,0));
-	  Utils3D::Polygon p{4, v, false};
-	  p.fInd = {0,1,2,3};
-	  p.Init();
-
-
-	  /*
-	  v.push_back(Vec_t(-3,0,0));
-	  v.push_back(Vec_t(-2.5,1,0));
-	  v.push_back(Vec_t(-2,0,0));
-	  */
-
-	  v.push_back(Vec_t(3,2,0));
-	  v.push_back(Vec_t(-1,2,0));
-	  v.push_back(Vec_t(-1,-2,0));
-	  v.push_back(Vec_t(3,-2,0));
-
-
-	  //v.push_back(Vec_t(3,-2,0));
-	  Utils3D::Polygon p2{4, v, false};
-	  p2.fInd = {4,5,6,7};
-	  p2.Init();
-
-
-
-
-
-
-	  /*
-	  Utils3D::Polygon p2{5,v,false};
-	  v.push_back(Vec_t(5, 2,-1));
-	  v.push_back(Vec_t(5,2,1));
-	  v.push_back(Vec_t(0,0,0));
-	  v.push_back(Vec_t(-5, 2,1));
-	  v.push_back(Vec_t(-5, 2,-1));
-*/
-
-
-	  /*
-	  Utils3D::Polygon p2{4,v,false};
-	  v.push_back(Vec_t(3,2,0));
-	  v.push_back(Vec_t(-2,2,0));
-	  v.push_back(Vec_t(-2,-3,0));
-	  //v.push_back(Vec_t(1,1,0));
-	  v.push_back(Vec_t(3,-3,0));
-
-
-	  p2.fInd = {5,6,7,8};
-	  p2.Init();
-*/
-
-
-	  Utils3D::PolygonIntersection *pi = p.Intersect(p2);
-
-	  Visualizer visualizer;
-	  SimpleBox boxshape("box", 2, 2, 2);
-	  visualizer.AddVolume(boxshape);
-	  //DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 20)->GetMesh(), visualizer, kBlue);
-	  DrawPolygon(p, visualizer, kGreen);
-	  DrawPolygon(p2, visualizer, kRed);
-
-	  TPolyLine3D pl(2* (pi->fLines.size()));
-	  pl.SetLineColor(kGreen);
-	  for (size_t i = 0; i < pi->fLines.size(); ++i){
-		  visualizer.AddLine((pi->fLines[i].fPts[0]), (pi->fLines[i].fPts[1]));
-	  }
-
-	  for(auto poly: pi->fPolygons){
-		  DrawPolygon(poly, visualizer, kBlue);
-	  }
-
-
-	  /*Line l1{Vec_t(), Vec_t(1,0,0)};
-	  Line l2{Vec_t(1,1,1), Vec_t(1,1,2)};
-	  Utils3D::LineIntersection* li = l1.Intersect(l2);
-	  std::cout << li->fA << ' ' << li-> fB << ' ' << li ->fType << '\n';
-*/
-
-
-
-	  visualizer.Show();
-
-
-  }else if(!v.compare("extruded")){
+	  unplacedvolume = GeoManager::MakeInstance<UnplacedSphere>(ps[0], ps[1], kDegToRad* ps[2],kDegToRad* ps[3],kDegToRad* ps[4] ,kDegToRad*ps[5] );
+  } else if(!v.compare("extruded")){
 #define nvert 10
 #define nsect 5
 
@@ -308,6 +222,45 @@ int main(int argc, char *argv[])
 
 	  unplacedvolume = GeoManager::MakeInstance<UnplacedExtruded>(nvert, vertices, nsect, sections);
   }
+  else if (!v.compare("sextruvolume")) {
+  #define N 10
+      double dx = 5;
+      double dy = 5;
+      double dz = 3;
+
+      double x[N], y[N];
+      for (size_t i = 0; i < (size_t)N; ++i) {
+        x[i] = dx * std::sin(i * (2. * M_PI) / N);
+        y[i] = dy * std::cos(i * (2. * M_PI) / N);
+      }
+      unplacedvolume = GeoManager::MakeInstance<UnplacedSExtruVolume>(N, x, y, -dz, dz);
+    }
+  else if (!v.compare("polycone")) {
+      int Nz         = 4;
+      double rmin[]  = {0., 3., 7., 8};
+      double rmax[]  = {5., 4., 8., 9};
+      double z[]     = {-3, 0, 3, 8};
+      unplacedvolume = GeoManager::MakeInstance<UnplacedPolycone>(0, kPi, Nz, z, rmin, rmax);
+    } else if (!v.compare("polyhedron")) {
+      constexpr int nPlanes      = 5;
+      Precision zPlanes[nPlanes] = {-7, -1, -1, 1, 7};
+      Precision rInner[nPlanes]  = {3, 4, 5, 5, 7};
+      Precision rOuter[nPlanes]  = {8, 9, 9, 9, 10};
+
+      unplacedvolume = GeoManager::MakeInstance<UnplacedPolyhedron>(15 * kDegToRad, 180 * kDegToRad, 5, nPlanes, zPlanes,
+                                                                    rInner, rOuter);
+    } else if (!v.compare("gentrap")) {
+      // twisted
+
+      Precision verticesx[8] = {-3, -3, 3, 3, -3.889087296526, 0.35355339059327, 3.889087296526, -0.35355339059327};
+      Precision verticesy[8] = {-3, 3, 3, -3, 0.35355339059327, 3.889087296526, -0.35355339059327, -3.889087296526};
+
+      // no twist
+      // Precision verticesx1[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
+      // Precision verticesy1[8] = {-3, 3, 3, -3, -2, 2, 2, -2};
+
+      unplacedvolume = GeoManager::MakeInstance<UnplacedGenTrap>(verticesx, verticesy, 8);
+    }
   else if(!v.compare("polytri")){
 	  std::cout <<"hahaha\n";
   	  Visualizer visualizer;
@@ -346,6 +299,104 @@ int main(int argc, char *argv[])
 
 
   	 visualizer.Show();
+    }else if(!v.compare("polyx")){
+
+  	  /*
+  	  Utils3D::Line l1, l2;
+  	  l1.fPts[0] = Vec_t(1,0,0);l1.fPts[1] = Vec_t(2,0,0);
+  	  l2.fPts[0] = Vec_t(-1,0,-1);l2.fPts[1] = Vec_t(5,0,1);
+
+  	  std::cout << l1.Intersect(l2)->fA << ' ' <<  l1.Intersect(l2)->fB << ' ' << l1.Intersect(l2)->fObjectType << '\n';
+  	  */
+
+
+  	  std::vector<Vec_t> v;
+  	  v.push_back(Vec_t(2,2,0));
+  	  v.push_back(Vec_t(-2,2,0));
+  	  v.push_back(Vec_t(-2,-2,0));
+  	  v.push_back(Vec_t(2,-2,0));
+  	  Utils3D::Polygon p{4, v, false};
+  	  p.fInd = {0,1,2,3};
+  	  p.Init();
+
+
+  	  /*
+  	  v.push_back(Vec_t(-3,0,0));
+  	  v.push_back(Vec_t(-2.5,1,0));
+  	  v.push_back(Vec_t(-2,0,0));
+  	  */
+
+  	  v.push_back(Vec_t(3,2,0));
+  	  v.push_back(Vec_t(-1,2,0));
+  	  v.push_back(Vec_t(-1,-2,0));
+  	  v.push_back(Vec_t(3,-2,0));
+
+
+  	  //v.push_back(Vec_t(3,-2,0));
+  	  Utils3D::Polygon p2{4, v, false};
+  	  p2.fInd = {4,5,6,7};
+  	  p2.Init();
+
+
+
+
+
+
+  	  /*
+  	  Utils3D::Polygon p2{5,v,false};
+  	  v.push_back(Vec_t(5, 2,-1));
+  	  v.push_back(Vec_t(5,2,1));
+  	  v.push_back(Vec_t(0,0,0));
+  	  v.push_back(Vec_t(-5, 2,1));
+  	  v.push_back(Vec_t(-5, 2,-1));
+  */
+
+
+  	  /*
+  	  Utils3D::Polygon p2{4,v,false};
+  	  v.push_back(Vec_t(3,2,0));
+  	  v.push_back(Vec_t(-2,2,0));
+  	  v.push_back(Vec_t(-2,-3,0));
+  	  //v.push_back(Vec_t(1,1,0));
+  	  v.push_back(Vec_t(3,-3,0));
+
+
+  	  p2.fInd = {5,6,7,8};
+  	  p2.Init();
+  */
+
+
+  	  Utils3D::PolygonIntersection *pi = p.Intersect(p2);
+
+  	  Visualizer visualizer;
+  	  SimpleBox boxshape("box", 2, 2, 2);
+  	  visualizer.AddVolume(boxshape);
+  	  //DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 20)->GetMesh(), visualizer, kBlue);
+  	  DrawPolygon(p, visualizer, kGreen);
+  	  DrawPolygon(p2, visualizer, kRed);
+
+  	  TPolyLine3D pl(2* (pi->fLines.size()));
+  	  pl.SetLineColor(kGreen);
+  	  for (size_t i = 0; i < pi->fLines.size(); ++i){
+  		  visualizer.AddLine((pi->fLines[i].fPts[0]), (pi->fLines[i].fPts[1]));
+  	  }
+
+  	  for(auto poly: pi->fPolygons){
+  		  DrawPolygon(poly, visualizer, kBlue);
+  	  }
+
+
+  	  /*Line l1{Vec_t(), Vec_t(1,0,0)};
+  	  Line l2{Vec_t(1,1,1), Vec_t(1,1,2)};
+  	  Utils3D::LineIntersection* li = l1.Intersect(l2);
+  	  std::cout << li->fA << ' ' << li-> fB << ' ' << li ->fType << '\n';
+  */
+
+
+
+  	  visualizer.Show();
+
+
     }
 
 
