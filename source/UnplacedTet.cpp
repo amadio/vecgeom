@@ -134,8 +134,36 @@ SolidMesh *UnplacedTet::CreateMesh3D(Transformation3D const &trans, const size_t
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(4, 4);
   sm->SetVertices(fTet.fVertex, 4);
-  sm->InitTetrahedron(fTet.fPlane[0].n, fTet.fPlane[1].n, fTet.fPlane[2].n, fTet.fPlane[3].n);
-  sm->ApplyTransformation(trans);
+  sm->TransformVertices(trans);
+
+
+
+    Vector3D<Precision> n0 = (sm->GetVertices()[1] - sm->GetVertices()[0]).Cross(sm->GetVertices()[2] - sm->GetVertices()[0]);
+    Vector3D<Precision> n1 = (sm->GetVertices()[2] - sm->GetVertices()[1]).Cross(sm->GetVertices()[3] - sm->GetVertices()[1]);
+    Vector3D<Precision> n2 = (sm->GetVertices()[3] - sm->GetVertices()[2]).Cross(sm->GetVertices()[0] - sm->GetVertices()[2]);
+    Vector3D<Precision> n3 = (sm->GetVertices()[0] - sm->GetVertices()[3]).Cross(sm->GetVertices()[1] - sm->GetVertices()[3]);
+
+    if (n0.Dot(sm->GetVertices()[3] - sm->GetVertices()[0]) > 0){
+  	  sm->AddPolygon(3, {1, 0, 2}, true);
+    }else{
+    	sm->AddPolygon(3, {0, 1, 2}, true);
+    }
+
+    if (n1.Dot(sm->GetVertices()[0] - sm->GetVertices()[1]) > 0){
+    	sm->AddPolygon(3, {2, 1, 3}, true);
+    }else{
+    	sm->AddPolygon(3, {1, 2, 3}, true);
+    }
+    if (n2.Dot(sm->GetVertices()[1] - sm->GetVertices()[2]) > 0){
+    	sm->AddPolygon(3, {3, 2, 0}, true);
+    }else{
+    	sm->AddPolygon(3, {2, 3, 0}, true);
+    }
+    if (n3.Dot(sm->GetVertices()[2] - sm->GetVertices()[3]) > 0){
+    	sm->AddPolygon(3, {0, 3, 1}, true);
+    }else{
+    	sm->AddPolygon(3, {3, 0, 1}, true);
+    }
 
   return sm;
 }

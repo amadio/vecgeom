@@ -321,8 +321,6 @@ SolidMesh *UnplacedEllipsoid::CreateMesh3D(Transformation3D const &trans, size_t
     sm->AddPolygon(nSegments, indices, true);
   }
 
-  sm->InitPolygons();
-
   return sm;
 }
 #endif

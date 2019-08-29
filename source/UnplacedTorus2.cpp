@@ -20,7 +20,6 @@ void UnplacedTorus2::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-#include "volumes/SolidMesh.h"
 SolidMesh *UnplacedTorus2::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   typedef Vector3D<double> Vec_t;
@@ -76,121 +75,6 @@ SolidMesh *UnplacedTorus2::CreateMesh3D(Transformation3D const &trans, size_t nS
       }
 
 
-  /*
-  if (!hasInnerRad) {
-    nHorizontal = nVertical = std::ceil(std::sqrt(nFaces));
-    nMeshVertices           = (nVertical + 1) * (nHorizontal + 1);
-    sm->ResetMesh(nMeshVertices, nVertical * nHorizontal + 2);
-    Vec_t *vertices = new Vec_t[nMeshVertices];
-
-    double horizontal_step  = dphi() / nHorizontal;
-    double vertical_step    = 2 * M_PI / nVertical;
-    double horizontal_angle = sphi();
-    double vertical_angle   = 0.;
-    double intermediate;
-
-    for (size_t p = 0, i = 0; i <= nVertical; ++i, vertical_angle += vertical_step, horizontal_angle = sphi()) {
-      intermediate = (rtor() + rmax() * std::cos(vertical_angle));
-      for (size_t j = 0; j <= nHorizontal; ++j, p++, horizontal_angle += horizontal_step) {
-        vertices[p]  = Vec_t(intermediate * std::cos(horizontal_angle), intermediate * std::sin(horizontal_angle),
-                            rmax() * std::sin(vertical_angle));
-      }
-    }
-
-    sm->SetVertices(vertices, nMeshVertices);
-    delete[] vertices;
-    sm->TransformVertices(trans);
-
-    // outer surface
-
-    for (size_t j = 0, k = 0; j < nVertical; j++, k++) {
-      for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
-        sm->AddPolygon(4, {l + 1, l, k, k + 1}, true);
-      }
-    }
-
-    // if not full, add 2 faces for the bases
-    if (!isFull) {
-      Utils3D::vector_t<size_t> indices;
-      indices.reserve(nHorizontal);
-
-      for (size_t j = nVertical * (nHorizontal + 1); j > 0; j -= nHorizontal + 1) {
-        indices.push_back(j - 1);
-      }
-
-      sm->AddPolygon(nHorizontal, indices, true);
-
-      indices.clear();
-
-      for (size_t i = 0, j = 0; i < nVertical; i++, j += nHorizontal + 1) {
-        indices.push_back(j);
-      }
-      sm->AddPolygon(nHorizontal, indices, true);
-    }
-
-  } else {
-    if (isFull) {
-      nHorizontal = nVertical = std::ceil(std::sqrt(nFaces / 2));
-      nMeshVertices           = (nVertical + 1) * (nHorizontal + 1);
-      sm->ResetMesh(2 * nMeshVertices, 2 * nVertical * nHorizontal);
-    } else {
-      nHorizontal = nVertical = std::ceil((-2 + std::sqrt(4 + 8 * nFaces)) / 4);
-      nMeshVertices           = (nVertical + 1) * (nHorizontal + 1);
-      sm->ResetMesh(2 * nMeshVertices, 2 * nVertical * nHorizontal + 2 * nHorizontal);
-    }
-
-    Vec_t *vertices = new Vec_t[2 * nMeshVertices];
-
-    double horizontal_step  = dphi() / nHorizontal;
-    double vertical_step    = 2 * M_PI / nVertical;
-    double horizontal_angle = sphi();
-    double vertical_angle   = 0.;
-    double intermediate1, intermediate2;
-
-    for (size_t p = 0, i = 0; i <= nVertical; ++i, vertical_angle += vertical_step, horizontal_angle = sphi()) {
-      intermediate1 = (rtor() + rmax() * std::cos(vertical_angle));
-      intermediate2 = (rtor() + rmin() * std::cos(vertical_angle));
-      for (size_t j = 0; j <= nHorizontal; ++j, p++, horizontal_angle += horizontal_step) {
-        vertices[p] = Vec_t(intermediate1 * std::cos(horizontal_angle), intermediate1 * std::sin(horizontal_angle),
-                            rmax() * std::sin(vertical_angle));
-        vertices[p + nMeshVertices] =
-            Vec_t(intermediate2 * std::cos(horizontal_angle), intermediate2 * std::sin(horizontal_angle),
-                  rmin() * std::sin(vertical_angle));
-      }
-    }
-
-    sm->SetVertices(vertices, 2 * nMeshVertices);
-    delete[] vertices;
-    sm->TransformVertices(trans);
-
-    // outer surface
-    for (size_t j = 0, k = 0; j < nVertical; j++, k++) {
-      for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
-        sm->AddPolygon(4, {l + 1, l, k, k + 1}, true);
-      }
-    }
-    // inner surface
-    for (size_t j = 0, k = nMeshVertices; j < nVertical; j++, k++) {
-      for (size_t i = 0, l = k + nHorizontal + 1; i < nHorizontal; i++, k++, l++) {
-        sm->AddPolygon(4, {k + 1, k, l, l + 1}, true);
-      }
-    }
-
-    // surfaces due to torus not being full
-    if (!isFull) {
-
-      for (size_t i = 0, j = 0; i < nVertical; i++, j += nHorizontal + 1) {
-        sm->AddPolygon(4, {j, j + nHorizontal + 1, j + nHorizontal + 1 + nMeshVertices, j + nMeshVertices}, true);
-      }
-
-      for (size_t i = 0, j = nHorizontal; i < nVertical; i++, j += nHorizontal + 1) {
-        sm->AddPolygon(4, {j + nMeshVertices, j + nMeshVertices + nHorizontal + 1, j + nHorizontal + 1, j}, true);
-      }
-    }
-  }
-
-  sm->InitPolygons();
-  */
   return sm;
 }
 #endif

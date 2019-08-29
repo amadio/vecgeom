@@ -86,7 +86,7 @@ void Visualizer::AddPoints(SOA3D<Precision> const &points, int color)
 
 void Visualizer::AddPoint(Vector3D<Precision> const &point, int color)
 {
-  SOA3D<Precision> c(1);
+  SOA3D<Precision> c(0);
   c.push_back(point);
   AddPoints(c, color);
 }

@@ -184,42 +184,6 @@ SolidMesh *UnplacedEllipticalTube::CreateMesh3D(Transformation3D const &trans, s
      sm->AddPolygon(4, {i, i + 1, i + 1 + nSegments + 1, i + nSegments + 1}, true);
    }
 
-
-
-  /*
-
-  sm->AddBatchPolygons(nMeshVertices / 2, 1, true);
-  sm->AddBatchPolygons(nMeshVertices / 2, 1, true);
-  sm->AddBatchPolygons(4, nFaces - 2, true);
-
-  Utils3D::vector_t<size_t> indices;
-  indices.reserve(nMeshVertices / 2);
-
-  // lower surface
-  for (size_t i = nMeshVertices; i > 0; i -= 2) {
-    indices.push_back(i - 2);
-  }
-
-  sm->SetPolygonIndices(0, indices);
-  indices.clear();
-
-  // upper surface
-  for (size_t i = 0; i < nMeshVertices; i += 2) {
-    indices.push_back(i + 1);
-  }
-
-  sm->SetPolygonIndices(1, indices);
-
-  // lateral surfaces
-  for (size_t i = 2; i < nFaces - 1; i++) {
-    sm->SetPolygonIndices(i, {2 * i - 1, 2 * i - 3, 2 * i - 4, 2 * i - 2});
-  }
-
-  sm->SetPolygonIndices(nFaces - 1, {1, nMeshVertices - 1, nMeshVertices - 2, 0});
-  sm->InitPolygons();
-
-  */
-
   return sm;
 }
 #endif

@@ -394,9 +394,6 @@ SolidMesh *UnplacedSphere::CreateMesh3D(Transformation3D const &trans, size_t nS
 
 
 
-
-  sm->InitPolygons();
-
   return sm;
 }
 #endif

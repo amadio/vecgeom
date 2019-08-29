@@ -622,7 +622,6 @@ SolidMesh *UnplacedPolyhedron::CreateMesh3D(Transformation3D const &trans, size_
                      true); // surface at sPhi + dPhi
     }
   }
-  sm->InitPolygons();
 
   return sm;
 }

@@ -333,7 +333,6 @@ SolidMesh *UnplacedPolycone::CreateMesh3D(Transformation3D const &trans, size_t 
     }
   }
 
-  sm->InitPolygons();
 
   return sm;
 }

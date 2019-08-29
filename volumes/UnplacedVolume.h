@@ -335,6 +335,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const = 0;
 
+/// Generates mesh representation of the solid
 #ifndef VECCORE_CUDA
   virtual SolidMesh *CreateMesh3D(Transformation3D const &/*trans*/, const size_t /*nSegments*/) const { return nullptr; };
 #endif

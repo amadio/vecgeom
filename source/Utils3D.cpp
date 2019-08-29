@@ -77,7 +77,7 @@ void Polygon::CheckAndFixDegenerate()
     auto diff1 = fVert[fInd[i]] - fVert[validIndices[0]];
     auto diff2 = fVert[fInd[i]] - fVert[validIndices[validIndices.size() - 1]];
 
-    if (diff1.Mag2() > kToleranceSquared && diff2.Mag2() > kToleranceSquared) {
+    if (diff1.Mag2() > kTolerance && diff2.Mag2() > kTolerance) {
       validIndices.push_back(fInd[i]);
     }
   }
@@ -90,30 +90,52 @@ void Polygon::CheckAndFixDegenerate()
   }
 }
 
-// check if fVert[fInd[i]] is convex, fVert[fInd[i  - 1]]-fVert[fInd[i]]-fVert[fInd[ i + 1]] ordered anti clock wise
 bool Polygon::isConvexVertex(size_t i0, size_t i1, size_t i2) const
 {
   return fNorm.Dot((fVert[i2] - fVert[i1]).Cross(fVert[i0] - fVert[i1])) >= 0.;
 }
 
-// check if a point is inside the triangle formed by fVert[fInd[i - 1]]-fVert[fInd[i]]-fVert[fInd[ i + 1]]
 bool Polygon::isPointInsideTriangle(const Vec_t &p, size_t i0, size_t i1, size_t i2) const
 {
+
   Vec_t &A = fVert[i0];
   Vec_t &B = fVert[i1];
   Vec_t &C = fVert[i2];
 
-  double area  = std::abs((B - A).Cross(C - A)) / 2;
-  double alpha = std::abs((B - p).Cross(C - p)) / (2 * area);
-  double beta  = std::abs((C - p).Cross(A - p)) / (2 * area);
-  double gamma = 1 - alpha - beta;
-  return 0 <= alpha && alpha <= 1 && 0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1;
+  Vec_t u = B - A;
+
+  Vec_t v = C - A;
+
+  Vec_t w = p - A;
+
+  Vec_t vCrossW = v.Cross(w);
+
+  Vec_t vCrossU = v.Cross(u);
+
+  if (vCrossW.Dot(vCrossU) < 0) return false;
+
+  Vec_t uCrossW = u.Cross(w);
+
+  Vec_t uCrossV = u.Cross(v);
+
+  if (uCrossW.Dot(uCrossV) < 0) return false;
+
+  double denom = uCrossV.Length();
+
+  double r = vCrossW.Length() / denom;
+
+  double t = uCrossW.Length() / denom;
+
+  // std::cout << p << ' ' << A << ' ' << B << ' ' << C << ' ' << r << ' ' << t << '\n';
+
+  return (r + t <= 1);
 }
 
-void Polygon::TriangulatePolygon(std::vector<Polygon> &polys) const
+
+void Polygon::TriangulatePolygon(vector_t<Polygon> &polys) const
 {
 
-  std::vector<size_t> ind = fInd;
+  vector_t<size_t> ind = fInd;
 
   for (size_t i0 = 0, i1 = 1, i2 = 2; ind.size() > 2;) {
 
@@ -138,550 +160,469 @@ void Polygon::TriangulatePolygon(std::vector<Polygon> &polys) const
   }
 }
 
-void Polygon::CalculateNormal()
+bool Line::IsPointOnLine(const Vec_t &p)
 {
-  size_t minIndex = 0;
-
-  for (size_t i = 0; i < fInd.size(); i++) {
-    if (fVert[fInd[i]].x() < fVert[fInd[minIndex]].x() ||
-        (fVert[fInd[i]].x() == fVert[fInd[minIndex]].x() &&
-         (fVert[fInd[i]].y() < fVert[fInd[minIndex]].y() ||
-          (fVert[fInd[i]].y() == fVert[fInd[minIndex]].y() && fVert[fInd[i]].z() < fVert[fInd[minIndex]].z())))
-
-    )
-      minIndex = i;
+  if (p == fPts[0] || p == fPts[1]) {
+    return true;
   }
 
-  int i0 =  ((minIndex - 1) % fInd.size() + fInd.size()) %fInd.size();
-  int i1 = (minIndex + 1) % fInd.size();
-  fNorm = (fVert[fInd[minIndex]] - fVert[fInd[i0]])
-              .Cross(( fVert[fInd[i1]] - fVert[fInd[minIndex]]));
-  fNorm.Normalize();
-  fHasNorm = true;
+  Vec_t ap = p - this->fPts[0];
+  Vec_t bp = p - this->fPts[1];
+  if (ap.Cross(bp).Mag() != 0) {
+    return false;
+  }
 
+  if (ap.Dot(bp) < 0) {
+    return true;
+  } else
+    return false;
 }
 
+LineIntersection *Line::Intersect(const Line &l2)
+{
+  LineIntersection *li = new LineIntersection();
 
+  const Vec_t &p1 = fPts[0];
+  const Vec_t &p2 = fPts[1];
+  const Vec_t &p3 = l2.fPts[0];
+  const Vec_t &p4 = l2.fPts[1];
 
-LineIntersection* Line::Intersect(const Line& l2){
-	LineIntersection *li = new LineIntersection();
+  // parallel
+  if ((p2 - p1).Cross(p4 - p3).Mag2() == 0.) {
+    Vec_t v         = (p2 - p1).Normalized();
+    double distance = v.Cross(p3 - p1).Mag();
+    // overlapping
+    if (distance == 0.) {
+      Vec_t v1  = (p2 - p1);
+      li->fA    = (p3 - p1).Dot(v1) / (v1.Dot(v1));
+      li->fB    = (p4 - p1).Dot(v1) / (v1.Dot(v1));
+      li->fType = LineIntersection::fOverlap;
+    } else {
+      li->fType = LineIntersection::fParallel;
+    }
+  } else {
+    double d1343 = (p1 - p3).Dot(p4 - p3);
+    double d4321 = (p4 - p3).Dot(p2 - p1);
+    double d1321 = (p1 - p3).Dot(p2 - p1);
+    double d4343 = (p4 - p3).Dot(p4 - p3);
+    double d2121 = (p2 - p1).Dot(p2 - p1);
 
-	const Vec_t &p1 = fPts[0];
-	const Vec_t &p2 = fPts[1];
-	const Vec_t &p3 = l2.fPts[0];
-	const Vec_t &p4 = l2.fPts[1];
+    li->fA = (d1343 * d4321 - d1321 * d4343) / (d2121 * d4343 - d4321 * d4321);
+    li->fB = (d1343 + li->fA * d4321) / d4343;
 
-	//parallel
-	if((p2 - p1).Cross(p4 - p3).Mag2() == 0.){
-		Vec_t v = (p2 - p1).Normalized();
-		double distance = v.Cross(p3 - p1).Mag();
-		//overlapping
-		if(distance == 0.){
-			Vec_t v1 = (p2 - p1);
-			li->fA= (p3 - p1).Dot(v1) / (v1.Dot(v1));
-			li->fB = (p4 - p1).Dot(v1) / (v1.Dot(v1));
-			li->fType = LineIntersection::fOverlap;
-		}else{
-			li->fType = LineIntersection::fParallel;
-		}
-	}else{
-		double d1343 = (p1 - p3).Dot(p4 - p3);
-		double d4321 = (p4 - p3).Dot(p2 - p1);
-		double d1321 = (p1 - p3).Dot(p2 - p1);
-		double d4343 = (p4 - p3).Dot(p4 - p3);
-		double d2121 = (p2 - p1).Dot(p2 - p1);
+    Vec_t pA = p1 + li->fA * (p2 - p1);
+    Vec_t pB = p3 + li->fB * (p4 - p3);
 
-		li->fA = ( d1343*d4321 - d1321*d4343 ) / ( d2121*d4343 - d4321*d4321 );
-		li->fB = ( d1343 + li->fA*d4321 ) / d4343;
-
-		Vec_t pA = p1 + li->fA*(p2 - p1);
-		Vec_t pB = p3 + li->fB*(p4 - p3);
-
-		if(pA == pB){
-			li->fType = LineIntersection::fIntersect;
-		}else{
-			li->fType = LineIntersection::fNoIntersect;
-		}
-
-
-	}
-	return li;
+    if (pA == pB) {
+      li->fType = LineIntersection::fIntersect;
+    } else {
+      li->fType = LineIntersection::fNoIntersect;
+    }
+  }
+  return li;
 }
 
-
-
-
-
-
-
-struct PolygonIntersection* Polygon::Intersect(const Polygon& clipper){
-	PolygonIntersection* pi = new PolygonIntersection();
-
-	if(fNorm != clipper.fNorm && fNorm != -clipper.fNorm){
-		//subject and clipper polygons have different normal
-
-
-		 Vec_t startPoint = Vec_t(std::numeric_limits<double>::infinity());
-		 Vec_t endPoint = Vec_t(- std::numeric_limits<double>::infinity());
-
-
-
-		for(size_t i = 0; i < clipper.fInd.size(); i++){
-			if(fNorm.Dot(clipper.fSides[i]) == 0.){
-				//line parallel to the plane
-				if((clipper.fVert[clipper.fInd[i]] - fVert[fInd[0]]).Dot(fNorm) == 0.){
-					//line contained in the plane, but some other line must intersect the plane so wait for that
-				}
-				else{
-					//not contained in the plane, no intersection
-				}
-			}else{
-				//single point of intersection possible
-
-				//store just the start and end point (2 boundaries) of all intersections on the plane
-				double d = (fVert[fInd[0]] - clipper.fVert[clipper.fInd[i]]).Dot(fNorm)/(fNorm.Dot(clipper.fSides[i]));
-				Vec_t intersection_pt = d * clipper.fSides[i] + clipper.fVert[clipper.fInd[i]];
-				//std::cout << intersection_pt << '\n';
-				if(intersection_pt.x() < startPoint.x() ||
-					(intersection_pt.x() == startPoint.x() && intersection_pt.y() < startPoint.y())
-					|| ((intersection_pt.x() == startPoint.x() && intersection_pt.y() == startPoint.y() && intersection_pt.y() < startPoint.y()))){
-					startPoint = intersection_pt;
-				}
-
-				if(intersection_pt.x() > endPoint.x() ||
-					(intersection_pt.x() == endPoint.x() && intersection_pt.y() > endPoint.y())
-					|| ((intersection_pt.x() == endPoint.x() && intersection_pt.y() == endPoint.y() && intersection_pt.y() > endPoint.y()))){
-					endPoint = intersection_pt;
-				}
-			}
-
-		}
-
-		std::vector<double> as;
-		//std::cout <<"start "  << startPoint <<'\n';
-		//std::cout << "end " << endPoint << '\n';
-		Line l1{startPoint, endPoint}; //clipper line
-		int windingStartPoint = 0;
-		int windingEndPoint = 0;
-		for(size_t j = 0; j < fInd.size(); j++){
-			//find the intersection with each of subject's lines
-			Line l2{fVert[fInd[j]], fVert[fInd[(j + 1) % fInd.size()]]}; //subject line
-
-			LineIntersection* li = l1.Intersect(l2);
-
-
-			if(li->fType == LineIntersection::fIntersect){
-				if(0 < li->fA && li->fA < 1 && 0 < li->fB && li->fB < 1){
-					as.push_back(li->fA);
-					std::cout << "pushed: " << li->fA <<'\n';
-				}
-			}
-
-
-			else if(li->fType == LineIntersection::fOverlap){
-				if(0 <= li->fA && li->fA <= 1){
-					as.push_back(li->fA);
-				}
-				if(0 <= li->fB && li->fB <= 1){
-					as.push_back(li->fB);
-				}
-			}
-
-
-
-			if(li->fType == LineIntersection::fIntersect && li->fA  < 0 ){
-				double triple = ((l1.fPts[1] - l1.fPts[0]).Cross(l2.fPts[1] - l2.fPts[0])).Dot(fNorm);
-				windingStartPoint = triple  > 0 ? windingStartPoint + 1 : windingStartPoint - 1;
-			}
-
-			if(li->fType == LineIntersection::fIntersect && li->fA > 1){
-				double triple = ((l1.fPts[1] - l1.fPts[0]).Cross(l2.fPts[1] - l2.fPts[0])).Dot(fNorm);
-				windingEndPoint = triple  > 0 ? windingEndPoint + 1 : windingEndPoint - 1;
-			}
-
-
-		}
-		//std::cout << "numbers: " << windingStartPoint << ' ' << windingEndPoint << '\n';
-		if(windingStartPoint != 0) as.push_back(0.);
-		if(windingEndPoint != 0)   as.push_back(1.);
-
-		std::sort(as.begin(), as.end());
-		//for(auto i :as ){
-		//	std::cout << ' ' <<  i;
-		//}
-		for(size_t i = 0; i < as.size(); i += 2){
-			pi->fLines.push_back(Line({l1.fPts[0] + as[i] * (l1.fPts[1] - l1.fPts[0]),l1.fPts[0] + as[i + 1] * (l1.fPts[1] - l1.fPts[0]) }) );
-		}
-
-
-
-	}else{
-		//results in polygon set
-
-
-		struct GreinerHormannVertex{
-			Vec_t coord;
-			GreinerHormannVertex* next = nullptr;
-			GreinerHormannVertex* prev = nullptr;
-			bool intersect = false;
-			bool entry = false;
-			bool visited = false;
-			GreinerHormannVertex *neighbor = nullptr;
-			double alpha = 0.;
-
-			GreinerHormannVertex(){};
-			GreinerHormannVertex(double alpha, Vec_t coord, bool intersect): coord(coord), intersect(intersect), alpha(alpha) {};
-
-			void MakeNeighbor(GreinerHormannVertex* i2){
-				this->neighbor = i2;
-				i2->neighbor = this;
-			}
-		};
-
-		struct GreinerHormannPolygon{
-			GreinerHormannVertex *head = nullptr;
-			int size = 0;
-
-			GreinerHormannPolygon(){};
-			GreinerHormannPolygon(const Polygon& poly){
-				head = new GreinerHormannVertex(); //dummy head
-				head->prev = head;
-				head->next = head;
-
-				GreinerHormannVertex* current;
-				for(auto i: poly.fInd){
-					current = new GreinerHormannVertex();
-					current->coord = poly.fVert[i];
-					current->next = head;
-					current->prev = head->prev;
-
-					head->prev->next = current;
-					head->prev = current;
-					size++;
-				}
-
-				head->prev->next = head->next;
-				head->next->prev = head->prev;
-				//delete old head
-				head = head->next;
-			}
-
-			int WindingNumber(const Vec_t& p0, const Vec_t& p1, const Vec_t& fNorm){
-				Line l1{p0, p1};
-				int winding = 0;
-				GreinerHormannVertex * crt = this->head;
-				for(int j = 0; j < this->size; j++){
-					//find the intersection with each of subject's lines
-					Line l2{crt->coord, crt->next->coord}; //subject line
-					LineIntersection* li = l1.Intersect(l2);
-					//TODO: OVERLAP
-					if(li->fType == LineIntersection::fIntersect && li->fA  < 0  &&  0<= li->fB && li->fB <= 1){
-						double triple = ((l1.fPts[1] - l1.fPts[0]).Cross(l2.fPts[1] - l2.fPts[0])).Dot(fNorm);
-						winding = triple  > 0 ? winding + 1 : winding - 1;
-					}
-
-					crt = crt->next;
-
-				}
-				return winding;
-			}
-
-			void Insert(GreinerHormannVertex *ins, GreinerHormannVertex *first){
-				GreinerHormannVertex *aux=first;
-				GreinerHormannVertex *lst=first;
-				do{
-					lst = lst->next;
-				}while(lst->intersect);
-
-				  while( aux != lst && aux->alpha < ins->alpha) aux = aux->next;
-				  ins->next = aux;
-				  ins->prev = aux->prev;
-				  ins->prev->next = ins;
-				  ins->next->prev = ins;
-				  size++;
-			}
-
-			GreinerHormannVertex* First(){
-				GreinerHormannVertex* temp = head;
-				for(int i = 0; i < size; i++){
-					if(temp->intersect && !temp->visited){
-						return temp;
-					}
-					temp = temp->next;
-				}
-				return nullptr;
-			}
-
-
-			void Perturbate(GreinerHormannPolygon* other, const Vec_t& fNorm){
-
-				 GreinerHormannVertex* current = this->head;
-				do{
-					Line l1{current->coord, current->next->coord};
-					GreinerHormannVertex *other_current = other->head;
-					do{
-						Line l2{other_current->coord, other_current->next->coord};
-						LineIntersection *li = l1.Intersect(l2);
-
-						if(li->fType == LineIntersection::fIntersect ){
-							if(li->fA == 1 && 0 <= li->fB &&  li->fB <= 1) {
-								//std::cout << l1.fPts[0] << ' ' << l1.fPts[1] << l2.fPts[0] << ' ' << l2.fPts[1] << '\n';
-								Vec_t dir = fNorm.Cross(l2.fPts[1] - l2.fPts[0]).Normalized();
-								current->next->coord += dir*Vec_t(1e-1);
-							}
-							else if(li->fB == 1 && 0 <= li->fA &&  li->fA <= 1){
-								Vec_t dir = fNorm.Cross(l1.fPts[1] - l1.fPts[0]).Normalized();
-								other_current->next->coord += dir*Vec_t(1e-1);
-							}
-
-
-						}
-
-					}while((other_current = other_current->next) != other->head);
-				}while((current = current->next) != this->head);
-			}
-
-
-
-		};
-
-
-
-		GreinerHormannPolygon* clp = new GreinerHormannPolygon(clipper);
-		GreinerHormannPolygon* sbj = new GreinerHormannPolygon(*this);
-
-		sbj->Perturbate(clp, fNorm);
-
-
-
-		GreinerHormannVertex* c = sbj->head;
-		for(int i = 0; i < sbj->size; i++){
-			std::cout << c->coord << ' ' << c->intersect <<  ' ' << c->entry  << ' ' << c->visited << '\n';
-			c = c->next;
-		}
-		std::cout << "\n#######\n";
-
-		c = clp->head;
-		for(int i = 0; i < clp->size; i++){
-			std::cout << c->coord << ' ' << c->intersect << ' ' << c->entry  << ' ' << c->visited << '\n';
-			c = c->next;
-		}
-		std::cout << "\n#######\n";
-
-
-
-		//phase 1
-		 GreinerHormannVertex* clp_current = clp->head;
-		 GreinerHormannVertex* clp_nxt = clp_current;
-		do{
-			while((clp_nxt = clp_nxt->next)->intersect);
-			Line l1{clp_current->coord, clp_nxt->coord};
-			GreinerHormannVertex *sbj_current = sbj->head;
-			GreinerHormannVertex* sbj_nxt = sbj_current;
-			do{
-				while((sbj_nxt = sbj_nxt->next)->intersect);
-				Line l2{sbj_current->coord, sbj_nxt->coord};
-				LineIntersection *li = l1.Intersect(l2);
-				//std::cout << l1.fPts[0] << ' ' << l1.fPts[1] << ' ' << l2.fPts[1] << ' ' << l2.fPts[0] << ' ' << li->fType << ' ' << li->fA << ' ' << li->fB << '\n';
-				if(li->fType == LineIntersection::fIntersect ){
-					if(0 < li->fA && li->fA < 1 && 0 < li->fB && li->fB < 1){
-						//insert
-						//std::cout <<" here " <<  li->fA << '\n';
-						GreinerHormannVertex* i1 = new GreinerHormannVertex(li->fA, l1.fPts[0] + li->fA * (l1.fPts[1] - l1.fPts[0]), true);
-						GreinerHormannVertex* i2 = new GreinerHormannVertex(li->fB, l2.fPts[0] + li->fB * (l2.fPts[1] - l2.fPts[0]), true);
-						i1->MakeNeighbor(i2);
-						clp->Insert(i1, clp_current);
-						sbj->Insert(i2, sbj_current);
-					}
-				}
-
-			}while((sbj_current = sbj_nxt) != sbj->head);
-		}while((clp_current = clp_nxt) != clp->head);
-
-
-		/*
-		c = sbj->head;
-		for(int i = 0; i < sbj->size; i++){
-			std::cout << c->coord << ' ' << c->intersect <<  ' ' << c->entry  << ' ' << c->visited << '\n';
-			c = c->next;
-		}
-		std::cout << "\n#######\n";
-
-		c = clp->head;
-		for(int i = 0; i < clp->size; i++){
-			std::cout << c->coord << ' ' << c->intersect << ' ' << c->entry  << ' ' << c->visited << '\n';
-			c = c->next;
-		}
-		std::cout << "\n#######\n";
-
-*/
-
-
-
-		//phase 2
-		bool status = sbj->WindingNumber(clp->head->coord, clp->head->next->coord, this->fNorm) != 0 ? false: true;
-		///status =
-		std::cout << "winding sbj " << sbj->WindingNumber(clp->head->coord, clp->head->next->coord, this->fNorm) << '\n';
-		GreinerHormannVertex *temp = clp->head;
-	    for(int i = 0; i < clp->size; i++){
-	    	if(temp->intersect){
-	    		temp->entry = status;
-	    		status = !status;
-	    	}
-	    	temp = temp->next;
-	    }
-
-
-	    status = clp->WindingNumber(sbj->head->coord,sbj->head->next->coord, clipper.fNorm) != 0 ? false: true;
-		std::cout << "winding clp " <<  clp->WindingNumber(sbj->head->coord,sbj->head->next->coord, clipper.fNorm) << '\n';
-
-
-		temp = sbj->head;
-	    for(int i = 0; i < sbj->size; i++){
-	    	if(temp->intersect){
-	    		temp->entry = status;
-	    		status = !status;
-	    	}
-	    	temp = temp->next;
-	    }
-
-
-
-	    //phase 3
-	    GreinerHormannVertex* current;
-	    while((current = sbj->First())){
-
-	    	std::vector<size_t> ind;
-	    	for(; !current->visited; current = current->neighbor){
-
-	    		current->visited = true;
-		    	for(bool forward = current->entry;;){
-
-
-		    		ind.push_back(pi->fVertices.size());
-		    		pi->fVertices.push_back(current->coord);
-
-		    		current = forward ? current->next : current->prev;
-		    		if(current->intersect){
-		    			current->visited = true;
-		    			break;
-		    		}
-		    	}
-
-
-	    	}
-	    	pi->fPolygons.push_back({ind.size(),pi->fVertices, ind, false});
-
-	    }
-
-
-
-	    std::cout << '\n';
-	    for(auto poly: pi->fPolygons){
-	    	for(auto x: poly.fInd){
-	    		std::cout << ' ' << x;
-	    	}
-	    	std::cout<<"haha\n";
-
-	    }
-
-
-
-/*
-
-	    std::cout << '\n';
-	    for(auto poly: pi->fPolygons){
-	    	for(auto x: poly.fInd){
-	    		std::cout << ' ' << x;
-	    	}
-	    	std::cout<<"haha";
-
-	    }
-
-*/
-
-
-		/*
-		clp_current = clp->head;
-		for(int i = 0; i < clp->size; i++){
-
-
-			GreinerHormannVertex *sbj_current = sbj->head;
-				clp_current = clp_current->next;
-				std::cout << clp_current->intersect << ' ';
-
-		}
-
-		 */
-
-		/*
-		std::cout << "\n############\n";
-		clp_current = clp->head;
-		for(int i = 0; i < clp->size; i++){
-			std::cout << clp_current->coord << ' ' << clp_current->alpha << ' ' << '\n';
-			clp_current = clp_current->next;
-		}
-		std::cout << "\n############\n";
-
-		std::cout << "\n############\n";
-		clp_current = sbj->head;
-		for(int i = 0; i < sbj->size; i++){
-			std::cout << clp_current->coord << ' ' << clp_current->alpha << ' ' << '\n';
-			clp_current = clp_current->next;
-		}
-		std::cout << "\n############\n";
-
-
-
-
-		std::cout << "\n############\n";
-		clp_current = clp->head->prev;
-		for(int i = 0; i < clp->size; i++){
-			std::cout << clp_current->coord << ' ';
-			clp_current = clp_current->prev;
-		}
-		std::cout << "\n############\n";
-
-		std::cout << "\n############\n";
-		clp_current = sbj->head->prev;
-		for(int i = 0; i < sbj->size; i++){
-			std::cout << clp_current->coord << ' ';
-			clp_current = clp_current->prev;
-		}
-		std::cout << "\n############\n";
-
-*/
-
-		/*
-		GreinerHormannVertex* c = sbj->head;
-		for(int i = 0; i < sbj->size; i++){
-			std::cout << c->coord << ' ' << c->intersect <<  ' ' << c->entry  << ' ' << c->visited << '\n';
-			c = c->next;
-		}
-		std::cout << "\n#######\n";
-
-		c = clp->head;
-		for(int i = 0; i < clp->size; i++){
-			std::cout << c->coord << ' ' << c->intersect << ' ' << c->entry  << ' ' << c->visited << '\n';
-			c = c->next;
-		}
-		std::cout << "\n#######\n";
-		sleep(5);
-		*/
-
-
-
-	}
-
-
-
-
-
-	return pi;
-
-
+bool Polygon::IsPointInside(const Vec_t &p) const
+{
+  int cn = 0;
+
+  for (size_t i = 0; i < fInd.size(); i++) {
+    size_t k = (i + 1) % fInd.size();
+    Line l{{fVert[fInd[i]], fVert[fInd[k]]}};
+    if (l.IsPointOnLine(p)) {
+      return true;
+    }
+  }
+
+  Line pl = Line{{p, fVert[fInd[0]]}};
+
+  for (size_t i = 0; i < fInd.size(); i++) {
+    size_t k = (i + 1) % fInd.size();
+
+    Line l{{fVert[fInd[i]], fVert[fInd[k]]}};
+
+    LineIntersection *li = pl.Intersect(l);
+
+    if (li->fType == LineIntersection::fIntersect) {
+      bool upwardEdge = (fVert[fInd[0]] - p).Cross(fVert[fInd[k]] - fVert[fInd[i]]).Dot(fNorm) > 0;
+
+      if (upwardEdge) {
+
+        if (li->fA > kTolerance && li->fB >= -kTolerance && li->fB < 1 - kTolerance) {
+          cn++;
+        }
+      } else {
+        if (li->fA > kTolerance && li->fB > kTolerance && li->fB <= 1 + kTolerance) {
+          cn++;
+        }
+      }
+    }
+  }
+
+  if (cn & 1) return true;
+  return false;
 }
 
+void Polygon::Extent(double x[2], double y[2], double z[2])
+{
+  x[0] = x[1] = fVert[fInd[0]].x();
+  y[0] = y[1] = fVert[fInd[0]].y();
+  z[0] = z[1] = fVert[fInd[0]].z();
+  for (auto i : fInd) {
+    if (fVert[i].x() > x[1]) x[1] = fVert[i].x();
+    if (fVert[i].x() < x[0]) x[0] = fVert[i].x();
+
+    if (fVert[i].y() > y[1]) y[1] = fVert[i].y();
+    if (fVert[i].x() < y[0]) y[0] = fVert[i].y();
+
+    if (fVert[i].z() > z[1]) z[1] = fVert[i].z();
+    if (fVert[i].z() < z[0]) z[0] = fVert[i].z();
+  }
+}
+
+struct PolygonIntersection *Polygon::Intersect(const Polygon &clipper)
+{
+  PolygonIntersection *pi = new PolygonIntersection();
+
+  if (fNorm != clipper.fNorm && fNorm != -clipper.fNorm) {
+    // subject and clipper polygons have different normal
+
+    Vec_t startPoint = Vec_t(std::numeric_limits<double>::infinity());
+    Vec_t endPoint   = Vec_t(-std::numeric_limits<double>::infinity());
+
+    for (size_t i = 0; i < clipper.fInd.size(); i++) {
+      if (fNorm.Dot(clipper.fSides[i]) == 0.) {
+        // clipper line parallel to the plane
+
+      } else {
+        // single point of intersection possible
+
+        // store just the start and end point (2 boundaries) of all intersections on the plane
+        double d = (fVert[fInd[0]] - clipper.fVert[clipper.fInd[i]]).Dot(fNorm) / (fNorm.Dot(clipper.fSides[i]));
+        Vec_t intersection_pt = d * clipper.fSides[i] + clipper.fVert[clipper.fInd[i]];
+        // std::cout << intersection_pt << '\n';
+        if (intersection_pt.x() < startPoint.x() ||
+            (intersection_pt.x() == startPoint.x() && intersection_pt.y() < startPoint.y()) ||
+            ((intersection_pt.x() == startPoint.x() && intersection_pt.y() == startPoint.y() &&
+              intersection_pt.y() < startPoint.y()))) {
+          startPoint = intersection_pt;
+        }
+
+        if (intersection_pt.x() > endPoint.x() ||
+            (intersection_pt.x() == endPoint.x() && intersection_pt.y() > endPoint.y()) ||
+            ((intersection_pt.x() == endPoint.x() && intersection_pt.y() == endPoint.y() &&
+              intersection_pt.y() > endPoint.y()))) {
+          endPoint = intersection_pt;
+        }
+      }
+    }
+
+    // std::cout << startPoint << ' ' << endPoint;
+    vector_t<double> as;
+
+    Line l1{{startPoint, endPoint}}; // clipper line
+
+    bool noIntersection = true;
+
+    for (size_t j = 0; j < fInd.size(); j++) {
+      // find the intersection with each of subject's lines
+      Line l2{{fVert[fInd[j]], fVert[fInd[(j + 1) % fInd.size()]]}}; // subject line
+
+      LineIntersection *li = l1.Intersect(l2);
+
+      if (li->fType == LineIntersection::fIntersect) {
+        if (-kTolerance <= li->fA && li->fA <= 1 + kTolerance && -kTolerance <= li->fB && li->fB <= 1 + kTolerance) {
+          as.push_back(li->fA);
+          noIntersection = false;
+        }
+      }
+    }
+
+    if (noIntersection) {
+      if (IsPointInside(startPoint)) {
+        pi->fLines.push_back(Line{{startPoint, endPoint}});
+      }
+      return pi;
+    }
+
+    std::sort(as.begin(), as.end());
+    as.erase(std::unique(as.begin(), as.end()), as.end());
+
+    bool lastLine = false;
+    for (size_t i = 0; i < as.size() - 1; i++) {
+      double middle  = (as[i] + as[i + 1]) / 2;
+      Vec_t midpoint = l1.fPts[0] + middle * (l1.fPts[1] - l1.fPts[0]);
+      if (IsPointInside(midpoint)) {
+        pi->fLines.push_back(
+            Line{{l1.fPts[0] + as[i] * (l1.fPts[1] - l1.fPts[0]), l1.fPts[0] + as[i + 1] * (l1.fPts[1] - l1.fPts[0])}});
+        lastLine = true;
+      } else {
+        if (!lastLine) {
+          pi->fPoints.push_back(l1.fPts[0] + as[i] * (l1.fPts[1] - l1.fPts[0]));
+        }
+        lastLine = false;
+      }
+    }
+
+    if (!lastLine) {
+      pi->fPoints.push_back(l1.fPts[0] + as[as.size() - 1] * (l1.fPts[1] - l1.fPts[0]));
+    }
+
+  } else {
+    // results in polygon set
+
+    struct GreinerHormannVertex {
+      Vec_t coord;
+      GreinerHormannVertex *next     = nullptr;
+      GreinerHormannVertex *prev     = nullptr;
+      bool intersect                 = false;
+      bool entry                     = false;
+      bool visited                   = false;
+      GreinerHormannVertex *neighbor = nullptr;
+      double alpha                   = 0.;
+      Vec_t perturbated;
+
+      GreinerHormannVertex(){};
+      GreinerHormannVertex(double alpha, Vec_t coord, bool intersect)
+          : coord(coord), intersect(intersect), alpha(alpha){};
+
+      void MakeNeighbor(GreinerHormannVertex *i2)
+      {
+        this->neighbor = i2;
+        i2->neighbor   = this;
+      }
+    };
+
+    struct GreinerHormannPolygon {
+      GreinerHormannVertex *head = nullptr;
+      int size                   = 0;
+
+      GreinerHormannPolygon(){};
+      GreinerHormannPolygon(const Polygon &poly)
+      {
+        head       = new GreinerHormannVertex(); // dummy head
+        head->prev = head;
+        head->next = head;
+
+        GreinerHormannVertex *current;
+        for (auto i : poly.fInd) {
+          current        = new GreinerHormannVertex();
+          current->coord = poly.fVert[i];
+          current->next  = head;
+          current->prev  = head->prev;
+
+          head->prev->next = current;
+          head->prev       = current;
+          size++;
+        }
+
+        head->prev->next = head->next;
+        head->next->prev = head->prev;
+        // delete old head
+        current = head;
+        head    = head->next;
+        delete current;
+      }
+
+      ~GreinerHormannPolygon()
+      {
+        GreinerHormannVertex *current = head;
+        for (int i = 0; i < size; i++) {
+          head = head->next;
+          delete current;
+          current = head;
+        }
+      }
+
+      void Insert(GreinerHormannVertex *ins, GreinerHormannVertex *first)
+      {
+        GreinerHormannVertex *aux = first;
+        GreinerHormannVertex *lst = first;
+        do {
+          lst = lst->next;
+        } while (lst->intersect);
+
+        while (aux != lst && aux->alpha < ins->alpha)
+          aux = aux->next;
+
+        ins->next       = aux;
+        ins->prev       = aux->prev;
+        ins->prev->next = ins;
+        ins->next->prev = ins;
+        size++;
+      }
+
+      GreinerHormannVertex *First()
+      {
+        GreinerHormannVertex *temp = head;
+        for (int i = 0; i < size; i++) {
+          if (temp->intersect && !temp->visited) {
+            return temp;
+          }
+          temp = temp->next;
+        }
+        return nullptr;
+      }
+
+      void Perturbate(GreinerHormannPolygon *other, const Vec_t &fNorm)
+      {
+
+        GreinerHormannVertex *current = this->head;
+        do {
+          // Line l1{current->coord, current->next->coord};
+          GreinerHormannVertex *other_current = other->head;
+          do {
+            Line l2{{other_current->coord, other_current->next->coord}};
+            bool res = l2.IsPointOnLine(current->coord);
+            if (res) {
+              Vec_t dir = fNorm.Cross(l2.fPts[1] - l2.fPts[0]).Normalized();
+              current->coord += dir * Vec_t(1e-7);
+              current->perturbated += dir * Vec_t(1e-7);
+            }
+
+          } while ((other_current = other_current->next) != other->head);
+        } while ((current = current->next) != this->head);
+
+        current = other->head;
+        do {
+          // Line l1{current->coord, current->next->coord};
+          GreinerHormannVertex *other_current = this->head;
+          do {
+            Line l2{{other_current->coord, other_current->next->coord}};
+            bool res = l2.IsPointOnLine(current->coord);
+            if (res) {
+              Vec_t dir = fNorm.Cross(l2.fPts[1] - l2.fPts[0]).Normalized();
+              current->coord += dir * Vec_t(1e-7);
+              current->perturbated += dir * Vec_t(1e-7);
+            }
+
+          } while ((other_current = other_current->next) != this->head);
+        } while ((current = current->next) != other->head);
+      }
+    };
+
+    GreinerHormannPolygon *clp = new GreinerHormannPolygon(clipper);
+    GreinerHormannPolygon *sbj = new GreinerHormannPolygon(*this);
+
+    sbj->Perturbate(clp, fNorm);
+
+    // phase 1
+    bool noIntersection               = true;
+    GreinerHormannVertex *clp_current = clp->head;
+    GreinerHormannVertex *clp_nxt     = clp_current;
+    do {
+      while ((clp_nxt = clp_nxt->next)->intersect)
+        ;
+      Line l1{{clp_current->coord, clp_nxt->coord}};
+      GreinerHormannVertex *sbj_current = sbj->head;
+      GreinerHormannVertex *sbj_nxt     = sbj_current;
+      do {
+        while ((sbj_nxt = sbj_nxt->next)->intersect)
+          ;
+        Line l2{{sbj_current->coord, sbj_nxt->coord}};
+        LineIntersection *li = l1.Intersect(l2);
+
+        if (li->fType == LineIntersection::fIntersect) {
+          if ((kTolerance < li->fA && li->fA < 1 - kTolerance && kTolerance < li->fB && li->fB < 1 - kTolerance)) {
+            // insert
+            GreinerHormannVertex *i1 =
+                new GreinerHormannVertex(li->fA, l1.fPts[0] + li->fA * (l1.fPts[1] - l1.fPts[0]), true);
+            GreinerHormannVertex *i2 =
+                new GreinerHormannVertex(li->fB, l2.fPts[0] + li->fB * (l2.fPts[1] - l2.fPts[0]), true);
+            i1->MakeNeighbor(i2);
+            clp->Insert(i1, clp_current);
+            sbj->Insert(i2, sbj_current);
+            noIntersection = false;
+          }
+        }
+
+      } while ((sbj_current = sbj_nxt) != sbj->head);
+    } while ((clp_current = clp_nxt) != clp->head);
+
+    if (noIntersection) {
+
+      // test clp point
+      if ((this->fVert[this->fInd[0]] - clp->head->coord).Dot(this->fNorm) == 0 &&
+          this->IsPointInside(clp->head->coord)) {
+        pi->fPolygons.push_back(clipper);
+        return pi;
+      }
+
+      // test sbj point
+      if ((clipper.fVert[clipper.fInd[0]] - sbj->head->coord).Dot(clipper.fNorm) == 0 &&
+          clipper.IsPointInside(sbj->head->coord)) {
+        pi->fPolygons.push_back(*this);
+        return pi;
+      }
+      return pi;
+    }
+
+    // phase 2
+
+    bool status = !this->IsPointInside(clp->head->coord);
+
+    GreinerHormannVertex *temp = clp->head;
+    for (int i = 0; i < clp->size; i++) {
+      if (temp->intersect) {
+        temp->entry = status;
+        status      = !status;
+      }
+      temp = temp->next;
+    }
+
+    status = !clipper.IsPointInside(sbj->head->coord);
+    temp   = sbj->head;
+    for (int i = 0; i < sbj->size; i++) {
+      if (temp->intersect) {
+        temp->entry = status;
+        status      = !status;
+      }
+      temp = temp->next;
+    }
+
+    // phase 3
+    GreinerHormannVertex *current;
+    while ((current = sbj->First())) {
+
+      vector_t<size_t> ind;
+      for (; !current->visited; current = current->neighbor) {
+
+        current->visited = true;
+        for (bool forward = current->entry;;) {
+
+          ind.push_back(pi->fVertices.size());
+          pi->fVertices.push_back(current->coord - current->perturbated);
+
+          current = forward ? current->next : current->prev;
+          if (current->intersect) {
+            current->visited = true;
+            break;
+          }
+        }
+      }
+      pi->fPolygons.push_back({ind.size(), pi->fVertices, ind, false});
+    }
+
+    auto it = pi->fPolygons.begin();
+    while (it != pi->fPolygons.end()) {
+      if (!it->fValid) {
+        if (it->fN == 2) {
+          // convert to line
+          pi->fLines.push_back({{it->fVert[it->fInd[0]], it->fVert[it->fInd[1]]}});
+        } else if (it->fN == 1) {
+          // convert to point
+          pi->fPoints.push_back(it->fVert[it->fInd[0]]);
+        }
+
+        it = pi->fPolygons.erase(it);
+      } else {
+        it++;
+      }
+    }
+  }
+
+  return pi;
+}
 
 void Polygon::Init()
 {
@@ -689,15 +630,14 @@ void Polygon::Init()
   // Compute sides
   for (size_t i = 0; i < fN - 1; ++i) {
     fSides[i] = GetVertex(i + 1) - GetVertex(i);
-    assert(fSides[i].Mag2() > kToleranceSquared);
+    assert(fSides[i].Mag2() > kTolerance);
   }
   fSides[fN - 1] = GetVertex(0) - GetVertex(fN - 1);
-  assert(fSides[fN - 1].Mag2() > kToleranceSquared);
+  assert(fSides[fN - 1].Mag2() > kTolerance);
   // Compute normal if not already set
   if (!fHasNorm) {
-     fNorm = fSides[0].Cross(fSides[1]);
-     fNorm.Normalize();
-    //CalculateNormal();
+    fNorm = fSides[0].Cross(fSides[1]);
+    fNorm.Normalize();
   }
   assert((fSides[0].Cross(fSides[1])).Dot(fNorm) > 0);
   // Compute convexity if not supplied
@@ -743,9 +683,19 @@ void Polyhedron::Transform(Transformation3D const &tr)
     fPolys[i].Transform(tr);
 }
 
-void Polyhedron::AddPolygon(const Polygon &poly, bool triangulate)
+void Polyhedron::AddPolygon(Polygon &poly, bool triangulate)
 {
-  triangulate ? poly.TriangulatePolygon(fPolys) : fPolys.push_back(poly);
+  poly.Init();
+
+  if (triangulate) {
+    size_t before = fPolys.size();
+    poly.TriangulatePolygon(fPolys);
+    for (size_t i = before; i < fPolys.size(); i++) {
+      fPolys[i].Init();
+    }
+  } else {
+    fPolys.push_back(poly);
+  }
 }
 
 void FillBoxPolyhedron(Vec_t const &box, Polyhedron &polyh)

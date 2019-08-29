@@ -1,3 +1,12 @@
+// This file is part of VecGeom and is distributed under the
+// conditions in the file LICENSE.txt in the top directory.
+// For the full list of authors see CONTRIBUTORS.txt and `git log`.
+
+/// \brief Wrapper class for mesh representation of VecGeom solids.
+/// \file volumes/SolidMesh.h
+/// \author First version created by Murat Topak (CERN summer student 2019)
+
+
 #ifndef VECGEOM_VOLUMES_SOLIDMESH_H_
 #define VECGEOM_VOLUMES_SOLIDMESH_H_
 
@@ -8,36 +17,42 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class SolidMesh {
 private:
-  Utils3D::Polyhedron fMesh;
+  Utils3D::Polyhedron fMesh; ///< Structure storing the mesh data
 
 public:
+  /// Gets the mesh object
   Utils3D::Polyhedron const &GetMesh() { return fMesh; }
+
+  /// Gets the vertices
   Utils3D::vector_t<Utils3D::Vec_t> const &GetVertices() { return fMesh.fVert; }
+
+  /// Gets the polygons
   Utils3D::vector_t<Utils3D::Polygon> const &GetPolygons() { return fMesh.fPolys; }
-  void SetPolygons(const Utils3D::Polygon polys[], size_t count) { fMesh.fPolys.assign(polys, polys + count); }
-  void SetVertices(const Utils3D::Vec_t vertices[], size_t count) { fMesh.fVert.assign(vertices, vertices + count); }
+
+  /// Sets the polygons to the given polygons
+  void SetPolygons(const Utils3D::Polygon polys[], size_t n) { fMesh.fPolys.assign(polys, polys + n); }
+
+  /// Sets the vertices to the given vertices
+  void SetVertices(const Utils3D::Vec_t vertices[], size_t n) { fMesh.fVert.assign(vertices, vertices + n); }
+
+  /// Clears the mesh and allocates sufficient space to hold given amount of vertices and polygons
   void ResetMesh(size_t nvert, size_t nPoly) { fMesh.Reset(nvert, nPoly); }
-  void AddBatchPolygons(size_t n, size_t N, bool convex);
-  void AddBatchPolygons(size_t n, size_t N, Utils3D::Vec_t const &normal);
-  void SetPolygonIndices(size_t i, const Utils3D::vector_t<size_t> &indices);
+
+  /// Transforms the vertices and polygons
   void ApplyTransformation(const Transformation3D &trans);
+
+  /// Transforms only the vertices
   void TransformVertices(const Transformation3D &trans);
-  //void InitConvexHexahedron();
-  void InitTetrahedron(Vector3D<Precision> n0, Vector3D<Precision> n1, Vector3D<Precision> n2, Vector3D<Precision> n3);
-  //void InitSExtruVolume(size_t nMeshVertices, size_t nMeshPolygons, bool convex);
-  void InitPolygons();
+
+  /// Adds polygon given by its indices only if it is not a line or a point
   bool AddPolygon(size_t n, Utils3D::vector_t<size_t> const &indices, bool convex)
   {
-	Utils3D::Polygon poly{n, fMesh.fVert, indices, convex};
-	if(!poly.fValid)
-		return false;
+    Utils3D::Polygon poly{n, fMesh.fVert, indices, convex};
+    if (!poly.fValid) return false;
 
-	poly.Init();
-	fMesh.AddPolygon(poly, false);
-	return true;
-
+    fMesh.AddPolygon(poly, false);
+    return true;
   }
-
 };
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
