@@ -35,7 +35,9 @@
 #include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedHype.h"
 #include "volumes/UnplacedSphere.h"
+#ifndef VECCORE_CUDA
 #include "volumes/UnplacedExtruded.h"
+#endif
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -76,6 +78,8 @@ void DrawPolyhedron(const vecgeom::Utils3D::Polyhedron &polyh, vecgeom::Visualiz
 }
 #endif
 
+
+
 vecgeom::VUnplacedVolume *CreateSexTru(bool convex)
 {
 #define N 10
@@ -95,6 +99,8 @@ vecgeom::VUnplacedVolume *CreateSexTru(bool convex)
   return vecgeom::GeoManager::MakeInstance<vecgeom::UnplacedSExtruVolume>(N, x, y, -dz, dz);
 }
 
+
+#ifndef VECCORE_CUDA
 vecgeom::VUnplacedVolume *CreateExtruded(bool convex)
 {
 #define nvert 10
@@ -129,6 +135,7 @@ vecgeom::VUnplacedVolume *CreateExtruded(bool convex)
 
   return vecgeom::GeoManager::MakeInstance<vecgeom::UnplacedExtruded>(nvert, vertices, nsect, sections);
 }
+#endif
 
 void CreateConcave(std::vector<vecgeom::Vector3D<double>> &v, vecgeom::Utils3D::Polygon &p)
 {
@@ -149,7 +156,7 @@ void print_msg()
 {
   std::cout << "\nUsage:\n"
                "./TestMesh -v [volume] -p [p1 p2 ...]\n"
-               "Specify all angles in degrees \n"
+               "Specify all angles in degrees. Any number of spaces between the parameters allowed. \n"
 
                "\nAvailable volumes:\n"
                " \"box\": dx dy dz \n"
@@ -277,10 +284,11 @@ int main(int argc, char *argv[])
   } else if (!v.compare("sextruvolume")) {
     unplacedvolume = ps[0] > 0 ? CreateSexTru(true) : CreateSexTru(false);
   }
-
+#ifndef VECCORE_CUDA
   else if (!v.compare("extruded")) {
     unplacedvolume = ps[0] > 0 ? CreateExtruded(true) : CreateExtruded(false);
   }
+#endif
 
   else if (!v.compare("polycone")) {
     /*

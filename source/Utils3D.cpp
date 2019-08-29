@@ -280,6 +280,7 @@ void Polygon::Extent(double x[2], double y[2], double z[2])
   }
 }
 
+#ifndef VECCORE_CUDA
 struct PolygonIntersection *Polygon::Intersect(const Polygon &clipper)
 {
   PolygonIntersection *pi = new PolygonIntersection();
@@ -623,6 +624,7 @@ struct PolygonIntersection *Polygon::Intersect(const Polygon &clipper)
 
   return pi;
 }
+#endif
 
 void Polygon::Init()
 {

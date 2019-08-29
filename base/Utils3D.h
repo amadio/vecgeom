@@ -203,9 +203,10 @@ struct Polygon {
   bool IsPointInside(const Vec_t& p) const;
 
 
+#ifndef VECCORE_CUDA
   /// Computes the overlapping part of two polygons
   struct PolygonIntersection* Intersect(const Polygon& clipper);
-
+#endif
 
   /// Retrieves the extent of the polygon
   /// @param[out] x Polygon boundaries in x axis, x[0] holding the smallest x value.
