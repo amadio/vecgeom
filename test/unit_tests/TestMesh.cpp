@@ -78,8 +78,6 @@ void DrawPolyhedron(const vecgeom::Utils3D::Polyhedron &polyh, vecgeom::Visualiz
 }
 #endif
 
-
-
 vecgeom::VUnplacedVolume *CreateSexTru(bool convex)
 {
 #define N 10
@@ -98,7 +96,6 @@ vecgeom::VUnplacedVolume *CreateSexTru(bool convex)
   }
   return vecgeom::GeoManager::MakeInstance<vecgeom::UnplacedSExtruVolume>(N, x, y, -dz, dz);
 }
-
 
 #ifndef VECCORE_CUDA
 vecgeom::VUnplacedVolume *CreateExtruded(bool convex)
@@ -842,7 +839,7 @@ int main(int argc, char *argv[])
     double x[2], y[2], z[2];
     p.Extent(x, y, z);
 
-    int nPoints = 20000;
+    int nPoints = 50000;
     int offset  = 2;
     for (int i = 0; i < nPoints; i++) {
 
@@ -857,9 +854,9 @@ int main(int argc, char *argv[])
 
       bool isInside = p.IsPointInside(projected);
       if (isInside) {
-        visualizer.AddPoint(projected, kGreen);
+        visualizer.AddPoint(projected, kGreen, 1, 1);
       } else {
-        visualizer.AddPoint(projected, kRed);
+        visualizer.AddPoint(projected, kRed, 1, 1);
       }
     }
 
