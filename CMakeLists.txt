@@ -1082,13 +1082,13 @@ set(TEST_EXECUTABLES_SHAPES
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParaboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestReducedPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestUtils3D.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestMesh.cpp
 )
 
 if(NOT CUDA)
 set(TEST_EXECUTABLES_SHAPES
   ${TEST_EXECUTABLES_SHAPES}
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTessellated.cpp)
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTessellated.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestMesh.cpp)
 endif()
 
 set(TEST_EXECUTABLES_CUDA

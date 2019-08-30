@@ -1051,7 +1051,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processScale
   if (debug) {
     std::cout << "Middleware::processScaledShape: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
-  vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *solid;
+  vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *solid = nullptr;
   vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> scale(1., 1., 1.);
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
     if (debug) {
