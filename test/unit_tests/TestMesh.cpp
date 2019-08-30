@@ -152,8 +152,8 @@ void CreateConcave(std::vector<vecgeom::Vector3D<double>> &v, vecgeom::Utils3D::
 void print_msg()
 {
   std::cout << "\nUsage:\n"
-               "./TestMesh -v [volume] -p [p1 p2 ...]\n"
-               "Specify all angles in degrees. Any number of spaces between the parameters allowed. \n"
+               "./TestMesh -v [string] -n [int] -p [float float...]\n"
+               "Specify all angles in degrees. Any number of spaces between the parameters allowed. -n is the nSegments for meshes, and nPoints for PIP and PIT. \n"
 
                "\nAvailable volumes:\n"
                " \"box\": dx dy dz \n"
@@ -210,15 +210,24 @@ int main(int argc, char *argv[])
   using vecgeom::Utils3D::Polyhedron;
 
   string flag;
-  if (argc == 1 || argc == 2 || (flag = argv[1]) != "-v") {
+  if (argc == 1 || argc == 2 || argc == 3 || argc == 4 || (flag = argv[1]) != "-v" || (flag = argv[3]) != "-n") {
     print_msg();
     return 0;
   }
 
+
+
+  int nSegments = stod(string(argv[4]), NULL);
+
   string v = argv[2];
 
+  if(!(!v.compare("pip") || !v.compare("pit")) && argc <= 6){
+	  print_msg();
+	  return 0;
+  }
+
   vector<double> ps;
-  for (int i = 4; i < argc; i++) {
+  for (int i = 6; i < argc; i++) {
     ps.push_back(stod(string(argv[i]), NULL));
   }
 
@@ -839,7 +848,7 @@ int main(int argc, char *argv[])
     double x[2], y[2], z[2];
     p.Extent(x, y, z);
 
-    int nPoints = 50000;
+    int nPoints = nSegments;
     int offset  = 2;
     for (int i = 0; i < nPoints; i++) {
 
@@ -881,7 +890,7 @@ int main(int argc, char *argv[])
     double x[2], y[2], z[2];
     p.Extent(x, y, z);
 
-    int nPoints = 10000;
+    int nPoints = nSegments;
     int offset  = 2;
     for (int i = 0; i < nPoints; i++) {
 
@@ -896,9 +905,9 @@ int main(int argc, char *argv[])
 
       bool isInside = p.IsPointInside(projected);
       if (isInside) {
-        visualizer.AddPoint(projected, kGreen);
+    	visualizer.AddPoint(projected, kGreen, 1, 1);
       } else {
-        visualizer.AddPoint(projected, kRed);
+    	visualizer.AddPoint(projected, kRed, 1, 1);
       }
     }
 
@@ -911,10 +920,11 @@ int main(int argc, char *argv[])
     return 0;
   }
 
+
   Visualizer visualizer;
   SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
   visualizer.AddVolume(boxshape);
-  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), 10)->GetMesh(), visualizer, kBlue);
+  DrawPolyhedron(unplacedvolume->CreateMesh3D(Transformation3D(), nSegments)->GetMesh(), visualizer, kBlue);
   // DrawPolygon(p, visualizer, kBlue);
   visualizer.Show();
 
