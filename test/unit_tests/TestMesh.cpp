@@ -153,7 +153,8 @@ void print_msg()
 {
   std::cout << "\nUsage:\n"
                "./TestMesh -v [string] -n [int] -p [float float...]\n"
-               "Specify all angles in degrees. Any number of spaces between the parameters allowed. -n is the nSegments for meshes, and nPoints for PIP and PIT. \n"
+               "Specify all angles in degrees. Any number of spaces between the parameters allowed. -n is the "
+               "nSegments for meshes, and nPoints for PIP and PIT. \n"
 
                "\nAvailable volumes:\n"
                " \"box\": dx dy dz \n"
@@ -215,15 +216,11 @@ int main(int argc, char *argv[])
     return 0;
   }
 
-
-
-  int nSegments = stod(string(argv[4]), NULL);
-
   string v = argv[2];
 
-  if(!(!v.compare("pip") || !v.compare("pit")) && argc <= 6){
-	  print_msg();
-	  return 0;
+  if (!(!v.compare("pip") || !v.compare("pit")) && argc <= 6) {
+    print_msg();
+    return 0;
   }
 
   vector<double> ps;
@@ -233,6 +230,7 @@ int main(int argc, char *argv[])
 
 #ifdef VECGEOM_ROOT
 #define WORLDSIZE 10
+  int nSegments                   = stod(string(argv[4]), NULL);
   VUnplacedVolume *unplacedvolume = nullptr;
   using Vec_t                     = Vector3D<double>;
 
@@ -905,9 +903,9 @@ int main(int argc, char *argv[])
 
       bool isInside = p.IsPointInside(projected);
       if (isInside) {
-    	visualizer.AddPoint(projected, kGreen, 1, 1);
+        visualizer.AddPoint(projected, kGreen, 1, 1);
       } else {
-    	visualizer.AddPoint(projected, kRed, 1, 1);
+        visualizer.AddPoint(projected, kRed, 1, 1);
       }
     }
 
@@ -919,7 +917,6 @@ int main(int argc, char *argv[])
     print_msg();
     return 0;
   }
-
 
   Visualizer visualizer;
   SimpleBox boxshape("box", WORLDSIZE, WORLDSIZE, WORLDSIZE);
