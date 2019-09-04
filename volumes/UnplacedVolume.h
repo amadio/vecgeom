@@ -179,7 +179,7 @@ public:
   template <typename T>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  T DistanceToIn(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max)
+  T DistanceToIn(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max) const
   {
     return DistanceToInVec(p, d, step_max);
   }
