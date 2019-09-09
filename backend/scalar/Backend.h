@@ -100,7 +100,7 @@ VECCORE_ATT_HOST_DEVICE
 void AlignedFree(Type *allocated)
 {
 #ifndef VECCORE_CUDA
-  _mm_free(allocated);
+  vecCore::AlignedFree(allocated);
 #else
   delete[] allocated;
 #endif
