@@ -58,7 +58,7 @@ option(USE_CACHED_TRANSFORMATIONS "Use cached transformations in navigation stat
 
 option(FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
 
-set(VECGEOM_ARCH empty native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic mic_avx512)
+set(VECGEOM_ARCH sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic mic_avx512 native empty)
 
 enum_option(VECGEOM_VECTOR
       DOC "Vector instruction set to be used"
