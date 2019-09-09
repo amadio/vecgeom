@@ -58,7 +58,7 @@ option(USE_CACHED_TRANSFORMATIONS "Use cached transformations in navigation stat
 
 option(FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
 
-set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic mic_avx512)
+set(VECGEOM_ARCH empty native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic mic_avx512)
 
 enum_option(VECGEOM_VECTOR
       DOC "Vector instruction set to be used"
@@ -369,7 +369,7 @@ elseif (${_arch_lo} MATCHES native)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -march=${_arch_lo}")
     set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -march=${_arch_lo}")
   endif()
-else()
+elseif(NOT ${_arch_lo} MATCHES empty)
   if (Intel)
     if (${_arch_lo} MATCHES avx2)
       set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -xCORE-${_arch_up}")
