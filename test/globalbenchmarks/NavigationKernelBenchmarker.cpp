@@ -426,8 +426,8 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
   Precision *step_max = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
     step_max[i] = vecgeom::kInfLength;
-  Precision *steps = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
-  Precision *safeties;
+  Precision *steps    = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
+  Precision *safeties = nullptr;
   bool *calcs;
   if (WithSafety) {
     safeties = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
@@ -466,10 +466,10 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
             << "\n";
   if (WithSafety) {
     std::cerr << "VECTOR saccum  " << T::GetClassName() << " " << saccum << "\n";
-    _mm_free(safeties);
+    vecCore::AlignedFree(safeties);
   }
-  _mm_free(steps);
-  _mm_free(step_max);
+  vecCore::AlignedFree(steps);
+  vecCore::AlignedFree(step_max);
   delete[] inpoolarray;
   delete[] outpoolarray;
 }
@@ -483,8 +483,8 @@ __attribute__((noinline)) void benchVectorNavigatorNoReloc(SOA3D<Precision> cons
   Precision *step_max = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
     step_max[i] = vecgeom::kInfLength;
-  Precision *steps = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
-  Precision *safeties;
+  Precision *steps    = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
+  Precision *safeties = nullptr;
   bool *calcs;
   if (WithSafety) {
     safeties = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
@@ -522,10 +522,10 @@ __attribute__((noinline)) void benchVectorNavigatorNoReloc(SOA3D<Precision> cons
             << "\n";
   if (WithSafety) {
     std::cerr << "VECTOR saccum  " << T::GetClassName() << " " << saccum << "\n";
-    _mm_free(safeties);
+    vecCore::AlignedFree(safeties);
   }
-  _mm_free(steps);
-  _mm_free(step_max);
+  vecCore::AlignedFree(steps);
+  vecCore::AlignedFree(step_max);
   delete[] inpoolarray;
   delete[] outpoolarray;
 }

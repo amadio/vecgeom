@@ -92,7 +92,7 @@ __attribute__((noinline)) void benchVectorSafety(SOA3D<Precision> const &points,
   for (size_t i = 0; i < points.size(); ++i) {
     accum += safety[i];
   }
-  _mm_free(safety);
+  vecCore::AlignedFree(safety);
   std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << "\n";
 }
 
@@ -112,7 +112,7 @@ __attribute__((noinline)) void benchVectorSafetyNoWorkspace(SOA3D<Precision> con
   for (size_t i = 0; i < points.size(); ++i) {
     accum += safety[i];
   }
-  _mm_free(safety);
+  vecCore::AlignedFree(safety);
   std::cerr << "VECTOR (NO WORKSP) accum  " << T::GetClassName() << " " << accum << "\n";
 }
 
