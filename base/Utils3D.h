@@ -281,10 +281,10 @@ struct Polyhedron {
 ///                 point           line          polygon
                               
 struct PolygonIntersection{
-	std::vector<Vec_t> fPoints; ///< Resulting points from the intersection
-	std::vector<Line> fLines;  ///< Resulting lines from the intersection
-	std::vector<Polygon> fPolygons; ///< Resulting polygons from the intersection
-	std::vector<Vec_t> fVertices; ///< Resulting vertices in case there are polygons
+	vector_t<Vec_t> fPoints; ///< Resulting points from the intersection
+	vector_t<Line> fLines;  ///< Resulting lines from the intersection
+	vector_t<Polygon> fPolygons; ///< Resulting polygons from the intersection
+	vector_t<Vec_t> fVertices; ///< Resulting vertices in case there are polygons
 
 
 };
