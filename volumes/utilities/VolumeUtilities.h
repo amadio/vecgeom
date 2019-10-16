@@ -18,6 +18,7 @@
 #include "navigation/GlobalLocator.h"
 #include "management/GeoManager.h"
 #include <cstdio>
+#include <vector>
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
 #endif
