@@ -466,7 +466,7 @@ public:
 #endif
 #ifdef VECGEOM_GEANT4
   /// A conversion function to a Geant4 G4VSolid (when G4 support is available)
-  virtual G4VSolid const *ConvertToGeant4() const = 0;
+  virtual G4VSolid const *ConvertToGeant4() const;
 #endif
 #endif // VECCORE_CUDA
 };
