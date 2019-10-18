@@ -4,11 +4,23 @@
 #include "base/Transformation3D.h"
 #include "volumes/Box.h"
 #include "utilities/Visualizer.h"
+#undef NDEBUG
+#include <cassert>
 
 using namespace vecgeom;
 
 int main()
 {
+  // simple intersection tests
+  {
+    // intersect when one is fully contained in other
+    Vector3D<Precision> lower1(0., 0., 0.);
+    Vector3D<Precision> upper1(1., 1., 1.);
+    Vector3D<Precision> lower2(0.5, 0.5, 0.5);
+    Vector3D<Precision> upper2(0.6, 0.6, 0.6);
+    assert(volumeUtilities::IntersectionExist(lower1, upper1, lower2, upper2));
+    assert(volumeUtilities::IntersectionExist(lower2, upper2, lower1, upper1));
+  }
 
   Transformation3D transform1(-1, 0, 0, 0, 0, -45);
   Transformation3D transform2(8.9, 0, 0, 45, 0, 45);
