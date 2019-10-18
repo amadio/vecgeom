@@ -162,6 +162,7 @@ public:
   VUnplacedVolume const *GetUnplacedVolume() const { return logical_volume_->GetUnplacedVolume(); }
 
   /// Returns if underlying unplaced volume is an assembly.
+  VECCORE_ATT_HOST_DEVICE
   bool IsAssembly() const { return GetUnplacedVolume()->IsAssembly(); }
 
   /// Returns underlying transformation.

@@ -834,7 +834,7 @@ if (BENCHMARK)
   )
   set(SRC_CUDA ${SRC_CUDA}
     source/benchmarking/Benchmarker.cu
-   # source/benchmarking/NavigationBenchmarker.cu
+    source/benchmarking/NavigationBenchmarker.cu
   )
   add_subdirectory(test/benchmark)
 endif()

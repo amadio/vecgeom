@@ -46,6 +46,7 @@ public:
 
   //! this methods transforms the global coordinates into local ones usually calls more specialized methods
   //! like the hit detection on local coordinates
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeStepAndPropagatedState(Vector3D<Precision> const & /*globalpoint*/,
                                                   Vector3D<Precision> const & /*globaldir*/,
                                                   Precision /*(physics) step limit */,
@@ -73,6 +74,7 @@ public:
                                          Precision & /*safety*/) const = 0;
 
   // an alias interface ( using TGeo name )
+  VECCORE_ATT_HOST_DEVICE
   void FindNextBoundaryAndStep(Vector3D<Precision> const &globalpoint, Vector3D<Precision> const &globaldir,
                                NavigationState const &in_state, NavigationState &out_state, Precision step_limit,
                                Precision &step) const
@@ -354,6 +356,7 @@ public:
   }
 
 public:
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeStepAndPropagatedState(Vector3D<Precision> const &globalpoint,
                                                   Vector3D<Precision> const &globaldir, Precision step_limit,
                                                   NavigationState const &in_state,

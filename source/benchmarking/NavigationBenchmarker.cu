@@ -3,7 +3,7 @@
 
 #include "volumes/PlacedVolume.h"
 #include "base/SOA3D.h"
-#include "navigation/SimpleNavigator.h"
+#include "navigation/NewSimpleNavigator.h"
 #include "navigation/NavigationState.h"
 #include "navigation/NavStatePool.h"
 
@@ -26,7 +26,7 @@ __global__ void NavigationKernel(void *gpu_ptr /* a pointer to buffer of current
 
   using vecgeom::cuda::NavigationState;
   using vecgeom::cuda::NavStatePool;
-  SimpleNavigator nav;
+  auto nav = NewSimpleNavigator<>::Instance(); // pointer to a navigator
   double step;
 
   unsigned tid = ThreadIndex();
@@ -40,7 +40,7 @@ __global__ void NavigationKernel(void *gpu_ptr /* a pointer to buffer of current
 
     //.. do the actual navigation on the GPU
     // nav.LocatePoint(volume, positions[tid], *inState, true);
-    nav.FindNextBoundaryAndStep(positions[tid], directions[tid], *inState, *outState, pSteps[tid], step);
+    nav->FindNextBoundaryAndStep(positions[tid], directions[tid], *inState, *outState, pSteps[tid], step);
     steps[tid] = step;
 
     // repeat
