@@ -62,13 +62,13 @@ constexpr size_t kVectorSize = 1;
 #define VECGEOM_BACKEND_INSIDE vecgeom::kScalar::inside_v
 #endif
 
-template <typename Type>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void swap(Type &a, Type &b)
-{
-  std::swap(a, b);
-}
+// template <typename Type>
+// VECGEOM_FORCE_INLINE
+// VECCORE_ATT_HOST_DEVICE
+// void swap(Type &a, Type &b)
+//{
+//  std::swap(a, b);
+//}
 
 template <typename Type>
 VECGEOM_FORCE_INLINE
@@ -120,7 +120,7 @@ bool equal(InputIterator1 first, InputIterator1 last, InputIterator2 target)
   return true;
 #endif
 }
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_BACKEND_SCALARBACKEND_H_
