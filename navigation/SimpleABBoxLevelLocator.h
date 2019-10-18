@@ -71,40 +71,54 @@ private:
     return false;
   }
 
+  template <bool ExclV, bool ModifyState>
+  __attribute__((always_inline)) bool LevelLocateKernelWithDirection(LogicalVolume const *lvol,
+                                                                     VPlacedVolume const *exclvol,
+                                                                     Vector3D<Precision> const &localpoint,
+                                                                     Vector3D<Precision> const &localdir,
+                                                                     NavigationState *state, VPlacedVolume const *&pvol,
+                                                                     Vector3D<Precision> &daughterlocalpoint) const
+  {
+
+    int size;
+    ABBoxManager::ABBoxContainer_v alignedbboxes = fAccelerationStructure.GetABBoxes_v(lvol, size);
+
+    auto daughters = lvol->GetDaughtersp();
+    // here the loop is over groups of bounding boxes
+    // it is basically linear but vectorizable search
+    for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
+      using Bool_v = vecCore::Mask_v<ABBoxManager::Float_v>;
+      Bool_v inBox;
+      ABBoxImplementation::ABBoxContainsKernel(alignedbboxes[2 * boxgroupid], alignedbboxes[2 * boxgroupid + 1],
+                                               localpoint, inBox);
+      if (!vecCore::MaskEmpty(inBox)) {
+        constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
+        // TODO: could start directly at first 1 in inBox
+        for (size_t ii = 0; ii < kVS; ++ii) {
+          auto daughterid = boxgroupid * kVS + ii;
+          if (daughterid < daughters->size() && vecCore::MaskLaneAt(inBox, ii)) {
+
+            VPlacedVolume const *nextvolume = (*daughters)[daughterid];
+            if (ExclV) {
+              if (exclvol == nextvolume) continue;
+            }
+            if (CheckCandidateVolWithDirection<IsAssemblyAware, ModifyState>(nextvolume, localpoint, localdir, state,
+                                                                             pvol, daughterlocalpoint)) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
 public:
   VECCORE_ATT_HOST_DEVICE
   virtual bool LevelLocate(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                            Vector3D<Precision> &daughterlocalpoint) const override
   {
     return LevelLocateKernel<false, false>(lvol, nullptr, localpoint, nullptr, pvol, daughterlocalpoint);
-    //    int size;
-    //    ABBoxManager::ABBoxContainer_v alignedbboxes = fAccelerationStructure.GetABBoxes_v(lvol, size);
-
-    //    auto daughters = lvol->GetDaughtersp();
-    //    // here the loop is over groups of bounding boxes
-    //    // it is basically linear but vectorizable search
-    //    for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
-    //      using Bool_v = vecCore::Mask_v<ABBoxManager::Float_v>;
-    //      Bool_v inBox;
-    //      ABBoxImplementation::ABBoxContainsKernel(alignedbboxes[2 * boxgroupid], alignedbboxes[2 * boxgroupid + 1],
-    //                                               localpoint, inBox);
-    //      if (!vecCore::MaskEmpty(inBox)) {
-    //        constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
-    //        // TODO: could start directly at first 1 in inBox
-    //        for (size_t ii = 0; ii < kVS; ++ii) {
-    //          auto daughterid = boxgroupid * kVS + ii;
-    //          if (daughterid < daughters->size() && vecCore::MaskLaneAt(inBox, ii)) {
-    //            VPlacedVolume const *daughter = (*daughters)[daughterid];
-    //            if (daughter->Contains(localpoint, daughterlocalpoint)) {
-    //              pvol = daughter;
-    //              // careful here: we also want to break on external loop
-    //              return true;
-    //            }
-    //          }
-    //        }
-    //      }
-    //    }
-    //    return false;
   } // end function
 
   // version that directly modifies the navigation state
@@ -114,34 +128,6 @@ public:
   {
     VPlacedVolume const *pvol;
     return LevelLocateKernel<false, true>(lvol, nullptr, localpoint, &outstate, pvol, daughterlocalpoint);
-    //    int size;
-    //    ABBoxManager::ABBoxContainer_v alignedbboxes = fAccelerationStructure.GetABBoxes_v(lvol, size);
-
-    //    auto daughters = lvol->GetDaughtersp();
-    //    // here the loop is over groups of bounding boxes
-    //    // it is basically linear but vectorizable search
-    //    for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
-    //      using Bool_v = vecCore::Mask_v<ABBoxManager::Float_v>;
-    //      Bool_v inBox;
-    //      ABBoxImplementation::ABBoxContainsKernel(alignedbboxes[2 * boxgroupid], alignedbboxes[2 * boxgroupid + 1],
-    //                                               localpoint, inBox);
-    //      if (!vecCore::MaskEmpty(inBox)) {
-    //        constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
-    //        // TODO: could start directly at first 1 in inBox
-    //        for (size_t ii = 0; ii < kVS; ++ii) {
-    //          auto daughterid = boxgroupid * kVS + ii;
-    //          if (daughterid < daughters->size() && vecCore::MaskLaneAt(inBox, ii)) {
-    //            VPlacedVolume const *daughter = (*daughters)[daughterid];
-    //            if (daughter->Contains(localpoint, daughterlocalpoint)) {
-    //              outstate.Push(daughter);
-    //              // careful here: we also want to break on external loop
-    //              return true;
-    //            }
-    //          }
-    //        }
-    //      }
-    //    }
-    //    return false;
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -150,36 +136,16 @@ public:
                                   Vector3D<Precision> &daughterlocalpoint) const override
   {
     return LevelLocateKernel<true, false>(lvol, exclvol, localpoint, nullptr, pvol, daughterlocalpoint);
-    //    int size;
-    //    ABBoxManager::ABBoxContainer_v alignedbboxes = fAccelerationStructure.GetABBoxes_v(lvol, size);
-
-    //    auto daughters = lvol->GetDaughtersp();
-    //    // here the loop is over groups of bounding boxes
-    //    // it is basically linear but vectorizable search
-    //    for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
-    //      using Bool_v = vecCore::Mask_v<ABBoxManager::Float_v>;
-    //      Bool_v inBox;
-    //      ABBoxImplementation::ABBoxContainsKernel(alignedbboxes[2 * boxgroupid], alignedbboxes[2 * boxgroupid + 1],
-    //                                               localpoint, inBox);
-    //      if (!vecCore::MaskEmpty(inBox)) {
-    //        constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
-    //        // TODO: could start directly at first 1 in inBox
-    //        for (size_t ii = 0; ii < kVS; ++ii) {
-    //          auto daughterid = boxgroupid * kVS + ii;
-    //          if (daughterid < daughters->size() && vecCore::MaskLaneAt(inBox, ii)) {
-    //            VPlacedVolume const *daughter = (*daughters)[daughterid];
-    //            if (daughter == exclvol) continue;
-    //            if (daughter->Contains(localpoint, daughterlocalpoint)) {
-    //              pvol = daughter;
-    //              // careful here: we also want to break on external loop
-    //              return true;
-    //            }
-    //          }
-    //        }
-    //      }
-    //    }
-    //    return false;
   } // end function
+
+  VECCORE_ATT_HOST_DEVICE
+  virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
+                                  Vector3D<Precision> const &localpoint, Vector3D<Precision> const &localdir,
+                                  VPlacedVolume const *&pvol, Vector3D<Precision> &daughterlocalpoint) const override
+  {
+    return LevelLocateKernelWithDirection<true, false>(lvol, exclvol, localpoint, localdir, nullptr, pvol,
+                                                       daughterlocalpoint);
+  }
 
   static std::string GetClassName() { return "SimpleABBoxLevelLocator"; }
   virtual std::string GetName() const override { return GetClassName(); }
@@ -237,7 +203,7 @@ inline std::string TSimpleABBoxLevelLocator<true>::GetClassName()
 {
   return "SimpleAssemblyAwareABBoxLevelLocator";
 }
-}
-} // end namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* NAVIGATION_SIMPLEABBOXLEVELLOCATOR_H_ */

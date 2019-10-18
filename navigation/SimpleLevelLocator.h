@@ -51,6 +51,60 @@ __attribute__((always_inline)) inline static bool CheckCandidateVol(VPlacedVolum
   return false;
 }
 
+// shared kernel for many locators
+// treats the actual final check (depending on which interface to serve)
+template <bool IsAssemblyAware, bool ModifyState>
+__attribute__((always_inline)) inline static bool CheckCandidateVolWithDirection(
+    VPlacedVolume const *nextvolume, Vector3D<Precision> const &localpoint, Vector3D<Precision> const &localdirection,
+    NavigationState *state, VPlacedVolume const *&pvol, Vector3D<Precision> &daughterlocalpoint)
+{
+  if (IsAssemblyAware && ModifyState) {
+    /* if (nextvolume->GetUnplacedVolume()->IsAssembly()) { */
+    /*   // in this case we call a special version of Contains */
+    /*   // offered by the assembly */
+    /*   assert(ModifyState == true); */
+    /*   if (((PlacedAssembly *)nextvolume)->Inside(localpoint, daughterlocalpoint, *state)) { */
+    /*     return true; */
+    /*   } */
+    /* } else { */
+    /*   if (nextvolume->Inside(localpoint, daughterlocalpoint)) { */
+    /*     state->Push(nextvolume); */
+    /*     return true; */
+    /*   } */
+    /* } */
+    assert(false && "not implemented yet");
+  } else {
+    //
+    const auto transf            = nextvolume->GetTransformation();
+    const auto testdaughterlocal = transf->Transform(localpoint);
+    const auto inside            = nextvolume->GetUnplacedVolume()->Inside(testdaughterlocal);
+
+    auto CheckEntering = [&transf, &testdaughterlocal, &localdirection, &nextvolume]() {
+      const auto unpl = nextvolume->GetUnplacedVolume();
+      Vector3D<Precision> normal;
+      unpl->Normal(testdaughterlocal, normal);
+      const auto directiondaughterlocal = transf->TransformDirection(localdirection);
+      const auto dot                    = normal.Dot(directiondaughterlocal);
+      if (dot >= 0) {
+        return false;
+      }
+      return true;
+    };
+
+    if (inside == kInside || ((inside == kSurface) && CheckEntering())) {
+      if (ModifyState) {
+        state->Push(nextvolume);
+        daughterlocalpoint = testdaughterlocal;
+      } else {
+        pvol               = nextvolume;
+        daughterlocalpoint = testdaughterlocal;
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
 // a simple version of a LevelLocator offering a generic brute force algorithm
 template <bool IsAssemblyAware = false>
 class TSimpleLevelLocator : public VLevelLocator {
@@ -73,33 +127,34 @@ private:
       if (ExclV) {
         if (exclvol == nextvolume) continue;
       }
-      if (CheckCandidateVol<IsAssemblyAware, ModifyState>(nextvolume, localpoint, state, pvol, daughterlocalpoint))
+      if (CheckCandidateVol<IsAssemblyAware, ModifyState>(nextvolume, localpoint, state, pvol, daughterlocalpoint)) {
         return true;
+      }
+    }
+    return false;
+  }
 
-      //      if (IsAssemblyAware) {
-      //        if (nextvolume->GetUnplacedVolume()->IsAssembly()) {
-      //          // in this case we call a special version of Contains
-      //          // offered by the assembly
-      //          assert(ModifyState == true);
-      //          if (((PlacedAssembly *)nextvolume)->Contains(localpoint, daughterlocalpoint, *state)) {
-      //            return true;
-      //          }
-      //        } else {
-      //          if (nextvolume->Contains(localpoint, daughterlocalpoint)) {
-      //            state->Push(nextvolume);
-      //            return true;
-      //          }
-      //        }
-      //      } else {
-      //        if (nextvolume->Contains(localpoint, daughterlocalpoint)) {
-      //          if (ModifyState) {
-      //            state->Push(nextvolume);
-      //          } else {
-      //            pvol = nextvolume;
-      //          }
-      //          return true;
-      //        }
-      //      }
+  // the actual implementation kernel
+  // the template "ifs" should be optimized away
+  // arguments are pointers to allow for nullptr
+  template <bool ExclV, bool ModifyState>
+  __attribute__((always_inline)) bool LevelLocateKernelWithDirection(LogicalVolume const *lvol,
+                                                                     VPlacedVolume const *exclvol,
+                                                                     Vector3D<Precision> const &localpoint,
+                                                                     Vector3D<Precision> const &localdir,
+                                                                     NavigationState *state, VPlacedVolume const *&pvol,
+                                                                     Vector3D<Precision> &daughterlocalpoint) const
+  {
+    auto daughters = lvol->GetDaughtersp();
+    for (size_t i = 0; i < daughters->size(); ++i) {
+      VPlacedVolume const *nextvolume = (*daughters)[i];
+      if (ExclV) {
+        if (exclvol == nextvolume) continue;
+      }
+      if (CheckCandidateVolWithDirection<IsAssemblyAware, ModifyState>(nextvolume, localpoint, localdir, state, pvol,
+                                                                       daughterlocalpoint)) {
+        return true;
+      }
     }
     return false;
   }
@@ -128,6 +183,15 @@ public:
     return LevelLocateKernel<true, false>(lvol, exclvol, localpoint, nullptr, pvol, daughterlocalpoint);
   }
 
+  VECCORE_ATT_HOST_DEVICE
+  virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
+                                  Vector3D<Precision> const &localpoint, Vector3D<Precision> const &localdirection,
+                                  VPlacedVolume const *&pvol, Vector3D<Precision> &daughterlocalpoint) const override
+  {
+    return LevelLocateKernelWithDirection<true, false>(lvol, exclvol, localpoint, localdirection, nullptr, pvol,
+                                                       daughterlocalpoint);
+  }
+
   static std::string GetClassName() { return "SimpleLevelLocator"; }
   virtual std::string GetName() const override { return GetClassName(); }
 
@@ -147,7 +211,7 @@ inline std::string TSimpleLevelLocator<true>::GetClassName()
   return "SimpleAssemblyLevelLocator";
 }
 using SimpleAssemblyLevelLocator = TSimpleLevelLocator<true>;
-}
-} // end namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* NAVIGATION_SIMPLELEVELLOCATOR_H_ */
