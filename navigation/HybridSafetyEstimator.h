@@ -268,6 +268,9 @@ public:
   {
     // safety to mother
     double safety = pvol->SafetyToOut(localpoint);
+    if (safety <= 0.) {
+      return 0.;
+    }
     return TreatSafetyToIn(localpoint, pvol->GetLogicalVolume(), safety);
   }
 
