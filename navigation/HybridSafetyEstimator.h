@@ -128,7 +128,7 @@ public:
           ABBoxImplementation::ABBoxSafetyRangeSqr(boxes_v[index], boxes_v[index + 1], pointfloat, distmaxsqr);
       // Find minimum of distmaxsqr
       for (size_t i = 0; i < kVS; ++i) {
-        Precision distmaxsqr_s                                      = vecCore::LaneAt(distmaxsqr, i);
+        Precision distmaxsqr_s = vecCore::LaneAt(distmaxsqr, i);
         if (distmaxsqr_s < upper_squared_limit) upper_squared_limit = distmaxsqr_s;
       }
       auto hit = safetytonodesqr < ABBoxManager::Real_t(upper_squared_limit);
@@ -144,7 +144,7 @@ public:
               for (size_t j = 0; j < kVS; ++j) {
                 if (vecCore::MaskLaneAt(hit1, j)) {
                   assert(count < VECGEOM_MAXFACETS);
-                  hitlist[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
+                  hitlist[count]         = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
                                                                        vecCore::LaneAt(safetytoboxsqr, j));
                   Precision distmaxsqr_s = vecCore::LaneAt(distmaxsqr, j);
                   // Reduce the upper limit
@@ -197,8 +197,8 @@ public:
   virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint, VPlacedVolume const *pvol,
                                             Bool_v m) const override
   {
-    using vecCore::LaneAt;
     using vecCore::AssignLane;
+    using vecCore::LaneAt;
     Real_v safety(0.);
     if (!vecCore::MaskEmpty(m)) {
       // SIMD safety to mother
@@ -341,7 +341,7 @@ public:
   }
 
 }; // end class
-}
-} // end namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* NAVIGATION_SIMPLEABBOXSAFETYESTIMATOR_H_ */
