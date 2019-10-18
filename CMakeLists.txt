@@ -946,6 +946,7 @@ endif() # GDML
 # Define executables
 
 set(TEST_EXECUTABLES_CORE
+  ${CMAKE_SOURCE_DIR}/test/core/TestVoxelHashMap.cpp
   ${CMAKE_SOURCE_DIR}/test/core/SafetyEstimatorTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ContainerTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/create_geometry.cpp
