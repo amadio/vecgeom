@@ -84,6 +84,23 @@ Vector3D<Precision> SamplePoint(Vector3D<Precision> const &size, const Precision
 }
 
 /**
+ * @brief Returns a random point, based on a sampling rectangular volume.
+ * @details Mostly used for benchmarks and navigation tests
+ * @param size is a Vector3D containing the rectangular dimensions of the sampling volume
+ * @param scale an optional scale factor (default is 1)
+ * @return a random output point
+ */
+template <typename RngEngine>
+VECGEOM_FORCE_INLINE
+Vector3D<Precision> SamplePoint(Vector3D<Precision> const &size, RngEngine &rngengine, const Precision scale = 1)
+{
+  std::uniform_real_distribution<double> dist(0, 2.);
+  const Vector3D<Precision> ret(scale * (1. - dist(rngengine)) * size[0], scale * (1. - dist(rngengine)) * size[1],
+                                scale * (1. - dist(rngengine)) * size[2]);
+  return ret;
+}
+
+/**
  *  @brief Returns a random, normalized direction vector.
  *  @details Mostly used for benchmarks, when a direction is needed.
  *  @return a random, normalized direction vector
@@ -353,6 +370,81 @@ void FillUncontainedPoints(LogicalVolume const &volume, TrackContainer &points)
   delete placed;
 }
 
+// *** The following functions allow to give an external generator
+// *** which should make these functions usable in parallel
+
+/**
+ * @brief Fills the volume with 3D points which are _not_ contained in
+ *    any daughters of the input mother volume.
+ * @details Requires a proper bounding box from the input volume.
+ *    Point coordinates are local to input mother volume.
+ * @param volume is the input mother volume containing all output points.
+ * @param points is the output container, provided by the caller.
+ */
+template <typename RandomEngine, typename TrackContainer>
+VECGEOM_FORCE_INLINE
+void FillUncontainedPoints(VPlacedVolume const &volume, RandomEngine &rngengine, TrackContainer &points)
+{
+  static double lastUncontCap = 0.0;
+  double uncontainedCapacity  = UncontainedCapacity(volume);
+  if (uncontainedCapacity != lastUncontCap) {
+    printf("Uncontained capacity for %s: %g units\n", volume.GetLabel().c_str(), uncontainedCapacity);
+    lastUncontCap = uncontainedCapacity;
+  }
+  if (uncontainedCapacity <= 1000 * kTolerance) {
+    std::cout << "\nVolUtil: FillUncontPts: ERROR: Volume provided <" << volume.GetLabel()
+              << "> does not have uncontained capacity!  Aborting.\n";
+    assert(false);
+  }
+
+  const int size = points.capacity();
+  points.resize(points.capacity());
+
+  Vector3D<Precision> lower, upper, offset;
+  volume.Extent(lower, upper);
+  offset                        = 0.5 * (upper + lower);
+  const Vector3D<Precision> dim = 0.5 * (upper - lower);
+
+  int tries = 0;
+  for (int i = 0; i < size; ++i) {
+    bool contained;
+    Vector3D<Precision> point;
+    tries = 0;
+    do {
+      // ensure that point is contained in mother volume
+      do {
+        ++tries;
+        if (tries % 1000000 == 0) {
+          printf("%s line %i: Warning: %i tries to find uncontained points... volume=%s.  Please check.\n", __FILE__,
+                 __LINE__, tries, volume.GetLabel().c_str());
+        }
+
+        point = offset + SamplePoint(dim, rngengine);
+      } while (!volume.UnplacedContains(point));
+      points.set(i, point);
+
+      contained = false;
+      int kk    = 0;
+      for (Vector<Daughter>::const_iterator j = volume.GetDaughters().cbegin(), jEnd = volume.GetDaughters().cend();
+           j != jEnd; ++j, ++kk) {
+        if ((*j)->Contains(points[i])) {
+          contained = true;
+          break;
+        }
+      }
+    } while (contained);
+  }
+}
+
+template <typename RandomEngine, typename TrackContainer>
+VECGEOM_FORCE_INLINE
+void FillUncontainedPoints(LogicalVolume const &volume, RandomEngine &rngengine, TrackContainer &points)
+{
+  VPlacedVolume const *const placed = volume.Place();
+  FillUncontainedPoints(*placed, rngengine, points);
+  delete placed;
+}
+
 /**
  * @brief Fill a container structure (SOA3D or AOS3D) with random
  *    points contained in a volume. Points are returned in the reference
@@ -578,7 +670,9 @@ void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision
 
 /**
  * @brief Fills a container structure (SOA3D or AOS3D) with random
- *    points contained inside a box defined by the two input corners.
+ *    points contained inside a box defined by the two input corners, but
+ *    not contained in an ecluded volume. This can be useful to sample
+ *    the space in a bounding box not pertaining to the volume.
  * @param lowercorner, uppercorner define the sampling box
  * @param points is the output container, provided by the caller.
  */
@@ -678,9 +772,9 @@ inline void FillGlobalPointsAndDirectionsForLogicalVolume(LogicalVolume const *l
         GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), globalpoints[placedcount], *s1, true);
         assert(s1->Top()->GetLogicalVolume() == lvol);
         double step = vecgeom::kInfLength;
-        auto nav = s1->Top()->GetLogicalVolume()->GetNavigator();
+        auto nav    = s1->Top()->GetLogicalVolume()->GetNavigator();
         nav->FindNextBoundaryAndStep(globalpoints[placedcount], directions[placedcount], *s1, *s2, vecgeom::kInfLength,
-                                    step);
+                                     step);
 #ifdef DEBUG
         if (!hitsdaughter) assert(s1->Distance(*s2) > s2->GetCurrentLevel() - s1->GetCurrentLevel());
 #endif
@@ -1028,6 +1122,53 @@ bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<P
   }
 
   return true;
+}
+
+/// generates regularly spaced surface points on each face of a box
+/// npointsperline : number of points on each 1D line (there will be a total of
+/// 6 * pointsperline * pointsperline + 1 non-degenerate points with the corner points being
+/// included degenerate
+template <typename T>
+void GenerateRegularSurfacePointsOnBox(Vector3D<T> const &lower, Vector3D<T> const &upper, int pointsperline,
+                                       std::vector<Vector3D<T>> &points)
+{
+  const auto lengthvector = upper - lower;
+  const auto delta        = lengthvector / (1. * pointsperline);
+
+  // face y-z at x =y -L and x = +L
+  for (int ny = 0; ny < pointsperline; ++ny) {
+    const auto y = lower.y() + delta.y() * ny;
+    for (int nz = 0; nz < pointsperline; ++nz) {
+      const auto z = lower.z() + delta.z() * nz;
+      Vector3D<T> p1(lower.x(), y, z);
+      Vector3D<T> p2(upper.x(), y, z);
+      points.push_back(p1);
+      points.push_back(p2);
+    }
+  }
+  // face x-z at y=-L and y=+L
+  for (int nx = 0; nx < pointsperline; ++nx) {
+    const auto x = lower.x() + delta.x() * nx;
+    for (int nz = 0; nz < pointsperline; ++nz) {
+      const auto z = lower.z() + delta.z() * nz;
+      Vector3D<T> p1(x, lower.y(), z);
+      Vector3D<T> p2(x, upper.y(), z);
+      points.push_back(p1);
+      points.push_back(p2);
+    }
+  }
+  // face x-y at z=-L and z=+L
+  for (int nx = 0; nx < pointsperline; ++nx) {
+    const auto x = lower.x() + delta.x() * nx;
+    for (int ny = 0; ny < pointsperline; ++ny) {
+      const auto y = lower.y() + delta.y() * ny;
+      Vector3D<T> p1(x, y, lower.z());
+      Vector3D<T> p2(x, y, upper.z());
+      points.push_back(p1);
+      points.push_back(p2);
+    }
+  }
+  points.push_back(upper);
 }
 
 } // end namespace volumeUtilities
