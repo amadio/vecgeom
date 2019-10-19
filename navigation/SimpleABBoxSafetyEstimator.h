@@ -35,10 +35,11 @@ private:
     return lvol->GetDaughtersp()->operator[](id);
   }
 
+public:
   // helper function calculating some candidate volumes
-  size_t GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners,
-                               size_t size, ABBoxManager::BoxIdDistancePair_t *boxsafetypairs,
-                               Precision upper_squared_limit) const
+  static size_t GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners,
+                                      size_t size, ABBoxManager::BoxIdDistancePair_t *boxsafetypairs,
+                                      Precision upper_squared_limit)
   {
     size_t count = 0;
     Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
@@ -62,7 +63,6 @@ private:
     return count;
   }
 
-private:
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, LogicalVolume const *lvol, Precision outsafety) const
@@ -132,8 +132,8 @@ public:
   virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint, VPlacedVolume const *pvol,
                                             Bool_v m) const override
   {
-    using vecCore::LaneAt;
     using vecCore::AssignLane;
+    using vecCore::LaneAt;
     Real_v safety(0.);
     if (!vecCore::MaskEmpty(m)) {
       // SIMD safety to mother
@@ -215,7 +215,7 @@ public:
   }
 
 }; // end class
-}
-} // end namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* NAVIGATION_SIMPLEABBOXSAFETYESTIMATOR_H_ */

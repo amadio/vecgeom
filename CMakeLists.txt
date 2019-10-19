@@ -719,7 +719,8 @@ set(VECGEOM_SRCS
   source/Wedge_Evolution.cpp
   source/ABBoxManager.cpp
   source/HybridManager2.cpp
- 
+  source/FlatVoxelManager.cpp
+  
   source/MessageLogger.cpp
 
   services/NavigationSpecializer.cpp
