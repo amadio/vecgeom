@@ -125,9 +125,9 @@ struct BoxImplementation {
     // distIn calculation
     distance = (tempIn * invDir).Max();
 
-    vecCore__MaskedAssignFunc(distance, distance >= distOut || distOut <= Real_v(kHalfTolerance) ||
-                                            absOrthogOut <= Real_v(kHalfTolerance),
-                              InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(
+        distance, distance >= distOut || distOut <= Real_v(kHalfTolerance) || absOrthogOut <= Real_v(kHalfTolerance),
+        InfinityLength<Real_v>());
   }
 
   template <typename Real_v>
@@ -267,7 +267,7 @@ struct BoxImplementation {
 
     if ((tmin > tzmax) || (tzmin > tmax)) return InfinityLength<Precision>(); // false
     if ((tzmin > tmin)) tmin = tzmin;
-    if (tzmax < tmax) tmax   = tzmax;
+    if (tzmax < tmax) tmax = tzmax;
 
     if (!((tmin < t1) && (tmax > t0))) return InfinityLength<Precision>();
     return tmin;
@@ -439,7 +439,7 @@ struct BoxImplementation {
 
     if ((tmin > tzmax) || (tzmin > tmax)) return InfinityLength<Precision>(); // false
     if ((tzmin > tmin)) tmin = tzmin;
-    if (tzmax < tmax) tmax   = tzmax;
+    if (tzmax < tmax) tmax = tzmax;
 
     if (!((tmin < t1) && (tmax > t0))) return InfinityLength<Precision>();
     // std::cerr << "tmin " << tmin << " tmax " << tmax << "\n";
@@ -622,7 +622,7 @@ struct ABBoxImplementation {
   }
 
 }; // end aligned bounding box struct
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_BOXIMPLEMENTATION_H_
