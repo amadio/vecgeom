@@ -511,13 +511,13 @@ struct ABBoxImplementation {
     const Vector3D_v origin((uppercorner + lowercorner) * kHalf);
     const Vector3D_v delta((uppercorner - lowercorner) * kHalf);
     // promote scalar point to vector point
-    Vector3D_v promotedpoint(Real_v(point.x()), Real_v(point.y()), Real_v(point.z()));
+    const Vector3D_v promotedpoint(Real_v(point.x()), Real_v(point.y()), Real_v(point.z()));
 
     // it would be nicer to have a standalone Abs function taking Vector3D as input
-    Vector3D_v safety = ((promotedpoint - origin).Abs()) - delta;
-    Bool_v outsidex   = safety.x() > Real_s(0.);
-    Bool_v outsidey   = safety.y() > Real_s(0.);
-    Bool_v outsidez   = safety.z() > Real_s(0.);
+    const Vector3D_v safety = ((promotedpoint - origin).Abs()) - delta;
+    const Bool_v outsidex   = safety.x() > Real_s(0.);
+    const Bool_v outsidey   = safety.y() > Real_s(0.);
+    const Bool_v outsidez   = safety.z() > Real_s(0.);
 
     Real_v runningsafetysqr(0.);                  // safety squared from outside
     Real_v runningmax(-InfinityLength<Real_v>()); // relevant for safety when we are inside
@@ -571,14 +571,14 @@ struct ABBoxImplementation {
     const Vector3D_v origin((uppercorner + lowercorner) * kHalf);
     const Vector3D_v delta((uppercorner - lowercorner) * kHalf);
     // promote scalar point to vector point
-    Vector3D_v promotedpoint(Real_v(point.x()), Real_v(point.y()), Real_v(point.z()));
+    const Vector3D_v promotedpoint(Real_v(point.x()), Real_v(point.y()), Real_v(point.z()));
 
     // it would be nicer to have a standalone Abs function taking Vector3D as input
-    Vector3D_v safety  = ((promotedpoint - origin).Abs()) - delta;
-    Vector3D_v safetyp = ((promotedpoint - origin).Abs()) + delta;
-    Bool_v outsidex    = safety.x() > Real_s(0.);
-    Bool_v outsidey    = safety.y() > Real_s(0.);
-    Bool_v outsidez    = safety.z() > Real_s(0.);
+    const Vector3D_v safety  = ((promotedpoint - origin).Abs()) - delta;
+    const Vector3D_v safetyp = ((promotedpoint - origin).Abs()) + delta;
+    const Bool_v outsidex    = safety.x() > Real_s(0.);
+    const Bool_v outsidey    = safety.y() > Real_s(0.);
+    const Bool_v outsidez    = safety.z() > Real_s(0.);
 
     Real_v runningsafetysqr(0.);                  // safety squared from outside
     safetymaxsqr = safetyp.Mag2();                // safetymax squared from outside
