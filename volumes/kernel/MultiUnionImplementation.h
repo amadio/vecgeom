@@ -152,7 +152,7 @@ struct MultiUnionImplementation {
 
     HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
     // intersect ray with the BVH structure and use hook
-    boxNav->BVHSortedIntersectionsLooper(*munion.fNavHelper, point, direction, userhook);
+    boxNav->BVHSortedIntersectionsLooper(*munion.fNavHelper, point, direction, stepMax, userhook);
   }
 
   template <typename Real_v>

@@ -23,6 +23,7 @@
 #include "navigation/SimpleABBoxNavigator.h"
 
 #include <vector>
+#include <cmath>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -108,7 +109,7 @@ private:
    * Returns hitlist of daughter candidates (pairs of [daughter index, step to bounding box]) crossed by ray.
    */
   size_t GetHitCandidates_v(HybridManager2::HybridBoxAccelerationStructure const &accstructure,
-                            Vector3D<Precision> const &point, Vector3D<Precision> const &dir,
+                            Vector3D<Precision> const &point, Vector3D<Precision> const &dir, float maxstep,
                             HybridManager2::BoxIdDistancePair_t *hitlist) const
   {
     size_t count = 0;
@@ -123,14 +124,14 @@ private:
     auto const *nodeToDaughters = accstructure.fNodeToDaughters;
     for (size_t index = 0, nodeindex = 0; index < size_t(size) * 2; index += 2 * (kVS + 1), nodeindex += kVS) {
       HybridManager2::Float_v distance = BoxImplementation::IntersectCachedKernel2<HybridManager2::Float_v, float>(
-          &boxes_v[index], point, invdir, sign.x(), sign.y(), sign.z(), 0, InfinityLength<float>());
-      auto hit = distance < InfinityLength<float>();
+          &boxes_v[index], point, invdir, sign.x(), sign.y(), sign.z(), 0, maxstep);
+      auto hit = distance < maxstep;
       if (!vecCore::MaskEmpty(hit)) {
         for (size_t i = 0 /*hit.firstOne()*/; i < kVS; ++i) {
           if (vecCore::MaskLaneAt(hit, i)) {
             distance = BoxImplementation::IntersectCachedKernel2<HybridManager2::Float_v, float>(
-                &boxes_v[index + 2 * (i + 1)], point, invdir, sign.x(), sign.y(), sign.z(), 0, InfinityLength<float>());
-            auto hit1 = distance < InfinityLength<float>();
+                &boxes_v[index + 2 * (i + 1)], point, invdir, sign.x(), sign.y(), sign.z(), 0, maxstep);
+            auto hit1 = distance < maxstep;
             if (!vecCore::MaskEmpty(hit1)) {
               for (size_t j = 0 /*hit1.firstOne()*/; j < kVS; ++j) { // leaf node
                 if (vecCore::MaskLaneAt(hit1, j)) {
@@ -164,7 +165,7 @@ public:
   template <typename AccStructure, typename Func>
   VECGEOM_FORCE_INLINE
   void BVHSortedIntersectionsLooper(AccStructure const &accstructure, Vector3D<Precision> const &localpoint,
-                                    Vector3D<Precision> const &localdir, Func &&userhook) const
+                                    Vector3D<Precision> const &localdir, Precision maxstep, Func &&userhook) const
   {
     // The following construct reserves stackspace for objects
     // of type IdDistPair_t WITHOUT initializing those objects
@@ -172,7 +173,10 @@ public:
     char stackspace[VECGEOM_MAXFACETS * sizeof(IdDistPair_t)];
     IdDistPair_t *hitlist = reinterpret_cast<IdDistPair_t *>(&stackspace);
 
-    auto ncandidates = GetHitCandidates_v(accstructure, localpoint, localdir, hitlist);
+    // it could be that someone passed InfinityLength<double> to this function
+    // which we need to reduce to the float version since GetHitCandidates processes floats
+    const float maxstep_float = std::min((float)maxstep, InfinityLength<float>());
+    auto ncandidates          = GetHitCandidates_v(accstructure, localpoint, localdir, maxstep_float, hitlist);
     // sort candidates according to their bounding volume hit distance
     insertionsort(hitlist, ncandidates);
 
@@ -207,19 +211,78 @@ public:
     if (lvol->GetDaughtersp()->size() == 0) return false;
     auto &accstructure = *fAccelerationManager.GetAccStructure(lvol);
 
-    BVHSortedIntersectionsLooper(accstructure, localpoint, localdir, [&](HybridManager2::BoxIdDistancePair_t hitbox) {
-      // only consider those hitboxes which are within potential reach of this step
-      if (!(step < hitbox.second)) {
-        VPlacedVolume const *candidate = LookupDaughter(lvol, hitbox.first);
-        Precision ddistance            = candidate->DistanceToIn(localpoint, localdir, step);
-        const auto valid               = !IsInf(ddistance) && ddistance < step &&
-                           !((ddistance <= 0.) && in_state && in_state->GetLastExited() == candidate);
-        hitcandidate = valid ? candidate : hitcandidate;
-        step         = valid ? ddistance : step;
-        return false; // not yet done; need to continue in looper
-      }
-      return true; // mark done in this case
-    });
+    float maxstep = step;
+    BVHSortedIntersectionsLooper(
+        accstructure, localpoint, localdir, maxstep, [&](HybridManager2::BoxIdDistancePair_t hitbox) {
+          // only consider those hitboxes which are within potential reach of this step
+          if (!(step < hitbox.second)) {
+            VPlacedVolume const *candidate = LookupDaughter(lvol, hitbox.first);
+            Precision ddistance            = candidate->DistanceToIn(localpoint, localdir, step);
+            const auto valid               = !IsInf(ddistance) && ddistance < step &&
+                               !((ddistance <= 0.) && in_state && in_state->GetLastExited() == candidate);
+            hitcandidate = valid ? candidate : hitcandidate;
+            step         = valid ? ddistance : step;
+            return false; // not yet done; need to continue in looper
+          }
+          return true; // mark done in this case
+        });
+    return false;
+  }
+
+  VECGEOM_FORCE_INLINE
+  virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
+                                          Vector3D<Precision> const &localdir, VPlacedVolume const *blocked,
+                                          Precision &step, VPlacedVolume const *&hitcandidate) const override
+  {
+    if (lvol->GetDaughtersp()->size() == 0) return false;
+    auto &accstructure = *fAccelerationManager.GetAccStructure(lvol);
+
+    const float maxstep = step;
+    BVHSortedIntersectionsLooper(accstructure, localpoint, localdir, maxstep,
+                                 [&](HybridManager2::BoxIdDistancePair_t hitbox) {
+                                   // only consider those hitboxes which are within potential reach of this step
+                                   if (!(step < hitbox.second)) {
+                                     VPlacedVolume const *candidate = LookupDaughter(lvol, hitbox.first);
+                                     if (candidate == blocked) {
+                                       return false; // return early and go on in the looper
+                                     }
+                                     const Precision ddistance = candidate->DistanceToIn(localpoint, localdir, step);
+                                     const auto valid          = !IsInf(ddistance) && ddistance < step;
+                                     hitcandidate              = valid ? candidate : hitcandidate;
+                                     step                      = valid ? ddistance : step;
+#if 0 // enable for debugging
+        if ( ddistance<=0 ) {
+           std::cerr << "negative distance found for " << candidate->GetName() << "\n"; 
+           auto inside = candidate->Inside(localpoint);
+           if (inside == kSurface) {
+             std::cerr << "on surface\n";
+           }
+           if (inside == kOutside) {
+             std::cerr << "outside\n";
+           }
+           if (inside == kInside) {
+             std::cerr << "inside\n";
+           }
+           const auto transf = candidate->GetTransformation();
+           const auto unpl = candidate->GetUnplacedVolume();
+           Vector3D<Precision> normal;
+           const auto testdaughterlocal = transf->Transform(localpoint);      
+           auto valid = unpl->Normal(testdaughterlocal, normal);
+           
+           const auto directiondaughterlocal = transf->TransformDirection(localdir);
+           const auto dot = normal.Dot(directiondaughterlocal);
+           if (dot >= 0) {
+             std::cerr << " exiting " << valid << "\n";
+           }
+           else {
+             std::cerr << " entering " << valid << "\n";
+           }
+        }
+#endif
+                                     return false; // not yet done; need to continue in looper
+                                   }
+                                   return true; // mark done in this case
+                                 });
     return false;
   }
 
@@ -232,7 +295,7 @@ public:
   static constexpr const char *gClassNameString = "HybridNavigator";
   typedef SimpleABBoxSafetyEstimator SafetyEstimator_t;
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

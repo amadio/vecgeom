@@ -251,7 +251,7 @@ struct TessellatedImplementation {
     boxNav->BVHSortedIntersectionsLooper(*tessellated.fNavHelper2, point, direction, 1E20, userhook);
 #else
     HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
-    boxNav->BVHSortedIntersectionsLooper(*tessellated.fNavHelper2, point, direction, userhook);
+    boxNav->BVHSortedIntersectionsLooper(*tessellated.fNavHelper2, point, direction, stepMax, userhook);
 #endif
 
     // Treat special cases

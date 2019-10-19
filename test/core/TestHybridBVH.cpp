@@ -59,7 +59,7 @@ void QueryStructure(BVHStructure const &s)
 
     checkhitsum = 0;
     // intersect ray with the BVH structure and use hook
-    instance->BVHSortedIntersectionsLooper(s, pos, dir, userhook);
+    instance->BVHSortedIntersectionsLooper(s, pos, dir, 1E20, userhook);
     assert(c == checkhitsum); // checks that all boxes have been hit
   }
 
@@ -70,7 +70,7 @@ void QueryStructure(BVHStructure const &s)
 
     checkhitsum = 0;
     // intersect ray with the BVH structure and use hook
-    instance->BVHSortedIntersectionsLooper(s, pos, dir, userhook);
+    instance->BVHSortedIntersectionsLooper(s, pos, dir, 1E20, userhook);
     assert(c == checkhitsum); // checks that all boxes have been hit
   }
 
@@ -82,7 +82,7 @@ void QueryStructure(BVHStructure const &s)
 
     checkhitsum = 0;
     // intersect ray with the BVH structure and use hook
-    instance->BVHSortedIntersectionsLooper(s, pos, dir, userhook);
+    instance->BVHSortedIntersectionsLooper(s, pos, dir, 1E20, userhook);
     assert(0 == checkhitsum);
   }
 
@@ -93,7 +93,7 @@ void QueryStructure(BVHStructure const &s)
     Vector3D<Precision> dir(0., 1., 0.);
 
     // intersect ray with the BVH structure and use hook
-    instance->BVHSortedIntersectionsLooper(s, pos, dir, userhook);
+    instance->BVHSortedIntersectionsLooper(s, pos, dir, 1E20, userhook);
     assert(1 == checkhitsum); // should hit exactly the first box (index 0 + 1)
   }
 }
