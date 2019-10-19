@@ -69,6 +69,8 @@ bool gBenchVecInterface = false;
 bool gAnalyseOutStates  = false;
 bool gBenchWithSafety   = false;
 bool gSpecializedLib    = false;
+double gMAXSTEP         = vecgeom::kInfLength; // global variable to configure max step asked in ComputeStep
+
 std::string gSpecLibName;
 VNavigator const *gSpecializedNavigator;
 
@@ -222,10 +224,10 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
       safeties[i] = rootnav->Safety(true);
     }
     if (WithReloc) {
-      volatile TGeoNode *node = rootnav->FindNextBoundaryAndStep(kInfLength);
+      volatile TGeoNode *node = rootnav->FindNextBoundaryAndStep(gMAXSTEP);
       (void)node;
     } else {
-      volatile TGeoNode *node = rootnav->FindNextBoundary(kInfLength);
+      volatile TGeoNode *node = rootnav->FindNextBoundary(gMAXSTEP);
       (void)node;
     }
     steps[i] = rootnav->GetStep();
@@ -305,7 +307,7 @@ __attribute__((noinline)) void benchmarkG4Navigator(SOA3D<Precision> const &poin
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     G4ThreeVector g4pos(points[i].x() * cm, points[i].y() * cm, points[i].z() * cm);
     G4ThreeVector g4dir(dirs[i].x(), dirs[i].y(), dirs[i].z());
-    G4double maxStep = kInfLength;
+    G4double maxStep = gMAXSTEP;
 
     // false --> locate from top
     G4VPhysicalVolume const *vol = g4nav.LocateGlobalPointAndSetup(g4pos, &g4dir, false);
@@ -358,10 +360,10 @@ __attribute__((noinline)) void benchNavigator(VNavigator const *se, SOA3D<Precis
   timer.Start();
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     if (WithSafety) {
-      steps[i] = se->ComputeStepAndSafetyAndPropagatedState(points[i], dirs[i], vecgeom::kInfLength, *inpool[i],
-                                                            *outpool[i], true, safeties[i]);
+      steps[i] = se->ComputeStepAndSafetyAndPropagatedState(points[i], dirs[i], gMAXSTEP, *inpool[i], *outpool[i], true,
+                                                            safeties[i]);
     } else {
-      steps[i] = se->ComputeStepAndPropagatedState(points[i], dirs[i], vecgeom::kInfLength, *inpool[i], *outpool[i]);
+      steps[i] = se->ComputeStepAndPropagatedState(points[i], dirs[i], gMAXSTEP, *inpool[i], *outpool[i]);
     }
   }
   timer.Stop();
@@ -395,9 +397,10 @@ __attribute__((noinline)) void benchNavigatorNoReloc(VNavigator const *se, SOA3D
   timer.Start();
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     if (WithSafety) {
-      steps[i] = se->ComputeStepAndSafety(points[i], dirs[i], vecgeom::kInfLength, *inpool[i], true, safeties[i]);
+      steps[i] = se->ComputeStepAndSafety(points[i], dirs[i], gMAXSTEP, *const_cast<NavigationState *>(inpool[i]), true,
+                                          safeties[i]);
     } else {
-      steps[i] = se->ComputeStep(points[i], dirs[i], vecgeom::kInfLength, *inpool[i], *outpool[i]);
+      steps[i] = se->ComputeStep(points[i], dirs[i], gMAXSTEP, *inpool[i], *outpool[i]);
     }
   }
   timer.Stop();
@@ -424,8 +427,9 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
                                                     NavStatePool &__restrict__ outpool)
 {
   Precision *step_max = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
-  for (decltype(points.size()) i = 0; i < points.size(); ++i)
-    step_max[i] = vecgeom::kInfLength;
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    step_max[i] = gMAXSTEP;
+  }
   Precision *steps    = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   Precision *safeties = nullptr;
   bool *calcs;
@@ -481,11 +485,13 @@ __attribute__((noinline)) void benchVectorNavigatorNoReloc(SOA3D<Precision> cons
                                                            NavStatePool &__restrict__ outpool)
 {
   Precision *step_max = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
-  for (decltype(points.size()) i = 0; i < points.size(); ++i)
-    step_max[i] = vecgeom::kInfLength;
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    step_max[i] = gMAXSTEP;
+  }
   Precision *steps    = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   Precision *safeties = nullptr;
   bool *calcs;
+
   if (WithSafety) {
     safeties = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
     calcs    = (bool *)vecCore::AlignedAlloc(32, sizeof(bool) * points.size());
@@ -546,6 +552,14 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
   std::cerr << "##\n";
   RUNBENCH((benchNavigator<WithSafety>(NewSimpleNavigator<true>::Instance(), points, dirs, pool, outpool)));
   std::cerr << "##\n";
+
+#ifdef VECGEOM_ROOT
+  benchmarkROOTNavigator<WithSafety>(points, dirs);
+#ifdef VECGEOM_GEANT4
+  benchmarkG4Navigator<WithSafety>(points, dirs);
+#endif // VECGEOM_GEANT4
+#endif
+
 #ifdef BENCH_GENERATED_NAVIGATOR
   RUNBENCH((benchNavigator<GeneratedNavigator, WithSafety>(points, dirs, pool, outpool)));
   outpool.ToFile("generatedoutpool.bin");
@@ -662,6 +676,13 @@ int main(int argc, char *argv[])
     if (!strcmp(argv[i], "--statetrans")) gAnalyseOutStates = true;
     // whether to benchmark navigation with safeties
     if (!strcmp(argv[i], "--withsafety")) gBenchWithSafety = true;
+    // to set the maxstep number
+    if (!strcmp(argv[i], "--maxstep")) {
+      if (i + 1 < argc) {
+        gMAXSTEP = atof(argv[i + 1]);
+        std::cout << "setting maxstep to " << gMAXSTEP << "\n";
+      }
+    }
     // to set the number of tracks
     if (!strcmp(argv[i], "--ntracks")) {
       if (i + 1 < argc) {

@@ -67,11 +67,13 @@ public:
                                 NavigationState & /*out_state*/) const = 0;
 
   //! as above ... also returns the safety ... does not give_back an out_state
+  //! but the in_state might be modified to contain the next daughter when
+  //! user specifies indicateDaughterHit = true
   VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeStepAndSafety(Vector3D<Precision> const & /*globalpoint*/,
                                          Vector3D<Precision> const & /*globaldir*/, Precision /*(physics) step limit */,
-                                         NavigationState const & /*in_state*/, bool /*calcsafety*/,
-                                         Precision & /*safety*/) const = 0;
+                                         NavigationState & /*in_state*/, bool /*calcsafety*/, Precision & /*safety*/,
+                                         bool indicateDaughterHit = false) const = 0;
 
   // an alias interface ( using TGeo name )
   VECCORE_ATT_HOST_DEVICE
@@ -108,6 +110,17 @@ public:
                                           Vector3D<Precision> const & /*localdir*/,
                                           NavigationState const * /*in_state*/, NavigationState * /*out_state*/,
                                           Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const = 0;
+
+  /// check if a ray given by localpoint, localdir intersects with any daughter. Possibility
+  /// to pass a volume which is blocked/should be ignored in the query. Updates the step as well as the hitcandidate
+  /// volume. (This version is useful for G4; assemblies not supported)
+  VECCORE_ATT_HOST_DEVICE
+  virtual bool CheckDaughterIntersections(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/,
+                                          Vector3D<Precision> const & /*localdir*/, VPlacedVolume const * /*blocked*/,
+                                          Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const
+  {
+    return false;
+  }
 
   // interfaces for vector/basket navigation
   virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
@@ -465,8 +478,8 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeStepAndSafety(Vector3D<Precision> const &globalpoint, Vector3D<Precision> const &globaldir,
-                                         Precision step_limit, NavigationState const &in_state, bool calcsafety,
-                                         Precision &safety) const override
+                                         Precision step_limit, NavigationState &in_state, bool calcsafety,
+                                         Precision &safety, bool indicateDaughterHit = false) const override
   {
 // FIXME: combine this kernel and the one for ComputeStep() into one generic function
 #ifdef DEBUGNAV
@@ -511,6 +524,7 @@ public:
             ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, out_state, step, hitcandidate);
       }
     }
+    if (indicateDaughterHit && hitcandidate) in_state.Push(hitcandidate);
     return Min(step, step_limit);
   }
 
@@ -537,8 +551,9 @@ public:
     // fall back to scalar interface for tail treatment
     for (; i < size; ++i) {
       out_steps[i] = ((Impl *)this)
-                         ->Impl::ComputeStepAndSafety(globalpoints[i], globaldirs[i], step_limits[i], *in_states[i],
-                                                      calcsafeties[i], out_safeties[i]);
+                         ->Impl::ComputeStepAndSafety(globalpoints[i], globaldirs[i], step_limits[i],
+                                                      *const_cast<NavigationState *>(in_states[i]), calcsafeties[i],
+                                                      out_safeties[i]);
     }
     i = decltype(size){0};
     for (; i < size; ++i)
@@ -913,7 +928,7 @@ public:
 
   virtual const char *GetName() const override { return GetClassName(); }
 }; // end class VNavigatorHelper
-}
-} // end namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* NAVIGATION_VNAVIGATOR_H_ */
