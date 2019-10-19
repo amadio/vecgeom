@@ -775,6 +775,7 @@ endforeach()
 set(NOT_FOR_CUDA
    ABBoxManager
    HybridManager2
+   FlatVoxelManager
    Medium
    G4GeoManager
    RootGeoManager

@@ -37,6 +37,7 @@ private:
 
 public:
   // helper function calculating some candidate volumes
+  VECCORE_ATT_HOST_DEVICE
   static size_t GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners,
                                       size_t size, ABBoxManager::BoxIdDistancePair_t *boxsafetypairs,
                                       Precision upper_squared_limit)
