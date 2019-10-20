@@ -22,6 +22,8 @@
 #include "navigation/SimpleABBoxSafetyEstimator.h"
 #include "navigation/HybridSafetyEstimator.h"
 #include "management/HybridManager2.h"
+#include "navigation/VoxelSafetyEstimator.h"
+#include "management/FlatVoxelManager.h"
 
 // in case someone has written a special safety estimator for the CAHL logical volume
 //#include "navigation/CAHLSafetyEstimator.h"
@@ -33,6 +35,14 @@
 #include "TGeoManager.h"
 #include "TGeoBranchArray.h"
 #include "TGeoBBox.h"
+#endif
+
+#ifdef VECGEOM_GEANT4
+#include "G4Navigator.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4ThreeVector.hh"
+#include "management/G4GeoManager.h"
+#include "G4VoxelNavigation.hh"
 #endif
 
 #include <iostream>
@@ -75,6 +85,77 @@ __attribute__((noinline)) void benchSafety(SOA3D<Precision> const &points, NavSt
   std::cerr << "accum  " << T::GetClassName() << " " << accum << "\n";
 }
 
+template <typename T>
+__attribute__((noinline)) void benchLocalSafety(SOA3D<Precision> const &localpoints, NavStatePool &pool)
+{
+  // bench safety
+  Precision *safety = new Precision[localpoints.size()];
+  Stopwatch timer;
+  VSafetyEstimator *se = T::Instance();
+  const auto topvolume = pool[0]->Top();
+  timer.Start();
+  for (size_t i = 0; i < localpoints.size(); ++i) {
+    safety[i] = se->ComputeSafetyForLocalPoint(localpoints[i], topvolume);
+  }
+  timer.Stop();
+  std::cerr << timer.Elapsed() << "\n";
+  double accum(0.);
+  for (size_t i = 0; i < localpoints.size(); ++i) {
+    accum += safety[i];
+  }
+  delete[] safety;
+  std::cerr << "accum  " << T::GetClassName() << " " << accum << "\n";
+}
+
+#ifdef VECGEOM_GEANT4
+__attribute__((noinline)) void benchmarkLocalG4Safety(SOA3D<Precision> const &points,
+                                                      SOA3D<Precision> const &localpoints)
+{
+  Stopwatch timer;
+  G4VPhysicalVolume *world(vecgeom::G4GeoManager::Instance().GetG4GeometryFromROOT());
+  if (world != nullptr) G4GeoManager::Instance().LoadG4Geometry(world);
+
+  // Note: Vector3D's are expressed in cm, while G4ThreeVectors are expressed in mm
+  const Precision cm = 10.; // cm --> mm conversion
+  G4Navigator &g4nav = *(G4GeoManager::Instance().GetNavigator());
+
+  Precision *safety = new Precision[points.size()];
+  G4VoxelNavigation g4voxelnavigator;
+
+  // we need one navigation history object for the points; taking the first point is enough
+  // as all of them are in the same toplevel volume
+  G4ThreeVector g4pos(points[0].x() * cm, points[0].y() * cm, points[0].z() * cm);
+  g4nav.LocateGlobalPointAndSetup(g4pos, nullptr, false);
+  auto history = g4nav.CreateTouchableHistory()->GetHistory();
+  std::cerr << history << "\n";
+  std::cerr << history->GetDepth() << "\n";
+
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_START_INSTRUMENTATION;
+#endif
+  timer.Start();
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    const auto &vgpoint = points[i];
+    const G4ThreeVector g4lpos(vgpoint.x() * cm, vgpoint.y() * cm, vgpoint.z() * cm);
+    safety[i] = g4nav.ComputeSafety(g4lpos); // *history, 1E20);
+  }
+  timer.Stop();
+  std::cerr << (Precision)timer.Elapsed() << "\n";
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_STOP_INSTRUMENTATION;
+  CALLGRIND_DUMP_STATS;
+#endif
+  double accum(0.);
+  for (size_t i = 0; i < localpoints.size(); ++i) {
+    accum += safety[i];
+  }
+  // cleanup
+  delete[] safety;
+  std::cerr << "accum  G4 " << accum / cm << "\n";
+}
+#endif // end if G4
+
+#ifdef VECGEOM_VECTOR
 // benchmarks the old vector interface (needing temporary workspace)
 template <typename T>
 __attribute__((noinline)) void benchVectorSafety(SOA3D<Precision> const &points, NavStatePool &pool)
@@ -115,12 +196,12 @@ __attribute__((noinline)) void benchVectorSafetyNoWorkspace(SOA3D<Precision> con
   vecCore::AlignedFree(safety);
   std::cerr << "VECTOR (NO WORKSP) accum  " << T::GetClassName() << " " << accum << "\n";
 }
+#endif
 
 // benchmarks the ROOT safety interface
 #ifdef VECGEOM_ROOT
-__attribute__((noinline)) void benchmarkROOTSafety(int nPoints, SOA3D<Precision> const &points, int i)
+__attribute__((noinline)) void benchmarkROOTSafety(int nPoints, SOA3D<Precision> const &points)
 {
-
   TGeoNavigator *rootnav = ::gGeoManager->GetCurrentNavigator();
   TGeoBranchArray *brancharrays[nPoints];
   Precision *safety = new Precision[nPoints];
@@ -155,32 +236,90 @@ __attribute__((noinline)) void benchmarkROOTSafety(int nPoints, SOA3D<Precision>
     accum += safety[i];
   }
   std::cerr << "ROOT s " << accum << "\n";
+  delete[] safety;
+  return;
+}
+
+__attribute__((noinline)) void benchmarkLocalROOTSafety(int nPoints, SOA3D<Precision> const &points,
+                                                        SOA3D<Precision> const &localpoints)
+{
+  // we init the ROOT navigator to a specific branch state
+  auto nav = gGeoManager->GetCurrentNavigator();
+  nav->FindNode(points[0].x(), points[0].y(), points[0].z());
+  Precision *safety = new Precision[nPoints];
+
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_START_INSTRUMENTATION;
+#endif
+  Stopwatch timer;
+  timer.Start();
+  for (int i = 0; i < nPoints; ++i) {
+    // There is no direct way of calling the local safety function; points are always transformed so I have to
+    // give the global point
+    Vector3D<Precision> const &pos = points[i];
+    nav->SetCurrentPoint(pos.x(), pos.y(), pos.z());
+    safety[i] = nav->Safety();
+  }
+  timer.Stop();
+  std::cerr << "ROOT time" << timer.Elapsed() << "\n";
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_STOP_INSTRUMENTATION;
+  CALLGRIND_DUMP_STATS;
+#endif
+  double accum(0.);
+  for (int i = 0; i < nPoints; ++i) {
+    accum += safety[i];
+  }
+  std::cerr << "ROOT s " << accum << "\n";
+  delete[] safety;
   return;
 }
 #endif
 
 // main routine starting up the individual benchmarks
-void benchDifferentSafeties(SOA3D<Precision> const &points, NavStatePool &pool)
+void benchDifferentSafeties(SOA3D<Precision> const &points, SOA3D<Precision> const &localpoints, NavStatePool &pool)
 {
-  std::cerr << "##\n";
+  std::cerr << "## - GLOBAL POINTS - \n";
   std::cerr << "##\n";
   RUNBENCH(benchSafety<SimpleSafetyEstimator>(points, pool));
   std::cerr << "##\n";
   RUNBENCH(benchSafety<SimpleABBoxSafetyEstimator>(points, pool));
   std::cerr << "##\n";
   RUNBENCH(benchSafety<HybridSafetyEstimator>(points, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchSafety<VoxelSafetyEstimator>(points, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchmarkROOTSafety(points.size(), points));
+  // std::cerr << "##\n";
+  // benchVectorSafety<SPECIALESTIMATOR>(points, pool);
+  std::cerr << "## - LOCAL POINTS - \n";
+  std::cerr << "##\n";
+  RUNBENCH(benchLocalSafety<SimpleSafetyEstimator>(localpoints, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchLocalSafety<SimpleABBoxSafetyEstimator>(localpoints, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchLocalSafety<HybridSafetyEstimator>(localpoints, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchLocalSafety<VoxelSafetyEstimator>(localpoints, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchmarkLocalROOTSafety(points.size(), points, localpoints));
+#ifdef VECGEOM_GEANT4
+  std::cerr << "##\n";
+  RUNBENCH(benchmarkLocalG4Safety(points, localpoints));
+#endif
 
   // std::cerr << "##\n";
   // benchVectorSafety<SPECIALESTIMATOR>(points, pool);
 
   std::cerr << "##\n";
+#ifdef VECGEOM_VECTORAPI
   RUNBENCH(benchVectorSafety<SimpleSafetyEstimator>(points, pool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorSafetyNoWorkspace<SimpleSafetyEstimator>(points, pool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorSafety<SimpleABBoxSafetyEstimator>(points, pool));
   std::cerr << "##\n";
-  RUNBENCH(benchmarkROOTSafety(points.size(), points, 10));
+#endif
 }
 
 // main program
@@ -196,7 +335,7 @@ int main(int argc, char *argv[])
   }
 
   // setup data structures
-  int npoints = 100;
+  int npoints = 100000;
   SOA3D<Precision> points(npoints);
   SOA3D<Precision> localpoints(npoints);
   SOA3D<Precision> directions(npoints);
@@ -221,8 +360,9 @@ int main(int argc, char *argv[])
   }
 
   HybridManager2::Instance().InitStructure(GeoManager::Instance().FindLogicalVolume(volname.c_str()));
+  FlatVoxelManager::Instance().InitStructure(GeoManager::Instance().FindLogicalVolume(volname.c_str()));
 
   std::cerr << "located ...\n";
-  benchDifferentSafeties(points, statepool);
+  benchDifferentSafeties(points, localpoints, statepool);
   return 0;
 }

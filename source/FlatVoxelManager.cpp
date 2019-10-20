@@ -408,8 +408,8 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
   }
   std::cerr << " done \n";
 
-  safetyvoxels->print();
-  // create cash
+  // safetyvoxels->print();
+  // create cache
   safetyvoxels->dumpToTFile(createName(vol, Nx, Ny, Nz).c_str());
 
   return safetyvoxels;
@@ -495,7 +495,7 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildLocateVoxels(LogicalVolume 
       locatevoxels->addPropertyForKey(key, cand);
     }
   }
-  locatevoxels->print();
+  // locatevoxels->print();
 
   return locatevoxels;
 }
