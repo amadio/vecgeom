@@ -338,7 +338,6 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
   std::cout << "ZERO STEPS ROOT " << zerosteps_accum << "\n";
 } // end XRayWithROOT
 
-
 template <bool DoVerbose = false>
 void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox,
                                                     Vector3D<Precision> dir, double axis1_start, double axis1_end,
@@ -448,7 +447,6 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
   NavigationState::ReleaseInstance(newnavstate);
 
 } // end XRayWithVecGeom
-
 
 // performs the XRay scan using Geant4
 #ifdef VECGEOM_GEANT4
@@ -607,8 +605,8 @@ int main(int argc, char *argv[])
   unsigned int cutatlevel = 1000;
   bool cutlevel           = false;
   for (auto i = 5; i < argc; i++) {
-    if (!strcmp(argv[i], "--novoxel")) voxelize          = false;
-    if (!strcmp(argv[i], "--noassembly")) assemblies     = false;
+    if (!strcmp(argv[i], "--novoxel")) voxelize = false;
+    if (!strcmp(argv[i], "--noassembly")) assemblies = false;
     if (!strcmp(argv[i], "--trackverbose")) trackverbose = true;
     if (!strcmp(argv[i], "--tolevel")) {
       cutlevel   = true;
@@ -777,7 +775,7 @@ int main(int argc, char *argv[])
 #ifdef VECGEOM_GEANT4
     int *volume_result_Geant4 = (int *)new int[data_size_y * data_size_x * 3];
 #endif
-    int *volume_result_VecGeom    = (int *)new int[data_size_y * data_size_x * 3];
+    int *volume_result_VecGeom = (int *)new int[data_size_y * data_size_x * 3];
 
     Stopwatch timer;
     timer.Start();
@@ -900,7 +898,7 @@ int main(int argc, char *argv[])
         make_diff_bmp(volume_result, volume_result_VecGeom, VGRdiffimage.str().c_str(), data_size_x, data_size_y);
     int errorG4VG(0);
 #ifdef VECGEOM_GEANT4
-    // std::stringstream VGG4diffimage;
+    std::stringstream VGG4diffimage;
     VGG4diffimage.str("");
     VGG4diffimage.clear();
     VGG4diffimage << imagenamebase.str();
