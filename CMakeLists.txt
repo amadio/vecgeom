@@ -872,7 +872,7 @@ endif()
 # Build libraries
 
 if (NOT APPLE)
-  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
+  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt pthread)
 endif()
 
 add_library(vecgeom ${SRC_CPP})
@@ -888,10 +888,6 @@ if (BUILD_SHARED_LIBS)
     set(VECGEOM_LIBNAME "libvecgeom${CMAKE_SHARED_LIBRARY_SUFFIX}")
 else()
     set(VECGEOM_LIBNAME "libvecgeom${CMAKE_STATIC_LIBRARY_SUFFIX}")
-endif()
-
-if (NOT APPLE)
-  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
 endif()
 
 # build the CUDA version of the library
