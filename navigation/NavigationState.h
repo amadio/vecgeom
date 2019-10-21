@@ -66,6 +66,8 @@ struct Index2PVolumeConverter {
     return &vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer()[index];
 #else
 #ifndef VECCORE_CUDA
+    assert(vecgeom::GeoManager::gCompactPlacedVolBuffer == nullptr ||
+           vecgeom::GeoManager::gCompactPlacedVolBuffer[index].id() == index);
     return &vecgeom::GeoManager::gCompactPlacedVolBuffer[index];
 #else
     // this is the case when we compile with nvcc for host side
@@ -417,6 +419,17 @@ public:
 
   void printValueSequence(std::ostream & = std::cerr) const;
 
+  // calculates a checksum along the path
+  // can be used (as a quick criterion) to see whether 2 states are same
+  unsigned long getCheckSum() const
+  {
+    unsigned long s = 0;
+    for (int i = 0; i < fCurrentLevel; ++i) {
+      s += (ValueAt(i) + 1); // + 1 as offset otherwise may not distinguish TOP level and OUTSIDE level
+    }
+    return s;
+  }
+
 #ifdef VECGEOM_ROOT
   VECGEOM_FORCE_INLINE
   void printVolumePath(std::ostream & = std::cerr) const;
@@ -626,7 +639,7 @@ void NavigationState::Dump() const
 inline void NavigationState::printValueSequence(std::ostream &stream) const
 {
   for (int i = 0; i < fCurrentLevel; ++i) {
-    stream << "/" << fPath[i];
+    stream << "/" << fPath[i] << "(" << At(i)->GetLabel() << ")";
   }
 }
 
