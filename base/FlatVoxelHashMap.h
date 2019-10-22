@@ -283,6 +283,9 @@ public:
   static FlatVoxelHashMap<P, ScalarProperties> *readFromTFile(const char *filename, const char *key = nullptr)
   {
 #ifdef VECGEOM_ROOT
+#if ROOT_VERSION_CODE <= ROOT_VERSION(6, 18, 0)
+    std::cerr << "\n*** VecGeom note: ROOT v6.18.00 required for reading voxel information from a TFile!\n\n";
+#else
     TFile f(filename, "OPEN");
     if (f.IsZombie()) {
       return nullptr;
@@ -339,6 +342,7 @@ public:
       voxels->fVoxelMap[(*keys)[i]] = (*indices)[i];
     }
     return voxels;
+#endif
 #endif
     return nullptr;
   }
