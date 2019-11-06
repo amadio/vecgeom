@@ -71,13 +71,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Vector3D &operator=(Vector3D const &other)
-  {
-    vec[0] = other[0];
-    vec[1] = other[1];
-    vec[2] = other[2];
-    return *this;
-  }
+  Vector3D &operator=(Vector3D const &) = default;
 
   /**
    * Constructs a vector from an std::string of the same format as output by the

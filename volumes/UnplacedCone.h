@@ -62,7 +62,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedCone(UnplacedCone const &other) : fCone(other.fCone) {}
+  UnplacedCone(UnplacedCone const &) = default;
 
   VECCORE_ATT_HOST_DEVICE
   ConeStruct<double> const &GetStruct() const { return fCone; }

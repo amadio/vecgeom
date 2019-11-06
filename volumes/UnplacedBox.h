@@ -37,7 +37,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedBox(UnplacedBox const &other) : fBox(other.fBox) {}
+  UnplacedBox(UnplacedBox const &) = default;
 
   VECCORE_ATT_HOST_DEVICE
   BoxStruct<double> const &GetStruct() const { return fBox; }

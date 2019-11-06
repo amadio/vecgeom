@@ -33,7 +33,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedTube(UnplacedTube const &other) : fTube(other.fTube) {}
+  UnplacedTube(UnplacedTube const &) = default;
 
   VECCORE_ATT_HOST_DEVICE
   TubeStruct<double> const &GetStruct() const { return fTube; }
