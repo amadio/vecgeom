@@ -8,6 +8,7 @@
 // Forced asserts() to be defined, even for Release mode
 #undef NDEBUG
 
+#include "SetupBoxGeometry.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include "VecGeom/volumes/Box.h"
 #include "VecGeom/base/Transformation3D.h"
@@ -18,34 +19,6 @@
 #include "VecGeom/base/Global.h"
 
 using namespace vecgeom;
-
-VPlacedVolume *SetupBoxGeometry()
-{
-  UnplacedBox *worldUnplaced   = new UnplacedBox(10, 10, 10);
-  UnplacedBox *boxUnplaced     = new UnplacedBox(0.5, 0.5, 0.5);
-  Transformation3D *placement1 = new Transformation3D(2, 2, 2, 0, 0, 0);
-  Transformation3D *placement2 = new Transformation3D(-2, 2, 2, 45, 0, 0);
-  Transformation3D *placement3 = new Transformation3D(2, -2, 2, 0, 45, 0);
-  Transformation3D *placement4 = new Transformation3D(2, 2, -2, 0, 0, 45);
-  Transformation3D *placement5 = new Transformation3D(-2, -2, 2, 45, 45, 0);
-  Transformation3D *placement6 = new Transformation3D(-2, 2, -2, 45, 0, 45);
-  Transformation3D *placement7 = new Transformation3D(2, -2, -2, 0, 45, 45);
-  Transformation3D *placement8 = new Transformation3D(-2, -2, -2, 45, 45, 45);
-  LogicalVolume *world         = new LogicalVolume(worldUnplaced);
-  LogicalVolume *box           = new LogicalVolume(boxUnplaced);
-  world->PlaceDaughter(box, placement1);
-  world->PlaceDaughter(box, placement2);
-  world->PlaceDaughter(box, placement3);
-  world->PlaceDaughter(box, placement4);
-  world->PlaceDaughter(box, placement5);
-  world->PlaceDaughter(box, placement6);
-  world->PlaceDaughter(box, placement7);
-  world->PlaceDaughter(box, placement8);
-  VPlacedVolume *w = world->Place();
-  GeoManager::Instance().SetWorld(w);
-  GeoManager::Instance().CloseGeometry();
-  return w;
-}
 
 // function to test safety
 void testVectorSafety(VPlacedVolume *world)
@@ -148,7 +121,22 @@ void testVectorNavigator(VPlacedVolume *world)
 
 int main()
 {
-  VPlacedVolume *w;
-  testVectorSafety(w = SetupBoxGeometry());
+  //.. build geometry
+  assert(SetupBoxGeometry());
+  const VPlacedVolume *world = GeoManager::Instance().GetWorld();
+
+  //.. optional: configure non-default level locators
+  LogicalVolume *lvol(nullptr);
+  for (auto &element : GeoManager::Instance().GetLogicalVolumesMap()) {
+    lvol = element.second;
+    if (lvol->GetDaughtersp()->size() > 8) {
+      // HybridManager2::Instance().InitStructure(lvol);
+      // lvol->SetLevelLocator(SimpleABBoxLevelLocator::GetInstance());
+      // lvol->SetLevelLocator(HybridLevelLocator::GetInstance());
+    }
+  }
+
+  //.. run tests
+  testVectorSafety(world);
   // fails for the moment testVectorNavigator(w);
 }
