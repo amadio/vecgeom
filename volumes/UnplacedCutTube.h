@@ -70,9 +70,6 @@ public:
   virtual ~UnplacedCutTube() {}
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedCutTube(UnplacedCutTube const &) = default;
-
-  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   TubeStruct<double> const &GetTubeStruct() const { return fCutTube.fTubeStruct; }
 

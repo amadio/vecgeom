@@ -69,10 +69,6 @@ public:
     vec[2] = other[2];
   }
 
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Vector3D &operator=(Vector3D const &) = default;
-
   /**
    * Constructs a vector from an std::string of the same format as output by the
    * "<<"-operator for outstreams.

@@ -73,9 +73,6 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedTorus2(UnplacedTorus2 const &) = default;
-
-  VECCORE_ATT_HOST_DEVICE
   TorusStruct2<double> const &GetStruct() const { return fTorus; }
 
   VECCORE_ATT_HOST_DEVICE
