@@ -18,6 +18,7 @@
 #include "VecGeom/navigation/GlobalLocator.h"
 #include "VecGeom/management/GeoManager.h"
 #include <cstdio>
+#include <random>
 #include <vector>
 #include <random>
 #ifdef VECGEOM_ROOT

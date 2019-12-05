@@ -10,6 +10,7 @@
 #include "VecGeom/volumes/SpecializedCone.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include "VecGeom/volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/base/RNG.h"
 #ifndef VECCORE_CUDA
 #include "VecGeom/base/RNG.h"
 #include "VecGeom/volumes/UnplacedImplAs.h"
