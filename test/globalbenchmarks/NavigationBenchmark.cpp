@@ -85,7 +85,7 @@ VPlacedVolume *SetupGeometry()
 
 int main(int argc, char *argv[])
 {
-  OPTION_INT(ntracks, 10);
+  OPTION_INT(ntracks, 16);
   OPTION_INT(nreps, 3);
   OPTION_STRING(geometry, "navBench");
   OPTION_STRING(logvol, "world");
@@ -162,11 +162,13 @@ int main(int argc, char *argv[])
   if (startVolume) std::cout << *startVolume << "\n";
 
   // prepare tracks to be used for validation
-  int np = Min(ntracks, 1000); // no more than 1000 points used for validation
+  int np = Min(ntracks, 1024); // no more than about 1000 points used for validation
   SOA3D<Precision> points(np);
   SOA3D<Precision> dirs(np);
-  SOA3D<Precision> locpts(np);
-  vecgeom::volumeUtilities::FillGlobalPointsAndDirectionsForLogicalVolume(startVolume, locpts, points, dirs, bias, np);
+
+  Vector3D<Precision> samplingVolume(10, 10, 10);
+  vecgeom::volumeUtilities::FillRandomPoints(samplingVolume, points);
+  vecgeom::volumeUtilities::FillRandomDirections(dirs);
 
   Precision *maxSteps = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
   for (int i    = 0; i < np; ++i)
@@ -176,15 +178,15 @@ int main(int argc, char *argv[])
   bool ok = validateVecGeomNavigation(np, points, dirs, maxSteps);
   if (!ok) {
     std::cout << "VecGeom validation failed." << std::endl;
-    return 1;
+    //return 1;
   }
   std::cout << "VecGeom validation passed." << std::endl;
 
   // on mic.fnal.gov CPUs, loop execution takes ~70sec for ntracks=10M
-  while (ntracks <= 10000) {
+  while (ntracks <= np) {
     std::cout << "\n*** Running navigation benchmarks with ntracks=" << ntracks << " and nreps=" << nreps << ".\n";
     runNavigationBenchmarks(startVolume, ntracks, nreps, maxSteps, bias);
-    ntracks *= 10;
+    ntracks *= 8;
   }
 
   /*

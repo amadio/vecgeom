@@ -627,19 +627,17 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   CudaManager::Instance().LoadGeometry(GeoManager::Instance().GetWorld());
   CudaManager::Instance().Synchronize();
 
-  assert(0 && "following 2 lines need to be updated.");
-  // origStates.CopyToGpu();
-  // gpuStates.CopyToGpu();
+  origStates.CopyToGpu();
+  gpuStates.CopyToGpu();
 
   printf("Start validating GPU navigation...\n");
-  assert(0 && "following line needs to be updated.");
-  // runNavigationCuda(origStates.GetGPUPointer(), gpuStates.GetGPUPointer(),
-  //                   GeoManager::Instance().getMaxDepth(),
-  //                   GeoManager::Instance().GetWorld(),
-  //                   np, points.x(),  points.y(), points.z(),
-  //                   dirs.x(), dirs.y(), dirs.z(), maxSteps, gpuSteps );
+  runNavigationCuda(origStates.GetGPUPointer(), gpuStates.GetGPUPointer(),
+                    GeoManager::Instance().getMaxDepth(),
+                    GeoManager::Instance().GetWorld(),
+                    np, points.x(),  points.y(), points.z(),
+                    dirs.x(), dirs.y(), dirs.z(), maxSteps, gpuSteps );
 
-  gpuStates.CopyFromGpu();
+  //gpuStates.CopyFromGpu();
 
   //*** Comparing results from GPU against serialized navigation
   // TODO: move checks into a separate function, like e.g.:

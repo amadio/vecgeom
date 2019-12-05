@@ -681,18 +681,17 @@ int NavigationState::Distance(NavigationState const &other) const
 
 inline void NavigationState::ConvertToGPUPointers()
 {
-#if !defined(VECCORE_CUDA) && defined(VECGEOM_ENABLE_CUDA)
+#if !defined(VECCORE_CUDA) && defined(VECGEOM_ENABLE_CUDA) && !defined(VECGEOM_USE_INDEXEDNAVSTATES)
   for (int i = 0; i < fCurrentLevel; ++i) {
-    fPath[i] = ToIndex((vecgeom::cxx::VPlacedVolume *)vecgeom::CudaManager::Instance()
-                           .LookupPlaced(ToPlacedVolume(fPath[i]))
-                           .GetPtr());
+    auto *pvol = vecgeom::CudaManager::Instance().LookupPlaced(ToPlacedVolume(fPath[i])).GetPtr();
+    fPath[i] = ToIndex(pvol);
   }
 #endif
 }
 
 inline void NavigationState::ConvertToCPUPointers()
 {
-#if !defined(VECCORE_CUDA) && defined(VECGEOM_ENABLE_CUDA)
+#if !defined(VECCORE_CUDA) && defined(VECGEOM_ENABLE_CUDA) && !defined(VECGEOM_USE_INDEXEDNAVSTATES)
   for (int i = 0; i < fCurrentLevel; ++i)
     fPath[i] = ToIndex(vecgeom::CudaManager::Instance().LookupPlacedCPUPtr((const void *)ToPlacedVolume(fPath[i])));
 #endif
