@@ -708,9 +708,10 @@ void RootGeoManager::Clear()
   //  for (auto i = fLogicalVolumeMap.begin(); i != fLogicalVolumeMap.end(); ++i) {
   //    delete i->first;
   //  }
-  //  for (auto i = fTransformationMap.begin(); i != fTransformationMap.end(); ++i) {
-  //    delete i->first;
-  //  }
+  for (auto i = fTransformationMap.begin(); i != fTransformationMap.end(); ++i) {
+    delete i->first;
+    delete i->second;
+  }
   if (GeoManager::Instance().GetWorld() == fWorld) {
     GeoManager::Instance().SetWorld(nullptr);
   }

@@ -566,7 +566,6 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   std::cout << "VecGeom navigation - serial interface: # Geant4 mismatches = " << g4Mismatches << " / " << np << "\n";
 #endif
 
-
   //=== N-particle navigation interface
 
   // //--- Creating vgVectorStates
@@ -673,21 +672,11 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   // else std::cout<<"Navigation test passed.\n";
 
   //=== cleanup
-  for (int i = 0; i < np; ++i)
-    NavigationState::ReleaseInstance(origStates[i]);
-  for (int i = 0; i < np; ++i)
-    NavigationState::ReleaseInstance(vgSerialStates[i]);
-  // for (int i = 0; i < np; ++i)
-  //   NavigationState::ReleaseInstance(vgVectorStates[i]);
-  // delete origStates;
-  // delete vgSerialStates;
-  // delete vgVectorStates;
-  //_mm_free(intworkspace);
-  _mm_free(refSteps);
-  //_mm_free(vecSteps);
-  //_mm_free(safeties);
+  if (refSteps) vecCore::AlignedFree(refSteps);
+  // if (vecSteps) vecCore::AlignedFree(vecSteps);
+  // if (safeties) vecCore::AlignedFree(safeties);
 #ifdef VECCORE_CUDA
-  _mm_free(gpuSteps);
+  if (gpuSteps) vecCore::AlignedFree(gpuSteps);
 #endif
   //delete[] vgVectorStates;
 

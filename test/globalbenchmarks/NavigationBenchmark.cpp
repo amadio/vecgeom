@@ -69,6 +69,17 @@ VPlacedVolume *SetupGeometry()
   VPlacedVolume *w = world->Place();
   GeoManager::Instance().SetWorld(w);
   GeoManager::Instance().CloseGeometry();
+
+  // cleanup
+  delete ident;
+  delete placement1;
+  delete placement2;
+  delete placement3;
+  delete placement4;
+  delete placement5;
+  delete placement6;
+  delete placement7;
+  delete placement8;
   return w;
 }
 
@@ -191,6 +202,7 @@ int main(int argc, char *argv[])
   */
 
   // cleanup
-  delete[] maxSteps;
+  vecCore::AlignedFree(maxSteps);
+  RootGeoManager::Instance().Clear();
   return 0;
 }

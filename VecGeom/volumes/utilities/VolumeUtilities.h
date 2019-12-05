@@ -795,6 +795,11 @@ inline void FillGlobalPointsAndDirectionsForLogicalVolume(LogicalVolume const *l
   printf(" really hits %d, virtually hits %d ", reallyhitsdaughter, virtuallyhitsdaughter);
   NavigationState::ReleaseInstance(s1);
   NavigationState::ReleaseInstance(s2);
+  std::list<NavigationState *>::iterator iter = allpaths.begin();
+  while (iter != allpaths.end()) {
+    NavigationState::ReleaseInstance(*iter);
+    ++iter;
+  }
 }
 
 // same as above; logical volume is given by name
@@ -874,6 +879,12 @@ inline void FillGlobalPointsForLogicalVolume(LogicalVolume const *lvol, TrackCon
   } else {
     // an error message
     printf("VolumeUtilities: FillGlobalPointsForLogicalVolume()... ERROR condition detected.\n");
+  }
+
+  std::list<NavigationState *>::iterator iter = allpaths.begin();
+  while (iter != allpaths.end()) {
+    NavigationState::ReleaseInstance(*iter);
+    ++iter;
   }
 }
 
