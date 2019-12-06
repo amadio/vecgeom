@@ -78,6 +78,8 @@ public:
     return safety;
   }
 
+  // GL: This function uses a deprecated function, SafetyToInMinimize(). Is it considered deprecated too?
+  // Trying alternative SafetyToIn() instead, but there is no minimization for now!
   VECGEOM_FORCE_INLINE
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const &localpoints, VPlacedVolume const *pvol,
                                            Precision *safeties) const override
@@ -89,7 +91,8 @@ public:
     auto numberdaughters              = daughters->size();
     for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
       VPlacedVolume const *daughter = daughters->operator[](d);
-      daughter->SafetyToInMinimize(localpoints, safeties);
+      //daughter->SafetyToInMinimize(localpoints, safeties);
+      daughter->SafetyToIn(localpoints, safeties);
     }
     // here the safeties array automatically contains the right values
   }

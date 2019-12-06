@@ -103,7 +103,7 @@ Precision benchmarkSerialSafety(int nPoints, int nReps, SOA3D<Precision> const &
 template <typename Navigator>
 Precision benchmarkVectorSafety(int nPoints, int nReps, SOA3D<Precision> const &points)
 {
-  Precision *safety           = new Precision[nPoints];
+  Precision *safety = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) *nPoints);
   SOA3D<Precision> workspace(nPoints);
   int ndeep = GeoManager::Instance().getMaxDepth();
   NavStatePool curStates(nPoints, ndeep);
@@ -212,11 +212,6 @@ Precision benchmarkSerialNavigation(int nPoints, int nReps, SOA3D<Precision> con
 Precision benchmarkVectorNavigation(int nPoints, int nReps, SOA3D<Precision> const &points,
                                     SOA3D<Precision> const &dirs, Precision const *maxSteps)
 {
-
-  SOA3D<Precision> workspace1(nPoints);
-  SOA3D<Precision> workspace2(nPoints);
-
-  int *intworkspace   = (int *)vecCore::AlignedAlloc(32, sizeof(int) * nPoints);
   Precision *vecSteps = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * nPoints);
   Precision *safeties = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * nPoints);
   bool *calcSafs = (bool *)vecCore::AlignedAlloc(32, sizeof(bool) * nPoints);
@@ -584,12 +579,14 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   // int *intworkspace = (int *)vecCore::AlignedAlloc(32, sizeof(int) * np);
 
   // Precision *vecSteps = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
-  Precision *safeties = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
+  // Precision *safeties = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
   // memset(vecSteps, 0, sizeof(Precision) * np);
-  memset(safeties, 0, sizeof(Precision) * np);
+  // memset(safeties, 0, sizeof(Precision) * np);
 
-  // nav->FindNextBoundaryAndStep(points, dirs, workspace1, workspace2, origStates, vgVectorStates, maxSteps, safeties,
-  // 			       vecSteps, intworkspace);
+  // // nav->FindNextBoundaryAndStep(points, dirs, workspace1, workspace2, origStates, vgVectorStates, maxSteps,
+  // safeties, 			       vecSteps, intworkspace);
+  // nav->GetSafetyEstimator()->ComputeStepsAndSafetiesAndPropagatedStates(points, dirs, origStates, vgVectorStates,
+  // maxSteps, safeties);
 
   // //*** compare N-particle agains 1-particle interfaces
   // // TODO: move checks into a separate function, like e.g.:
@@ -688,7 +685,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   //_mm_free(intworkspace);
   _mm_free(refSteps);
   //_mm_free(vecSteps);
-  _mm_free(safeties);
+  //_mm_free(safeties);
 #ifdef VECCORE_CUDA
   _mm_free(gpuSteps);
 #endif

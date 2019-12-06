@@ -424,7 +424,7 @@ public:
   {
     unsigned long s = 0;
     for (int i = 0; i < fCurrentLevel; ++i) {
-      s += (ValueAt(i) + 1); // + 1 as offset otherwise may not distinguish TOP level and OUTSIDE level
+      s += (unsigned long)(ValueAt(i) + 1); // + 1 as offset otherwise may not distinguish TOP level and OUTSIDE level
     }
     return s;
   }

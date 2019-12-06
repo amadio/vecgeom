@@ -171,7 +171,7 @@ public:
   virtual bool LevelLocate(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint, NavigationState &state,
                            Vector3D<Precision> &daughterlocalpoint) const override
   {
-    VPlacedVolume const *pvol;
+    VPlacedVolume const *pvol = nullptr;
     return LevelLocateKernel<false, true>(lvol, nullptr, localpoint, &state, pvol, daughterlocalpoint);
   }
 

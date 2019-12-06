@@ -12,8 +12,11 @@
 #include "SetupBoxGeometry.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include "VecGeom/base/SOA3D.h"
+#include "VecGeom/navigation/NavStatePool.h"
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/navigation/NewSimpleNavigator.h"
+#include "VecGeom/navigation/SimpleABBoxLevelLocator.h"
+#include "VecGeom/navigation/HybridLevelLocator.h"
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/base/Global.h"
 #include <iostream>
@@ -27,13 +30,21 @@ void testVectorSafety(const VPlacedVolume *world)
   int np = 1024;
   SOA3D<Precision> points(np);
   SOA3D<Precision> workspace(np);
-  Precision *safeties = (Precision *)vecCore::AlignedAlloc(sizeof(Precision) * np, 32);
-  vecgeom::volumeUtilities::FillUncontainedPoints(*world, points);
+  Precision *safeties = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
+  vecgeom::volumeUtilities::FillRandomPoints(*world, points);
 
   // now setup all the navigation states
   NavStatePool states(np, GeoManager::Instance().getMaxDepth());
+  NavStatePool states2(np, GeoManager::Instance().getMaxDepth());
+  // NavigationState **states = new NavigationState *[np];
   for (int i = 0; i < np; ++i) {
-    GlobalLocator::LocateGlobalPoint(world, points[i], *states[i], true);
+    // states[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
+    // cross-validate two different GlobalLocator methods
+    const VPlacedVolume *tmpvol = world;
+    const VPlacedVolume *pcurr = GlobalLocator::LocateGlobalPoint(tmpvol, points[i], *states[i], true);
+    tmpvol = world;
+    const VPlacedVolume *pcurr2 = GlobalLocator::LocateGlobalPointExclVolume(tmpvol, world, points[i], *states2[i], true);
+    assert(pcurr == pcurr2);
   }
 
   // calculate safeties with vector interface
