@@ -520,6 +520,9 @@ endif()
 if (USE_INDEXEDNAVSTATES)
   set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_USE_INDEXEDNAVSTATES")
 endif()
+if (GDML)
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_GDML")
+endif()
 
 ################################################################################
 
@@ -883,6 +886,9 @@ if(VGM)
 add_dependencies(vecgeom VGM)
 endif(VGM)
 set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeom)
+if (GDML)
+  set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vgdml)
+endif()
 
 if (BUILD_SHARED_LIBS)
     set(VECGEOM_LIBNAME "libvecgeom${CMAKE_SHARED_LIBRARY_SUFFIX}")
