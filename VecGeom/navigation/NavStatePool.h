@@ -178,7 +178,7 @@ inline void NavStatePool::CopyToGpu()
   // we also have to fix the fPath pointers
 
   // copy
-  vecgeom::CopyToGpu((void *)fBuffer, fGPUPointer, fCapacity * NavigationState::SizeOf(fDepth));
+  vecgeom::CopyToGpu((void *)fBuffer, fGPUPointer, fCapacity * NavigationState::SizeOfInstanceAlignAware(fDepth));
   // CudaAssertError( cudaMemcpy(fGPUPointer, (void*)fBuffer, fCapacity*NavigationState::SizeOf(fDepth),
   // cudaMemcpyHostToDevice) );
 
@@ -198,7 +198,7 @@ inline void NavStatePool::CopyFromGpu()
 
   // std::cerr << "Starting to COPY" << std::endl;
   // std::cerr << "GPU pointer " << fGPUPointer << std::endl;
-  vecgeom::CopyFromGpu(fGPUPointer, (void *)fBuffer, fCapacity * NavigationState::SizeOf(fDepth));
+  vecgeom::CopyFromGpu(fGPUPointer, (void *)fBuffer, fCapacity * NavigationState::SizeOfInstanceAlignAware(fDepth));
 
   NavigationState *state;
   for (int i = 0; i < fCapacity; ++i) {

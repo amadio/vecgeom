@@ -146,7 +146,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
     (*i)->CopyToGpu(LookupDaughterArray(*i), LookupDaughters(*i));
   }
   timer.Stop();
-  if (verbose_ > 1) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
+  if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
 
   synchronized = true;
 
@@ -173,8 +173,6 @@ void CudaManager::LoadGeometry(VPlacedVolume const *const volume)
 
   world_ = volume;
   ScanGeometry(volume);
-
-  std::cerr << "ScanGeometry found pvolumes" << placed_volumes_.size() << "\n";
 
   // Already set by CleanGpu(), but keep it here for good measure
   synchronized = false;
@@ -231,7 +229,9 @@ bool CudaManager::AllocateCollectionOnCoproc(const char *verbose_title, const Co
     gpu_address += i->DeviceSizeOf();
   }
 
-  if (verbose_ > 2) std::cout << " OK\n";
+  if (verbose_ > 2) {
+    std::cout << " OK: #elems in alloc_mem=" << allocated_memory_.size() << ", mem_map=" << memory_map.size() << "\n";
+  }
 
   return true;
 }
@@ -248,8 +248,8 @@ bool CudaManager::AllocatePlacedVolumesOnCoproc()
   // we start from the compact buffer on the CPU
   unsigned int size = placed_volumes_.size();
 
-  //   if (verbose_ > 2) std::cout << "Allocating placed volume ";
-  std::cerr << "Allocating placed volume ";
+  if (verbose_ > 2) std::cout << "Allocating placed volume...\n";
+
   size_t totalSize = 0;
   // calculate total size of buffer on GPU to hold the GPU copies of the collection
   for (unsigned int i = 0; i < size; ++i) {
@@ -328,6 +328,7 @@ void CudaManager::AllocateGeometry()
 
       memory_map[ToCpuAddress(*i)]                   = GpuAddress(daughter_gpu_array);
       gpu_memory_map[GpuAddress(daughter_gpu_array)] = GpuAddress(daughter_gpu_c_array);
+
       ++daughter_gpu_array;
       daughter_gpu_c_array += (*i)->size();
     }
@@ -335,7 +336,10 @@ void CudaManager::AllocateGeometry()
     if (verbose_ > 2) std::cout << " OK\n";
   }
 
-  if (verbose_ == 2) std::cout << " OK\n";
+  if (verbose_ > 2) {
+    std::cout << " geometry OK: #elems in alloc_mem=" << allocated_memory_.size() << ", mem_map=" << memory_map.size()
+	      << ", dau_gpu_c_array=" << gpu_memory_map.size() << "\n";
+  }
 
   fprintf(stderr, "NUMBER OF PLACED VOLUMES %ld\n", placed_volumes_.size());
   fprintf(stderr, "NUMBER OF UNPLACED VOLUMES %ld\n", unplaced_volumes_.size());

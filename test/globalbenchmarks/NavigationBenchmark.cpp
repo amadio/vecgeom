@@ -5,6 +5,9 @@
  *      Author: swenzel, lima
  */
 
+#undef VERBOSE
+//#define VERBOSE
+
 #ifdef VECGEOM_ROOT
 #include "VecGeom/management/RootGeoManager.h"
 #include "utilities/Visualizer.h"
@@ -85,7 +88,7 @@ VPlacedVolume *SetupGeometry()
 
 int main(int argc, char *argv[])
 {
-  OPTION_INT(ntracks, 16);
+  OPTION_INT(ntracks, 1024);
   OPTION_INT(nreps, 3);
   OPTION_STRING(geometry, "navBench");
   OPTION_STRING(logvol, "world");
@@ -100,11 +103,32 @@ int main(int argc, char *argv[])
   if (help) return 0;
 
   if (geometry.compare("navBench") == 0) {
-    const VPlacedVolume *world = SetupGeometry();
+    SetupGeometry();
+
+#ifdef VERBOSE
+    //.. print geometry details
+    for (auto &element : GeoManager::Instance().GetLogicalVolumesMap()) {
+      auto *lvol = element.second;
+      // lvol->SetLevelLocator(nullptr); // force-disable locators to test default GlobalLocator implementations
+      std::cerr << "SetupBoxGeom(): logVol=" << lvol << ", name=" << lvol->GetName()
+                << ", locator=" << (lvol->GetLevelLocator() ? lvol->GetLevelLocator()->GetName() : "NULL") << "\n";
+    }
+
+    std::vector<VPlacedVolume *> v1;
+    GeoManager::Instance().getAllPlacedVolumes(v1);
+    for (auto &plvol : v1) {
+      std::cerr << "placedVol=" << plvol << ", name=" << plvol->GetName() << ", world=" << world << ", <"
+                << world->GetName() << ", " << GeoManager::Instance().GetWorld() << ">\n";
+    }
+
+    //.. more details
+    world->PrintContent();
+    std::cerr << "\n";
+#endif
 
 #ifdef VECGEOM_ROOT
     // Exporting to ROOT file
-    RootGeoManager::Instance().ExportToROOTGeometry(world, "navBench.root");
+    RootGeoManager::Instance().ExportToROOTGeometry(GeoManager::Instance().GetWorld(), "navBench.root");
     RootGeoManager::Instance().Clear();
 #endif
   }
@@ -136,7 +160,7 @@ int main(int argc, char *argv[])
       visualizer.AddVolume(*daughter, trf1);
 
       Vector<Daughter> const* daughters2 = daughter->GetLogicalVolume()->GetDaughtersp();
-      for(int ii=0; ii<daughters2->size(); ++ii) {
+      for (int ii=0; ii < (int)daughters2->size(); ++ii) {
 	VPlacedVolume const* daughter2 = (*daughters2)[ii];
 	Transformation3D const& trf2 = *(daughter2->GetTransformation());
 	Transformation3D comb = trf1;
@@ -145,7 +169,14 @@ int main(int argc, char *argv[])
       }
     }
 
-    //visualizer.Show();
+    std::vector<VPlacedVolume *> v1;
+    GeoManager::Instance().getAllPlacedVolumes(v1);
+    for (auto &plvol : v1) {
+      std::cerr << "placedVol=" << plvol << ", name=" << plvol->GetName() << ", world=" << world << ", <"
+                << world->GetName() << ", " << GeoManager::Instance().GetWorld() << ">\n";
+    }
+
+    // visualizer.Show();
     return 0;
   }
 #endif
@@ -157,12 +188,16 @@ int main(int argc, char *argv[])
     startVolume = GeoManager::Instance().FindLogicalVolume(logvol.c_str());
   }
 
+#ifdef VERBOSE
   std::cout << "NavigationBenchmark: logvol=<" << logvol << ">, startVolume=<"
             << (startVolume ? startVolume->GetLabel() : "NULL") << ">\n";
   if (startVolume) std::cout << *startVolume << "\n";
+#endif
 
-  // prepare tracks to be used for validation
-  int np = Min(ntracks, 1024); // no more than about 1000 points used for validation
+  // no more than about 1000 points used for validation
+  int np = Min(ntracks, 1024);
+
+  // prepare tracks to be used for benchmarking
   SOA3D<Precision> points(np);
   SOA3D<Precision> dirs(np);
 
@@ -170,8 +205,9 @@ int main(int argc, char *argv[])
   vecgeom::volumeUtilities::FillRandomPoints(samplingVolume, points);
   vecgeom::volumeUtilities::FillRandomDirections(dirs);
 
+  // run validation on subsample of np tracks
   Precision *maxSteps = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
-  for (int i    = 0; i < np; ++i)
+  for (int i = 0; i < np; ++i)
     maxSteps[i] = 10. * RNG::Instance().uniform();
 
   // Must be validated before being benchmarked
@@ -180,31 +216,35 @@ int main(int argc, char *argv[])
     std::cout << "VecGeom validation failed." << std::endl;
     //return 1;
   }
-  std::cout << "VecGeom validation passed." << std::endl;
-
-  // on mic.fnal.gov CPUs, loop execution takes ~70sec for ntracks=10M
-  while (ntracks <= np) {
-    std::cout << "\n*** Running navigation benchmarks with ntracks=" << ntracks << " and nreps=" << nreps << ".\n";
-    runNavigationBenchmarks(startVolume, ntracks, nreps, maxSteps, bias);
-    ntracks *= 8;
+  else {
+    std::cout << "VecGeom validation passed." << std::endl;
   }
 
-  /*
-  // GPU part
-    int nDevice;
-    cudaGetDeviceCount(&nDevice);
+  // on mic.fnal.gov CPUs, loop execution takes ~70sec for ntracks=10M
+  while (np <= ntracks) {
+    std::cout << "\n*** Running navigation benchmarks with ntracks=" << np << " and nreps=" << nreps << ".\n";
+    runNavigationBenchmarks(startVolume, np, nreps, maxSteps, bias);
+    np *= 8;
+  }
 
-    if(nDevice > 0) {
-      cudaDeviceReset();
-    }
-    else {
-      std::cout << "No Cuda Capable Device ... " << std::endl;
-      return 0;
-    }
-  */
+#ifdef VECCORE_CUDA
+  // GPU part
+  int nDevice;
+  cudaGetDeviceCount(&nDevice);
+
+  if(nDevice > 0) {
+    cudaDeviceReset();
+  }
+  else {
+    std::cout << "No Cuda Capable Device ... " << std::endl;
+    return 0;
+  }
+#endif
 
   // cleanup
   vecCore::AlignedFree(maxSteps);
+#ifdef VECGEOM_ROOT
   RootGeoManager::Instance().Clear();
+#endif
   return 0;
 }

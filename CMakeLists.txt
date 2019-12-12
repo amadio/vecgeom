@@ -419,7 +419,7 @@ if (CUDA)
         -Xptxas --disable-optimizer-constants )
   endif()
   set(VECGEOM_NVCC_CONFIGS
-        DEBUG -g -G
+        DEBUG -g -G -O0
         RELEASE  -O3 -use_fast_math
         RELWITHDEBINFO -g -G -O3 -use_fast_math
         MINSIZEREL -use_fast_math )

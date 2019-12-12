@@ -130,6 +130,7 @@ Precision benchmarkVectorSafety(int nPoints, int nReps, SOA3D<Precision> const &
   Precision elapsed = timer.Stop();
 
   // cleanup
+  vecCore::AlignedFree(safety);
 
   return (Precision)elapsed;
 }
@@ -137,7 +138,6 @@ Precision benchmarkVectorSafety(int nPoints, int nReps, SOA3D<Precision> const &
 #ifdef VECGEOM_ROOT
 Precision benchmarkROOTSafety(int nPoints, int nReps, SOA3D<Precision> const &points)
 {
-
   TGeoNavigator *rootnav = ::gGeoManager->GetCurrentNavigator();
   TGeoBranchArray *brancharrays[nPoints];
   Precision *safety = new Precision[nPoints];
@@ -335,40 +335,46 @@ void runNavigationBenchmarks(LogicalVolume const *startVol, int np, int nreps, P
   Precision cputime;
 
   cputime = benchmarkLocatePoint(np, nreps, points);
-  printf("CPU elapsed time (locating and setting steps) %f ms\n", 1000. * cputime);
+  printf("CPU elapsed time: %10.6f ms for locating and setting steps\n", 1000. * cputime);
 
-  // safety
+  //*** safety benchmarking
+
+  // scalar
   cputime = benchmarkSerialSafety<vecgeom::NewSimpleNavigator<>>(np, nreps, points);
-  printf("CPU elapsed time (safety; NewSimpleNavigator) %f ms\n", 1000. * cputime);
+  printf("CPU elapsed time: %10.6f ms for serialSafety<NewSimpleNavigator<>>\n", 1000. * cputime);
 
-  // safety
   cputime = benchmarkSerialSafety<vecgeom::SimpleABBoxNavigator<>>(np, nreps, points);
-  printf("CPU elapsed time (safety; SimpleABBoxNavigator) %f ms\n", 1000. * cputime);
+  printf("CPU elapsed time: %10.6f ms for serialSafety<SimpleABBoxNavigator<>>\n", 1000. * cputime);
 
-  // vector safety
+  // vector
   cputime = benchmarkVectorSafety<vecgeom::NewSimpleNavigator<>>(np, nreps, points);
-  printf("CPU elapsed time (vector safety; NewSimpleNavigator) %f ms\n", 1000. * cputime);
+  printf("CPU elapsed time: %10.6f ms for vectorSafety<NewSimpleNavigator<>>\n", 1000. * cputime);
 
-// ROOT safety
+  cputime = benchmarkVectorSafety<vecgeom::SimpleABBoxNavigator<>>(np, nreps, points);
+  printf("CPU elapsed time: %10.6f ms for vectorSafety<SimpleABBoxNavigator<>>\n", 1000. * cputime);
+
 #ifdef VECGEOM_ROOT
+  // ROOT safety
   cputime = benchmarkROOTSafety(np, nreps, points);
-  printf("CPU elapsed time (safety; ROOT) %f ms\n", 1000. * cputime);
+  printf("CPU elapsed time: %10.6f ms for ROOT\n", 1000. * cputime);
 #endif
 
+  //**** navigation benchmarking
+
   cputime = benchmarkSerialNavigation(np, nreps, points, dirs, maxStep);
-  printf("CPU elapsed time (serialized navigation) %f ms\n", 1000. * cputime);
+  printf("\nCPU elapsed time: %10.6f ms for serialized navigation\n", 1000. * cputime);
 
   cputime = benchmarkVectorNavigation(np, nreps, points, dirs, maxStep);
-  printf("CPU elapsed time (vectorized navigation) %f ms\n", 1000. * cputime);
+  printf("CPU elapsed time: %10.6f ms for vectorized navigation\n", 1000. * cputime);
 
 #ifdef VECGEOM_ROOT
   cputime = benchmarkROOTNavigation(np, nreps, points, dirs, maxStep);
-  printf("CPU elapsed time (ROOT navigation) %f ms\n", 1000. * cputime);
+  printf("CPU elapsed time: %10.6f ms for ROOT navigation\n", 1000. * cputime);
 #endif
 
 #ifdef VECGEOM_GEANT4
   cputime = benchmarkGeant4Navigation(np, nreps, points, dirs, maxStep);
-  printf("CPU elapsed time (Geant4 navigation) %f ms\n", 1000. * cputime);
+  printf("CPU elapsed time: %10.6f ms for Geant4 navigation\n", 1000. * cputime);
 #endif
 
   return;
@@ -393,8 +399,16 @@ bool validateNavigationStepAgainstRoot(Vector3D<Precision> const &pos, Vector3D<
   rootnav->SetCurrentDirection(dir.x(), dir.y(), dir.z());
   rootnav->FindNextBoundaryAndStep(maxStep);
 
-  std::cerr << "validateAgainsROOT: VGname=<" << (testState.Top() ? testState.Top()->GetName() : "NULL") << ">, "
-            << ", ROOTname=<" << rootnav->GetCurrentNode()->GetName() << ">\n";
+  const char *vgname = testState.Top() ? testState.Top()->GetName() : "NULL";
+  const char *rtname = rootnav->GetCurrentNode()->GetName();
+  static int maxReport = 0;
+  if ( maxReport < 10 ) {
+    if ( strcmp(vgname, rtname) ) {
+      std::cerr << "validateAgainstROOT: pos="<< pos <<" -> vol name mismatch: VGname=<" << vgname << ">, ROOTname=<" << rtname << ">\n";
+      maxReport++;
+      if(maxReport == 10) std::cerr<<"validateAgainstROOT: more mismatches detected, but further reports dropped!\n";
+    }
+  }
   if (testState.Top() == NULL) {
     if (!rootnav->IsOutside()) {
       result = false;
@@ -462,7 +476,7 @@ bool validateNavigationStepAgainstGeant4(Vector3D<Precision> const &pos, Vector3
       result = false;
       std::cerr << " OUTSIDEERROR \n";
     }
-  } else if (Abs(testStep - step / cm) > 100. * kTolerance || vgLogName.compare(nextVol->GetName())) {
+  } else if (Abs(testStep - step / cm) > 5. * kTolerance || vgLogName.compare(nextVol->GetName())) {
     result = false;
     std::cerr << "\n*** ERROR on validateAgainstGeant4: "
               << " Geant4 node=" << (nextVol ? nextVol->GetName() : "Null")
@@ -560,7 +574,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
     }
   }
 #ifdef VECGEOM_ROOT
-  std::cout << "VecGeom navigation - serial interface: # ROOT mismatches = " << rootMismatches << " / " << np << "\n";
+  std::cout << "VecGeom navigation - serial interface: # ROOT mismatches (step lengths) = " << rootMismatches << " / " << np << "\n";
 #endif
 #ifdef VECGEOM_GEANT4
   std::cout << "VecGeom navigation - serial interface: # Geant4 mismatches = " << g4Mismatches << " / " << np << "\n";
@@ -637,7 +651,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
                     np, points.x(),  points.y(), points.z(),
                     dirs.x(), dirs.y(), dirs.z(), maxSteps, gpuSteps );
 
-  //gpuStates.CopyFromGpu();
+  gpuStates.CopyFromGpu();
 
   //*** Comparing results from GPU against serialized navigation
   // TODO: move checks into a separate function, like e.g.:
@@ -645,20 +659,20 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   int errorCountGpu = 0;
   for (int i = 0; i < np; ++i) {
     bool mismatch = false;
-    if (Abs(gpuSteps[i] - refSteps[i]) > 10. * kTolerance) mismatch = true;
-    // if( gpuStates[i]->Top() != vgSerialStates[i]->Top() )                  mismatch = true;
-    // if( gpuStates[i]->IsOnBoundary() != vgSerialStates[i]->IsOnBoundary()) mismatch = true;
+    if (Abs(gpuSteps[i] - refSteps[i]) > 5. * kTolerance) mismatch = true;
+    if( gpuStates[i]->Top() != vgSerialStates[i]->Top() )                  mismatch = true;
+    if( gpuStates[i]->IsOnBoundary() != vgSerialStates[i]->IsOnBoundary()) mismatch = true;
     // if( safeties[i] != nav.GetSafety( points[i], *origStates[i] ))         mismatch = true;
     if (mismatch) {
       result = false;
       ++errorCountGpu;
-      std::cout << "GPU navigation problems: track[" << i << "]=(" << points[i].x() << "; " << points[i].y() << "; "
+      std::cout << "GPU navigation mismatches: track[" << i << "]=(" << points[i].x() << "; " << points[i].y() << "; "
                 << points[i].z() << ") "
                 << " steps: " << refSteps[i] << " / " << gpuSteps[i]
-                // <<" navStates: "<< vgSerialStates[i]->Top()->GetLabel()
-                // << (vgSerialStates[i]->IsOnBoundary() ? "*" : "")
-                // <<" / "<< vgVectorStates[i]->Top()->GetLabel()
-                // << (vgVectorStates[i]->IsOnBoundary() ? "*" : "")
+                <<" navStates: "<< vgSerialStates[i]->Top()->GetLabel()
+                << (vgSerialStates[i]->IsOnBoundary() ? "*" : "")
+                <<" / "<< gpuStates[i]->Top()->GetLabel()
+                << (gpuStates[i]->IsOnBoundary() ? "*" : "")
                 << "\n";
     }
   }

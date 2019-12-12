@@ -32,7 +32,6 @@ public:
                                           NavigationState * /*out_state*/, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const override
   {
-
     // iterate over all daughters
     auto *daughters = lvol->GetDaughtersp();
     auto ndaughters = daughters->size();
@@ -66,10 +65,11 @@ public:
     return false;
   }
 
+  VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   virtual bool CheckDaughterIntersections(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/,
                                           Vector3D<Precision> const & /*localdir*/, VPlacedVolume const * /*blocked*/,
-                                          Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const
+                                          Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const override
   {
     return false;
   }
