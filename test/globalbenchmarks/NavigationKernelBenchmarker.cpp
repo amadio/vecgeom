@@ -251,6 +251,7 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
       saccum += safeties[i];
     }
     // target checksum via the table held from RootGeoManager
+    std::cerr<<"i/size="<< i <<'/'<< points.size() <<"\n";
     hittargetchecksum +=
         (size_t)RootGeoManager::Instance().Lookup(outstates[i]->GetNode(outstates[i]->GetLevel()))->id();
   }

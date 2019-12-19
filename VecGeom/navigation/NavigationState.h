@@ -71,7 +71,7 @@ struct Index2PVolumeConverter {
     return &vecgeom::GeoManager::gCompactPlacedVolBuffer[index];
 #else
     // this is the case when we compile with nvcc for host side
-    // (failed preveously due to undefined symbol vecgeom::cuda::GeoManager::gCompactPlacedVolBuffer)
+    // (failed previously due to undefined symbol vecgeom::cuda::GeoManager::gCompactPlacedVolBuffer)
     assert(false && "reached unimplement code");
     (void)index; // avoid unused parameter warning.
     return nullptr;
@@ -96,9 +96,8 @@ struct Index2PVolumeConverter<VPlacedVolume const *> {
 };
 
 /**
- * a class describing a current geometry state
- * likely there will be such an object for each
- * particle/track currently treated
+ * A class describing a current geometry state
+ * likely there will be such an object for each particle/track currently treated.
  */
 class NavigationState : protected VariableSizeObjectInterface<NavigationState, NavStateIndex_t>,
                         private Index2PVolumeConverter<NavStateIndex_t> {

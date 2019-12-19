@@ -207,7 +207,7 @@ inline void NavStatePool::CopyFromGpu()
   }
 } // end CopyFunction
 #endif
-}
-} // end Global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* NAVSTATEPOOL_H_ */

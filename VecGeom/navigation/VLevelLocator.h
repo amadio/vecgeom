@@ -22,14 +22,14 @@ class VLevelLocator {
 public:
   /**
    * Function which takes a logical volume and a local point in the reference frame of the logical volume
-   * and which determines in which daughter ( or the logical volume ) itself the given point is located
+   * and which determines in which daughter (or the logical volume itself) the given point is located
    *
    *
    * @param  lvol is a logical volume
    * @param  localpoint is a point in the coordinate frame of the logical volume and should be contained within it
    * @param  daughterpvol is the placed volume in which the localpoint is contained (result of the computation)
    * @param  daughterlocalpoint is the local point in the next pvol (result of the computation)
-   * @return true of point is in a daughter; false otherwise
+   * @return true if point is in a daughter; false otherwise
    */
   VECCORE_ATT_HOST_DEVICE
   virtual bool LevelLocate(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/,
@@ -37,7 +37,7 @@ public:
 
   /**
    * Function which takes a logical volume and a local point in the reference frame of the logical volume
-   * and which determines in which daughter ( or the logical volume ) itself the given point is located
+   * and which determines in which daughter (or the logical volume itself) the given point is located
    *
    *
    * @param  lvol is a logical volume
@@ -45,7 +45,7 @@ public:
    * @param  outstate is a navigationstate which gets modified to point to the correct volume within this level (result
    * of the computation)
    * @param  daughterlocalpoint is the local point in the next pvol (result of the computation)
-   * @return true of point is in a daughter; false otherwise
+   * @return true if point is in a daughter; false otherwise
    */
   VECCORE_ATT_HOST_DEVICE
   virtual bool LevelLocate(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/,

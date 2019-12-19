@@ -217,8 +217,8 @@ inline bool HasSamePath(Vector3D<Precision> const &globalpoint, NavigationState 
   return HasSamePath(globalpoint, m, currentstate, newstate);
 }
 
-} // end GlobalLocator namespace
-}
-} // end namespaces
+} // namespace GlobalLocator
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* NAVIGATION_GLOBALLOCATOR_H_ */

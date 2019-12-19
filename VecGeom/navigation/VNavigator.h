@@ -93,7 +93,7 @@ public:
                                                   safety);
   }
 
-  // a similar interface, in addition also returning the safet as a result
+  // a similar interface, in addition also returning the safety as a result
   VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const & /*globalpoint*/,
                                                            Vector3D<Precision> const & /*globaldir*/,
@@ -561,7 +561,7 @@ public:
   }
 
   // this kernel is a generic implementation to navigate with chunks of data
-  // can be used also for the scalar imple
+  // can be used also for the scalar implementation
   template <typename T, unsigned int ChunkSize>
   static void NavigateAChunk(VNavigator const *__restrict__ nav, VPlacedVolume const *__restrict__ pvol,
                              LogicalVolume const *__restrict__ lvol, SOA3D<Precision> const &__restrict__ globalpoints,

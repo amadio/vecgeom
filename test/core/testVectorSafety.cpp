@@ -18,6 +18,7 @@
 
 using namespace vecgeom;
 
+
 // function to test safety
 void testVectorSafety(const VPlacedVolume *world)
 {

@@ -129,7 +129,8 @@ public:
 
   virtual const char *GetName() const override { return GetClassName(); }
 }; // end class VSafetyEstimatorHelper
-}
-} // end namespaces
+
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* NAVIGATION_VSAFETYESTIMATOR_H_ */

@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
   benchROOT(rootpoints, ROOTstatepool, npoints);
 
-// *** checks can follow **** /
+  // *** checks can follow **** /
 
 #ifdef VECGEOM_GEANT4
   // *** now try G4

@@ -52,7 +52,6 @@ namespace vecgeom {
 
 Precision benchmarkLocatePoint(int nPoints, int nReps, SOA3D<Precision> const &points)
 {
-
   NavigationState *state = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
 
   Stopwatch timer;
@@ -74,7 +73,7 @@ Precision benchmarkSerialSafety(int nPoints, int nReps, SOA3D<Precision> const &
 {
   NavigationState **curStates = new NavigationState *[nPoints];
   Precision *safety           = new Precision[nPoints];
-  for (int i     = 0; i < nPoints; ++i)
+  for (int i = 0; i < nPoints; ++i)
     curStates[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
 
   {
@@ -115,7 +114,7 @@ Precision benchmarkVectorSafety(int nPoints, int nReps, SOA3D<Precision> const &
   NavigationState **curStates = new NavigationState *[nPoints];
   Precision *safety           = new Precision[nPoints];
   SOA3D<Precision> workspace(nPoints);
-  for (int i     = 0; i < nPoints; ++i)
+  for (int i = 0; i < nPoints; ++i)
     curStates[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
 
   {
@@ -201,11 +200,11 @@ Precision benchmarkSerialNavigation(int nPoints, int nReps, SOA3D<Precision> con
 {
 
   NavigationState **curStates = new NavigationState *[nPoints];
-  for (int i     = 0; i < nPoints; ++i)
+  for (int i = 0; i < nPoints; ++i)
     curStates[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
 
   NavigationState **newStates = new NavigationState *[nPoints];
-  for (int i     = 0; i < nPoints; ++i)
+  for (int i = 0; i < nPoints; ++i)
     newStates[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
 
   for (int i = 0; i < nPoints; ++i) {
@@ -344,8 +343,8 @@ Precision benchmarkGeant4Navigation(int nPoints, int nReps, SOA3D<Precision> con
       G4VPhysicalVolume const *vol = g4nav.LocateGlobalPointAndSetup(g4pos, &g4dir, false);
       if (!vol) std::cout << "benchG4Navit: pos=" << g4pos << " and dir=" << g4dir << " --> vol=" << vol << "\n";
 
-      G4double safety          = 0.0;
-      G4double step            = g4nav.ComputeStep(g4pos, g4dir, maxStep, safety);
+      G4double safety = 0.0;
+      G4double step   = g4nav.ComputeStep(g4pos, g4dir, maxStep, safety);
       if (step > 9.0e+98) step = maxStep;
 
       G4ThreeVector nextPos = g4pos + (step + 1.0e-6) * g4dir;
@@ -403,7 +402,6 @@ void runNavigationBenchmarks(LogicalVolume const *startVol, int np, int nreps, P
   printf("CPU elapsed time (serialized navigation) %f ms\n", 1000. * cputime);
 
   cputime = benchmarkVectorNavigation(np, nreps, points, dirs, maxStep);
-
   printf("CPU elapsed time (vectorized navigation) %f ms\n", 1000. * cputime);
 
 #ifdef VECGEOM_ROOT
@@ -454,7 +452,8 @@ bool validateNavigationStepAgainstRoot(Vector3D<Precision> const &pos, Vector3D<
               << " <==> VecGeom node=" << (testState.Top() ? testState.Top()->GetLabel() : "NULL")
               << " step=" << testStep << " /// Step ratio=" << testStep / rootnav->GetStep()
               << " / step diff=" << Abs(testStep - rootnav->GetStep())
-              << " / rel.error=" << Abs(testStep - rootnav->GetStep()) / testStep << "\n";
+              << " / rel.error=" << Abs(testStep - rootnav->GetStep()) / testStep
+              << " / tolerance=" << 5. * kTolerance << "\n";
 
     std::cerr << rootnav->GetCurrentNode() << ' ' << RootGeoManager::Instance().tgeonode(testState.Top()) << "\n";
   }
@@ -518,37 +517,35 @@ bool validateNavigationStepAgainstGeant4(Vector3D<Precision> const &pos, Vector3
 
   return result;
 }
-#endif // VECGEOM_ROOT
+#endif // VECGEOM_GEANT4
 
 //=======================================
 
 bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Precision> const &dirs,
                                Precision const *maxSteps)
 {
-
   bool result = true;
 
   // now setup all the navigation states - one loop at a time for better data locality
   NavigationState **origStates = new NavigationState *[np];
-  for (int i      = 0; i < np; ++i)
+  for (int i = 0; i < np; ++i)
     origStates[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
 
   NavigationState **vgSerialStates = new NavigationState *[np];
-  for (int i          = 0; i < np; ++i)
+  for (int i = 0; i < np; ++i)
     vgSerialStates[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
 
-  auto *nav = vecgeom::NewSimpleNavigator<>::Instance();
   Precision *refSteps = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
-
   memset(refSteps, 0, sizeof(Precision) * np);
 
-// navigation using the serial interface
+  // navigation using the serial interface
 #ifdef VECGEOM_ROOT
   int rootMismatches = 0;
 #endif
 #ifdef VECGEOM_GEANT4
   int g4Mismatches = 0;
 #endif
+  auto *nav = vecgeom::NewSimpleNavigator<>::Instance();
   for (int i = 0; i < np; ++i) {
     Vector3D<Precision> const &pos = points[i];
     Vector3D<Precision> const &dir = dirs[i];
@@ -561,7 +558,9 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
 #ifdef VECGEOM_ROOT
     ok = validateNavigationStepAgainstRoot(pos, dir, maxSteps[i], refSteps[i], *vgSerialStates[i]);
     result &= ok;
-    if (!ok) ++rootMismatches;
+    if (!ok) {
+      ++rootMismatches;
+    }
 #endif
 
 #ifdef VECGEOM_GEANT4
@@ -611,6 +610,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
 #ifdef VECGEOM_GEANT4
   std::cout << "VecGeom navigation - serial interface: # Geant4 mismatches = " << g4Mismatches << " / " << np << "\n";
 #endif
+
 
   //=== N-particle navigation interface
 
@@ -690,7 +690,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   //  ok = compareNavigationResults(refSteps, vgSerialStates, gpuSteps, gpuStates);
   errorCount = 0;
   for (int i = 0; i < np; ++i) {
-    bool mismatch                                                   = false;
+    bool mismatch = false;
     if (Abs(gpuSteps[i] - refSteps[i]) > 10. * kTolerance) mismatch = true;
     // if( gpuStates[i]->Top() != vgSerialStates[i]->Top() )                  mismatch = true;
     // if( gpuStates[i]->IsOnBoundary() != vgSerialStates[i]->IsOnBoundary()) mismatch = true;
