@@ -115,7 +115,6 @@ if(CTEST)
     core/ContainerTest.cpp
     core/create_geometry.cpp
     core/BitSetTest.cpp
-    # core/testVectorSafety.cpp
     core/PlanesTest.cpp
     core/QuadrilateralTest.cpp
     # core/SOATest.cpp
@@ -147,7 +146,14 @@ if(CTEST)
     list(APPEND TEST_EXECUTABLES_CORE core/TestNavigationState.cpp)
   endif()
 
-  build_executables("${TEST_EXECUTABLES_CORE}")
+  if(NOT CUDA)
+    list(APPEND TEST_EXECUTABLES_CORE
+      core/testVectorSafety.cpp
+      globalbenchmarks/NavigationBenchmark.cpp
+    )
+  endif(NOT CUDA)
+
+build_executables("${TEST_EXECUTABLES_CORE}")
   add_to_ctest("${TEST_EXECUTABLES_CORE}")
   # set_tests_properties(TestSExtru PROPERTIES TIMEOUT 30)
 endif()
@@ -173,7 +179,6 @@ if(ROOT)
     globalbenchmarks/LocatePointsBenchmark.cpp
     globalbenchmarks/SafetyKernelBenchmarker.cpp
     globalbenchmarks/NavigationKernelBenchmarker.cpp
-    # globalbenchmarks/NavigationBenchmark.cpp
     globalbenchmarks/TraceTrack.cpp
     globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
     # ???
@@ -288,13 +293,13 @@ if(CTEST OR VALIDATION)
   endif()
 endif()
 
-
 ################################################################################
 # - CUDA tests
 if(CUDA)
   set(TEST_EXECUTABLES_CUDA
     cuda/MapTest.cpp
     cuda/MapTestClass.cpp
+    globalbenchmarks/NavigationBenchmark.cpp
   )
   build_executables("${TEST_EXECUTABLES_CUDA}")
   #  add_to_ctest("${TEST_EXECUTABLES_CUDA}")

@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   TGeoBranchArray **ROOTstatepool = new TGeoBranchArray *[npoints];
   double *rootpoints              = new double[3 * npoints];
 #ifdef VECGEOM_GEANT4
-  std::vector<G4ThreeVector> g4points;
+  std::vector<G4ThreeVector> g4points(npoints);
 #endif
 
   for (int i = 0; i < npoints; ++i) {

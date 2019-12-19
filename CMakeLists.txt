@@ -846,7 +846,7 @@ endif()
 set(SRC_CPP ${SRC_CPP} ${SRC_EXTERNAL}
   source/GeoManager.cpp
   source/CppExporter.cpp
- # source/benchmarking/NavigationBenchmarker.cpp
+  source/benchmarking/NavigationBenchmarker.cpp
 )
 
 # some CUDA kernel code in "userspace" and test

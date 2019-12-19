@@ -10,40 +10,38 @@
 
 #include "SetupBoxGeometry.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
-#include "VecGeom/volumes/Box.h"
-#include "VecGeom/base/Transformation3D.h"
 #include "VecGeom/base/SOA3D.h"
 #include "VecGeom/navigation/NavigationState.h"
-#include "VecGeom/navigation/SimpleNavigator.h"
+#include "VecGeom/navigation/NewSimpleNavigator.h"
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/base/Global.h"
 
 using namespace vecgeom;
 
 // function to test safety
-void testVectorSafety(VPlacedVolume *world)
+void testVectorSafety(const VPlacedVolume *world)
 {
   int np = 1024;
   SOA3D<Precision> points(np);
   SOA3D<Precision> workspace(np);
-  Precision *safeties = (Precision *)_vecCore::AlignedAlloc(sizeof(Precision) * np, 32);
+  Precision *safeties = (Precision *)vecCore::AlignedAlloc(sizeof(Precision) * np, 32);
   vecgeom::volumeUtilities::FillUncontainedPoints(*world, points);
 
   // now setup all the navigation states
   NavigationState **states = new NavigationState *[np];
-  vecgeom::SimpleNavigator nav;
+  auto nav = vecgeom::NewSimpleNavigator<>::Instance();
   for (int i = 0; i < np; ++i) {
     states[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
-    nav.LocatePoint(world, points[i], *states[i], true);
+    GlobalLocator::LocateGlobalPoint(world, points[i], *states[i], true);
   }
 
   // calculate safeties with vector interface
-  nav.GetSafeties(points, states, workspace, safeties);
+  nav->GetSafeties(points, states, workspace, safeties);
 
   // verify against serial interface
   for (int i = 0; i < np; ++i) {
-    double ss = nav.GetSafety(points[i], *states[i]);
-    assert(std::abs(safeties[i] - ss) < 1E-3 && "Problem in VectorSafety (in SimpleNavigator)");
+    double ss = nav->GetSafetyEstimator()->ComputeSafetyForLocalPoint(points[i], states[i]->Top());
+    assert(std::abs(safeties[i] - ss) < 1E-3 && "Problem in VectorSafety (in NewSimpleNavigator)");
   }
   std::cout << "Safety test passed\n";
   _mm_free(safeties);
@@ -77,33 +75,31 @@ void testVectorNavigator(VPlacedVolume *world)
   NavigationState **states    = new NavigationState *[np];
   NavigationState **newstates = new NavigationState *[np];
 
-  vecgeom::SimpleNavigator nav;
+  auto nav = vecgeom::NewSimpleNavigator<>::Instance();
   for (int i = 0; i < np; ++i) {
     // pSteps[i] = kInfLength;
     pSteps[i]    = (i % 2) ? 1 : VECGEOM_NAMESPACE::kInfLength;
     states[i]    = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
     newstates[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
-    nav.LocatePoint(world, points[i], *states[i], true);
+    GlobalLocator::LocateGlobalPoint(world, points[i], *states[i], true);
   }
 
   // calculate steps with vector interface
-  nav.FindNextBoundaryAndStep(points, dirs, workspace1, workspace2, states, newstates, pSteps, safeties, steps,
-                              intworkspace);
+  nav->FindNextBoundaryAndStep(points, dirs, workspace1, workspace2, states, newstates, pSteps, safeties, steps, intworkspace);
 
   // verify against serial interface
   for (int i = 0; i < np; ++i) {
     Precision s          = 0;
     NavigationState *cmp = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
     cmp->Clear();
-    nav.FindNextBoundaryAndStep(points[i], dirs[i], *states[i], *cmp, pSteps[i], s);
+    nav->FindNextBoundaryAndStep(points[i], dirs[i], *states[i], *cmp, pSteps[i], s);
 
     // check for consistency of navigator
 
     assert(steps[i] == s);
     assert(cmp->Top() == newstates[i]->Top());
     assert(cmp->IsOnBoundary() == newstates[i]->IsOnBoundary());
-    assert(safeties[i] == nav.GetSafety(points[i], *states[i]));
-
+    assert(safeties[i] == nav->GetSafetyEstimator()->ComputeSafetyForLocalPoint(points[i], states[i]->Top()));
     delete cmp;
   }
 

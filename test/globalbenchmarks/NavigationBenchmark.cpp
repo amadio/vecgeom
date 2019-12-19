@@ -36,7 +36,7 @@ VPlacedVolume *SetupGeometry()
 
   UnplacedBox *worldUnplaced      = new UnplacedBox(10, 10, 10);
   UnplacedTrapezoid *trapUnplaced = new UnplacedTrapezoid(4, 0, 0, 4, 4, 4, 0, 4, 4, 4, 0);
-  UnplacedBox *boxUnplaced        = new UnplacedBox(2.5, 2.5, 2.5);
+  UnplacedBox *boxUnplaced        = new UnplacedBox(2, 2, 2);
   UnplacedOrb *orbUnplaced        = new UnplacedOrb(2.8);
 
   LogicalVolume *world = new LogicalVolume("world", worldUnplaced);
@@ -74,7 +74,7 @@ VPlacedVolume *SetupGeometry()
 
 int main(int argc, char *argv[])
 {
-  OPTION_INT(ntracks, 10000);
+  OPTION_INT(ntracks, 10);
   OPTION_INT(nreps, 3);
   OPTION_STRING(geometry, "navBench");
   OPTION_STRING(logvol, "world");
@@ -116,7 +116,6 @@ int main(int argc, char *argv[])
   if (vis) { // note that visualization block returns, excluding the rest of benchmark
     Visualizer visualizer;
     const VPlacedVolume *world = GeoManager::Instance().GetWorld();
-    world                      = GeoManager::Instance().FindPlacedVolume(logvol.c_str());
     visualizer.AddVolume(*world);
 
     Vector<Daughter> const *daughters = world->GetLogicalVolume()->GetDaughtersp();
@@ -125,17 +124,17 @@ int main(int argc, char *argv[])
       Transformation3D const &trf1  = *(daughter->GetTransformation());
       visualizer.AddVolume(*daughter, trf1);
 
-      // Vector<Daughter> const* daughters2 = daughter->GetLogicalVolume()->daughtersp();
-      // for(int ii=0; ii<daughters2->size(); ++ii) {
-      //   VPlacedVolume const* daughter2 = (*daughters2)[ii];
-      //   Transformation3D const& trf2 = *(daughter2->transformation());
-      //   Transformation3D comb = trf1;
-      //   comb.MultiplyFromRight(trf2);
-      //   visualizer.AddVolume(*daughter2, comb);
-      // }
+      Vector<Daughter> const* daughters2 = daughter->GetLogicalVolume()->GetDaughtersp();
+      for(int ii=0; ii<daughters2->size(); ++ii) {
+	VPlacedVolume const* daughter2 = (*daughters2)[ii];
+	Transformation3D const& trf2 = *(daughter2->GetTransformation());
+	Transformation3D comb = trf1;
+	comb.MultiplyFromRight(trf2);
+	visualizer.AddVolume(*daughter2, comb);
+      }
     }
 
-    visualizer.Show();
+    //visualizer.Show();
     return 0;
   }
 #endif
