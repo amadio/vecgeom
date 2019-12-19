@@ -131,6 +131,16 @@ public:
 
   // for vector navigation
   VECCORE_ATT_HOST_DEVICE
+  virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const & points,
+                                                          SOA3D<Precision> const & dirs,
+                                                          Precision const *psteps,
+                                                          NavStatePool const &instates,
+                                                          NavStatePool &outstates,
+                                                          Precision *outsteps,
+                                                          bool const *calcsafety,
+                                                          Precision *safeties) const = 0;
+
+  VECCORE_ATT_HOST_DEVICE
   virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
                                                           SOA3D<Precision> const & /*globaldirs*/,
                                                           Precision const * /*(physics) step limits */,
@@ -324,6 +334,27 @@ public:
     }
   }
 
+  template <typename T, unsigned int ChunkSize>
+  VECCORE_ATT_HOST_DEVICE
+  static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
+                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
+                                          NavStatePool const& in_states, NavStatePool &out_states,
+                                          unsigned int from_index, Precision *out_steps,
+                                          VPlacedVolume const *hitcandidates[ChunkSize])
+  {
+    // dispatch to ordinary implementation ( which itself might be vectorized )
+    using vecCore::LaneAt;
+    for (unsigned int i = 0; i < ChunkSize; ++i) {
+      unsigned int trackid = from_index + i;
+      ((Impl *)nav)
+          ->Impl::CheckDaughterIntersections(
+              lvol,
+              Vector3D<Precision>(LaneAt(localpoint.x(), i), LaneAt(localpoint.y(), i), LaneAt(localpoint.z(), i)),
+              Vector3D<Precision>(LaneAt(localdir.x(), i), LaneAt(localdir.y(), i), LaneAt(localdir.z(), i)),
+              in_states[trackid], out_states[trackid], out_steps[trackid], hitcandidates[i]);
+    }
+  }
+
   // the default implementation for hit detection with daughters for a chunk of data
   // is to loop over the implementation for the scalar case
   // similar to previous version; does not care about out_state
@@ -332,6 +363,26 @@ public:
   static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
                                           Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
                                           NavigationState const *const *in_states, unsigned int from_index,
+                                          Precision *out_steps, VPlacedVolume const *hitcandidates[ChunkSize])
+  {
+    // dispatch to ordinary implementation ( which itself might be vectorized )
+    using vecCore::LaneAt;
+    for (unsigned int i = 0; i < ChunkSize; ++i) {
+      unsigned int trackid = from_index + i;
+      ((Impl *)nav)
+          ->Impl::CheckDaughterIntersections(
+              lvol,
+              Vector3D<Precision>(LaneAt(localpoint.x(), i), LaneAt(localpoint.y(), i), LaneAt(localpoint.z(), i)),
+              Vector3D<Precision>(LaneAt(localdir.x(), i), LaneAt(localdir.y(), i), LaneAt(localdir.z(), i)),
+              in_states[trackid], nullptr, out_steps[trackid], hitcandidates[i]);
+    }
+  }
+
+  template <typename T, unsigned int ChunkSize>
+  VECCORE_ATT_HOST_DEVICE
+  static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
+                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
+                                          NavStatePool const &in_states, unsigned int from_index,
                                           Precision *out_steps, VPlacedVolume const *hitcandidates[ChunkSize])
   {
     // dispatch to ordinary implementation ( which itself might be vectorized )
@@ -772,6 +823,52 @@ public:
                          ->Impl::ComputeStepAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
                                                                *in_states[i], *out_states[i]);
     }
+  }
+
+  // generic implementation for the vector interface -- using NavStatePool instead of NavigationState**
+  // this implementation tries to process everything in vector CHUNKS
+  // at the very least this enables at least the DistanceToOut call to be vectorized
+  VECCORE_ATT_HOST_DEVICE
+  virtual void ComputeStepsAndSafetiesAndPropagatedStates(
+      SOA3D<Precision> const &__restrict__ globalpoints, SOA3D<Precision> const &__restrict__ globaldirs,
+      Precision const *__restrict__ step_limit, NavStatePool const &in_states, NavStatePool &out_states,
+      Precision *__restrict__ out_steps,
+      bool const *__restrict__ calcsafeties, Precision *__restrict__ out_safeties) const override
+  {
+    // setup navstate** arrays -- must be cleaned up before returning!
+    const NavigationState **inarray = nullptr;
+    in_states.ToPlainPointerArray(inarray);
+    NavigationState **outarray = nullptr;
+    out_states.ToPlainPointerArray(outarray);
+
+    // process SIMD part and TAIL part
+    // something like
+    const auto size = globalpoints.size();
+    auto pvol       = in_states[0]->Top();
+    auto lvol       = pvol->GetLogicalVolume();
+    // loop over all tracks in chunks
+    auto i             = decltype(size){0};
+    constexpr auto kVS = vecCore::VectorSize<Real_v>();
+    for (; i < (size - (kVS - 1)); i += kVS) {
+      NavigateAChunk<Real_v, kVS>(this, pvol, lvol, globalpoints, globaldirs, step_limit, inarray, outarray,
+                                  out_steps, calcsafeties, out_safeties, i);
+    }
+    // save results back -- could benefit from internal vectorization
+    for (i = 0; i < (size - (kVS - 1)); ++i) {
+      *out_states[i] = *outarray[i];
+    }
+
+    // fall back to scalar interface for tail treatment
+    for (; i < size; ++i) {
+      out_steps[i] = ((Impl *)this)
+         ->Impl::ComputeStepAndSafetyAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
+                                                        *in_states[i], *out_states[i], calcsafeties[i],
+                                                        out_safeties[i]);
+    }
+
+    // cleanup
+    delete[] inarray;
+    delete[] outarray;
   }
 
   // generic implementation for the vector interface
