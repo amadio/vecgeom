@@ -126,7 +126,7 @@ public:
   virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
                                                SOA3D<Precision> const & /*globaldirs*/,
                                                Precision const * /*(physics) step limits */,
-                                               NavigationState const ** /*in_states*/,
+                                               NavigationState const* const* /*in_states*/,
                                                NavigationState ** /*out_states*/, Precision * /*out_steps*/) const = 0;
 
   // for vector navigation
@@ -134,8 +134,9 @@ public:
   virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
                                                           SOA3D<Precision> const & /*globaldirs*/,
                                                           Precision const * /*(physics) step limits */,
-                                                          NavigationState const ** /*in_states*/,
-                                                          NavigationState ** /*out_states*/, Precision * /*out_steps*/,
+                                                          NavigationState const* const* /*in_states*/,
+                                                          NavigationState ** /*out_states*/,
+                                                          Precision * /*out_steps*/,
                                                           bool const * /*calcsafety*/,
                                                           Precision * /*out_safeties*/) const = 0;
 
@@ -144,7 +145,7 @@ public:
   virtual void ComputeStepsAndSafeties(SOA3D<Precision> const & /*globalpoints*/,
                                        SOA3D<Precision> const & /*globaldirs*/,
                                        Precision const * /*(physics) step limits */,
-                                       NavigationState const ** /*in_states*/, Precision * /*out_steps*/,
+                                       NavigationState const* const* /*in_states*/, Precision * /*out_steps*/,
                                        bool const * /*calcsafety*/, Precision * /*out_safeties*/) const = 0;
 
 protected:
@@ -265,7 +266,7 @@ protected:
   template <typename T, unsigned int ChunkSize>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  static void DoGlobalToLocalTransformations(NavigationState const **in_states, SOA3D<Precision> const &globalpoints,
+  static void DoGlobalToLocalTransformations(NavigationState const *const *in_states, SOA3D<Precision> const &globalpoints,
                                              SOA3D<Precision> const &globaldirs, unsigned int from_index,
                                              Vector3D<T> &localpoint, Vector3D<T> &localdir)
   {
@@ -306,7 +307,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
                                           Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-                                          NavigationState const **in_states, NavigationState **out_states,
+                                          NavigationState const *const *in_states, NavigationState **out_states,
                                           unsigned int from_index, Precision *out_steps,
                                           VPlacedVolume const *hitcandidates[ChunkSize])
   {
@@ -330,7 +331,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
                                           Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-                                          NavigationState const **in_states, unsigned int from_index,
+                                          NavigationState const *const *in_states, unsigned int from_index,
                                           Precision *out_steps, VPlacedVolume const *hitcandidates[ChunkSize])
   {
     // dispatch to ordinary implementation ( which itself might be vectorized )
@@ -530,7 +531,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   virtual void ComputeStepsAndSafeties(SOA3D<Precision> const &globalpoints, SOA3D<Precision> const &globaldirs,
-                                       Precision const *step_limits, NavigationState const **in_states,
+                                       Precision const *step_limits, NavigationState const *const *in_states,
                                        Precision *out_steps, bool const *calcsafeties,
                                        Precision *out_safeties) const override
   {
@@ -566,7 +567,7 @@ public:
   static void NavigateAChunk(VNavigator const *__restrict__ nav, VPlacedVolume const *__restrict__ pvol,
                              LogicalVolume const *__restrict__ lvol, SOA3D<Precision> const &__restrict__ globalpoints,
                              SOA3D<Precision> const &__restrict__ globaldirs, Precision const *__restrict__ step_limits,
-                             NavigationState const **__restrict__ in_states, NavigationState **__restrict__ out_states,
+                             NavigationState const* const* __restrict__ in_states, NavigationState** __restrict__ out_states,
                              Precision *__restrict__ out_steps, unsigned int from_index)
   {
 
@@ -631,7 +632,7 @@ public:
   static void NavigateAChunk(VNavigator const *__restrict__ nav, VPlacedVolume const *__restrict__ pvol,
                              LogicalVolume const *__restrict__ lvol, SOA3D<Precision> const &__restrict__ globalpoints,
                              SOA3D<Precision> const &__restrict__ globaldirs, Precision const *__restrict__ step_limits,
-                             NavigationState const **__restrict__ in_states, NavigationState **__restrict__ out_states,
+                             NavigationState const *const *__restrict__ in_states, NavigationState **__restrict__ out_states,
                              Precision *__restrict__ out_steps, bool const *__restrict__ calcsafeties,
                              Precision *__restrict__ out_safeties, unsigned int from_index)
   {
@@ -702,7 +703,7 @@ public:
                                     SOA3D<Precision> const &__restrict__ globalpoints,
                                     SOA3D<Precision> const &__restrict__ globaldirs,
                                     Precision const *__restrict__ step_limits,
-                                    NavigationState const **__restrict__ in_states, Precision *__restrict__ out_steps,
+                                    NavigationState const *const *__restrict__ in_states, Precision *__restrict__ out_steps,
                                     bool const *__restrict__ calcsafeties, Precision *__restrict__ out_safeties,
                                     unsigned int from_index)
   {
@@ -745,7 +746,7 @@ public:
   virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
                                                SOA3D<Precision> const &__restrict__ globaldirs,
                                                Precision const *__restrict__ step_limit,
-                                               NavigationState const **__restrict__ in_states,
+                                               NavigationState const *const *__restrict__ in_states,
                                                NavigationState **__restrict__ out_states,
                                                Precision *__restrict__ out_steps) const override
   {
@@ -779,7 +780,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void ComputeStepsAndSafetiesAndPropagatedStates(
       SOA3D<Precision> const &__restrict__ globalpoints, SOA3D<Precision> const &__restrict__ globaldirs,
-      Precision const *__restrict__ step_limit, NavigationState const **__restrict__ in_states,
+      Precision const *__restrict__ step_limit, NavigationState const *const *__restrict__ in_states,
       NavigationState **__restrict__ out_states, Precision *__restrict__ out_steps,
       bool const *__restrict__ calcsafeties, Precision *__restrict__ out_safeties) const override
   {
@@ -813,7 +814,7 @@ public:
   virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
                                                SOA3D<Precision> const &__restrict__ globaldirs,
                                                Precision const *__restrict__ step_limit,
-                                               NavigationState const **__restrict__ in_states,
+                                               NavigationState const *const *__restrict__ in_states,
                                                NavigationState **__restrict__ out_states,
                                                Precision *__restrict__ out_steps) const override
   {
@@ -827,7 +828,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void ComputeStepsAndSafetiesAndPropagatedStates(
       SOA3D<Precision> const &__restrict__ globalpoints, SOA3D<Precision> const &__restrict__ globaldirs,
-      Precision const *__restrict__ step_limit, NavigationState const **__restrict__ in_states,
+      Precision const *__restrict__ step_limit, NavigationState const *const *__restrict__ in_states,
       NavigationState **__restrict__ out_states, Precision *__restrict__ out_steps,
       bool const *__restrict__ calcsafeties, Precision *__restrict__ out_safeties) const override
   {

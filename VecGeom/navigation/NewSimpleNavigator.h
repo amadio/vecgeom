@@ -80,7 +80,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolume const *lvol,
                                           Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-                                          NavigationState const ** /*in_states*/, NavigationState ** /*out_states*/,
+                                          NavigationState const* const* /*in_states*/, NavigationState ** /*out_states*/,
                                           unsigned int from_index, Precision *out_steps,
                                           VPlacedVolume const *hitcandidates[ChunkSize])
   {
@@ -131,7 +131,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
                                           Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-                                          NavigationState const **in_states, unsigned int from_index,
+                                          NavigationState const *const *in_states, unsigned int from_index,
                                           Precision *out_steps, VPlacedVolume const *hitcandidates[ChunkSize])
   {
     NewSimpleNavigator<MotherIsConvex>::template DaughterIntersectionsLooper<T, ChunkSize>(
