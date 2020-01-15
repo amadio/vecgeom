@@ -9,9 +9,29 @@
 #define NAVIGATION_SIMPLESAFETYESTIMATOR_H_
 
 #include "VecGeom/navigation/VSafetyEstimator.h"
+//#include "VecGeom/base/Array.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+/// Keep in dest the minimum between dest,temp for each corresponding element
+static void VectMin(unsigned int nelem, Precision *__restrict__ dest, const Precision *__restrict__ temp) {
+  using Real_v = vecgeom::VectorBackend::Real_v;
+  // loop over all elements
+  unsigned int i = 0;
+  constexpr unsigned int nlanes = vecCore::VectorSize<Real_v>();
+  const auto ilast = nelem - (nlanes-1);
+  for ( ; i < ilast; i += nlanes) {
+    Real_v &dest1 = * reinterpret_cast<Real_v*>(dest + i);
+    const Real_v &temp1 = * reinterpret_cast<const Real_v*>(temp + i);
+    vecCore::MaskedAssign(dest1, vecCore::Mask_v<Real_v>(dest1 > temp1), temp1);
+  }
+
+  // fall back to scalar interface for tail treatment
+  for (; i < nelem; ++i) {
+    if ( dest[i] > temp[i] ) dest[i] = temp[i];
+  }
+}
 
 //! a simple safety estimator based on a brute force (O(N)) approach
 class SimpleSafetyEstimator : public VSafetyEstimatorHelper<SimpleSafetyEstimator> {
@@ -84,6 +104,17 @@ public:
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const &localpoints, VPlacedVolume const *pvol,
                                            Precision *safeties) const override
   {
+    auto npoints = localpoints.size();
+    // a stack based workspace array
+    // The following construct reserves stackspace WITHOUT initializing it
+    char stackspace[npoints * sizeof(Precision)];
+    Precision *tmpSafeties = reinterpret_cast<Precision *>(&stackspace);
+
+    // // Array-based - transparently ensures proper alignment
+    // // NavigBenchmark performance is actually worse than above though
+    // Array<Precision> stackspace(npoints);
+    // Precision *tmpSafeties = reinterpret_cast<Precision *>(stackspace.begin());
+
     pvol->SafetyToOut(localpoints, safeties);
 
     // safety to daughters; brute force but each function (possibly) vectorized
@@ -92,7 +123,10 @@ public:
     for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
       VPlacedVolume const *daughter = daughters->operator[](d);
       //daughter->SafetyToInMinimize(localpoints, safeties);
-      daughter->SafetyToIn(localpoints, safeties);
+      daughter->SafetyToIn(localpoints, tmpSafeties);
+
+      //.. keep track of closest daughter
+      VectMin(npoints, safeties, tmpSafeties);
     }
     // here the safeties array automatically contains the right values
   }
