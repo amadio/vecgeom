@@ -378,26 +378,6 @@ public:
     }
   }
 
-  template <typename T, unsigned int ChunkSize>
-  VECCORE_ATT_HOST_DEVICE
-  static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
-                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-                                          NavStatePool const &in_states, unsigned int from_index,
-                                          Precision *out_steps, VPlacedVolume const *hitcandidates[ChunkSize])
-  {
-    // dispatch to ordinary implementation ( which itself might be vectorized )
-    using vecCore::LaneAt;
-    for (unsigned int i = 0; i < ChunkSize; ++i) {
-      unsigned int trackid = from_index + i;
-      ((Impl *)nav)
-          ->Impl::CheckDaughterIntersections(
-              lvol,
-              Vector3D<Precision>(LaneAt(localpoint.x(), i), LaneAt(localpoint.y(), i), LaneAt(localpoint.z(), i)),
-              Vector3D<Precision>(LaneAt(localdir.x(), i), LaneAt(localdir.y(), i), LaneAt(localdir.z(), i)),
-              in_states[trackid], nullptr, out_steps[trackid], hitcandidates[i]);
-    }
-  }
-
   // the default implementation for safety calculation for a chunk of data
   template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
   VECCORE_ATT_HOST_DEVICE static void SafetyLooper(VNavigator const *nav, VPlacedVolume const *pvol,
