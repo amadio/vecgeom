@@ -127,6 +127,59 @@ public:
     vecCore::Store(step, out_steps + from_index);
   }
 
+  // Vector specialization for NewSimpleNavigator
+  // TODO: unify with scalar use case
+  template <typename T, unsigned int ChunkSize>
+  VECCORE_ATT_HOST_DEVICE
+  static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolume const *lvol,
+                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
+                                          NavStatePool const &/*in_states*/, NavStatePool &/*out_states*/,
+                                          unsigned int from_index, Precision *out_steps,
+                                          VPlacedVolume const *hitcandidates[ChunkSize])
+  {
+    // dispatch to vector implementation
+    // iterate over all daughters
+    // using Real_v = typename Backend::Real_v;
+    // using Bool_v = Real_v::Mask;
+    T step(vecCore::FromPtr<T>(out_steps + from_index));
+    const auto *daughters = lvol->GetDaughtersp();
+    auto ndaughters       = daughters->size();
+    for (decltype(ndaughters) d = 0; d < ndaughters; ++d) {
+      auto daughter = daughters->operator[](d);
+      // SW: this makes the navigation more robust and it appears that I have to
+      // put this at the moment since not all shapes respond yet with a negative distance if
+      // the point is actually inside the daughter
+      //  #ifdef CHECKCONTAINS
+      //        Bool_v contains = daughter->Contains(localpoint);
+      //        if (!contains) {
+      //  #endif
+      const T ddistance = daughter->DistanceToIn(localpoint, localdir, step);
+
+      // if distance is negative; we are inside that daughter and should relocate
+      // unless distance is minus infinity
+      const auto valid = (ddistance < step && !IsInf(ddistance));
+
+      // serial treatment of hit candidate until I find a better way
+      // we might do this using a cast to a double vector with subsequent masked assignment
+      if (!vecCore::MaskEmpty(valid)) {
+        for (unsigned int i = 0 /*valid.firstOne()*/; i < ChunkSize; ++i) {
+          hitcandidates[i] = vecCore::MaskLaneAt(valid, i) ? daughter : hitcandidates[i];
+        }
+
+        vecCore::MaskedAssign(step, valid, ddistance);
+        //  #ifdef CHECKCONTAINS
+        //        } else {
+        //          std::cerr << " INDA ";
+        //          step = -1.;
+        //          hitcandidate = daughter;
+        //          break;
+        //        }
+        //  #endif
+      }
+    }
+    vecCore::Store(step, out_steps + from_index);
+  }
+
   template <typename T, unsigned int ChunkSize>
   VECCORE_ATT_HOST_DEVICE
   static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,

@@ -298,6 +298,34 @@ protected:
       AssignLane(localdir.z(), i, tmp.z());
     }
   }
+
+  // version used for SIMD processing
+  // should be specialized in Impl for faster treatment
+  template <typename T, unsigned int ChunkSize>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static void DoGlobalToLocalTransformations(NavStatePool const &in_states, SOA3D<Precision> const &globalpoints,
+                                             SOA3D<Precision> const &globaldirs, unsigned int from_index,
+                                             Vector3D<T> &localpoint, Vector3D<T> &localdir)
+  {
+    for (unsigned int i = 0; i < ChunkSize; ++i) {
+      unsigned int trackid = from_index + i;
+      Transformation3D m;
+      //  assert(in_states[trackid]->Top()->GetLogicalVolume() == lvol &&
+      //         "not all states in same logical volume"); // the logical volume of all the states should be the same
+      in_states[trackid]->TopMatrix(m);              // could benefit from internal vec
+      auto tmp = m.Transform(globalpoints[trackid]); // could benefit from internal vec
+
+      using vecCore::AssignLane;
+      AssignLane(localpoint.x(), i, tmp.x());
+      AssignLane(localpoint.y(), i, tmp.y());
+      AssignLane(localpoint.z(), i, tmp.z());
+      tmp = m.TransformDirection(globaldirs[trackid]); // could benefit from internal vec
+      AssignLane(localdir.x(), i, tmp.x());
+      AssignLane(localdir.y(), i, tmp.y());
+      AssignLane(localdir.z(), i, tmp.z());
+    }
+  }
 };
 
 //! template class providing a standard implementation for
@@ -334,6 +362,11 @@ public:
     }
   }
 
+  // the default implementation for hit detection with daughters for a chunk of data
+  // is to loop over the implementation for the scalar case
+  // this static function may be overridden by the specialized implementations (such as done in NewSimpleNavigator)
+  // the from_index, to_index indicate which states from the NavigationState ** are actually treated
+  // in the worst case, we might have to implement this stuff over there
   template <typename T, unsigned int ChunkSize>
   VECCORE_ATT_HOST_DEVICE
   static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
@@ -724,7 +757,75 @@ public:
   }
 
   // this kernel is a generic implementation to navigate with chunks of data
-  // can be used also for the scalar imple
+  // can be used also for the scalar implementation
+  // same as above but including safety treatment
+  // TODO: remerge with above to avoid code duplication
+  template <typename T, unsigned int ChunkSize>
+  VECCORE_ATT_HOST_DEVICE
+  static void NavigateAChunk(VNavigator const *__restrict__ nav, VPlacedVolume const *__restrict__ pvol,
+                             LogicalVolume const *__restrict__ lvol, SOA3D<Precision> const &__restrict__ globalpoints,
+                             SOA3D<Precision> const &__restrict__ globaldirs, Precision const *__restrict__ step_limits,
+                             NavStatePool const &in_states, NavStatePool &out_states,
+                             Precision *__restrict__ out_steps, bool const *__restrict__ calcsafeties,
+                             Precision *__restrict__ out_safeties, unsigned int from_index)
+  {
+    VPlacedVolume const *hitcandidates[ChunkSize] = {}; // initialize all to nullptr
+
+    Vector3D<T> localpoint, localdir;
+    Impl::template DoGlobalToLocalTransformations<T, ChunkSize>(in_states, globalpoints, globaldirs, from_index,
+                                                                localpoint, localdir);
+
+    // safety part
+    Impl::template SafetyLooper<T, ChunkSize>(nav, pvol, localpoint, from_index, calcsafeties, out_safeties);
+
+    T slimit(vecCore::FromPtr<T>(step_limits + from_index)); // will only work with new ScalarWrapper
+    if (MotherIsConvex) {
+      vecCore::Store(slimit, out_steps + from_index);
+      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
+                                                               from_index, out_steps, hitcandidates);
+      // parse the hitcandidates pointer as double to apply a mask
+      T step(vecCore::FromPtr<T>(out_steps + from_index));
+      auto nothitdaughter = step == T(kInfLength);
+      if (!vecCore::MaskEmpty(nothitdaughter)) {
+        vecCore__MaskedAssignFunc(step, nothitdaughter,
+                                  Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit));
+        vecCore::Store(step, out_steps + from_index);
+      }
+    } else {
+      // need to calc DistanceToOut first
+      T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+      vecCore::Store(step, out_steps + from_index);
+
+      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
+                                                               from_index, out_steps, hitcandidates);
+    }
+
+    using vecCore::LaneAt;
+
+    // fix state ( seems to be serial so we iterate over indices )
+    for (unsigned int i = 0; i < ChunkSize; ++i) {
+      unsigned int trackid = from_index + i;
+      bool done;
+      out_steps[trackid] = Impl::PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid],
+                                                 LaneAt(slimit, i), hitcandidates[i], done);
+      if (done) continue;
+      // step was physics limited
+      if (!out_states[trackid]->IsOnBoundary()) continue;
+      // otherwise if necessary do a relocation
+      // try relocation to refine out_state to correct location after the boundary
+      ((Impl *)nav)
+          ->Impl::Relocate(
+              MovePointAfterBoundary(
+                  Vector3D<Precision>(LaneAt(localpoint.x(), i), LaneAt(localpoint.y(), i), LaneAt(localpoint.z(), i)),
+                  Vector3D<Precision>(LaneAt(localdir.x(), i), LaneAt(localdir.y(), i), LaneAt(localdir.z(), i)),
+                  out_steps[trackid]),
+              *in_states[trackid], *out_states[trackid]);
+    }
+  }
+
+  // this kernel is a generic implementation to navigate with chunks of data
+  // can be used also for the scalar implementation
   // same as above but including safety treatment
   // TODO: remerge with above to avoid code duplication
   template <typename T, unsigned int ChunkSize>
@@ -815,12 +916,6 @@ public:
       Precision *__restrict__ out_steps,
       bool const *__restrict__ calcsafeties, Precision *__restrict__ out_safeties) const override
   {
-    // setup navstate** arrays -- must be cleaned up before returning!
-    const NavigationState **inarray = nullptr;
-    in_states.ToPlainPointerArray(inarray);
-    NavigationState **outarray = nullptr;
-    out_states.ToPlainPointerArray(outarray);
-
     // process SIMD part and TAIL part
     // something like
     const auto size = globalpoints.size();
@@ -830,12 +925,8 @@ public:
     auto i             = decltype(size){0};
     constexpr auto kVS = vecCore::VectorSize<Real_v>();
     for (; i < (size - (kVS - 1)); i += kVS) {
-      NavigateAChunk<Real_v, kVS>(this, pvol, lvol, globalpoints, globaldirs, step_limit, inarray, outarray,
+      NavigateAChunk<Real_v, kVS>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states, out_states,
                                   out_steps, calcsafeties, out_safeties, i);
-    }
-    // save results back -- could benefit from internal vectorization
-    for (i = 0; i < (size - (kVS - 1)); ++i) {
-      *out_states[i] = *outarray[i];
     }
 
     // fall back to scalar interface for tail treatment
@@ -846,9 +937,6 @@ public:
                                                         out_safeties[i]);
     }
 
-    // cleanup
-    delete[] inarray;
-    delete[] outarray;
   }
 
   // generic implementation for the vector interface
