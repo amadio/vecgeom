@@ -102,6 +102,22 @@ int main(int argc, char *argv[])
   OPTION_BOOL(help, false);
   if (help) return 0;
 
+#ifdef VECGEOM_ENABLE_CUDA
+  // If CUDA enabled, then GPU hardware is required!
+  int nDevice;
+  cudaGetDeviceCount(&nDevice);
+
+  if(nDevice > 0) {
+    cudaDeviceReset();
+  }
+  else {
+    std::cout << "\n ***** No Cuda Capable Device!!! *****\n" << std::endl;
+    return 0;
+  }
+#else
+  std::cerr<<"... VECGEOM_ENABLE_CUDA not defined at compilation?!?\n";
+#endif
+
   if (geometry.compare("navBench") == 0) {
     SetupGeometry();
 
@@ -226,20 +242,6 @@ int main(int argc, char *argv[])
     runNavigationBenchmarks(startVolume, np, nreps, maxSteps, bias);
     np *= 8;
   }
-
-#ifdef VECCORE_CUDA
-  // GPU part
-  int nDevice;
-  cudaGetDeviceCount(&nDevice);
-
-  if(nDevice > 0) {
-    cudaDeviceReset();
-  }
-  else {
-    std::cout << "No Cuda Capable Device ... " << std::endl;
-    return 0;
-  }
-#endif
 
   // cleanup
   vecCore::AlignedFree(maxSteps);

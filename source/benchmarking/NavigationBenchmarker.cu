@@ -99,23 +99,20 @@ Precision runNavigationCuda(void *gpu_ptr, void *gpu_out_ptr, int depth, const c
   vecgeom::cuda::Stopwatch timer;
 
   timer.Start();
-  printf("GPU warm-up:  <<<1,1>>>\n");
   vecgeom::cuda::NavigationKernel<<<1, 1>>>(
     gpu_ptr, gpu_out_ptr, depth, CudaManager::Instance().world_gpu(),
     positionGpu, directionGpu, maxStepsGpu, 1, propStepsGpu );
   cudaDeviceSynchronize();
-  Precision elapsedCuda = timer.Stop();
-  printf("GPU warm-up time: %f ms\n", 1000. * elapsedCuda);
-
-  printf("GPU configuration:  <<<%i,%i>>>\n", launch.grid_size.x, launch.block_size.x);
+  Precision elapsedWarmup = timer.Stop();
+  printf("GPU config <<<1,1>>> - warm-up time: %f ms\n", 1000. * elapsedWarmup);
 
   timer.Start();
   vecgeom::cuda::NavigationKernel<<<launch.grid_size, launch.block_size>>>(
       gpu_ptr, gpu_out_ptr, depth, CudaManager::Instance().world_gpu(), positionGpu, directionGpu, maxStepsGpu, npoints,
       propStepsGpu);
   cudaDeviceSynchronize();
-  elapsedCuda = timer.Stop();
-  printf("GPU navigation time: %f ms\n", 1000. * elapsedCuda);
+  Precision elapsedCuda = timer.Stop();
+  printf("GPU config <<<%i,%i>>> - navigation time: %f ms\n", launch.grid_size.x, launch.block_size.x, 1000. * elapsedCuda);
 
   cxx::CopyFromGpu(propStepsGpu, propSteps, npoints * sizeof(Precision));
 
