@@ -109,7 +109,6 @@ Precision benchmarkVectorSafety(int nPoints, int nReps, SOA3D<Precision> const &
   NavStatePool curStates(nPoints, ndeep);
   {
     for (int i = 0; i < nPoints; ++i) {
-      curStates[i]->Clear();
       GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), points[i], *(curStates[i]), true);
     }
   }
