@@ -1,7 +1,7 @@
 #include "utilities/Visualizer.h"
-#include "volumes/Sphere.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/AOS3D.h"
+#include "VecGeom/volumes/Sphere.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/AOS3D.h"
 
 #define PI 3.14159265358979323846
 

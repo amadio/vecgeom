@@ -1,7 +1,7 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/SpecializedTorus2.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/SpecializedTorus2.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGTorus       = vecgeom::SimpleTorus2;

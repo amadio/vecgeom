@@ -1,11 +1,11 @@
 /// \file UnplacedHype.cpp
 /// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 
-#include "volumes/UnplacedHype.h"
+#include "VecGeom/volumes/UnplacedHype.h"
 
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedHype.h"
-#include "volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedHype.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoHype.h"
@@ -16,15 +16,15 @@
 #endif
 
 #ifndef VECCORE_CUDA
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
 
 #include <stdio.h>
-#include "base/RNG.h"
-#include "base/Global.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/base/Global.h"
 
 #ifndef VECGEOM_NO_SPECIALIZATION
-#include "volumes/UnplacedTube.h"
+#include "VecGeom/volumes/UnplacedTube.h"
 #endif
 
 namespace vecgeom {

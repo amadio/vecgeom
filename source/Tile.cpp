@@ -2,7 +2,7 @@
 /// \author Mihaela Gheata (mihaela.gheata@cern.ch)
 
 #include <ostream>
-#include "volumes/Tile.h"
+#include "VecGeom/volumes/Tile.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

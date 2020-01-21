@@ -1,6 +1,6 @@
 /// \file Scale3D.cpp
 /// \author Mihaela Gheata (mihaela.gheata@cern.ch)
-#include "base/Scale3D.h"
+#include "VecGeom/base/Scale3D.h"
 
 #include <sstream>
 #include <stdio.h>

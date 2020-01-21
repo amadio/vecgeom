@@ -5,14 +5,14 @@
  *      Author: swenzel
  */
 
-#include "volumes/UnplacedCone.h"
-#include "volumes/UnplacedTube.h"
-#include "volumes/SpecializedCone.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/volumes/UnplacedCone.h"
+#include "VecGeom/volumes/UnplacedTube.h"
+#include "VecGeom/volumes/SpecializedCone.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
 #ifndef VECCORE_CUDA
-#include "base/RNG.h"
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
 #ifdef VECGEOM_ROOT
 #include "TGeoCone.h"
@@ -22,7 +22,7 @@
 #include "G4Cons.hh"
 #endif
 
-#include "management/VolumeFactory.h"
+#include "VecGeom/management/VolumeFactory.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

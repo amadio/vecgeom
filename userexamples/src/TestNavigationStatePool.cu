@@ -1,9 +1,9 @@
-#include "base/Global.h"
-#include "navigation/NavigationState.h"
-#include "navigation/NavStatePool.h"
-#include "management/CudaManager.h"
-#include "navigation/GlobalLocator.h"
-#include "backend/cuda/Backend.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/NavStatePool.h"
+#include "VecGeom/management/CudaManager.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/backend/cuda/Backend.h"
 
 #include <stdio.h>
 

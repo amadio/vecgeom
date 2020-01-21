@@ -1,6 +1,6 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/Hype.h"
+#include "VecGeom/volumes/Hype.h"
 typedef vecgeom::SimpleHype Hype_t;
 
 int main(int argc, char *argv[])

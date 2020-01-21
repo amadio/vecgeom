@@ -4,12 +4,12 @@
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
-#include "base/FpeEnable.h"
+#include "VecGeom/base/FpeEnable.h"
 
-#include "base/Global.h"
-#include "base/Vector3D.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
 #include "ApproxEqual.h"
-#include "volumes/Torus2.h"
+#include "VecGeom/volumes/Torus2.h"
 
 #include <cmath>
 using vecgeom::kPi;

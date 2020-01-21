@@ -1,7 +1,7 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/SExtru.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/SExtru.h"
 
 template <typename ImplT>
 int runTester(ImplT const *shape, int npoints, bool debug, bool stat);

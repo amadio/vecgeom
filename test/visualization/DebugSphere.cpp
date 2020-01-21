@@ -1,5 +1,5 @@
 #include "utilities/ShapeDebugger.h"
-#include "volumes/Sphere.h"
+#include "VecGeom/volumes/Sphere.h"
 
 using namespace vecgeom;
 

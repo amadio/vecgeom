@@ -1366,7 +1366,7 @@ install(FILES
   DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
 # Install headers and libraries
-foreach(FOLDER base benchmarking management navigation volumes backend)
+foreach(FOLDER VecGeom)
   install(DIRECTORY ${FOLDER} DESTINATION ${INSTALL_INCLUDE_DIR})
 endforeach()
 

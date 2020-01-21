@@ -8,8 +8,8 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/Ellipsoid.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/Ellipsoid.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGEllipsoid   = vecgeom::SimpleEllipsoid;

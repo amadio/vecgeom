@@ -7,9 +7,9 @@
 #include "TView.h"
 #include "TPolyMarker3D.h"
 #include "TPolyLine3D.h"
-#include "management/RootGeoManager.h"
-#include "volumes/LogicalVolume.h"
-#include "management/GeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/management/GeoManager.h"
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
 

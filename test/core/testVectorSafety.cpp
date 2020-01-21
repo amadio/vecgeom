@@ -8,14 +8,14 @@
 // Forced asserts() to be defined, even for Release mode
 #undef NDEBUG
 
-#include "volumes/utilities/VolumeUtilities.h"
-#include "volumes/Box.h"
-#include "base/Transformation3D.h"
-#include "base/SOA3D.h"
-#include "navigation/NavigationState.h"
-#include "navigation/SimpleNavigator.h"
-#include "management/GeoManager.h"
-#include "base/Global.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/SimpleNavigator.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/base/Global.h"
 
 using namespace vecgeom;
 

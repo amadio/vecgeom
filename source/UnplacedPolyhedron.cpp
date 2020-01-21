@@ -1,12 +1,12 @@
 /// \file UnplacedPolyhedron.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "base/Global.h"
-#include "volumes/UnplacedPolyhedron.h"
-#include "volumes/PlacedPolyhedron.h"
-#include "volumes/SpecializedPolyhedron.h"
-#include "volumes/utilities/GenerationUtilities.h"
-#include "management/VolumeFactory.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/volumes/UnplacedPolyhedron.h"
+#include "VecGeom/volumes/PlacedPolyhedron.h"
+#include "VecGeom/volumes/SpecializedPolyhedron.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/management/VolumeFactory.h"
 
 #include <cmath>
 #include <memory>

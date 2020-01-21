@@ -1,10 +1,10 @@
 /// \file PlacedPolyhedron.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "volumes/PlacedPolyhedron.h"
+#include "VecGeom/volumes/PlacedPolyhedron.h"
 
-#include "volumes/kernel/GenericKernels.h"
-#include "volumes/SpecializedPolyhedron.h"
+#include "VecGeom/volumes/kernel/GenericKernels.h"
+#include "VecGeom/volumes/SpecializedPolyhedron.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoPgon.h"

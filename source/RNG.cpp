@@ -1,7 +1,7 @@
 /// \file RNG.cpp
 /// \author Philippe Canal (pcanal@fnal.gov)
 
-#include "base/RNG.h"
+#include "VecGeom/base/RNG.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

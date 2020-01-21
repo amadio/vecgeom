@@ -8,7 +8,7 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/Parallelepiped.h"
+#include "VecGeom/volumes/Parallelepiped.h"
 typedef vecgeom::SimpleParallelepiped Para_t;
 
 int main(int argc, char *argv[])

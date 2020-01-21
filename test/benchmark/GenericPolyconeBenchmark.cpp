@@ -5,13 +5,13 @@
  *      Author: Raman Sehgal (raman.sehgal@cern.ch)
  */
 
-#include "volumes/LogicalVolume.h"
-#include "volumes/GenericPolycone.h"
-#include "volumes/Polycone.h"
-#include "volumes/PlacedBox.h"
-#include "volumes/UnplacedBox.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/GenericPolycone.h"
+#include "VecGeom/volumes/Polycone.h"
+#include "VecGeom/volumes/PlacedBox.h"
+#include "VecGeom/volumes/UnplacedBox.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 
 using namespace vecgeom;

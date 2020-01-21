@@ -5,11 +5,11 @@
 /// @file source/UnplacedEllipticalTube.cpp
 /// @author Raman Sehgal, Evgueni Tcherniaev
 
-#include "volumes/EllipticUtilities.h"
-#include "volumes/UnplacedEllipticalTube.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedEllipticalTube.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/EllipticUtilities.h"
+#include "VecGeom/volumes/UnplacedEllipticalTube.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedEllipticalTube.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 #include <cmath>
 

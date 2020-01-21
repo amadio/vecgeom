@@ -10,10 +10,10 @@
 #undef NDEBUG
 
 #include <iomanip>
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "volumes/EllipticUtilities.h"
-#include "volumes/EllipticalCone.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/EllipticUtilities.h"
+#include "VecGeom/volumes/EllipticalCone.h"
 #include "ApproxEqual.h"
 
 using namespace vecgeom;

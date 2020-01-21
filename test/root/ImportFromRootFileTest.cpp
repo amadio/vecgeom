@@ -5,11 +5,11 @@
  *      Author: swenzel
  */
 
-#include "management/GeoManager.h"
-#include "management/RootGeoManager.h"
-#include "management/CppExporter.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/management/CppExporter.h"
 #ifdef VECGEOM_CUDA_INTERFACE
-#include "management/CudaManager.h"
+#include "VecGeom/management/CudaManager.h"
 #endif
 #include "TGeoManager.h"
 #include <cstdio>

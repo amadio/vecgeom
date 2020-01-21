@@ -1,14 +1,14 @@
 /// \file ScaledBenchmark.cpp
 /// \author Mhaela Gheata (mihaela.gheata@cern.ch)
 
-#include "volumes/LogicalVolume.h"
-#include "volumes/Box.h"
-#include "volumes/Tube.h"
-#include "volumes/ScaledShape.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Tube.h"
+#include "VecGeom/volumes/ScaledShape.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
-#include "management/CppExporter.h"
+#include "VecGeom/management/CppExporter.h"
 
 using namespace vecgeom;
 

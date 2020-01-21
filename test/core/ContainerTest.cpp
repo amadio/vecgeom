@@ -1,5 +1,5 @@
-#include "base/SOA3D.h"
-#include "base/AOS3D.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/base/AOS3D.h"
 
 using namespace vecgeom;
 

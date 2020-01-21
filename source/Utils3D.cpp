@@ -2,7 +2,7 @@
 /// \file Utils3D.cpp
 /// \author Andrei Gheata (andrei.gheata@cern.ch)
 
-#include "base/Utils3D.h"
+#include "VecGeom/base/Utils3D.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

@@ -5,8 +5,8 @@
  *      Author: swenzel
  */
 
-#include "management/ABBoxManager.h"
-#include "volumes/UnplacedBox.h"
+#include "VecGeom/management/ABBoxManager.h"
+#include "VecGeom/volumes/UnplacedBox.h"
 
 namespace vecgeom {
 inline namespace cxx {

@@ -5,12 +5,12 @@
  *      Author: swenzel
  */
 
-#include "volumes/PlacedBooleanVolume.h"
-#include "volumes/SpecializedBooleanVolume.h"
-#include "volumes/UnplacedBooleanVolume.h"
-#include "volumes/LogicalVolume.h"
-#include "base/Vector3D.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/PlacedBooleanVolume.h"
+#include "VecGeom/volumes/SpecializedBooleanVolume.h"
+#include "VecGeom/volumes/UnplacedBooleanVolume.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/RNG.h"
 #include <map>
 
 #ifdef VECGEOM_ROOT

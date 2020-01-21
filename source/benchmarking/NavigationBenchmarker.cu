@@ -1,17 +1,17 @@
 
-#include "base/Global.h"
+#include "VecGeom/base/Global.h"
 
-#include "volumes/PlacedVolume.h"
-#include "base/SOA3D.h"
-#include "navigation/NewSimpleNavigator.h"
-#include "navigation/NavigationState.h"
-#include "navigation/NavStatePool.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/navigation/NewSimpleNavigator.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/NavStatePool.h"
 
 #ifdef VECGEOM_ENABLE_CUDA
-#include "base/Stopwatch.h"
-#include "backend/cuda/Backend.h"
-#include "management/CudaManager.h"
-#include "backend/cuda/Interface.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/backend/cuda/Backend.h"
+#include "VecGeom/management/CudaManager.h"
+#include "VecGeom/backend/cuda/Interface.h"
 #endif
 
 namespace vecgeom {

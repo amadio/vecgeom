@@ -8,8 +8,8 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/EllipticalTube.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/EllipticalTube.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGTube        = vecgeom::SimpleEllipticalTube;

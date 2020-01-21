@@ -1,8 +1,8 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "base/Vector3D.h"
-#include "volumes/Trapezoid.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Trapezoid.h"
 
 using Precision     = vecgeom::Precision;
 using Vec_t         = vecgeom::Vector3D<vecgeom::Precision>;

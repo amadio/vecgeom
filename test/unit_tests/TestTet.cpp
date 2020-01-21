@@ -8,13 +8,13 @@
 
 // ensure asserts are compiled in
 #undef NDEBUG
-#include "base/FpeEnable.h"
+#include "VecGeom/base/FpeEnable.h"
 
 #include <iomanip>
 #include <assert.h>
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "volumes/Tet.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Tet.h"
 #include "ApproxEqual.h"
 
 #include <cmath>

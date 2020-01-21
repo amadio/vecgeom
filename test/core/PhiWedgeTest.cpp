@@ -5,7 +5,7 @@
  *      Author: swenzel
  */
 
-#include "volumes/Wedge.h"
+#include "VecGeom/volumes/Wedge.h"
 
 #ifdef NDEBUG
 #undef NDEBUG

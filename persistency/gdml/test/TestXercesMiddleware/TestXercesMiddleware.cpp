@@ -9,12 +9,12 @@
 #include "Middleware.h"
 #include "MaterialInfo.h"
 #include "xercesc/dom/DOMDocument.hpp"
-#include "management/GeoManager.h"
+#include "VecGeom/management/GeoManager.h"
 
 #ifdef VECGEOM_ROOT
 // if ROOT is available will export the loaded geometry
-#include "management/RootGeoManager.h"
-#include "management/GeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/management/GeoManager.h"
 #include "TGeoManager.h"
 #endif
 

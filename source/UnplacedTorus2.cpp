@@ -1,10 +1,10 @@
 /// \file UnplacedTorus2.cpp
 
-#include "volumes/UnplacedTorus2.h"
-#include "volumes/SpecializedTorus2.h"
+#include "VecGeom/volumes/UnplacedTorus2.h"
+#include "VecGeom/volumes/SpecializedTorus2.h"
 
-#include "volumes/utilities/VolumeUtilities.h"
-#include "management/VolumeFactory.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/management/VolumeFactory.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

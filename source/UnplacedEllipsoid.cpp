@@ -5,11 +5,11 @@
 /// @file source/UnplacedEllipsoid.cpp
 /// @author Evgueni Tcherniaev
 
-#include "volumes/EllipticUtilities.h"
-#include "volumes/UnplacedEllipsoid.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedEllipsoid.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/EllipticUtilities.h"
+#include "VecGeom/volumes/UnplacedEllipsoid.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedEllipsoid.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 #include <cmath>
 

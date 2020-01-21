@@ -8,8 +8,8 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/Tet.h"
-#include "base/Vector3D.h"
+#include "VecGeom/volumes/Tet.h"
+#include "VecGeom/base/Vector3D.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGTet         = vecgeom::SimpleTet;

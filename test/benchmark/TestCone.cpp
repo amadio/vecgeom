@@ -5,9 +5,9 @@
  *      Author: swenzel
  */
 
-#include "volumes/Cone.h"
-#include "volumes/LogicalVolume.h"
-#include "base/Transformation3D.h"
+#include "VecGeom/volumes/Cone.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/base/Transformation3D.h"
 #include <cstdio>
 
 // to test compilation and functionality of the cone

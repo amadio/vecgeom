@@ -1,8 +1,8 @@
 /// \file PlacedScaledShape.cpp
 /// \author Mihaela Gheata (mihaela.gheata@cern.ch)
 
-#include "volumes/PlacedScaledShape.h"
-#include "volumes/SpecializedScaledShape.h"
+#include "VecGeom/volumes/PlacedScaledShape.h"
+#include "VecGeom/volumes/SpecializedScaledShape.h"
 
 #include <stdio.h>
 

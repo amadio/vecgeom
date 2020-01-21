@@ -4,13 +4,13 @@
 
 /// \file GeoManager.cpp
 
-#include "management/GeoManager.h"
-#include "volumes/PlacedVolume.h"
-#include "navigation/NavigationState.h"
-#include "management/ABBoxManager.h"
-#include "volumes/UnplacedBooleanVolume.h"
-#include "volumes/UnplacedScaledShape.h"
-#include "volumes/LogicalVolume.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/management/ABBoxManager.h"
+#include "VecGeom/volumes/UnplacedBooleanVolume.h"
+#include "VecGeom/volumes/UnplacedScaledShape.h"
+#include "VecGeom/volumes/LogicalVolume.h"
 
 #include <dlfcn.h>
 #include <stdio.h>

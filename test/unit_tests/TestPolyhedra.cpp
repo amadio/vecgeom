@@ -3,15 +3,15 @@
 // Purpose: Polyhedra unit tests
 //
 
-#include "base/Vector3D.h"
-#include "volumes/Polyhedron.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Polyhedron.h"
 #include "ApproxEqual.h"
 
 #include <cmath>
 
 //-- ensure asserts are compiled in
 #undef NDEBUG
-#include "base/FpeEnable.h"
+#include "VecGeom/base/FpeEnable.h"
 #include <cassert>
 
 using vecgeom::kPi;

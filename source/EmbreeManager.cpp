@@ -5,13 +5,13 @@
  *      Author: swenzel
  */
 
-#include "management/EmbreeManager.h"
-#include "volumes/LogicalVolume.h"
-#include "volumes/PlacedVolume.h"
-#include "management/GeoManager.h"
-#include "management/ABBoxManager.h"
-#include "volumes/PlacedVolume.h"
-#include "base/Stopwatch.h"
+#include "VecGeom/management/EmbreeManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/management/ABBoxManager.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/base/Stopwatch.h"
 #include <embree3/rtcore.h>
 
 namespace vecgeom {

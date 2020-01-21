@@ -5,12 +5,12 @@
 /// \file PlacedVolume.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "volumes/PlacedVolume.h"
-#include "base/Vector3D.h"
-#include "base/RNG.h"
-#include "management/GeoManager.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/SOA3D.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/SOA3D.h"
 
 #include <stdio.h>
 

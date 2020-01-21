@@ -1,8 +1,8 @@
 #include <VecCore/VecCore>
-#include "base/Math.h"
-#include "base/Vector3D.h"
-#include "volumes/Tessellated.h"
-#include "volumes/Extruded.h"
+#include "VecGeom/base/Math.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Tessellated.h"
+#include "VecGeom/volumes/Extruded.h"
 
 using namespace vecgeom;
 

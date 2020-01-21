@@ -1,5 +1,5 @@
-#include "navigation/NavigationState.h"
-#include "base/Global.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/base/Global.h"
 #include <iostream>
 #ifdef NDEBUG
 #undef NDEBUG

@@ -5,10 +5,10 @@
 /// @file source/UnplacedTrd.cpp
 /// @author Georgios Bitzes
 
-#include "volumes/UnplacedTrd.h"
-#include "volumes/SpecializedTrd.h"
-#include "volumes/utilities/GenerationUtilities.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedTrd.h"
+#include "VecGeom/volumes/SpecializedTrd.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/base/RNG.h"
 #ifdef VECGEOM_ROOT
 #include "TGeoTrd1.h"
 #include "TGeoTrd2.h"
@@ -18,10 +18,10 @@
 #endif
 
 #ifndef VECCORE_CUDA
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
 
-#include "management/VolumeFactory.h"
+#include "VecGeom/management/VolumeFactory.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

@@ -4,7 +4,7 @@
 #ifndef VECGEOM_UTILITIES_SHAPEDEBUGGER_H_
 #define VECGEOM_UTILITIES_SHAPEDEBUGGER_H_
 
-#include "base/Global.h"
+#include "VecGeom/base/Global.h"
 
 namespace vecgeom {
 inline namespace cxx {

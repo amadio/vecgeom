@@ -1,11 +1,11 @@
-#include "volumes/PlacedVolume.h"
-#include "base/Global.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/base/Global.h"
 
 #include <iostream>
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
 #include "TGeoManager.h"
-#include "management/RootGeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
 #endif
 #ifdef VECGEOM_GEANT4
 #include "G4VSolid.hh"

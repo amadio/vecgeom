@@ -2,14 +2,14 @@
 /// \author: swenzel
 ///  Modified and completed: mihaela.gheata@cern.ch
 
-#include "volumes/UnplacedGenTrap.h"
+#include "VecGeom/volumes/UnplacedGenTrap.h"
 #include <ostream>
 #include <iomanip>
 #include <iostream>
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedGenTrap.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedGenTrap.h"
 #ifndef VECCORE_CUDA
-#include "base/RNG.h"
+#include "VecGeom/base/RNG.h"
 #endif
 
 namespace vecgeom {

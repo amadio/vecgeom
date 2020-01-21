@@ -5,13 +5,13 @@
  *      Author: yang.zhang@cern.ch
  */
 
-#include "management/HybridManager2.h"
-#include "volumes/LogicalVolume.h"
-#include "volumes/PlacedVolume.h"
-#include "management/GeoManager.h"
-#include "management/ABBoxManager.h"
-#include "base/SOA3D.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/management/HybridManager2.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/management/ABBoxManager.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include <map>
 #include <vector>
 #include <sstream>

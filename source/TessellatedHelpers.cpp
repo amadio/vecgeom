@@ -2,7 +2,7 @@
 /// \author Mihaela Gheata (mihaela.gheata@cern.ch)
 
 #include <ostream>
-#include "volumes/TessellatedSection.h"
+#include "VecGeom/volumes/TessellatedSection.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

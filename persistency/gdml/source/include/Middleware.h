@@ -15,8 +15,8 @@
 
 #include "xercesc/util/XercesDefs.hpp"
 
-#include "volumes/UnplacedVolume.h"
-#include "volumes/BooleanStruct.h"
+#include "VecGeom/volumes/UnplacedVolume.h"
+#include "VecGeom/volumes/BooleanStruct.h"
 
 #include "MaterialInfo.h"
 

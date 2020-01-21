@@ -1,8 +1,8 @@
-#include "volumes/LogicalVolume.h"
-#include "volumes/Box.h"
-#include "volumes/Trapezoid.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Trapezoid.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 
 using namespace vecgeom;

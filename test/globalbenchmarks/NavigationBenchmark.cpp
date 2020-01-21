@@ -6,12 +6,12 @@
  */
 
 #ifdef VECGEOM_ROOT
-#include "management/RootGeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
 #include "utilities/Visualizer.h"
 #endif
 
 #ifdef VECGEOM_GEANT4
-#include "management/G4GeoManager.h"
+#include "VecGeom/management/G4GeoManager.h"
 #include "G4ThreeVector.hh"
 // #include "G4TouchableHistoryHandle.hh"
 #include "G4LogicalVolume.hh"
@@ -20,14 +20,14 @@
 #include "G4GeometryManager.hh"
 #endif
 
-#include "benchmarking/NavigationBenchmarker.h"
+#include "VecGeom/benchmarking/NavigationBenchmarker.h"
 #include "test/benchmark/ArgParser.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
-#include "management/GeoManager.h"
-#include "volumes/Box.h"
-#include "volumes/Orb.h"
-#include "volumes/Trapezoid.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Orb.h"
+#include "VecGeom/volumes/Trapezoid.h"
 
 using namespace VECGEOM_NAMESPACE;
 

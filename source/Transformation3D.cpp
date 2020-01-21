@@ -1,11 +1,11 @@
 /// \file Transformation3D.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
-#include "base/Transformation3D.h"
+#include "VecGeom/base/Transformation3D.h"
 
 #ifdef VECGEOM_CUDA_INTERFACE
-#include "backend/cuda/Interface.h"
+#include "VecGeom/backend/cuda/Interface.h"
 #endif
-#include "base/SpecializedTransformation3D.h"
+#include "VecGeom/base/SpecializedTransformation3D.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoMatrix.h"

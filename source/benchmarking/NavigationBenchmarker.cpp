@@ -3,16 +3,16 @@
 //
 // 2014-11-26 G.Lima - created, by adapting Johannes' Benchmarker for navigation
 
-#include "benchmarking/NavigationBenchmarker.h"
+#include "VecGeom/benchmarking/NavigationBenchmarker.h"
 
-#include "base/SOA3D.h"
-#include "base/Stopwatch.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
-#include "volumes/PlacedVolume.h"
-#include "navigation/SimpleNavigator.h"
-#include "navigation/ABBoxNavigator.h"
-#include "navigation/NavStatePool.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/navigation/SimpleNavigator.h"
+#include "VecGeom/navigation/ABBoxNavigator.h"
+#include "VecGeom/navigation/NavStatePool.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoNavigator.h"
@@ -21,13 +21,13 @@
 #endif
 
 #ifdef VECGEOM_GEANT4
-#include "management/G4GeoManager.h"
+#include "VecGeom/management/G4GeoManager.h"
 #include "G4Navigator.hh"
 #endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
-#include "backend/cuda/Backend.h"
-#include "management/CudaManager.h"
+#include "VecGeom/backend/cuda/Backend.h"
+#include "VecGeom/management/CudaManager.h"
 #endif
 
 #ifdef CALLGRIND_ENABLED

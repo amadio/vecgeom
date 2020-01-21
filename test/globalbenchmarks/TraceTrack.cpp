@@ -8,17 +8,17 @@
  * the basic higher level navigation functionality
  */
 
-#include "management/RootGeoManager.h"
-#include "volumes/LogicalVolume.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
 
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "base/Stopwatch.h"
-#include "navigation/GlobalLocator.h"
-#include "navigation/VNavigator.h"
-#include "navigation/VSafetyEstimator.h"
-#include "base/Transformation3D.h"
-#include "base/SOA3D.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/navigation/VNavigator.h"
+#include "VecGeom/navigation/VSafetyEstimator.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/base/SOA3D.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -43,7 +43,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4PVPlacement.hh"
 #include "G4GeometryManager.hh"
-#include "management/G4GeoManager.h"
+#include "VecGeom/management/G4GeoManager.h"
 #endif
 
 #undef NDEBUG

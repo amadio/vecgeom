@@ -1,7 +1,7 @@
-#include "volumes/UnplacedSExtruVolume.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedSExtru.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedSExtruVolume.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedSExtru.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 
 namespace vecgeom {

@@ -1,4 +1,4 @@
-#include "base/Global.h"
+#include "VecGeom/base/Global.h"
 
 namespace vecgeom {
 class VPlacedVolume;

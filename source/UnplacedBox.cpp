@@ -1,9 +1,9 @@
-#include "volumes/UnplacedBox.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedBox.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedBox.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedBox.h"
+#include "VecGeom/base/RNG.h"
 
-#include "base/Utils3D.h"
+#include "VecGeom/base/Utils3D.h"
 #include <stdio.h>
 
 namespace vecgeom {

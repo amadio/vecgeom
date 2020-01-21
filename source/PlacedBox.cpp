@@ -1,8 +1,8 @@
 /// \file PlacedBox.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "volumes/PlacedBox.h"
-#include "volumes/SpecializedBox.h"
+#include "VecGeom/volumes/PlacedBox.h"
+#include "VecGeom/volumes/SpecializedBox.h"
 #ifdef VECGEOM_ROOT
 #include "TGeoBBox.h"
 #endif

@@ -5,12 +5,12 @@
  *      Author: swenzel
  */
 
-#include "volumes/TUnplacedBooleanMinusVolume.h"
-#include "volumes/kernel/TBooleanMinusImplementation.h"
-#include "volumes/Box.h"
-#include "base/Transformation3D.h"
-#include "base/Vector3D.h"
-#include "volumes/PlacedVolume.h"
+#include "VecGeom/volumes/TUnplacedBooleanMinusVolume.h"
+#include "VecGeom/volumes/kernel/TBooleanMinusImplementation.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/PlacedVolume.h"
 #include <iostream>
 
 using namespace vecgeom;

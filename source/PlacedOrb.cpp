@@ -5,8 +5,8 @@
 /// \file source/PlacedOrb.cpp
 /// \author Raman Sehgal
 
-#include "volumes/PlacedOrb.h"
-#include "volumes/SpecializedOrb.h"
+#include "VecGeom/volumes/PlacedOrb.h"
+#include "VecGeom/volumes/SpecializedOrb.h"
 #include <stdio.h>
 
 namespace vecgeom {

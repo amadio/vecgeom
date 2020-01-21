@@ -1,5 +1,5 @@
-#include "base/FlatVoxelHashMap.h"
-#include "base/Vector3D.h"
+#include "VecGeom/base/FlatVoxelHashMap.h"
+#include "VecGeom/base/Vector3D.h"
 #undef NDEBUG
 #include <cassert>
 

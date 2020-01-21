@@ -1,28 +1,28 @@
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "base/SOA3D.h"
-#include "base/RNG.h"
-#include "navigation/GlobalLocator.h"
-#include "navigation/NavStatePool.h"
-#include "navigation/NavigationState.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/LogicalVolume.h"
-#include "management/RootGeoManager.h"
-#include "management/GeoManager.h"
-#include "base/Stopwatch.h"
-#include "navigation/NewSimpleNavigator.h"
-#include "navigation/SimpleABBoxNavigator.h"
-#include "navigation/SimpleABBoxLevelLocator.h"
-#include "navigation/HybridLevelLocator.h"
-#include "navigation/HybridNavigator2.h"
-#include "management/HybridManager2.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/navigation/NavStatePool.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/navigation/NewSimpleNavigator.h"
+#include "VecGeom/navigation/SimpleABBoxNavigator.h"
+#include "VecGeom/navigation/SimpleABBoxLevelLocator.h"
+#include "VecGeom/navigation/HybridLevelLocator.h"
+#include "VecGeom/navigation/HybridNavigator2.h"
+#include "VecGeom/management/HybridManager2.h"
 #ifdef VECGEOM_EMBREE
-#include "navigation/EmbreeNavigator.h"
+#include "VecGeom/navigation/EmbreeNavigator.h"
 #endif
 //#define BENCH_GENERATED_NAVIGATOR
 #ifdef BENCH_GENERATED_NAVIGATOR
-#include "navigation/GeneratedNavigator.h"
+#include "VecGeom/navigation/GeneratedNavigator.h"
 #endif
 
 #ifdef VECGEOM_ROOT
@@ -37,7 +37,7 @@
 #include "G4Navigator.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4ThreeVector.hh"
-#include "management/G4GeoManager.h"
+#include "VecGeom/management/G4GeoManager.h"
 #endif
 
 #include <iostream>

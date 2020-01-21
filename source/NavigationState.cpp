@@ -2,14 +2,14 @@
 /// \author Sandro Wenzel (sandro.wenzel@cern.ch)
 /// \date 17.04.2014
 
-#include "navigation/NavigationState.h"
+#include "VecGeom/navigation/NavigationState.h"
 
 #include <iostream>
 #include <list>
 #include <sstream>
 
 #ifdef VECGEOM_ROOT
-#include "management/RootGeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
 #include "TGeoBranchArray.h"
 #include "TGeoNode.h"
 #include "TGeoManager.h"

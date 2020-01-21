@@ -1,5 +1,5 @@
 #include "utilities/ShapeDebugger.h"
-#include "volumes/Trapezoid.h"
+#include "VecGeom/volumes/Trapezoid.h"
 
 using namespace vecgeom;
 

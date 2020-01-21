@@ -7,8 +7,8 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/Trd.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/Trd.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGTrd         = vecgeom::SimpleTrd;

@@ -5,9 +5,9 @@
  *      Author: swenzel
  */
 
-#include "volumes/PlacedCone.h"
-#include "volumes/Cone.h"
-#include "volumes/SpecializedCone.h"
+#include "VecGeom/volumes/PlacedCone.h"
+#include "VecGeom/volumes/Cone.h"
+#include "VecGeom/volumes/SpecializedCone.h"
 
 #if defined(VECGEOM_ROOT)
 #include "TGeoCone.h"

@@ -10,11 +10,11 @@
 #undef NDEBUG
 
 #include <iomanip>
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "base/Stopwatch.h"
-#include "volumes/EllipticUtilities.h"
-#include "volumes/Ellipsoid.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/volumes/EllipticUtilities.h"
+#include "VecGeom/volumes/Ellipsoid.h"
 #include "ApproxEqual.h"
 
 bool testvecgeom = false;

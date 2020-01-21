@@ -1,21 +1,21 @@
 /// \file Benchmarker.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "benchmarking/Benchmarker.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
 
-#include "base/SOA3D.h"
-#include "base/Stopwatch.h"
-#include "base/Transformation3D.h"
-#include "volumes/PlacedBox.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/volumes/PlacedBox.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
 #endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
-#include "backend/cuda/Backend.h"
-#include "management/CudaManager.h"
+#include "VecGeom/backend/cuda/Backend.h"
+#include "VecGeom/management/CudaManager.h"
 #endif
 
 #ifdef VECGEOM_GEANT4

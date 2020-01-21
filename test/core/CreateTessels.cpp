@@ -3,10 +3,10 @@
 #include <VecCore/VecCore>
 
 #include "test/benchmark/ArgParser.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/Stopwatch.h"
-#include "volumes/TessellatedStruct.h"
-#include "volumes/kernel/TessellatedImplementation.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/volumes/TessellatedStruct.h"
+#include "VecGeom/volumes/kernel/TessellatedImplementation.h"
 #include "test/core/TessellatedOrb.h"
 
 #ifdef VECGEOM_ROOT
@@ -16,7 +16,7 @@
 #include "TH1.h"
 #include "TGraph.h"
 #include "TFile.h"
-#include "volumes/Box.h"
+#include "VecGeom/volumes/Box.h"
 #endif
 
 #ifdef NDEBUG

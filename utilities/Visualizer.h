@@ -8,9 +8,9 @@
 #error "Visualizer currently only available with ROOT enabled."
 #endif
 
-#include "base/Global.h"
+#include "VecGeom/base/Global.h"
 
-#include "volumes/PlacedVolume.h"
+#include "VecGeom/volumes/PlacedVolume.h"
 
 #include <list>
 #include <memory>

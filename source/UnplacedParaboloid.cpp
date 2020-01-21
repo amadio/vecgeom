@@ -5,10 +5,10 @@
 /// @file source/UnplacedParaboloid.cpp
 /// @author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 
-#include "volumes/UnplacedParaboloid.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedParaboloid.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedParaboloid.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedParaboloid.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 
 namespace vecgeom {

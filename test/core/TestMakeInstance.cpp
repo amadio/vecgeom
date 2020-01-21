@@ -1,9 +1,9 @@
-#include "volumes/UnplacedBox.h"
-#include "volumes/UnplacedTube.h"
-#include "volumes/UnplacedCone.h"
-#include "volumes/UnplacedOrb.h"
-#include "volumes/LogicalVolume.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/UnplacedBox.h"
+#include "VecGeom/volumes/UnplacedTube.h"
+#include "VecGeom/volumes/UnplacedCone.h"
+#include "VecGeom/volumes/UnplacedOrb.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/management/GeoManager.h"
 #ifdef NDEBUG
 #undef NDEBUG
 #endif

@@ -7,11 +7,11 @@
 
 // just a test file / utility to compare 2 navstatepools stored in a binary file
 
-#include "navigation/NavStatePool.h"
-#include "navigation/NavigationState.h"
-#include "base/Transformation3D.h"
-#include "base/Vector3D.h"
-#include "management/RootGeoManager.h"
+#include "VecGeom/navigation/NavStatePool.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/management/RootGeoManager.h"
 
 int N = 500000;
 

@@ -1,17 +1,17 @@
 /// \file UnplacedTube.cpp
 /// \author Georgios Bitzes (georgios.bitzes@cern.ch)
 
-#include "volumes/UnplacedTube.h"
-#include "volumes/SpecializedTube.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedTube.h"
+#include "VecGeom/volumes/SpecializedTube.h"
+#include "VecGeom/base/RNG.h"
 #ifndef VECCORE_CUDA
 #include <cmath>
 #include <iostream>
 #endif
 
-#include "volumes/utilities/GenerationUtilities.h"
-#include "management/VolumeFactory.h"
-#include "volumes/UnplacedEllipticalTube.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/UnplacedEllipticalTube.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

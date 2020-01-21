@@ -1,20 +1,20 @@
 /// \file UnplacedSphere.cpp
 /// \author Raman Sehgal (raman.sehgal@cern.ch)
 
-#include "volumes/SphereUtilities.h"
-#include "volumes/UnplacedSphere.h"
-#include "volumes/UnplacedOrb.h"
-#include "volumes/PlacedOrb.h"
+#include "VecGeom/volumes/SphereUtilities.h"
+#include "VecGeom/volumes/UnplacedSphere.h"
+#include "VecGeom/volumes/UnplacedOrb.h"
+#include "VecGeom/volumes/PlacedOrb.h"
 #ifndef VECCORE_CUDA
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
-#include "volumes/SpecializedSphere.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/volumes/SpecializedSphere.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
 #ifndef VECCORE_CUDA
-#include "base/RNG.h"
+#include "VecGeom/base/RNG.h"
 #endif
-#include "management/VolumeFactory.h"
+#include "VecGeom/management/VolumeFactory.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoSphere.h"
@@ -312,7 +312,7 @@ void UnplacedSphere::Print(std::ostream &os) const
 
 
 #ifndef VECCORE_CUDA
-#include "volumes/SolidMesh.h"
+#include "VecGeom/volumes/SolidMesh.h"
 SolidMesh *UnplacedSphere::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 

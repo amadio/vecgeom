@@ -2,12 +2,12 @@
 
 //-- ensure asserts are compiled in
 #undef NDEBUG
-#include "base/FpeEnable.h"
+#include "VecGeom/base/FpeEnable.h"
 
-#include "base/Vector3D.h"
-#include "volumes/BooleanVolume.h"
-#include "volumes/Tube.h"
-#include "volumes/Box.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/BooleanVolume.h"
+#include "VecGeom/volumes/Tube.h"
+#include "VecGeom/volumes/Box.h"
 #include "ApproxEqual.h"
 #include <cmath>
 

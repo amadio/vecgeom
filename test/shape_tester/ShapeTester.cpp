@@ -2,7 +2,7 @@
 // Implementation of the batch solid  test
 //
 
-#include "base/RNG.h"
+#include "VecGeom/base/RNG.h"
 
 #include <iomanip>
 #include <sstream>
@@ -12,11 +12,11 @@
 #include <fstream>
 
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "base/Transformation3D.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/base/Transformation3D.h"
 
-#include "base/Vector3D.h"
-#include "volumes/Box.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Box.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGraph2D.h"
@@ -35,7 +35,7 @@
 #include "TF1.h"
 #include "TVirtualPad.h"
 #include "TView3D.h"
-#include "management/RootGeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
 #endif
 
 using namespace std;
@@ -2299,5 +2299,5 @@ double ShapeTester<VPlacedVolume>::CallDistanceToOut(const VPlacedVolume *vol, c
 ////// force template instantiation before vecgeom library is built
 #include "ConventionChecker.cpp"
 
-#include "volumes/PlacedVolume.h"
+#include "VecGeom/volumes/PlacedVolume.h"
 template class ShapeTester<VPlacedVolume>;

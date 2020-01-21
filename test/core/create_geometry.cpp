@@ -1,12 +1,12 @@
 #include <stdio.h>
 
 #ifdef VECGEOM_CUDA_INTERFACE
-#include "management/CudaManager.h"
+#include "VecGeom/management/CudaManager.h"
 #endif
-#include "navigation/GlobalLocator.h"
-#include "navigation/NavigationState.h"
-#include "volumes/LogicalVolume.h"
-#include "volumes/Box.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
 
 using namespace vecgeom;
 

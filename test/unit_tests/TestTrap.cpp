@@ -5,20 +5,20 @@
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
-#include "base/FpeEnable.h"
+#include "VecGeom/base/FpeEnable.h"
 
-#include "base/Vector3D.h"
+#include "VecGeom/base/Vector3D.h"
 #include "VecCore/VecMath.h"
-#include "volumes/Box.h"
+#include "VecGeom/volumes/Box.h"
 #include "ApproxEqual.h"
-#include "volumes/Trapezoid.h"
-#include "volumes/UnplacedTrd.h"
-#include "volumes/UnplacedParallelepiped.h"
+#include "VecGeom/volumes/Trapezoid.h"
+#include "VecGeom/volumes/UnplacedTrd.h"
+#include "VecGeom/volumes/UnplacedParallelepiped.h"
 #include <cmath>
-#include "management/GeoManager.h"
+#include "VecGeom/management/GeoManager.h"
 
 #ifndef VECCORE_CUDA
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
 
 using vecgeom::kInfLength;

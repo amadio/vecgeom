@@ -1,9 +1,9 @@
 /// \file SOA3D.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "base/SOA3D.h"
+#include "VecGeom/base/SOA3D.h"
 #ifdef VECGEOM_ENABLE_CUDA
-#include "backend/cuda/Interface.h"
+#include "VecGeom/backend/cuda/Interface.h"
 #endif
 
 namespace vecgeom {

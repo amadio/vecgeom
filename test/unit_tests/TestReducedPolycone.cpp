@@ -6,12 +6,12 @@
  */
 
 #include <iostream>
-#include "volumes/ReducedPolycone.h"
-#include "volumes/UnplacedPolycone.h"
-#include "base/Vector2D.h"
+#include "VecGeom/volumes/ReducedPolycone.h"
+#include "VecGeom/volumes/UnplacedPolycone.h"
+#include "VecGeom/base/Vector2D.h"
 #include <iostream>
-#include "management/GeoManager.h"
-#include "base/FpeEnable.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/base/FpeEnable.h"
 
 #undef NDEBUG
 

@@ -5,10 +5,10 @@
 /// \file source/UnplacedOrb.cpp
 /// \author Raman Sehgal
 
-#include "volumes/UnplacedOrb.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedOrb.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedOrb.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedOrb.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 #ifdef VECGEOM_ROOT
 #include "TGeoSphere.h"
@@ -121,7 +121,7 @@ void UnplacedOrb::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-#include "volumes/SolidMesh.h"
+#include "VecGeom/volumes/SolidMesh.h"
 SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 

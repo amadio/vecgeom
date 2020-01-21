@@ -7,13 +7,13 @@
 //  Note: ROOT is required for visualization.
 //        Geant4 is also used when available, but they are not mandatory.
 //
-#include "management/RootGeoManager.h"
-#include "volumes/LogicalVolume.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/UnplacedBox.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
-#include "volumes/UnplacedBox.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/UnplacedBox.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/volumes/UnplacedBox.h"
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
 #include "TGeoBBox.h"

@@ -5,9 +5,9 @@
 /// @file source/PlacedParallelepiped.cpp
 /// @author Johannes de Fine Licht
 
-#include "volumes/PlacedParallelepiped.h"
+#include "VecGeom/volumes/PlacedParallelepiped.h"
 
-#include "volumes/Parallelepiped.h"
+#include "VecGeom/volumes/Parallelepiped.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoPara.h"

@@ -3,15 +3,15 @@
 // Purpose: Unit tests for the generic trapezoid
 //
 
-#include "base/Vector3D.h"
-#include "volumes/Box.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Box.h"
 #include "ApproxEqual.h"
 
-#include "volumes/GenTrap.h"
+#include "VecGeom/volumes/GenTrap.h"
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
-#include "base/FpeEnable.h"
+#include "VecGeom/base/FpeEnable.h"
 #include <cassert>
 
 bool testvecgeom = false;

@@ -1,7 +1,7 @@
-#include "volumes/LogicalVolume.h"
-#include "volumes/Polyhedron.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Polyhedron.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 
 #include <fstream>

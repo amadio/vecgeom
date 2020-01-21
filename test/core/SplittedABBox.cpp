@@ -1,12 +1,12 @@
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "base/Transformation3D.h"
-#include "volumes/Box.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/volumes/Box.h"
 #include "utilities/Visualizer.h"
-#include "volumes/Polycone.h"
-#include "volumes/Cone.h"
-#include "management/ABBoxManager.h"
+#include "VecGeom/volumes/Polycone.h"
+#include "VecGeom/volumes/Cone.h"
+#include "VecGeom/management/ABBoxManager.h"
 
 using namespace vecgeom;
 

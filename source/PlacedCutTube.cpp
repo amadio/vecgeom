@@ -4,9 +4,9 @@
  *  Created on: 03.11.2016
  *      Author: mgheata
  */
-#include "volumes/PlacedCutTube.h"
-#include "volumes/SpecializedCutTube.h"
-#include "base/Vector3D.h"
+#include "VecGeom/volumes/PlacedCutTube.h"
+#include "VecGeom/volumes/SpecializedCutTube.h"
+#include "VecGeom/base/Vector3D.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoTube.h"

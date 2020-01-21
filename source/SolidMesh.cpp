@@ -6,7 +6,7 @@
 /// \file source/SolidMesh.cpp
 /// \author First version created by Murat Topak (CERN summer student 2019)
 
-#include "volumes/SolidMesh.h"
+#include "VecGeom/volumes/SolidMesh.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

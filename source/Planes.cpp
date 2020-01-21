@@ -1,4 +1,4 @@
-#include "volumes/Planes.h"
+#include "VecGeom/volumes/Planes.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

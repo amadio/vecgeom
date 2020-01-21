@@ -2,7 +2,7 @@
 #include <string>
 
 // vecgeom::map
-#include "base/Map.h"
+#include "VecGeom/base/Map.h"
 // stl map
 //#include <map>
 

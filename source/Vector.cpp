@@ -1,7 +1,7 @@
 /// \file Vector.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "base/Vector.h"
+#include "VecGeom/base/Vector.h"
 
 namespace vecgeom {
 

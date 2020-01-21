@@ -1,11 +1,11 @@
 
-#include "management/RootGeoManager.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "base/Stopwatch.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/Stopwatch.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>

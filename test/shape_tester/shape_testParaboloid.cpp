@@ -8,7 +8,7 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/Paraboloid.h"
+#include "VecGeom/volumes/Paraboloid.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGParaboloid  = vecgeom::SimpleParaboloid;

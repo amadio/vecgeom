@@ -5,18 +5,18 @@
  *      Author: swenzel
  */
 
-#include "management/GeoManager.h"
-#include "volumes/UnplacedPolycone.h"
-#include "volumes/UnplacedCone.h"
-#include "volumes/UnplacedTube.h"
-#include "volumes/PlacedPolycone.h"
-#include "volumes/PlacedCone.h"
-#include "volumes/SpecializedPolycone.h"
-#include "management/VolumeFactory.h"
-#include "volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/volumes/UnplacedPolycone.h"
+#include "VecGeom/volumes/UnplacedCone.h"
+#include "VecGeom/volumes/UnplacedTube.h"
+#include "VecGeom/volumes/PlacedPolycone.h"
+#include "VecGeom/volumes/PlacedCone.h"
+#include "VecGeom/volumes/SpecializedPolycone.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
 #ifndef VECCORE_CUDA
-#include "base/RNG.h"
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
 
 #ifdef VECGEOM_ROOT
@@ -30,10 +30,10 @@
 #include <iostream>
 #include <cstdio>
 #include <vector>
-#include "base/Vector.h"
-#include "management/GeoManager.h"
+#include "VecGeom/base/Vector.h"
+#include "VecGeom/management/GeoManager.h"
 
-#include "volumes/ReducedPolycone.h"
+#include "VecGeom/volumes/ReducedPolycone.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

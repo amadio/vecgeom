@@ -1,21 +1,21 @@
 #ifndef VECCORE_CUDA
 
-#include "volumes/LogicalVolume.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "../benchmark/ArgParser.h"
-#include "base/Stopwatch.h"
+#include "VecGeom/base/Stopwatch.h"
 #include <iostream>
-#include "volumes/MultiUnion.h"
-#include "base/RNG.h"
-#include "base/Transformation3D.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/MultiUnion.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
 #include "TPolyMarker3D.h"
 #include "TPolyLine3D.h"
-#include "volumes/Box.h"
+#include "VecGeom/volumes/Box.h"
 #endif
 
 using namespace vecgeom;

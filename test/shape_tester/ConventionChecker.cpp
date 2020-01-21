@@ -6,9 +6,9 @@
  */
 
 #include "ShapeTester.h"
-#include "base/RNG.h"
-#include "base/Vector3D.h"
-#include "volumes/Box.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Box.h"
 
 #ifdef VECGEOM_ROOT
 #include "TApplication.h"

@@ -12,23 +12,23 @@
 
 #include <iostream>
 
-#include "base/SOA3D.h"
-#include "management/GeoManager.h"
-#include "management/RootGeoManager.h"
-#include "base/AOS3D.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/LogicalVolume.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "navigation/NavigationState.h"
-#include "navigation/NewSimpleNavigator.h"
-#include "base/RNG.h"
-#include "benchmarking/BenchmarkResult.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/base/AOS3D.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/NewSimpleNavigator.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/benchmarking/BenchmarkResult.h"
 
-#include "navigation/SimpleABBoxNavigator.h"
-#include "navigation/SimpleSafetyEstimator.h"
+#include "VecGeom/navigation/SimpleABBoxNavigator.h"
+#include "VecGeom/navigation/SimpleSafetyEstimator.h"
 #ifdef VECGEOM_EMBREE
-#include "navigation/EmbreeNavigator.h"
-#include "management/EmbreeManager.h"
+#include "VecGeom/navigation/EmbreeNavigator.h"
+#include "VecGeom/management/EmbreeManager.h"
 #endif
 
 #include "TGeoManager.h"

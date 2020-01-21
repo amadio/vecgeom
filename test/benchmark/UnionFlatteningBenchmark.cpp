@@ -1,17 +1,17 @@
 // Purpose: Simple Unit test for flattening Boolean volumes
 #ifndef VECGEOM_ENABLE_CUDA
 
-#include "volumes/LogicalVolume.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
-#include "base/Stopwatch.h"
+#include "VecGeom/base/Stopwatch.h"
 #include <iostream>
-#include "volumes/MultiUnion.h"
-#include "base/RNG.h"
-#include "base/Transformation3D.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "volumes/BooleanVolume.h"
+#include "VecGeom/volumes/MultiUnion.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/BooleanVolume.h"
 
 using namespace vecgeom;
 

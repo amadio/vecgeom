@@ -1,13 +1,13 @@
-#include "navigation/NavigationState.h"
-#include "navigation/NavStatePool.h"
-#include "navigation/GlobalLocator.h"
-#include "base/Global.h"
-#include "management/RootGeoManager.h"
-#include "management/GeoManager.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/NavStatePool.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/management/GeoManager.h"
 #ifdef VECCORE_CUDA
-#include "management/CudaManager.h"
+#include "VecGeom/management/CudaManager.h"
 #endif
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
 #include <iostream>
 using namespace vecgeom;

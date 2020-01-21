@@ -4,10 +4,10 @@
 
 /// \author created by Sandro Wenzel
 
-#include "management/FlatVoxelManager.h"
-#include "volumes/LogicalVolume.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "navigation/SimpleABBoxSafetyEstimator.h"
+#include "VecGeom/management/FlatVoxelManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/navigation/SimpleABBoxSafetyEstimator.h"
 #include <thread>
 #include <future>
 #include <random> // C++11 random numbers
@@ -21,7 +21,7 @@
 #endif
 
 // for timing measurement
-#include "base/Stopwatch.h"
+#include "VecGeom/base/Stopwatch.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

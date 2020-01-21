@@ -1,6 +1,6 @@
-#include "volumes/PlacedSExtru.h"
-#include "base/SOA3D.h"
-#include "volumes/SpecializedSExtru.h"
+#include "VecGeom/volumes/PlacedSExtru.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/volumes/SpecializedSExtru.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoXtru.h"

@@ -6,12 +6,12 @@
 /// @file test/benchmark/EllipticalTubeBenchmark.cpp
 /// @author Raman Sehgal
 
-#include "volumes/LogicalVolume.h"
-#include "volumes/EllipticalTube.h"
-#include "volumes/PlacedBox.h"
-#include "volumes/UnplacedBox.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/EllipticalTube.h"
+#include "VecGeom/volumes/PlacedBox.h"
+#include "VecGeom/volumes/UnplacedBox.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 
 using namespace vecgeom;

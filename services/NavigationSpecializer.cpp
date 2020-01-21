@@ -6,10 +6,10 @@
  */
 
 #include "services/NavigationSpecializer.h"
-#include "base/Global.h"
-#include "volumes/LogicalVolume.h"
-#include "navigation/NavigationState.h"
-#include "navigation/NavStatePool.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/NavStatePool.h"
 #include <iostream>
 #include <list>
 #include <set>

@@ -5,10 +5,10 @@
  *      Author: swenzel
  */
 
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "management/EmbreeManager.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/management/EmbreeManager.h"
 #include "memory.h" // for unique ptr
 #include <iostream>
 #include <embree3/rtcore_ray.h>

@@ -1,9 +1,9 @@
 /// \file PlacedRootVolume.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "volumes/PlacedRootVolume.h"
+#include "VecGeom/volumes/PlacedRootVolume.h"
 #include "TGeoBBox.h"
-#include "base/SOA3D.h"
+#include "VecGeom/base/SOA3D.h"
 
 namespace vecgeom {
 

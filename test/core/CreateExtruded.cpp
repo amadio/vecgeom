@@ -3,10 +3,10 @@
 #include <VecCore/VecCore>
 
 #include "test/benchmark/ArgParser.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/Stopwatch.h"
-#include "volumes/Extruded.h"
-#include "volumes/Box.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/volumes/Extruded.h"
+#include "VecGeom/volumes/Box.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"

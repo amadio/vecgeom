@@ -6,7 +6,7 @@
 //-- ensure asserts are compiled in
 #undef NDEBUG
 
-#include "base/Vector.h"
+#include "VecGeom/base/Vector.h"
 
 int test()
 {

@@ -1,7 +1,7 @@
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
+#include "VecGeom/volumes/PlacedVolume.h"
 
-#include "volumes/Tube.h"
+#include "VecGeom/volumes/Tube.h"
 
 #define PI 3.14159265358979323846
 

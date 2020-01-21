@@ -6,11 +6,11 @@
 /// @file test/root/ParaboloidTest.cpp
 /// @author Marilena Bandieramonte
 
-#include "volumes/LogicalVolume.h"
-#include "volumes/Box.h"
-#include "volumes/Paraboloid.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Paraboloid.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 
 #include "TGeoShape.h"
 #include "TGeoParaboloid.h"

@@ -1,17 +1,17 @@
 /// @file UnplacedExtruded.cpp
 /// @author Mihaela Gheata (mihaela.gheata@cern.ch)
 
-#include "volumes/Tessellated.h"
-#include "volumes/UnplacedExtruded.h"
-#include "volumes/UnplacedSExtruVolume.h"
-#include "volumes/SpecializedExtruded.h"
-#include "volumes/utilities/GenerationUtilities.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/Tessellated.h"
+#include "VecGeom/volumes/UnplacedExtruded.h"
+#include "VecGeom/volumes/UnplacedSExtruVolume.h"
+#include "VecGeom/volumes/SpecializedExtruded.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/base/RNG.h"
 
-#include "management/VolumeFactory.h"
+#include "VecGeom/management/VolumeFactory.h"
 
 #ifndef VECCORE_CUDA
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
 
 #ifndef VECCORE_CUDA

@@ -4,8 +4,8 @@
  *  Created on: 28.03.2015
  *      Author: swenzel
  */
-#include "base/Global.h"
-#include "volumes/Wedge.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/volumes/Wedge.h"
 #include <iostream>
 #include <iomanip>
 

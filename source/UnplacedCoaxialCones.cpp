@@ -1,11 +1,11 @@
 /// @file UnplacedCoaxialCones.cpp
 /// @author Raman Sehgal (raman.sehgal@cern.ch)
 
-#include "volumes/EllipticUtilities.h"
-#include "volumes/UnplacedCoaxialCones.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedCoaxialCones.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/EllipticUtilities.h"
+#include "VecGeom/volumes/UnplacedCoaxialCones.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedCoaxialCones.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 #include <cmath>
 

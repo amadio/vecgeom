@@ -5,8 +5,8 @@
 /// @file source/PlacedParaboloid.cpp
 /// @author Marilena Bandieramonte
 
-#include "volumes/PlacedParaboloid.h"
-#include "volumes/SpecializedParaboloid.h"
+#include "VecGeom/volumes/PlacedParaboloid.h"
+#include "VecGeom/volumes/SpecializedParaboloid.h"
 #ifdef VECGEOM_ROOT
 #include "TGeoParaboloid.h"
 #endif

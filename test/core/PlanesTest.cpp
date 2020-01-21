@@ -1,8 +1,8 @@
-#include "base/Vector3D.h"
-#include "base/Stopwatch.h"
-#include "volumes/Box.h"
-#include "volumes/Planes.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Planes.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
 using namespace vecgeom;
 

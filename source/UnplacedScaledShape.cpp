@@ -1,16 +1,16 @@
 /// \file UnplacedScaledShape.cpp
 /// \author Mihaela Gheata (mihaela.gheata@cern.ch)
 
-#include "volumes/UnplacedScaledShape.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedScaledShape.h"
+#include "VecGeom/volumes/UnplacedScaledShape.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedScaledShape.h"
 #ifndef VECCORE_CUDA
-#include "base/RNG.h"
+#include "VecGeom/base/RNG.h"
 #endif
 #include <stdio.h>
 
 #ifdef VECGEOM_CUDA_INTERFACE
-#include "management/CudaManager.h"
+#include "VecGeom/management/CudaManager.h"
 #endif
 
 namespace vecgeom {

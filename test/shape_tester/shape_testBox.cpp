@@ -1,7 +1,7 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/Box.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/Box.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGBox         = vecgeom::SimpleBox;

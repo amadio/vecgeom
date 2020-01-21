@@ -2,7 +2,7 @@
 
 #include "test/benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/Extruded.h"
+#include "VecGeom/volumes/Extruded.h"
 #include "test/core/TessellatedOrb.h"
 
 using namespace vecgeom;

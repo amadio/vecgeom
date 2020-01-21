@@ -8,12 +8,12 @@
 // tests on a simple geometry from the Geant4 E03 example
 // only makes sense with the proper geometry description (EN03.root)
 
-#include "management/RootGeoManager.h"
-#include "management/GeoManager.h"
-#include "navigation/NavigationState.h"
-#include "navigation/GlobalLocator.h"
-#include "base/Vector3D.h"
-#include "volumes/UnplacedBox.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/UnplacedBox.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoManager.h"

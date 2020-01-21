@@ -1,12 +1,12 @@
 /// @file UnplacedTessellated.cpp
 /// @author Mihaela Gheata (mihaela.gheata@cern.ch)
 
-#include "volumes/UnplacedTessellated.h"
-#include "volumes/SpecializedTessellated.h"
-#include "volumes/utilities/GenerationUtilities.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedTessellated.h"
+#include "VecGeom/volumes/SpecializedTessellated.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/base/RNG.h"
 
-#include "management/VolumeFactory.h"
+#include "VecGeom/management/VolumeFactory.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

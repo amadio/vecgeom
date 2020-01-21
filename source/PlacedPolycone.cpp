@@ -5,7 +5,7 @@
  *      Author: swenzel
  */
 
-#include "volumes/SpecializedPolycone.h"
+#include "VecGeom/volumes/SpecializedPolycone.h"
 #include <iostream>
 
 #ifdef VECGEOM_ROOT

@@ -8,16 +8,16 @@
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
-#include "base/FpeEnable.h"
+#include "VecGeom/base/FpeEnable.h"
 
-#include "base/Vector3D.h"
-#include "volumes/Trd.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Trd.h"
 #include "ApproxEqual.h"
 #include <cmath>
-#include "management/GeoManager.h"
+#include "VecGeom/management/GeoManager.h"
 
 #ifndef VECCORE_CUDA
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
 
 bool testvecgeom = true;

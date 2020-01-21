@@ -1,7 +1,7 @@
-#include "volumes/UnplacedAssembly.h"
-#include "volumes/PlacedAssembly.h"
-#include "navigation/NavigationState.h"
-#include "volumes/Box.h"
+#include "VecGeom/volumes/UnplacedAssembly.h"
+#include "VecGeom/volumes/PlacedAssembly.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/volumes/Box.h"
 
 // make sure that assert are included even in Release mode
 #ifdef NDEBUG

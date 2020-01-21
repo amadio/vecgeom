@@ -1,13 +1,13 @@
 /// @file UnplacedGenericPolycone.cpp
 /// @author Raman Sehgal (raman.sehgal@cern.ch)
 
-#include "volumes/Cone.h"
-#include "volumes/UnplacedCoaxialCones.h"
-#include "management/GeoManager.h"
-#include "volumes/UnplacedGenericPolycone.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedGenericPolycone.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/Cone.h"
+#include "VecGeom/volumes/UnplacedCoaxialCones.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/volumes/UnplacedGenericPolycone.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedGenericPolycone.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 #include <cmath>
 

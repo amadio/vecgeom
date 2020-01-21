@@ -19,7 +19,7 @@ endif()
 add_library(vgdml ${sources} ${backend_sources} ${middleware_sources} ${headers} ${backend_headers} ${middleware_headers})
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
 install(TARGETS vgdml DESTINATION lib)
-install(FILES ${headers} DESTINATION include/gdml)
+install(FILES ${headers} DESTINATION include/VecGeom/gdml)
 target_link_libraries(vgdml ${VECGEOM_LIBRARIES} ${XercesC_LIBRARY})
 target_include_directories(vgdml PUBLIC 
   ${XercesC_INCLUDE_DIR} ${VECGEOM_INCLUDE_DIR}

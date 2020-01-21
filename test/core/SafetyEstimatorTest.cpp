@@ -5,8 +5,8 @@
  *      Author: swenzel
  */
 
-#include "navigation/SimpleSafetyEstimator.h"
-#include "navigation/SimpleABBoxSafetyEstimator.h"
+#include "VecGeom/navigation/SimpleSafetyEstimator.h"
+#include "VecGeom/navigation/SimpleABBoxSafetyEstimator.h"
 #include <iostream>
 
 using namespace vecgeom;

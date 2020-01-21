@@ -1,8 +1,8 @@
 /// @file PlacedGenericPolycone.cpp
 /// @author Raman Sehgal (raman.sehgal@cern.ch)
 
-#include "volumes/PlacedGenericPolycone.h"
-#include "volumes/SpecializedGenericPolycone.h"
+#include "VecGeom/volumes/PlacedGenericPolycone.h"
+#include "VecGeom/volumes/SpecializedGenericPolycone.h"
 #ifdef VECGEOM_ROOT
 
 #endif

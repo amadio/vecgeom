@@ -1,7 +1,7 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/Tube.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/Tube.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGTube        = vecgeom::SimpleTube;

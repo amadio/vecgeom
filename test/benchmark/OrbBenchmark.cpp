@@ -6,11 +6,11 @@
 /// \file test/benchmark/OrbBenchmark.cpp
 /// \author Raman Sehgal
 
-#include "volumes/LogicalVolume.h"
-#include "volumes/Box.h"
-#include "volumes/Orb.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Orb.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 
 using namespace vecgeom;

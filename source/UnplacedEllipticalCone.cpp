@@ -5,11 +5,11 @@
 /// @file source/UnplacedEllipticalCone.cpp
 /// @author Raman Sehgal, Evgueni Tcherniaev
 
-#include "volumes/EllipticUtilities.h"
-#include "volumes/UnplacedEllipticalCone.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedEllipticalCone.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/EllipticUtilities.h"
+#include "VecGeom/volumes/UnplacedEllipticalCone.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedEllipticalCone.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 #include <cmath>
 

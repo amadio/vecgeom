@@ -4,17 +4,17 @@
  *  Created on: 03.11.2016
  *      Author: mgheata
  */
-#include "volumes/UnplacedCutTube.h"
-#include "volumes/SpecializedCutTube.h"
+#include "VecGeom/volumes/UnplacedCutTube.h"
+#include "VecGeom/volumes/SpecializedCutTube.h"
 
 #ifndef VECCORE_CUDA
-#include "base/RNG.h"
+#include "VecGeom/base/RNG.h"
 //#include <cmath>
 #include <iostream>
 #endif
 
-#include "volumes/utilities/GenerationUtilities.h"
-#include "management/VolumeFactory.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/management/VolumeFactory.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

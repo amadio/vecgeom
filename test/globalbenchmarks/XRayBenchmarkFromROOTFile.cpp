@@ -8,14 +8,14 @@
  * the basic higher level navigation functionality
  */
 
-#include "management/RootGeoManager.h"
-#include "volumes/LogicalVolume.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
 
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "base/Stopwatch.h"
-#include "base/Transformation3D.h"
-#include "base/SOA3D.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/base/SOA3D.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -24,12 +24,12 @@
 #include <vector>
 #include <sstream>
 
-#include "navigation/VNavigator.h"
-#include "navigation/GlobalLocator.h"
-#include "navigation/NewSimpleNavigator.h"
-#include "navigation/SimpleABBoxNavigator.h"
-#include "navigation/SimpleABBoxLevelLocator.h"
-#include "navigation/HybridNavigator2.h"
+#include "VecGeom/navigation/VNavigator.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/navigation/NewSimpleNavigator.h"
+#include "VecGeom/navigation/SimpleABBoxNavigator.h"
+#include "VecGeom/navigation/SimpleABBoxLevelLocator.h"
+#include "VecGeom/navigation/HybridNavigator2.h"
 
 //#define CALLGRIND
 #ifdef CALLGRIND
@@ -49,7 +49,7 @@
 #ifdef VECGEOM_GEANT4
 #include "G4Navigator.hh"
 #include "G4VPhysicalVolume.hh"
-#include "management/G4GeoManager.h"
+#include "VecGeom/management/G4GeoManager.h"
 #endif
 
 #define VERBOSE false                     // true or false

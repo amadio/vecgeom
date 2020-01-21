@@ -3,9 +3,9 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
+#include "VecGeom/volumes/PlacedVolume.h"
 
-#include "volumes/Polyhedron.h"
+#include "VecGeom/volumes/Polyhedron.h"
 typedef vecgeom::SimplePolyhedron Polyhedron_t;
 using vecgeom::Precision;
 

@@ -1,5 +1,5 @@
-#include "backend/cuda/Interface.h"
-#include "base/Map.h"
+#include "VecGeom/backend/cuda/Interface.h"
+#include "VecGeom/base/Map.h"
 
 __global__ void testNew(vecgeom::map<double, double> *devMap, double *key, int N)
 {

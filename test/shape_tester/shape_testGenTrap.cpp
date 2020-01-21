@@ -1,6 +1,6 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/GenTrap.h"
+#include "VecGeom/volumes/GenTrap.h"
 typedef vecgeom::SimpleGenTrap GenTrap_t;
 
 int main(int argc, char *argv[])

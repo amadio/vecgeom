@@ -1,4 +1,4 @@
-#include "volumes/Polyhedron.h"
+#include "VecGeom/volumes/Polyhedron.h"
 #include "utilities/ShapeDebugger.h"
 
 #include <memory>

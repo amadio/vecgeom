@@ -1,9 +1,9 @@
-#include "volumes/PlanarPolygon.h"
-#include "volumes/PolygonalShell.h"
-#include "volumes/SExtru.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/SOA3D.h"
-#include "volumes/UnplacedSExtruVolume.h"
+#include "VecGeom/volumes/PlanarPolygon.h"
+#include "VecGeom/volumes/PolygonalShell.h"
+#include "VecGeom/volumes/SExtru.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/volumes/UnplacedSExtruVolume.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoPolygon.h"

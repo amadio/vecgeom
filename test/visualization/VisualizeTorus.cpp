@@ -1,6 +1,6 @@
 #include "utilities/Visualizer.h"
-#include "volumes/Torus2.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/Torus2.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
 using namespace vecgeom;
 

@@ -5,10 +5,10 @@
 /// @file source/UnplacedTet.cpp
 /// @author Raman Sehgal, Evgueni Tcherniaev
 
-#include "volumes/UnplacedTet.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedTet.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedTet.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedTet.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

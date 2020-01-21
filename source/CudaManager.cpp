@@ -1,16 +1,16 @@
 /// \file CudaManager.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "management/CudaManager.h"
+#include "VecGeom/management/CudaManager.h"
 
-#include "backend/cuda/Interface.h"
-#include "base/Array.h"
-#include "base/Stopwatch.h"
-#include "management/GeoManager.h"
-#include "management/VolumeFactory.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/PlacedBooleanVolume.h"
-#include "volumes/PlacedScaledShape.h"
+#include "VecGeom/backend/cuda/Interface.h"
+#include "VecGeom/base/Array.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/PlacedBooleanVolume.h"
+#include "VecGeom/volumes/PlacedScaledShape.h"
 
 #include <algorithm>
 #include <stdio.h>

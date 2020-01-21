@@ -1,9 +1,9 @@
 #include "utilities/Visualizer.h"
 
-#include "base/AOS3D.h"
-#include "base/SOA3D.h"
-#include "base/Transformation3D.h"
-#include "volumes/PlacedVolume.h"
+#include "VecGeom/base/AOS3D.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/volumes/PlacedVolume.h"
 
 #include "TApplication.h"
 #include "TAxis3D.h"

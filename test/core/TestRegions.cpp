@@ -1,6 +1,6 @@
-#include "volumes/LogicalVolume.h"
-#include "management/RootGeoManager.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/management/GeoManager.h"
 #include "TGeoManager.h"
 #ifdef NDEBUG
 #undef NDEBUG

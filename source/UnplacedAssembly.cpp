@@ -1,10 +1,10 @@
 // LICENSING INFORMATION TBD
 
-#include "volumes/UnplacedAssembly.h"
-#include "volumes/PlacedAssembly.h"
-#include "navigation/SimpleLevelLocator.h"
-#include "management/ABBoxManager.h" // for Extent == bounding box calculation
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedAssembly.h"
+#include "VecGeom/volumes/PlacedAssembly.h"
+#include "VecGeom/navigation/SimpleLevelLocator.h"
+#include "VecGeom/management/ABBoxManager.h" // for Extent == bounding box calculation
+#include "VecGeom/base/RNG.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

@@ -1,7 +1,7 @@
 /// @file PlacedExtruded.cpp
 /// @author Mihaela Gheata (mihaela.gheata@cern.ch)
 
-#include "volumes/Extruded.h"
+#include "VecGeom/volumes/Extruded.h"
 
 #ifndef VECCORE_CUDA
 #ifdef VECGEOM_ROOT

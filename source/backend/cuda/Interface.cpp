@@ -1,7 +1,7 @@
 /// \file Interface.cu
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "backend/cuda/Interface.h"
+#include "VecGeom/backend/cuda/Interface.h"
 
 #include <stdio.h>
 

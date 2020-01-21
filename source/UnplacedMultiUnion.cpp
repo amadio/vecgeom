@@ -1,6 +1,6 @@
-#include "volumes/UnplacedMultiUnion.h"
-#include "volumes/SpecializedMultiUnion.h"
-#include "base/RNG.h"
+#include "VecGeom/volumes/UnplacedMultiUnion.h"
+#include "VecGeom/volumes/SpecializedMultiUnion.h"
+#include "VecGeom/base/RNG.h"
 #include <stdio.h>
 
 namespace vecgeom {

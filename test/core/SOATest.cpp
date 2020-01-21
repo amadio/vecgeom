@@ -1,4 +1,4 @@
-#include "base/SOA.h"
+#include "VecGeom/base/SOA.h"
 
 using namespace vecgeom;
 

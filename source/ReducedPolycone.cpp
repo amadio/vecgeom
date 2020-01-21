@@ -5,10 +5,10 @@
  *      Author: ramansehgal
  */
 
-#include "volumes/ReducedPolycone.h"
+#include "VecGeom/volumes/ReducedPolycone.h"
 #include <iostream>
-#include "base/Vector.h"
-//#include "volumes/CoaxialConesStruct.h"
+#include "VecGeom/base/Vector.h"
+//#include "VecGeom/volumes/CoaxialConesStruct.h"
 
 namespace vecgeom {
 

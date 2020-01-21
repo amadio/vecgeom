@@ -1,4 +1,4 @@
-#include "volumes/Quadrilaterals.h"
+#include "VecGeom/volumes/Quadrilaterals.h"
 
 using namespace vecgeom;
 

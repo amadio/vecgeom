@@ -1,5 +1,5 @@
 #include "utilities/ShapeDebugger.h"
-#include "volumes/Tube.h"
+#include "VecGeom/volumes/Tube.h"
 
 using namespace vecgeom;
 

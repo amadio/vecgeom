@@ -1,7 +1,7 @@
-#include "volumes/LogicalVolume.h"
-#include "volumes/CutTube.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/CutTube.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 
 using namespace vecgeom;

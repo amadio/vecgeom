@@ -1,8 +1,8 @@
 #include "utilities/Visualizer.h"
-#include "management/GeoManager.h"
-#include "volumes/Cone.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/AOS3D.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/volumes/Cone.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/AOS3D.h"
 
 using namespace vecgeom;
 

@@ -1,9 +1,9 @@
 #include <iostream>
-#include "volumes/UnplacedTrd.h"
-#include "volumes/kernel/TrdImplementation.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/UnplacedTrd.h"
+#include "VecGeom/volumes/kernel/TrdImplementation.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include "TGeoTrd2.h"
-#include "base/RNG.h"
+#include "VecGeom/base/RNG.h"
 
 using namespace VECGEOM_NAMESPACE;
 

@@ -6,17 +6,17 @@
  */
 
 // benchmarking the locate point functionality
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "base/SOA3D.h"
-#include "navigation/GlobalLocator.h"
-#include "navigation/NavStatePool.h"
-#include "navigation/NavigationState.h"
-#include "volumes/PlacedVolume.h"
-#include "management/RootGeoManager.h"
-#include "management/GeoManager.h"
-#include "base/Stopwatch.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/navigation/NavStatePool.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/base/Stopwatch.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoNavigator.h"

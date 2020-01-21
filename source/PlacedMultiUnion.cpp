@@ -1,7 +1,7 @@
 /// @file PlacedMultiUnion.cpp
 /// @author Mihaela Gheata (mihaela.gheata@cern.ch)
 
-#include "volumes/MultiUnion.h"
+#include "VecGeom/volumes/MultiUnion.h"
 
 #ifndef VECCORE_CUDA
 #ifdef VECGEOM_GEANT4

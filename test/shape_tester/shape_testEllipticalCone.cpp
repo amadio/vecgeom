@@ -8,8 +8,8 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/PlacedVolume.h"
-#include "volumes/EllipticalCone.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/EllipticalCone.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGCone        = vecgeom::SimpleEllipticalCone;

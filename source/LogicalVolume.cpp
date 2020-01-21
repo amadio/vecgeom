@@ -5,21 +5,21 @@
 /// \file LogicalVolume.cpp
 /// \author created by Johannes de Fine Licht, Sandro Wenzel (CERN)
 
-#include "volumes/LogicalVolume.h"
+#include "VecGeom/volumes/LogicalVolume.h"
 
 #ifdef VECGEOM_ENABLE_CUDA
-#include "backend/cuda/Interface.h"
+#include "VecGeom/backend/cuda/Interface.h"
 #endif
-#include "base/Array.h"
-#include "base/Transformation3D.h"
-#include "base/Vector.h"
-#include "management/GeoManager.h"
-#include "management/VolumeFactory.h"
-#include "volumes/PlacedVolume.h"
-#include "navigation/SimpleSafetyEstimator.h"
-#include "navigation/NewSimpleNavigator.h"
-#include "navigation/SimpleLevelLocator.h"
-#include "volumes/UnplacedAssembly.h"
+#include "VecGeom/base/Array.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/base/Vector.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/navigation/SimpleSafetyEstimator.h"
+#include "VecGeom/navigation/NewSimpleNavigator.h"
+#include "VecGeom/navigation/SimpleLevelLocator.h"
+#include "VecGeom/volumes/UnplacedAssembly.h"
 #include <climits>
 #include <stdio.h>
 #include <set>

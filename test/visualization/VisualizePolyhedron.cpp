@@ -1,6 +1,6 @@
 #include "utilities/Visualizer.h"
-#include "volumes/Polyhedron.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/Polyhedron.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include "TPolyMarker3D.h"
 
 using namespace vecgeom;

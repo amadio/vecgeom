@@ -1,4 +1,4 @@
-#include "volumes/PlacedAssembly.h"
+#include "VecGeom/volumes/PlacedAssembly.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

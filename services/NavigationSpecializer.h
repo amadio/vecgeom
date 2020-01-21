@@ -8,14 +8,14 @@
 #ifndef VECGEOM_SERVICES_NAVIGATIONSPECIALIZER_H_
 #define VECGEOM_SERVICES_NAVIGATIONSPECIALIZER_H_
 
-#include "navigation/NavigationState.h"
+#include "VecGeom/navigation/NavigationState.h"
 #include <string>
 #include <iosfwd>
 #include <map>
 #include <sstream>
 #include <list>
 #include <vector>
-#include "base/Global.h"
+#include "VecGeom/base/Global.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

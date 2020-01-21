@@ -5,18 +5,18 @@
  *      Author: swenzel
  */
 
-#include "base/Global.h"
-#include "volumes/UnplacedBooleanVolume.h"
-#include "volumes/SpecializedBooleanVolume.h"
-#include "management/VolumeFactory.h"
-#include "volumes/utilities/GenerationUtilities.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/RNG.h"
-#include "volumes/LogicalVolume.h"
-#include "volumes/PlacedVolume.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/volumes/UnplacedBooleanVolume.h"
+#include "VecGeom/volumes/SpecializedBooleanVolume.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/PlacedVolume.h"
 
 #ifdef VECGEOM_CUDA_INTERFACE
-#include "management/CudaManager.h"
+#include "VecGeom/management/CudaManager.h"
 #endif
 
 namespace vecgeom {

@@ -8,7 +8,7 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/Orb.h"
+#include "VecGeom/volumes/Orb.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGOrb         = vecgeom::SimpleOrb;

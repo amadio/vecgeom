@@ -3,7 +3,7 @@
 /// Created on: Aug 3, 2014
 ///  Modified and completed: mihaela.gheata@cern.ch
 
-#include "volumes/GenTrap.h"
+#include "VecGeom/volumes/GenTrap.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoArb8.h"

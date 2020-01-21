@@ -2,11 +2,11 @@
 // force assert() to be used, even in Release mode
 #undef NDEBUG
 
-#include "management/GeoManager.h"
-#include "management/RootGeoManager.h"
-#include "navigation/NavigationState.h"
-#include "navigation/GlobalLocator.h"
-#include "volumes/PlacedVolume.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/volumes/PlacedVolume.h"
 
 #include "TGeoBBox.h"
 #include "TGeoManager.h"

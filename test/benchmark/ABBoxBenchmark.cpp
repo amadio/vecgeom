@@ -15,15 +15,15 @@
  *      Author: swenzel
  */
 
-#include "volumes/LogicalVolume.h"
-#include "volumes/Box.h"
-#include "benchmarking/Benchmarker.h"
-#include "volumes/kernel/BoxImplementation.h"
-#include "volumes/utilities/VolumeUtilities.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/volumes/kernel/BoxImplementation.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
-#include "base/SOA3D.h"
-#include "base/Stopwatch.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/base/Stopwatch.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>

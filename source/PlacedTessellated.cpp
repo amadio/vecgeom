@@ -1,7 +1,7 @@
 /// @file PlacedTessellated.cpp
 /// @author Mihaela Gheata (mihaela.gheata@cern.ch)
 
-#include "volumes/Tessellated.h"
+#include "VecGeom/volumes/Tessellated.h"
 
 #ifndef VECCORE_CUDA
 #ifdef VECGEOM_GEANT4

@@ -1,4 +1,4 @@
-#include "volumes/Rectangles.h"
+#include "VecGeom/volumes/Rectangles.h"
 
 namespace vecgeom {
 

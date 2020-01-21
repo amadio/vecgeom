@@ -5,14 +5,14 @@
  *      Author: swenzel
  */
 
-#include "base/Transformation3D.h"
-#include "base/Vector3D.h"
-#include "volumes/Box.h"
-#include "volumes/Tube.h"
-#include "volumes/kernel/shapetypes/TubeTypes.h"
-#include "volumes/TBooleanMinusVolume.h"
-#include "management/GeoManager.h"
-#include "benchmarking/Benchmarker.h"
+#include "VecGeom/base/Transformation3D.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Tube.h"
+#include "VecGeom/volumes/kernel/shapetypes/TubeTypes.h"
+#include "VecGeom/volumes/TBooleanMinusVolume.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
 
 using namespace vecgeom;
 

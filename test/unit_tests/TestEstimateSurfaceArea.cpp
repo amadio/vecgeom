@@ -8,13 +8,13 @@
 
 #include <cmath>
 #include <ctime>
-#include "base/Vector3D.h"
-#include "volumes/Box.h"
-#include "volumes/Trd.h"
-#include "volumes/Tube.h"
-#include "volumes/Cone.h"
-#include "volumes/ScaledShape.h"
-#include "volumes/BooleanVolume.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Trd.h"
+#include "VecGeom/volumes/Tube.h"
+#include "VecGeom/volumes/Cone.h"
+#include "VecGeom/volumes/ScaledShape.h"
+#include "VecGeom/volumes/BooleanVolume.h"
 
 using namespace vecgeom;
 using Vec3D_t = Vector3D<Precision>;

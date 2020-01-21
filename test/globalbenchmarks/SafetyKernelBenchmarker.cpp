@@ -6,27 +6,27 @@
  */
 
 // benchmarking various different safety kernels per logical volume
-#include "volumes/utilities/VolumeUtilities.h"
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "base/SOA3D.h"
-#include "base/RNG.h"
-#include "navigation/GlobalLocator.h"
-#include "navigation/NavStatePool.h"
-#include "navigation/NavigationState.h"
-#include "volumes/PlacedVolume.h"
-#include "management/RootGeoManager.h"
-#include "management/GeoManager.h"
-#include "base/Stopwatch.h"
-#include "navigation/SimpleSafetyEstimator.h"
-#include "navigation/SimpleABBoxSafetyEstimator.h"
-#include "navigation/HybridSafetyEstimator.h"
-#include "management/HybridManager2.h"
-#include "navigation/VoxelSafetyEstimator.h"
-#include "management/FlatVoxelManager.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/SOA3D.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/navigation/NavStatePool.h"
+#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/navigation/SimpleSafetyEstimator.h"
+#include "VecGeom/navigation/SimpleABBoxSafetyEstimator.h"
+#include "VecGeom/navigation/HybridSafetyEstimator.h"
+#include "VecGeom/management/HybridManager2.h"
+#include "VecGeom/navigation/VoxelSafetyEstimator.h"
+#include "VecGeom/management/FlatVoxelManager.h"
 
 // in case someone has written a special safety estimator for the CAHL logical volume
-//#include "navigation/CAHLSafetyEstimator.h"
+//#include "VecGeom/navigation/CAHLSafetyEstimator.h"
 //#define SPECIALESTIMATOR CAHLSafetyEstimator
 
 #ifdef VECGEOM_ROOT
@@ -41,7 +41,7 @@
 #include "G4Navigator.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4ThreeVector.hh"
-#include "management/G4GeoManager.h"
+#include "VecGeom/management/G4GeoManager.h"
 #include "G4VoxelNavigation.hh"
 #endif
 

@@ -5,7 +5,7 @@
 /// @file source/PlacedTrd.cpp
 /// @author Georgios Bitzes
 
-#include "volumes/Trd.h"
+#include "VecGeom/volumes/Trd.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

@@ -1,7 +1,7 @@
 #include "utilities/ShapeDebugger.h"
 
-#include "volumes/PlacedVolume.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"

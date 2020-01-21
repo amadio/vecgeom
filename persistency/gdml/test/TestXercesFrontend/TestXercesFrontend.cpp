@@ -6,8 +6,8 @@
 
 #include <iostream>
 #include "Frontend.h"
-#include "management/CppExporter.h"
-#include "management/GeoManager.h"
+#include "VecGeom/management/CppExporter.h"
+#include "VecGeom/management/GeoManager.h"
 
 namespace {
 static void usage()

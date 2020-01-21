@@ -2,9 +2,9 @@
 // Forced asserts() to be defined, even for Release mode
 #undef NDEBUG
 
-#include "management/RootGeoManager.h"
-#include "volumes/Polyhedron.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/volumes/Polyhedron.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
 #include "TGeoPgon.h"
 #include <memory>

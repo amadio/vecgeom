@@ -1,10 +1,10 @@
 /// \file PlacedTube.cpp
 /// \author Georgios Bitzes (georgios.bitzes@cern.ch)
 
-#include "volumes/PlacedTube.h"
-#include "volumes/Tube.h"
-#include "volumes/SpecializedTube.h"
-#include "base/Vector3D.h"
+#include "VecGeom/volumes/PlacedTube.h"
+#include "VecGeom/volumes/Tube.h"
+#include "VecGeom/volumes/SpecializedTube.h"
+#include "VecGeom/base/Vector3D.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoTube.h"

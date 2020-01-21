@@ -2,11 +2,11 @@
 
 #include "test/benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "volumes/MultiUnion.h"
-#include "volumes/LogicalVolume.h"
+#include "VecGeom/volumes/MultiUnion.h"
+#include "VecGeom/volumes/LogicalVolume.h"
 #include <iostream>
-#include "base/RNG.h"
-#include "base/Transformation3D.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/base/Transformation3D.h"
 
 using namespace vecgeom;
 using MultiUnion_t = vecgeom::SimpleMultiUnion;

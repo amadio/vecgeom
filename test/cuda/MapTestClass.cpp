@@ -1,10 +1,10 @@
 #include <map>
 #include <cstdlib>
 #include <vector>
-#include "base/Map.h"
-#include "base/RNG.h"
+#include "VecGeom/base/Map.h"
+#include "VecGeom/base/RNG.h"
 using vecgeom::RNG;
-#include "backend/cuda/Interface.h"
+#include "VecGeom/backend/cuda/Interface.h"
 
 class MyClass {
 private:

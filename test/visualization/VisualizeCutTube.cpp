@@ -1,8 +1,8 @@
 #include "utilities/Visualizer.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include "TPolyMarker3D.h"
-#include "base/Vector3D.h"
-#include "volumes/CutTube.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/CutTube.h"
 #include "test/benchmark/ArgParser.h"
 
 #ifdef VECGEOM_ROOT

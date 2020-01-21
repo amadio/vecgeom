@@ -5,10 +5,10 @@
 /// Benchmark for Trd
 /// @file test/benchmark/TrdParallelepiped.cpp
 
-#include "volumes/LogicalVolume.h"
-#include "volumes/Trd.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Trd.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 
 using namespace vecgeom;

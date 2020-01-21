@@ -1,11 +1,11 @@
 /// \file CudaManager.cu
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "management/CudaManager.h"
+#include "VecGeom/management/CudaManager.h"
 
 #include <stdio.h>
 
-#include "backend/cuda/Backend.h"
+#include "VecGeom/backend/cuda/Backend.h"
 
 namespace vecgeom {
 

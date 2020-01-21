@@ -1,7 +1,7 @@
 #include "utilities/Visualizer.h"
-#include "volumes/Orb.h"
-#include "volumes/ScaledShape.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/Orb.h"
+#include "VecGeom/volumes/ScaledShape.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include "TPolyMarker3D.h"
 
 using namespace vecgeom;

@@ -1,14 +1,14 @@
 #ifndef VECGEOM_ENABLE_CUDA
 
-#include "volumes/LogicalVolume.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
-#include "base/Stopwatch.h"
+#include "VecGeom/base/Stopwatch.h"
 #include <iostream>
-#include "volumes/Extruded.h"
-#include "volumes/SExtru.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/Extruded.h"
+#include "VecGeom/volumes/SExtru.h"
+#include "VecGeom/management/GeoManager.h"
 
 using namespace vecgeom;
 

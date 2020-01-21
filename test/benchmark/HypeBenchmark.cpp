@@ -4,11 +4,11 @@
 //.. Geant4 giving discrepant results for the Hype shape
 #undef VECGEOM_GEANT4
 
-#include "volumes/LogicalVolume.h"
-#include "volumes/Box.h"
-#include "volumes/Hype.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Hype.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 #define PI 3.141592653589793
 using namespace vecgeom;

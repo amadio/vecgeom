@@ -6,7 +6,7 @@
  */
 
 #include "services/NavigationSpecializer.h"
-#include "management/RootGeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

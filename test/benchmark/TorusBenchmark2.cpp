@@ -1,10 +1,10 @@
-#include "volumes/LogicalVolume.h"
-#include "volumes/Torus2.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Torus2.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
-#include "base/Vector3D.h"
-#include "base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/base/Global.h"
 
 using namespace vecgeom;
 

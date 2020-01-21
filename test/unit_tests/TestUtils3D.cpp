@@ -8,9 +8,9 @@
 #undef NDEBUG
 #endif
 
-#include "base/Utils3D.h"
+#include "VecGeom/base/Utils3D.h"
 #include "ApproxEqual.h"
-#include "volumes/Box.h"
+#include "VecGeom/volumes/Box.h"
 #include "test/benchmark/ArgParser.h"
 
 #ifdef VECGEOM_ROOT

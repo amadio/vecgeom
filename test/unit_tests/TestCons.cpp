@@ -4,18 +4,18 @@
 
 //  Ensure asserts are compiled in
 #undef NDEBUG
-#include "base/FpeEnable.h"
+#include "VecGeom/base/FpeEnable.h"
 
-#include "base/Vector3D.h"
+#include "VecGeom/base/Vector3D.h"
 #include "ApproxEqual.h"
-#include "volumes/Cone.h"
-#include "base/Global.h"
+#include "VecGeom/volumes/Cone.h"
+#include "VecGeom/base/Global.h"
 #include <cmath>
-#include "volumes/UnplacedTube.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/UnplacedTube.h"
+#include "VecGeom/management/GeoManager.h"
 
 #ifndef VECCORE_CUDA
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
 
 #define DELTA 0.0001

@@ -1,11 +1,11 @@
 /// \file Benchmarker.cu
 /// \author Johannes de Fine Licht
 
-#include "benchmarking/Benchmarker.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
 
-#include "base/Stopwatch.h"
-#include "backend/cuda/Backend.h"
-#include "management/CudaManager.h"
+#include "VecGeom/base/Stopwatch.h"
+#include "VecGeom/backend/cuda/Backend.h"
+#include "VecGeom/management/CudaManager.h"
 
 namespace vecgeom {
 inline namespace cuda {

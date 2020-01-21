@@ -1,6 +1,6 @@
-#include "management/HybridManager2.h"
-#include "navigation/HybridNavigator2.h"
-#include "management/ABBoxManager.h"
+#include "VecGeom/management/HybridManager2.h"
+#include "VecGeom/navigation/HybridNavigator2.h"
+#include "VecGeom/management/ABBoxManager.h"
 #include <memory>
 #undef NDEBUG
 #include <cassert>

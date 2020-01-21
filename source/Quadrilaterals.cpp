@@ -1,5 +1,5 @@
-#include "volumes/Quadrilaterals.h"
-#include "backend/scalar/Backend.h"
+#include "VecGeom/volumes/Quadrilaterals.h"
+#include "VecGeom/backend/scalar/Backend.h"
 #include <memory>
 #include <iostream>
 

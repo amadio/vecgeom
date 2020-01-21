@@ -1,9 +1,9 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 
-#include "management/RootGeoManager.h"
-#include "volumes/LogicalVolume.h"
-#include "management/GeoManager.h"
+#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/management/GeoManager.h"
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
 

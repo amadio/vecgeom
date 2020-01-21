@@ -1,4 +1,4 @@
-#include "management/G4GeoManager.h"
+#include "VecGeom/management/G4GeoManager.h"
 
 #if defined(VECGEOM_GEANT4)
 

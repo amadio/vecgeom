@@ -5,12 +5,12 @@
 #undef NDEBUG
 
 #include <iomanip>
-#include "base/Global.h"
-#include "base/Vector3D.h"
-#include "volumes/EllipticUtilities.h"
-#include "volumes/CoaxialCones.h"
+#include "VecGeom/base/Global.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/EllipticUtilities.h"
+#include "VecGeom/volumes/CoaxialCones.h"
 #include "ApproxEqual.h"
-#include "base/FpeEnable.h"
+#include "VecGeom/base/FpeEnable.h"
 bool testvecgeom = false;
 
 using vecgeom::kInfLength;

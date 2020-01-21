@@ -1,4 +1,4 @@
-#include "base/MessageLogger.h"
+#include "VecGeom/base/MessageLogger.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

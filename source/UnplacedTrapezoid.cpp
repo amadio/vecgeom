@@ -4,14 +4,14 @@
 // 140407 G. Lima    - based on equivalent box code
 // 160722 G. Lima    Revision + moving to new backend structure
 
-#include "volumes/UnplacedTrapezoid.h"
-#include "volumes/UnplacedTrd.h"
-#include "volumes/UnplacedParallelepiped.h"
-#include "management/GeoManager.h"
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedTrapezoid.h"
-#include "base/RNG.h"
-#include "volumes/kernel/shapetypes/TrdTypes.h"
+#include "VecGeom/volumes/UnplacedTrapezoid.h"
+#include "VecGeom/volumes/UnplacedTrd.h"
+#include "VecGeom/volumes/UnplacedParallelepiped.h"
+#include "VecGeom/management/GeoManager.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedTrapezoid.h"
+#include "VecGeom/base/RNG.h"
+#include "VecGeom/volumes/kernel/shapetypes/TrdTypes.h"
 #include <cstdio>
 
 #ifdef VECGEOM_ROOT
@@ -22,7 +22,7 @@
 #endif
 
 #ifndef VECCORE_CUDA
-#include "volumes/UnplacedImplAs.h"
+#include "VecGeom/volumes/UnplacedImplAs.h"
 #endif
 
 namespace vecgeom {

@@ -1,10 +1,10 @@
 /// \file PlacedHype.cpp
 /// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 
-#include "volumes/PlacedHype.h"
-#include "volumes/SpecializedHype.h"
-#include "volumes/Hype.h"
-#include "base/Global.h"
+#include "VecGeom/volumes/PlacedHype.h"
+#include "VecGeom/volumes/SpecializedHype.h"
+#include "VecGeom/volumes/Hype.h"
+#include "VecGeom/base/Global.h"
 
 //#if defined(VECGEOM_BENCHMARK) && defined(VECGEOM_ROOT)
 #ifdef VECGEOM_ROOT

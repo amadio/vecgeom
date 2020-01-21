@@ -1,4 +1,4 @@
-#include "base/BitSet.h"
+#include "VecGeom/base/BitSet.h"
 
 #ifdef NDEBUG
 #undef NDEBUG

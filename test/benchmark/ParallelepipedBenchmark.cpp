@@ -5,11 +5,11 @@
 /// Benchmark for Paralleliped.
 /// @file test/benchmark/BenchmarktParallelepiped.cpp
 
-#include "volumes/LogicalVolume.h"
-#include "volumes/Box.h"
-#include "volumes/Parallelepiped.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
+#include "VecGeom/volumes/Parallelepiped.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 
 using namespace vecgeom;

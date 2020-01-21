@@ -1,12 +1,12 @@
 #ifndef VECGEOM_ENABLE_CUDA
 
-#include "volumes/LogicalVolume.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
-#include "base/Stopwatch.h"
+#include "VecGeom/base/Stopwatch.h"
 #include <iostream>
-#include "volumes/Tessellated.h"
+#include "VecGeom/volumes/Tessellated.h"
 #include "test/core/TessellatedOrb.h"
 
 #ifdef VECGEOM_EMBREE

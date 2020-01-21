@@ -5,12 +5,12 @@
  *      Author: swenzel
  *      Modified: mihaela.gheata@cern.ch
  */
-#include "volumes/LogicalVolume.h"
-#include "volumes/GenTrap.h"
-#include "benchmarking/Benchmarker.h"
-#include "management/GeoManager.h"
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/GenTrap.h"
+#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
-#include "base/Global.h"
+#include "VecGeom/base/Global.h"
 
 using namespace vecgeom;
 

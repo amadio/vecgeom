@@ -6,13 +6,13 @@
 /// @author Created by Johannes de Fine Licht
 /// @author Modified and completed by Mihaela Gheata, Evgueni Tcherniaev
 
-#include "volumes/UnplacedParallelepiped.h"
+#include "VecGeom/volumes/UnplacedParallelepiped.h"
 
 #include <stdio.h>
-#include "management/VolumeFactory.h"
-#include "volumes/SpecializedParallelepiped.h"
-#include "volumes/utilities/GenerationUtilities.h"
-#include "base/RNG.h"
+#include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/volumes/SpecializedParallelepiped.h"
+#include "VecGeom/volumes/utilities/GenerationUtilities.h"
+#include "VecGeom/base/RNG.h"
 
 
 namespace vecgeom {

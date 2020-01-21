@@ -1,8 +1,8 @@
 #include "utilities/Visualizer.h"
-#include "volumes/utilities/VolumeUtilities.h"
+#include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include "TPolyMarker3D.h"
-#include "base/Vector3D.h"
-#include "volumes/GenTrap.h"
+#include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/GenTrap.h"
 
 using namespace vecgeom;
 
