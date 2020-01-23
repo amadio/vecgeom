@@ -19,6 +19,7 @@
 #include "VecGeom/management/GeoManager.h"
 #include <cstdio>
 #include <vector>
+#include <random>
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
 #endif
