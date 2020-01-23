@@ -350,13 +350,42 @@ std::ostream &UnplacedExtruded::StreamInfo(std::ostream &os) const
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedExtruded::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
+#ifdef HYBRID_NAVIGATOR_PORTED_TO_CUDA
   return CopyToGpuImpl<UnplacedExtruded>(in_gpu_ptr);
+#else
+  assert(0 && "Attempted to copy UnplacedExtruded to GPU.  This is not yet supported");
+  return DevicePtr<cuda::VUnplacedVolume>(nullptr);
+#endif
 }
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedExtruded::CopyToGpu() const
 {
+#ifdef HYBRID_NAVIGATOR_PORTED_TO_CUDA
   return CopyToGpuImpl<UnplacedExtruded>();
+#else 
+  assert(0 && "Attempted to copy UnplacedExtruded to GPU.  This is not yet supported");
+  return DevicePtr<cuda::VUnplacedVolume>(nullptr);
+#endif
 }
+
+#ifndef HYBRID_NAVIGATOR_PORTED_TO_CUDA
+template <>
+size_t DevicePtr<vecgeom::cuda::LoopSpecializedVolImplHelper<vecgeom::cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric> >::SizeOf()
+{
+   return 0;
+}
+
+template <>
+template <>
+void DevicePtr<
+    cuda::LoopSpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>>::
+    Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>,
+              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int) const
+{
+  return;
+}
+#endif
+
 
 #endif // VECGEOM_CUDA_INTERFACE
 

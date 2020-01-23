@@ -148,13 +148,41 @@ std::ostream &UnplacedTessellated::StreamInfo(std::ostream &os) const
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTessellated::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
+#ifdef HYBRID_NAVIGATOR_PORTED_TO_CUDA
   return CopyToGpuImpl<UnplacedTessellated>(in_gpu_ptr);
+#else
+  assert(0 && "Attempted to copy UnplacedTessellated to GPU.  This is not yet supported.");
+  return DevicePtr<cuda::VUnplacedVolume>(nullptr);
+#endif
 }
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTessellated::CopyToGpu() const
 {
+#ifdef HYBRID_NAVIGATOR_PORTED_TO_CUDA
   return CopyToGpuImpl<UnplacedTessellated>();
+#else
+  assert(0 && "Attempted to copy UnplacedTessellated to GPU.  This is not yet supported.");
+  return DevicePtr<cuda::VUnplacedVolume>(nullptr);
+#endif
 }
+
+#ifndef HYBRID_NAVIGATOR_PORTED_TO_CUDA
+template <>
+size_t DevicePtr<vecgeom::cuda::LoopSpecializedVolImplHelper<vecgeom::cuda::TessellatedImplementation, translation::kGeneric, rotation::kGeneric> >::SizeOf()
+{
+   return 0;
+}
+
+template <>
+template <>
+void DevicePtr<
+    cuda::LoopSpecializedVolImplHelper<cuda::TessellatedImplementation, translation::kGeneric, rotation::kGeneric>>::
+    Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>,
+              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int) const
+{
+  return;
+}
+#endif
 
 #endif // VECGEOM_CUDA_INTERFACE
 

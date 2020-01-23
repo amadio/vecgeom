@@ -117,7 +117,11 @@ public:
 #endif
                                VPlacedVolume *const placement = NULL);
 #ifdef VECGEOM_CUDA_INTERFACE
+#ifdef HYBRID_NAVIGATOR_PORTED_TO_CUDA
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedExtruded>::SizeOf(); }
+#else
+  virtual size_t DeviceSizeOf() const override { return 0; }
+#endif
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
