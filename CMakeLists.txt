@@ -89,7 +89,7 @@ enum_option(BACKEND
 
 if (CTEST)
   message(STATUS "Testing with CTest enabled.")
-  enable_testing()
+  include(CTest)
 endif()
 
 option(VTUNE "Enable the use of profiler Vtune" OFF)
@@ -841,8 +841,8 @@ if (BENCHMARK)
     source/benchmarking/Benchmarker.cu
     source/benchmarking/NavigationBenchmarker.cu
   )
-  add_subdirectory(test/benchmark)
 endif()
+
 set(SRC_CPP ${SRC_CPP} ${SRC_EXTERNAL}
   source/GeoManager.cpp
   source/CppExporter.cpp
@@ -850,6 +850,7 @@ set(SRC_CPP ${SRC_CPP} ${SRC_EXTERNAL}
 )
 
 # some CUDA kernel code in "userspace" and test
+# ?? Test code get compiled into vecgeomcuda ??
 if (CUDA)
    set(SRC_USER_CUDA_CPP
        userexamples/src/TestNavigationStatePool.cu
@@ -858,22 +859,11 @@ if (CUDA)
         test/cuda/MapTest.cu
         test/cuda/MapTestClass.cu
    )
- endif()
-
-
-# if static analysis
-if (STATIC_ANALYSIS)
-  # enable export compile commands ... to be used by clang-tidy
-  SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-  message(STATUS "including VecGeom static analysis code")
-  add_subdirectory(test/static_analysis)
 endif()
-#
+
 
 ################################################################################
-
 # Build libraries
-
 if (NOT APPLE)
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt pthread)
 endif()
@@ -946,391 +936,20 @@ if(GDML)
 endif() # GDML
 
 ################################################################################
+# TESTING
+add_subdirectory(test)
 
-# Define executables
-
-set(TEST_EXECUTABLES_CORE
-  ${CMAKE_SOURCE_DIR}/test/core/TestVoxelHashMap.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/SafetyEstimatorTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/ContainerTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/create_geometry.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
-#  ${CMAKE_SOURCE_DIR}/test/core/testVectorSafety.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/PlanesTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/QuadrilateralTest.cpp
-#  ${CMAKE_SOURCE_DIR}/test/core/SOATest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/Transformation3DTest.cpp
-#  ${CMAKE_SOURCE_DIR}/test/core/boolminustest.cpp
-#  ${CMAKE_SOURCE_DIR}/test/core/boolminustest2.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/PhiWedgeTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/ThetaConeTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestEstimateSurfaceArea.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestSExtru.cpp
-# to be enabled when running cleanly
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBooleans.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/AssemblyTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestMakeInstance.cpp
-#  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestMaskedAssign.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestVector.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestMap.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestHybridBVH.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestEarlyReturns.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/CreateTessels.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/CreateExtruded.cpp
-)
-if (USE_INDEXEDNAVSTATES)
-   set(TEST_EXECUTABLES_CORE
-      ${TEST_EXECUTABLES_CORE}
-      ${CMAKE_SOURCE_DIR}/test/core/TestNavigationState.cpp
-   )
-endif()
-
-
-set(TEST_EXECUTABLES_ROOT
-  ${CMAKE_SOURCE_DIR}/test/core/TestNavigationStatePool.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/root_geometry.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/complex_test1.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/E03Test.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/ImportFromRootFileTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/ImportTGeoPgon.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/TestExportToROOT.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/ExitingOrEntering.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/BoxBoxIntersectionTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/SplittedABBox.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/AssemblyExample.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestRegions.cpp
-)
-if (EMBREE)
- set(TEST_EXECUTABLES_ROOT 
-      ${TEST_EXECUTABLES_ROOT}
-      ${CMAKE_SOURCE_DIR}/test/core/EmbreeManagerTest.cpp
-    )
-endif()
-
-# higher level benchmarks or executables
-set(TEST_EXECUTABLES_ROOT
-  ${TEST_EXECUTABLES_ROOT}
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/SafetyKernelBenchmarker.cpp
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationKernelBenchmarker.cpp
-  # ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
-  ${CMAKE_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
-  ${CMAKE_SOURCE_DIR}/services/LibraryGenerator.cpp
-)
-
-# separate list for ROOT UNIT tests
-set(TEST_UNITTESTEXECUTABLES_ROOT
-  ${CMAKE_SOURCE_DIR}/test/root/complex_test1.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/E03Test.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/TestExportToROOT.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/ImportTGeoPgon.cpp
-)
-
-if(BENCHMARK)
-  set(TEST_EXECUTABLES_ROOT
-  ${TEST_EXECUTABLES_ROOT}
-  ${CMAKE_SOURCE_DIR}/test/root/BenchmarkShapeFromROOTFile.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/BenchmarkShapeFromROOTFile_WithVisualization.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/CompareDistances.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/GenerateSurfacePoints.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shapeDebug.cpp
-)
-endif()
-
-set(TEST_EXECUTABLES_VISUALIZATION
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTrap.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolycone.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolyhedron.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParboloid.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCone.cpp
- # ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTorus.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeScaled.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/DebugTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/DebugPolyhedron.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeSphere.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeGenTrap.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeHype.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParallelepiped.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCutTube.cpp
-  #${CMAKE_SOURCE_DIR}/test/visualization/VisualizeExtruded.cpp
-)
-
-if(NOT CUDA)
-set(TEST_EXECUTABLES_VISUALIZATION
-  ${TEST_EXECUTABLES_VISUALIZATION}
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeMultiUnion.cpp)
-endif()
-
-set(TEST_EXECUTABLES_SHAPES
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBox.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestCons.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestGenTrap.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestEllipticalTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestEllipticalCone.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestEllipsoid.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestCoaxialCones.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestGenericPolycone.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestHype.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrd.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrap.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParallelepiped.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParaboloid.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestReducedPolycone.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestUtils3D.cpp
-)
-
-if(NOT CUDA)
-set(TEST_EXECUTABLES_SHAPES
-  ${TEST_EXECUTABLES_SHAPES}
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTessellated.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestMesh.cpp)
-endif()
-
-set(TEST_EXECUTABLES_CUDA
-  # Files go here
-  ${CMAKE_SOURCE_DIR}/test/cuda/MapTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/cuda/MapTestClass.cpp
-)
-
-set(TEST_EXECUTABLES_SHAPETESTER
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testBox.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testSExtru.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testOrb.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testSphere.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCone.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testEllipticalCone.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testEllipticalTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testEllipsoid.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testHype.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrd.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrapezoid.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTet.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenericPolycone.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenTrap.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParallelepiped.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/convention_testTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolyhedron.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTorus2.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCutTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testExtruded.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testMultiUnion.cpp
-)
-
-if(ROOT) # add shape testers that depend on ROOT
-  set(TEST_EXECUTABLES_SHAPETESTER
-    ${TEST_EXECUTABLES_SHAPETESTER}
-    ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testFromROOTFile.cpp
-    ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_debugFromROOTFile.cpp
-  )
-endif()
-
-if(NOT CUDA)
-  set(TEST_EXECUTABLES_SHAPETESTER
-    ${TEST_EXECUTABLES_SHAPETESTER}
-    ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTessellated.cpp
-  )
-endif()
-
-
-### Build executables
-
-set(VECGEOM_EXECUTABLES)
-
-macro(build_executables EXECUTABLES)
-  foreach(EXECUTABLE ${EXECUTABLES})
-    get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
-    add_executable(${TARGET_NAME} ${EXECUTABLE})
-    target_link_libraries(${TARGET_NAME} ${VECGEOM_LIBRARIES}
-                          ${USERKERNELLIB})
-    set(VECGEOM_EXECUTABLES ${VECGEOM_EXECUTABLES} ${TARGET_NAME})
-    if (MIC)
-      get_target_property(current_property ${TARGET_NAME} LINK_FLAGS)
-      if(NOT current_property)
-        set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "-B/usr/linux-k1om-4.7/linux-k1om/usr/lib64/k1om-mpss-linux/4.7.4 -B/usr/linux-k1om-4.7/linux-k1om/lib64/4.7.4")
-      else()
-        set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "${current_property} -B/usr/linux-k1om-4.7/linux-k1om/usr/lib64/k1om-mpss-linux/4.7.4 -B/usr/linux-k1om-4.7/linux-k1om/lib64/4.7.4")
-      endif()
-    endif()
-  endforeach()
-endmacro()
-
-function(add_to_ctest EXECUTABLES)
-  foreach(EXECUTABLE ${EXECUTABLES})
-    if (CTEST)
-      get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
-      add_test(${TARGET_NAME} ${TARGET_NAME})
-    endif()
-  endforeach()
-endfunction()
-
-if (CTEST OR VALIDATION)
-  build_executables("${TEST_EXECUTABLES_SHAPES}")
-endif()
-
-if (CTEST)
-  build_executables("${TEST_EXECUTABLES_CORE}")
-  add_to_ctest("${TEST_EXECUTABLES_CORE}")
-  # set_tests_properties(TestSExtru PROPERTIES TIMEOUT 30)
-endif()
-
-if (BENCHMARK)
-  build_executables("${TEST_EXECUTABLES_BENCHMARK}")
-  add_to_ctest("${CTESTS_BENCHMARK}")
-  build_executables("${TEST_EXECUTABLES_SHAPETESTER}")
-endif()
-
-if (ROOT)
-  build_executables("${TEST_EXECUTABLES_ROOT}")
-  build_executables("${TEST_EXECUTABLES_VISUALIZATION}")
-  add_to_ctest("${TEST_UNITTESTEXECUTABLES_ROOT}")
-
-  if (VALIDATION)
-    macro(add_cmsshapevalidation_test TESTNAME SHAPEFILE)
-      add_test(NAME ${TESTNAME} COMMAND bash -c "${CMAKE_SOURCE_DIR}/test/scripts/RunRandomValidation ${CMAKE_BINARY_DIR}/BenchmarkShapeFromROOTFile  ${CMAKE_SOURCE_DIR}/test/cmstestdata/cms2015.root  ${CMAKE_SOURCE_DIR}/test/cmstestdata/${SHAPEFILE}" )
-    endmacro()
-
-    # Adding various shapes tests for nightlies
-    add_cmsshapevalidation_test( tubevalidation cmstubes.txt )
-    add_cmsshapevalidation_test( trapvalidation cmstraps.txt )
-    add_cmsshapevalidation_test( polyconevalidation cmspolycones.txt )
-    add_cmsshapevalidation_test( polyhedravalidation cmspolyhedra.txt )
-    add_cmsshapevalidation_test( conevalidation cmscones.txt )
-    add_cmsshapevalidation_test( boxvalidation cmsboxes.txt )
-    #taken out due to problems: add_cmsshapevalidation_test( booleanvalidation cmsbooleans.txt )
-    #taken out due to Issue-133: add_cmsshapevalidation_test( torusvalidation cmstori.txt )
-  endif()
-else()
-  if (VALIDATION)
-    message(WARNING "Validation tests depend on ROOT being enabled")
-  endif()
-endif()
-
-if(CTEST OR VALIDATION)
-  # add unit tests
-  add_test(NAME TestBox COMMAND TestBox)
-  add_test(NAME TestTrap COMMAND TestTrap)
-  add_test(NAME TestTube COMMAND TestTube)
-  add_test(NAME TestCone COMMAND TestCons)
-  add_test(NAME TestTrd COMMAND TestTrd)
-  add_test(NAME TestOrb COMMAND TestOrb)
-  add_test(NAME TestPolycone COMMAND TestPolycone)
-  add_test(NAME TestPolyhedra COMMAND TestPolyhedra)
-  add_test(NAME TestParallelepiped COMMAND TestParallelepiped)
-  add_test(NAME TestHype COMMAND TestHype)
-  add_test(NAME TestGenTrap COMMAND TestGenTrap)
-  if(NOT CUDA)
-    add_test(NAME TestTessellated COMMAND TestTessellated)
-  endif(NOT CUDA)
-endif()
-
-if (CUDA)
-  build_executables("${TEST_EXECUTABLES_CUDA}")
-  #  add_to_ctest("${TEST_EXECUTABLES_CUDA}")
-endif()
-
-#---------------------------------------------------------------------------
-# Include creation and submission to dashboard cdash.cern.ch
-
-include(CTest)
-
-#---------------------------------------------------------------------------
-# Set data to be dowloaded
-
-if(DATA_DOWNLOAD)
-  message(STATUS "Downloading data files")
-
-  # define a function downloading from a URL into a local file LOCALFILE
-  function(FILE_DOWNLOAD FILE_URL LOCALFILE )
-   if(APPLE)
-       execute_process(COMMAND curl -o ${LOCALFILE} ${FILE_URL})
-   else()
-      execute_process(COMMAND wget -q ${FILE_URL} -O ${LOCALFILE})
-   endif()
-  endfunction(FILE_DOWNLOAD)
-  # end of function FILE DOWNLOAD
-
-  # define a function checking md5 hashes
-  # result is stored in MD5MATCHES ( 1 == true, 0 == false )
-  function(CHECKMD5 FILETOCHECK EXPECTEDMD5HASH MD5MATCHES)
-      if(APPLE)
-          execute_process(COMMAND md5 ${FILETOCHECK} OUTPUT_VARIABLE MD5SUM)
-          string(LENGTH ${MD5SUM} MD5LENGTH)
-          MATH(EXPR START "${MD5LENGTH} - 33")
-          string(SUBSTRING ${MD5SUM} ${START} 32 MD5SUM)
-      else()
-          execute_process(COMMAND md5sum ${FILETOCHECK} OUTPUT_VARIABLE MD5SUM)
-          string(SUBSTRING ${MD5SUM} 0 32 MD5SUM)
-      endif()
-      if(MD5SUM STREQUAL EXPECTEDMD5HASH)
-        set(${MD5MATCHES} 1 PARENT_SCOPE)
-      else()
-        set(${MD5MATCHES} 0 PARENT_SCOPE)
-      endif()
-  endfunction(CHECKMD5)
-
-  # actual function for managing the download
-  function(DOWNLOAD_IF_NOT_INSTALLED FILE_URL LOCALFILE TARGETPATH MD5HASH )
-    find_file(FOUNDFILE ${LOCALFILE} ${TARGETPATH} )
-    if(FOUNDFILE STREQUAL "FOUNDFILE-NOTFOUND")
-        # set need download
-        message(STATUS "need download of ${LOCALFILE} since not found")
-        set( NEEDTODOWNLOAD 1 )
-    else()
-        # check md5
-        message(STATUS "found existing file ${LOCALFILE}")
-        CHECKMD5( ${FOUNDFILE} ${MD5HASH} MD5CORRECT )
-        if( ${MD5CORRECT} STREQUAL "1" )
-            # do not set download flag
-            set( NEEDTODOWNLOAD 0 )
-        else( )
-            # set need download
-            message(STATUS "hash ${MD5HASH} not correct for file ${FOUNDFILE} ${MD5CORRECT}" )
-            set( NEEDTODOWNLOAD 1 )
-        endif( )
-    endif()
-
-    if( ${NEEDTODOWNLOAD} STREQUAL 1 )
-        message(STATUS " downloading ... ")
-        set(DOWNLOADLOCATION "${TARGETPATH}/${LOCALFILE}")
-        FILE_DOWNLOAD( ${FILE_URL} ${DOWNLOADLOCATION} )
-    else()
-        message(STATUS " doing nothing ... ")
-    endif()
-    # in principle have to check now if download succeeded and has right MD5
-    # TOBEDONE
-
-    # this is annoying but we have to clear FOUNDFILE SINCE THIS IS TREATED LIKE A STATIC VARIABLE
-    unset(FOUNDFILE CACHE)
-  endfunction(DOWNLOAD_IF_NOT_INSTALLED)
-
-  DOWNLOAD_IF_NOT_INSTALLED( "http://mnovak.web.cern.ch/mnovak/data/cms2015.root" "cms2015.root"
-                             "${CMAKE_SOURCE_DIR}/test/cmstestdata/" "fb3ede867532b372c5e6f7138d00c07e" )
-  DOWNLOAD_IF_NOT_INSTALLED( "http://mnovak.web.cern.ch/mnovak/data/ExN03.root" "ExN03.root"
-                             "${CMAKE_BINARY_DIR}"                   "b6b0cfdd5035117171bfe1b7f1f40c3f" )
-  # add more data to download here
-  #
+# Not clear yet if we have to call this here to get the compile commands exported...
+# i.e. like enable_testing, has to be at top level.
+if(STATIC_ANALYSIS)
+  # enable export compile commands ... to be used by clang-tidy
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+  message(STATUS "including VecGeom static analysis code")
+  add_subdirectory(test/static_analysis)
 endif()
 
 
 ################################################################################
-
 # Installation
 file(RELATIVE_PATH INSTALL_INCLUDE_DIR_RELATIVE
      "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}/.")
