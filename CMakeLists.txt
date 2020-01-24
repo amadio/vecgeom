@@ -925,10 +925,6 @@ if (CUDA)
   set(USERKERNELLIB cudauserlib)
 endif()
 
-if(GDML AND CUDA)
-  message(STATUS "GDML is not supported for CUDA builds. Turning GDML OFF")
-  set(GDML OFF)
-endif()
 # build the libraries for GDML persistency
 if(GDML)
   option(GDMLDEBUG "Enable additional debug information in GDML module" OFF)
