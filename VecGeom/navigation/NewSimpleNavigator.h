@@ -66,6 +66,14 @@ public:
     return false;
   }
 
+  VECCORE_ATT_HOST_DEVICE
+  virtual bool CheckDaughterIntersections(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/,
+                                          Vector3D<Precision> const & /*localdir*/, VPlacedVolume const * /*blocked*/,
+                                          Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const
+  {
+    return false;
+  }
+
   // Vector specialization for NewSimpleNavigator
   // TODO: unify with scalar use case
   template <typename T, unsigned int ChunkSize>

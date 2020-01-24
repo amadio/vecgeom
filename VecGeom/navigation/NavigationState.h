@@ -272,7 +272,7 @@ public:
     // GetCurrentLevel indicates the 'next' level, i.e. currentLevel==0 is empty
     // fCurrentLevel = maxlevel+1 is full
     // SizeOfInstance expect [0,maxlevel] and add +1 to its params
-    std::memcpy(other, this, NavigationState::SizeOfInstance(this->GetCurrentLevel()));
+    std::memcpy(static_cast<void*>(other), this, NavigationState::SizeOfInstance(this->GetCurrentLevel()));
 
     other->fPath.fSelfAlloc = alloc;
   }
