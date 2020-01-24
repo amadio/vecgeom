@@ -16,15 +16,17 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 /// Keep in dest the minimum between dest,temp for each corresponding element
 static void VectMin(unsigned int nelem, Precision *__restrict__ dest, const Precision *__restrict__ temp) {
+  using vecCore::FromPtr;
   using Real_v = vecgeom::VectorBackend::Real_v;
+
   // loop over all elements
   unsigned int i = 0;
   constexpr unsigned int nlanes = vecCore::VectorSize<Real_v>();
   const auto ilast = nelem - (nlanes-1);
+  Real_v result;
   for ( ; i < ilast; i += nlanes) {
-    Real_v &dest1 = * reinterpret_cast<Real_v*>(dest + i);
-    const Real_v &temp1 = * reinterpret_cast<const Real_v*>(temp + i);
-    vecCore::MaskedAssign(dest1, vecCore::Mask_v<Real_v>(dest1 > temp1), temp1);
+    result = vecCore::math::Min(FromPtr<Real_v>(dest + i), FromPtr<Real_v>(temp + i));
+    vecCore::Store(result, &dest[i]);
   }
 
   // fall back to scalar interface for tail treatment
@@ -98,8 +100,7 @@ public:
     return safety;
   }
 
-  // GL: This function uses a deprecated function, SafetyToInMinimize(). Is it considered deprecated too?
-  // Trying alternative SafetyToIn() instead, but there is no minimization for now!
+
   VECGEOM_FORCE_INLINE
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const &localpoints, VPlacedVolume const *pvol,
                                            Precision *safeties) const override
@@ -122,7 +123,6 @@ public:
     auto numberdaughters              = daughters->size();
     for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
       VPlacedVolume const *daughter = daughters->operator[](d);
-      //daughter->SafetyToInMinimize(localpoints, safeties);
       daughter->SafetyToIn(localpoints, tmpSafeties);
 
       //.. keep track of closest daughter
