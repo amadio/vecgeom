@@ -62,7 +62,7 @@ double GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER 
   try {
     return std::stod(strAttribure);
 
-  } catch (std::invalid_argument) {
+  } catch (std::invalid_argument &) {
     return std::numeric_limits<double>::quiet_NaN();
   }
 };

@@ -69,10 +69,10 @@ public:
   VECCORE_ATT_HOST_DEVICE
   PlaneShell(PlaneShell const &other)
   {
-    memcpy(&(this->fA), &(other->fA), N * sizeof(Type));
-    memcpy(&(this->fB), &(other->fB), N * sizeof(Type));
-    memcpy(&(this->fC), &(other->fC), N * sizeof(Type));
-    memcpy(&(this->fD), &(other->fD), N * sizeof(Type));
+    memcpy(&(this->fA), &(other.fA), N * sizeof(Type));
+    memcpy(&(this->fB), &(other.fB), N * sizeof(Type));
+    memcpy(&(this->fC), &(other.fC), N * sizeof(Type));
+    memcpy(&(this->fD), &(other.fD), N * sizeof(Type));
   }
 
   /**
@@ -370,7 +370,7 @@ public:
   }
 };
 
-} // end inline namespace
-} // end global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_BASE_SIDEPLANES_H_

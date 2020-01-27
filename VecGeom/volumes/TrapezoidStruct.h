@@ -80,14 +80,6 @@ public:
   /// \brief Constructor for a "default" trapezoid whose parameters are to be set later
   VECCORE_ATT_HOST_DEVICE
   TrapezoidStruct() : TrapezoidStruct(0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.) {}
-
-  /// \brief Copy constructor
-  VECCORE_ATT_HOST_DEVICE
-  TrapezoidStruct(TrapezoidStruct const &other)
-      : TrapezoidStruct(other.fDz, other.fTheta, other.fPhi, other.fDy1, other.fDx1, other.fDx2, other.fTanAlpha1,
-                        other.fDy2, other.fDx3, other.fDx4, other.fTanAlpha2)
-  {
-  }
   /// @}
 
   /// \brief Destructor
@@ -148,7 +140,7 @@ public:
 #endif
 };
 
-} // inline NS
-} // vecgeom NS
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif
