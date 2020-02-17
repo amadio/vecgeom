@@ -5,36 +5,57 @@ cmake_minimum_required(VERSION 3.1.0)
 include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
 
-project(VecGeom)
-
-set(VECGEOM_VERSION 1.1.5)
+project(VecGeom VERSION 1.1.5)
+set(VECGEOM_VERSION ${VecGeom_VERSION})
 set(VECGEOM ON)
 
-enable_language(CXX)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ ISO Standard")
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Custom modules
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
+include(MacroUtilities)
 
 ################################################################################
-if (NOT CMAKE_BUILD_TYPE)
+# - Core build settings
+if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} _build_type)
 
-# Setting the C++ compiler to use
+# - Setting the C++ compiler to use
 set("${CMAKE_CXX_COMPILER_ID}" TRUE CACHE STRING "C++ Compiler")
 if (NOT GNU AND NOT Clang AND NOT AppleClang AND NOT Intel)
   message(WARNING "Unsupported compiler. Build will likely fail.")
 endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
+# - C++ standard and extensions
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ ISO Standard")
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-include(MacroUtilities)
+# - Basic library settings
+# Review this as this is strictly incorrect for macOS (likely ROOT-ism)
+if(APPLE)
+  set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+endif()
+
+# Install paths
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries.")
+set(INSTALL_INCLUDE_DIR include CACHE PATH
+    "Installation directory for header files.")
+set(INSTALL_CMAKE_DIR lib/cmake/VecGeom CACHE PATH
+    "Installation directory for CMake files.")
+
+# Make relative paths absolute
+foreach(p LIB BIN INCLUDE CMAKE)
+  set(var INSTALL_${p}_DIR)
+  if(NOT IS_ABSOLUTE "${${var}}")
+    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+  endif()
+endforeach()
+
+
 ################################################################################
-
 # Configuration options
-
 option(BUILTIN_VECCORE "Build VecCore and its dependencies from source" OFF)
 option(CUDA "Enable compilation for CUDA." OFF)
 option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF)
@@ -94,24 +115,6 @@ endif()
 
 option(VTUNE "Enable the use of profiler Vtune" OFF)
 
-set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries.")
-set(INSTALL_INCLUDE_DIR include CACHE PATH
-    "Installation directory for header files.")
-set(INSTALL_CMAKE_DIR lib/cmake/VecGeom CACHE PATH
-    "Installation directory for CMake files.")
-
-# Make relative paths absolute
-foreach(p LIB BIN INCLUDE CMAKE)
-  set(var INSTALL_${p}_DIR)
-  if(NOT IS_ABSOLUTE "${${var}}")
-    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-  endif()
-endforeach()
-
-if (APPLE)
-   set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
-endif()
-
 if (GEANT4)
    set(Geant4 ON)
 endif()
@@ -145,8 +148,8 @@ else()
   message(FATAL_ERROR "Unknown backend: '${BACKEND}'. Known values are: Scalar, UMESIMD, Vc.")
 endif()
 
-
-# Which version of VecCore do we need.
+#----------------------------------------------------------------------
+# Minimum version of VecCore we need.
 set(VecCore_VERSION "0.5.2")
 
 if (POLICY CMP0074)
@@ -154,135 +157,30 @@ if (POLICY CMP0074)
 endif()
 
 # Let's see if we can find VecCore
-if (NOT BUILTIN_VECCORE)
+if(NOT BUILTIN_VECCORE)
   # Find VecCore with selected components turned on (CUDA and backend)
-  find_package(VecCore ${VecCore_VERSION} QUIET COMPONENTS ${VecCore_COMPONENTS})
-  if (NOT VecCore_FOUND)
+  find_package(VecCore ${VecCore_VERSION} COMPONENTS ${VecCore_COMPONENTS})
+  if(NOT VecCore_FOUND)
     set(BUILTIN_VECCORE ON)
-  else()
-    message("-- Found VecCore at: ${VecCore_ROOT_DIR}")
   endif()
 endif()
-if (BUILTIN_VECCORE)
-    #  This function is used to force a build on a dependant project at cmake configuration phase.
-    #
-    function (build_external_project target globpattern ) #FOLLOWING ARGUMENTS are the ARGS of ExternalProject_Add
 
-      set(trigger_build_topdir ${CMAKE_BINARY_DIR}/buildExternals/${target})
-      set(trigger_src_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/trigger_src)
-      set(trigger_build_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/build)
-
-      #mktemp dir in build tree
-      file(MAKE_DIRECTORY ${trigger_build_dir} ${trigger_src_dir} ${trigger_build_dir})
-
-      #generate false dependency project
-      set(CMAKE_LIST_CONTENT "
-          cmake_minimum_required(VERSION 2.8)
-
-          include(ExternalProject)
-          ExternalProject_add(${target}
-                  ${ARGN}
-                  )
-
-          add_custom_target(trigger_${target})
-          add_dependencies(trigger_${target} ${target})
-      ")
-
-      file(WRITE ${trigger_src_dir}/CMakeLists.txt "${CMAKE_LIST_CONTENT}")
-
-      execute_process(COMMAND ${CMAKE_COMMAND} ${trigger_src_dir} -G ${CMAKE_GENERATOR}
-        WORKING_DIRECTORY ${trigger_build_dir}
-      )
-      execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        WORKING_DIRECTORY ${trigger_build_dir}
-      )
-
-      FILE(GLOB VecCoreHeaders string(${globpattern}))
-
-      add_custom_target(${target})
-      add_custom_command(
-              OUTPUT ${VecCoreHeaders}
-              COMMAND ${CMAKE_COMMAND} --build .
-              WORKING_DIRECTORY ${trigger_build_dir}
-      )
-    endfunction()
-
-
-    set(VecCore_PROJECT "VecCore-${VecCore_VERSION}")
-    set(VecCore_SRC_URI "http://lcgpackages.web.cern.ch/lcgpackages/tarFiles/sources")
-    set(VecCore_SRC_MD5 "caca009e8ad655fc449ec593ce9764c1")
-    set(VecCore_DESTDIR "${CMAKE_BINARY_DIR}/installExternals/${VecCore_PROJECT}")
-    set(VecCore_ROOTDIR "${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX}")
-    set(VecCore_SRC_TAG "v${VecCore_VERSION}")
-
-    if (Vc)
-      if (MIC)
-        set(KNC_SUFFIX "_MIC")
-      endif()
-      set(Vc_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}Vc${KNC_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
-      set(Vc_LIBRARY ${VecCore_ROOTDIR}/lib${LIB_SUFFIX}/${Vc_LIBNAME})
-    endif()
-
-
-    if (DEFINED UMESIMD_DIR AND NOT DEFINED UMESIMD_ROOT)
-      set(UMESIMD_ROOT ${UMESIMD_DIR})
-    endif()
-
-    build_external_project(${VecCore_PROJECT}
-      "${VecCore_ROOTDIR}/include/VecCore/*.h;${VecCore_ROOTDIR}/include/VecCore/VecCore;${VecCore_ROOTDIR}/include/VecCore/Backend/*.h"
-      "URL \"${VecCore_SRC_URI}/VecCore-${VecCore_VERSION}.tar.gz\"
-      URL_MD5 ${VecCore_SRC_MD5}
-      #GIT_REPOSITORY \"${VecCore_SRC_URI}\"
-      #GIT_TAG \"${VecCore_SRC_TAG}\"
-
-      PREFIX external
-      STAMP_DIR external/stamp
-      BINARY_DIR external/build
-      BUILD_IN_SOURCE 0
-      LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-      CMAKE_ARGS -G \"${CMAKE_GENERATOR}\"
-                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DBUILD_TESTING=OFF
-                 -DCUDA=${CUDA} -DVC=${Vc} -DUMESIMD=${UMESIMD}
-                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-               \"-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}\"
-                 -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-               \"-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}\"
-                 -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-               \"-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}\"
-               \"-DVc_DIR=${Vc_DIR}\"
-               \"-DUMESIMD_ROOT=${UMESIMD_ROOT}\"
-      INSTALL_COMMAND env DESTDIR=${VecCore_DESTDIR} ${CMAKE_COMMAND} --build . --target install"
-    )
-
-    add_custom_target(VecCore)
-    add_dependencies(VecCore ${VecCore_PROJECT})
-
-    install(DIRECTORY ${VecCore_ROOTDIR}/ DESTINATION "." )
-
-    # Find VecCore with selected components turned on (CUDA and backend)
-    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX})
-
-    # Make sure to look again for a version of VecCore so that we can make sure to find
-    # the one we just build.
-    unset(VecCore_DIR CACHE)
-
+# Have to recheck because the above may re-set the variable
+if(BUILTIN_VECCORE)
+  include(BuiltinVecCore)
 endif()
 
 # Find VecCore with selected components turned on (CUDA and backend)
 find_package(VecCore ${VecCore_VERSION} REQUIRED COMPONENTS ${VecCore_COMPONENTS})
 
-message("-- Found VecCore at: ${VecCore_ROOT_DIR}")
-
+# Should no longer need this as VecCore provides usage requirements
 include_directories(${VecCore_INCLUDE_DIRS})
-set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} ${VecCore_DEFINITIONS}")
-set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_${_BACKEND_UP}")
+set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} ${VecCore_DEFINITIONS} -DVECGEOM_${_BACKEND_UP}")
 set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${VecCore_INCLUDE_DIRS}")
 set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${VecCore_LIBRARIES})
-
-################################################################################
+#----------------------------------------------------------------------
 
 # Set Default compiler flags for each build type
-
 string(TOLOWER ${VECGEOM_VECTOR} _arch_lo)
 string(TOUPPER ${VECGEOM_VECTOR} _arch_up)
 
@@ -723,7 +621,7 @@ set(VECGEOM_SRCS
   source/ABBoxManager.cpp
   source/HybridManager2.cpp
   source/FlatVoxelManager.cpp
-  
+
   source/MessageLogger.cpp
 
   services/NavigationSpecializer.cpp
@@ -733,11 +631,11 @@ set(VECGEOM_SRCS
   source/Utils3D.cpp
   source/SolidMesh.cpp
  )
- 
+
 if (EMBREE)
 set(VECGEOM_SRCS
     ${VECGEOM_SRCS}
-    source/EmbreeManager.cpp  
+    source/EmbreeManager.cpp
 )
 endif()
 
@@ -1009,7 +907,7 @@ if(DOXYGEN_FOUND)
   foreach(d doc/doxygen backend base benchmarking management navigation scripts source volumes)
     set(DOXYFILE_SOURCE_DIRS "${DOXYFILE_SOURCE_DIRS} ${CMAKE_SOURCE_DIR}/${d}")
   endforeach()
-  
+
   configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/Doxyfile.in
                   ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
   add_custom_target(doxygen
