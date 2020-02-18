@@ -4,44 +4,22 @@
 #    \authors Author:  Dmitry Savin
 #
 #    \license Distributed under the Apache license 2.0
-
-MACRO(SUBDIRLIST result curdir)
-  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
-  SET(dirlist "")
-  FOREACH(child ${children})
-    IF(IS_DIRECTORY ${curdir}/${child})
-      LIST(APPEND dirlist ${child})
-    ENDIF()
-  ENDFOREACH()
-  SET(${result} ${dirlist})
-ENDMACRO()
-
-option(GDMLTESTING "Enable testing of GDML persitency" ON)
-
-if(NOT GDMLTESTING)
-  return()
-endif()
-
-# find_package(XercesC REQUIRED)
-SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR})
-
-foreach(testname ${SUBDIRS})
-  file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/${testname}/*.cpp)
-  file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/${testname}/*.hpp)
-  add_executable(${testname} ${sources} ${headers})
-  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
-  install(TARGETS ${testname} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  target_link_libraries(${testname} vgdml ${USERKERNELLIB})
-  get_target_property(VGDML_INCLUDES vgdml INCLUDE_DIRECTORIES)
-  target_include_directories(${testname} PUBLIC ${VGDML_INCLUDES})
+# One executable for Backend/Frontend/Middleware
+foreach(_vgdml_test TestXercesBackend TestXercesFrontend TestXercesMiddleware)
+  add_executable(${_vgdml_test} ${_vgdml_test}/${_vgdml_test}.cpp)
+  # Not 100% clear that USERKERNELLIB is needed
+  target_link_libraries(${_vgdml_test} vgdml ${USERKERNELLIB})
 endforeach()
 
+# Add tests for each type with needed input GDML file
+# - Backend
 file(GLOB GDMLS ${CMAKE_CURRENT_SOURCE_DIR}/../gdmls/*.gdml)
 foreach(GDML ${GDMLS})
   get_filename_component(BASENAMEGDML ${GDML} NAME)
   add_test(NAME TestXercesBackend-${BASENAMEGDML} COMMAND TestXercesBackend ${GDML})
 endforeach()
 
+# - Middleware
 foreach(BASENAMEGDML oneOrb oneSphere oneTorus oneBox oneTube oneConeSegment oneParallelepiped oneTrapezoid oneParaboloid oneGeneralTrapezoid oneHyperbolicTube oneCutTube aConstant twoBoxes aPosition aRotation solidIntersection solidSubtraction solidUnion onePolycone onePolyhedron cms2018)
   set(GDMLFILE ${CMAKE_CURRENT_SOURCE_DIR}/../gdmls/${BASENAMEGDML}.gdml)
   add_test(NAME TestXercesMiddleware-${BASENAMEGDML} COMMAND TestXercesMiddleware ${GDMLFILE})

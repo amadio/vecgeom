@@ -5,25 +5,28 @@
 #
 #    \license Distributed under the Apache license 2.0
 
-#add_subdirectory(backend)
-#add_subdirectory(middleware)
+add_library(vgdml
+  include/Backend.h
+  include/Frontend.h
+  include/Helper.h
+  include/MaterialInfo.h
+  include/Middleware.h
+  src/Backend.cpp
+  src/Frontend.cpp
+  src/Helper.cpp
+  src/Middleware.cpp
+)
 
-file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+# Don't force this yet
+#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
 
-message(STATUS "XercesC_INCLUDE_DIR is ${XercesC_INCLUDE_DIR}")
-if(BUILTIN_XercesC)
-  add_dependencies(vgdmlBackend XercesC-internal)
-endif()
+target_include_directories(vgdml PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+)
+target_link_libraries(vgdml PUBLIC ${VECGEOM_LIBRARIES} XercesC::XercesC)
 
-add_library(vgdml ${sources} ${backend_sources} ${middleware_sources} ${headers} ${backend_headers} ${middleware_headers})
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
-install(TARGETS vgdml DESTINATION lib)
-install(FILES ${headers} DESTINATION include/VecGeom/gdml)
-target_link_libraries(vgdml ${VECGEOM_LIBRARIES} ${XercesC_LIBRARY})
-target_include_directories(vgdml PUBLIC 
-  ${XercesC_INCLUDE_DIR} ${VECGEOM_INCLUDE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/
-  ${CMAKE_CURRENT_SOURCE_DIR}/backend/include/
-  ${CMAKE_CURRENT_SOURCE_DIR}/middleware/include/
+install(TARGETS vgdml DESTINATION ${INSTALL_LIB_DIR})
+install(DIRECTORY include/ DESTINATION include/VecGeom/gdml
+  FILES_MATCHING PATTERN "*.h"
 )
