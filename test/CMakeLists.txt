@@ -149,7 +149,6 @@ if(CTEST)
   if(NOT CUDA)
     list(APPEND TEST_EXECUTABLES_CORE
       core/testVectorSafety.cpp
-      globalbenchmarks/NavigationBenchmark.cpp
     )
   endif(NOT CUDA)
 
@@ -299,7 +298,6 @@ if(CUDA)
   set(TEST_EXECUTABLES_CUDA
     cuda/MapTest.cpp
     cuda/MapTestClass.cpp
-    globalbenchmarks/NavigationBenchmark.cpp
   )
   build_executables("${TEST_EXECUTABLES_CUDA}")
   #  add_to_ctest("${TEST_EXECUTABLES_CUDA}")

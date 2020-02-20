@@ -38,6 +38,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${PROJECT_SOURCE_DIR}/test/benchmark/ExtrudedBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/benchmark/MultiUnionBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/benchmark/UnionFlatteningBenchmark.cpp
+  ${PROJECT_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
  PARENT_SCOPE
 )
 
