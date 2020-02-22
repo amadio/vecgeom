@@ -225,17 +225,19 @@ void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, R
   }
 
   // make sure point falls on positive part of projection
-  vecCore::MaskedAssign(
-      safety, phi1 > -kHalfTolerance && pos.x() * tube.fAlongPhi1x + pos.y() * tube.fAlongPhi1y > 0. && phi1 < safety,
-      phi1);
+  vecCore::MaskedAssign(safety,
+                        phi1 > -kHalfTolerance &&
+                            /*pos.x() * tube.fAlongPhi1x + pos.y() * tube.fAlongPhi1y > 0. &&*/ phi1 < safety,
+                        phi1);
 
   Real_v phi2 = PerpDist2D<Real_v>(pos.x(), pos.y(), Real_v(tube.fAlongPhi2x), Real_v(tube.fAlongPhi2y));
   if (!inside) phi2 *= -1;
 
   // make sure point falls on positive part of projection
-  vecCore::MaskedAssign(
-      safety, phi2 > -kHalfTolerance && pos.x() * tube.fAlongPhi2x + pos.y() * tube.fAlongPhi2y > 0. && phi2 < safety,
-      phi2);
+  vecCore::MaskedAssign(safety,
+                        phi2 > -kHalfTolerance &&
+                            /*pos.x() * tube.fAlongPhi2x + pos.y() * tube.fAlongPhi2y > 0. &&*/ phi2 < safety,
+                        phi2);
 }
 
 /*
