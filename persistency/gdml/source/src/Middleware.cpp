@@ -448,6 +448,22 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoole
     } else if (theChildNodeName == "rotationref") {
       auto const rotationName = GetAttribute("ref", aDOMElement->getAttributes());
       rotation                = rotationMap[rotationName];
+    } else if (theChildNodeName == "position") {
+      auto attributes = aDOMElement->getAttributes();
+      // auto const positionName = GetAttribute("name", attributes);
+      auto const lengthMultiplier = GetLengthMultiplier(aDOMElement);
+      DECLAREANDGETLENGTVAR(x)
+      DECLAREANDGETLENGTVAR(y)
+      DECLAREANDGETLENGTVAR(z)
+      position = vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>{x, y, z};
+    } else if (theChildNodeName == "rotation") {
+      auto const *const attributes = aDOMElement->getAttributes();
+      // auto const rotationName      = GetAttribute("name", attributes);
+      auto const angleMultiplier = GetAngleMultiplier(aDOMElement);
+      DECLAREANDGETANGLEVAR(x)
+      DECLAREANDGETANGLEVAR(y)
+      DECLAREANDGETANGLEVAR(z)
+      rotation = vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>{x, y, z};
     }
   }
   if (!secondSolid || !firstSolid) {
