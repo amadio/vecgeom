@@ -34,7 +34,6 @@ int runTester(ImplT const *shape, int npoints, bool debug, bool stat)
   std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << "\n";
   std::cout << "=========================================================\n";
 
-  if (shape) delete shape;
   return errcode;
 }
 } // namespace
