@@ -4,6 +4,8 @@
 #ifndef VECGEOM_UTILITIES_VISUALIZER_H_
 #define VECGEOM_UTILITIES_VISUALIZER_H_
 
+#include "VecGeom/base/Config.h"
+
 #ifndef VECGEOM_ROOT
 #error "Visualizer currently only available with ROOT enabled."
 #endif

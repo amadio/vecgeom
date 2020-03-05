@@ -1,4 +1,6 @@
 // Purpose: Simple Unit test for flattening Boolean volumes
+#include "VecGeom/base/Config.h"
+
 #ifndef VECGEOM_ENABLE_CUDA
 
 #include "VecGeom/volumes/LogicalVolume.h"

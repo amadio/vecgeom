@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "VecGeom/base/Config.h"
 #ifdef VECGEOM_CUDA_INTERFACE
 #include "VecGeom/management/CudaManager.h"
 #endif

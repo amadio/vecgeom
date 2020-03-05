@@ -8,6 +8,8 @@
 #undef VERBOSE
 //#define VERBOSE
 
+#include "VecGeom/base/Config.h"
+
 #ifdef VECGEOM_ROOT
 #include "VecGeom/management/RootGeoManager.h"
 #include "utilities/Visualizer.h"

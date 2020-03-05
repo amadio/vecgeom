@@ -1,3 +1,5 @@
+#include "VecGeom/base/Config.h"
+
 #ifndef VECGEOM_ENABLE_CUDA
 
 #include <VecCore/VecCore>

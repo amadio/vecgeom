@@ -1,0 +1,68 @@
+/// \file Config.h
+/// \author Ben Morgan (Ben.Morgan@warwick.ac.uk)
+
+#ifndef VECGEOM_BASE_CONFIG_H_
+#define VECGEOM_BASE_CONFIG_H_
+
+// Scalar/Vector Backend (only one can be defined)
+#cmakedefine VECGEOM_SCALAR
+#cmakedefine VECGEOM_UMESIMD
+#cmakedefine VECGEOM_VC
+
+// Other symbols that are added to VECGEOM_DEFINITIONS, and their activation rule
+
+// CUDA Settings
+// When CUDA is ON
+#cmakedefine VECGEOM_ENABLE_CUDA
+// When CUDA_VOLUME_SPECIALIZATION) is ON (NB: the _NO_ version must be defined otherwise)
+#cmakedefine VECGEOM_CUDA_VOLUME_SPECIALIZATION
+#ifndef VECGEOM_CUDA_VOLUME_SPECIALIZATION
+#define VECGEOM_CUDA_NO_VOLUME_SPECIALIZATION
+#endif
+
+// When QUADRILATERAL_ACCELERATION is ON (Maybe a VC dependence as well?)
+// Also, *seems* to only affect template functions in headers, so maybe choice is deferred?
+#cmakedefine VECGEOM_QUADRILATERALS_VC
+
+// When NO_SPECIALIZATION is ON
+// Pretty clear this affects API and ABI
+#cmakedefine VECGEOM_NO_SPECIALIZATION
+
+// Both of the following are API and ABI
+// Nb: for volume conversion part, *might* be possible to isolate in separate library?
+// When ROOT is ON
+#cmakedefine VECGEOM_ROOT
+
+// When Geant4 is ON
+#cmakedefine VECGEOM_GEANT4
+
+// When EMBREE is ON
+// API/ABI, though relatively localized to VecGeom/volumes/TessellatedStruct.h
+/#cmakedefine VECGEOM_EMBREE
+
+// Volume related...
+// When INPLACE_TRANSFORMATIONS is ON
+#cmakedefine VECGEOM_INPLACE_TRANSFORMATIONS
+
+// Defined when PLANESHELL is OFF
+#cmakedefine VECGEOM_PLANESHELL_DISABLE
+
+
+// Navigation related...
+// When USE_CACHED_TRANSFORMATIONS is ON
+#cmakedefine VECGEOM_CACHED_TRANS
+
+// When USE_INDEXEDNAVSTATES is ON
+#cmakedefine VECGEOM_USE_INDEXEDNAVSTATES
+
+// Testing, debugging, profiling...
+// When DISTANCE_DEBUG is ON
+#cmakedefine VECGEOM_DISTANCE_DEBUG
+
+// When BENCHMARK is ON (NB: Not clear it's used at all in code)
+#cmakedefine VECGEOM_BENCHMARK
+
+// When VTUNE is ON
+#cmakedefine VECGEOM_VTUNE
+
+#endif

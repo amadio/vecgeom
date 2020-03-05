@@ -8,6 +8,8 @@
 #error VecGeom requires compiler and library support for the ISO C++ 2011 standard.
 #endif
 
+#include "VecGeom/base/Config.h"
+
 #ifdef VECGEOM_FLOAT_PRECISION
 #define VECCORE_SINGLE_PRECISION
 #endif

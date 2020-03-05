@@ -175,7 +175,7 @@ find_package(VecCore ${VecCore_VERSION} REQUIRED COMPONENTS ${VecCore_COMPONENTS
 
 # Should no longer need this as VecCore provides usage requirements
 include_directories(${VecCore_INCLUDE_DIRS})
-set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} ${VecCore_DEFINITIONS} -DVECGEOM_${_BACKEND_UP}")
+set(VECGEOM_DEFINITIONS "${VecCore_DEFINITIONS}")
 set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${VecCore_INCLUDE_DIRS}")
 set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${VecCore_LIBRARIES})
 #----------------------------------------------------------------------
@@ -293,19 +293,17 @@ message(STATUS "Compiling for ${_arch_up} SIMD architecture")
 
 if ((NOT PLANESHELL))
   message(STATUS "Disabling PlaneShell class")
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_PLANESHELL_DISABLE")
+  set(VECGEOM_PLANESHELL_DISABLE TRUE)
 endif()
 
 if (CUDA)
   set(CUDA_ARCH 30 CACHE STRING "CUDA device architecture.")
   set(CUDA_ARCH "-arch=sm_${CUDA_ARCH}")
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_ENABLE_CUDA")
+
+  set(VECGEOM_ENABLE_CUDA ON)
+
   if (CUDA_VOLUME_SPECIALIZATION)
-    set(VECGEOM_DEFINITIONS
-        "${VECGEOM_DEFINITIONS} -DVECGEOM_CUDA_VOLUME_SPECIALIZATION")
-  else()
-    set(VECGEOM_DEFINITIONS
-        "${VECGEOM_DEFINITIONS} -DVECGEOM_CUDA_NO_VOLUME_SPECIALIZATION")
+    set(VECGEOM_CUDA_VOLUME_SPECIALIZATION ON)
   endif()
   set(VECGEOM_NVCC_COMPILATION_FLAGS ${VECGEOM_NVCC_COMPILATION_FLAGS}
       -std=c++${CMAKE_CXX_STANDARD}
@@ -383,43 +381,37 @@ endif()
 
 # Forward CMake options
 if (QUADRILATERAL_ACCELERATION)
-  set(VECGEOM_DEFINITIONS
-      "${VECGEOM_DEFINITIONS} -DVECGEOM_QUADRILATERALS_VC")
+  set(VECGEOM_QUADRILATERALS_VC ON)
 endif()
 if (BENCHMARK)
-  set(VECGEOM_DEFINITIONS
-      "${VECGEOM_DEFINITIONS} -DVECGEOM_BENCHMARK")
+  set(VECGEOM_BENCHMARK ON)
 endif()
 if (NO_SPECIALIZATION)
-  set(VECGEOM_DEFINITIONS
-      "${VECGEOM_DEFINITIONS} -DVECGEOM_NO_SPECIALIZATION")
+  set(VECGEOM_NO_SPECIALIZATION ON)
 endif()
 if (ROOT)
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_ROOT")
+  set(VECGEOM_ROOT ON)
 endif()
 if (EMBREE)
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_EMBREE")
+  set(VECGEOM_EMBREE ON)
 endif()
 if (USE_CACHED_TRANSFORMATIONS)
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_CACHED_TRANS")
+  set(VECGEOM_CACHED_TRANS ON)
 endif()
 if (Geant4)
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_GEANT4")
+  set(VECGEOM_GEANT4 ON)
 endif()
 if (DISTANCE_DEBUG)
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_DISTANCE_DEBUG")
+  set(VECGEOM_DISTANCE_DEBUG ON)
 endif()
 if (VTUNE)
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_VTUNE")
+  set(VECGEOM_VTUNE ON)
 endif()
 if (INPLACE_TRANSFORMATIONS)
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_INPLACE_TRANSFORMATIONS")
+  set(VECGEOM_INPLACE_TRANSFORMATIONS ON)
 endif()
 if (USE_INDEXEDNAVSTATES)
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_USE_INDEXEDNAVSTATES")
-endif()
-if (GDML)
-  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_GDML")
+  set(VECGEOM_USE_INDEXEDNAVSTATES ON)
 endif()
 
 ################################################################################
@@ -451,7 +443,6 @@ if (CUDA)
 endif()
 
 ### Set CXXFLAGS early, so that VECGEOM_GEANT4 and VECGEOM_ROOT are already defined when compiling benchmarks, or it breaks
-
 # Pass flags to compilers
 # We may have addition in compiler flags from the above included packages
 # We don't want to have trailing CMAKE_CXX_FLAGS_"BUILD_TYPE" options on the command line
@@ -539,7 +530,9 @@ endif()
 
 ################################################################################
 
-include_directories(BEFORE ${CMAKE_SOURCE_DIR})
+# TODO: Move to target_include_directories
+include_directories(BEFORE ${PROJECT_SOURCE_DIR})
+include_directories(BEFORE ${PROJECT_BINARY_DIR})
 
 file(GLOB _createnuclei RELATIVE ${CMAKE_SOURCE_DIR} source/generated/CreateNuclei*.cpp)
 set(VECGEOM_SRCS
@@ -766,7 +759,10 @@ if (NOT APPLE)
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt pthread)
 endif()
 
-add_library(vecgeom ${SRC_CPP})
+# - Configure settings header
+configure_file(VecGeom/base/Config.h.in ${PROJECT_BINARY_DIR}/VecGeom/base/Config.h @ONLY)
+
+add_library(vecgeom ${PROJECT_BINARY_DIR}/VecGeom/base/Config.h ${SRC_CPP})
 target_link_libraries(vecgeom ${VECGEOM_LIBRARIES}
                       ${VECGEOM_LIBRARIES_EXTERNAL})
 

@@ -1,3 +1,5 @@
+#include "VecGeom/base/Config.h"
+
 #ifndef VECCORE_CUDA
 
 #include "VecGeom/volumes/LogicalVolume.h"
