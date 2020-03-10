@@ -1,14 +1,14 @@
 # - Config file for the VecGeom package
 # Defines the following variables
-#   VECGEOM_FOUND        - Found the VECGEOM library
-#   VECGEOM_INCLUDE_DIR  - include directories for VecGeom
-#   VECGEOM_LIBRARIES    - libraries to link against
-#   VECGEOM_DEFINITIONS - some core flags used to build the vecgeom library and which need to be reused 
-#                               in projects using VecGeom 
-#   VECGEOM_INSTALL_DIR     - the top level installation path
+#   VECGEOM_FOUND             - Found the VECGEOM library
+#   VECGEOM_INCLUDE_DIR       - include directories for VecGeom
+#   VECGEOM_LIBRARIES         - libraries to link against
+#   VECGEOM_DEFINITIONS       - some core flags used to build the vecgeom library and which need to be reused
+#                               in projects using VecGeom
+#   VECGEOM_INSTALL_DIR       - the top level installation path
 #   VECGEOM_EXTERNAL_INCLUDES - external include paths used during vecgeom compilation (for automatic "discovery" of dependencies)
-#   VECGEOM_C_COMPILER      - the C compiler used to compile VecGeom
-#   VECGEOM_CXX_COMPILER    - the CXX compiler used to compile VecGeom
+#   VECGEOM_C_COMPILER        - the C compiler used to compile VecGeom
+#   VECGEOM_CXX_COMPILER      - the CXX compiler used to compile VecGeom
 
 if(NOT VecGeom_FIND_QUIETLY)
   message(STATUS

@@ -22,11 +22,11 @@ add_library(vgdml
 
 target_include_directories(vgdml PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(vgdml PUBLIC ${VECGEOM_LIBRARIES} XercesC::XercesC)
 
-install(TARGETS vgdml DESTINATION ${INSTALL_LIB_DIR})
-install(DIRECTORY include/ DESTINATION include/VecGeom/gdml
+install(TARGETS vgdml DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+install(DIRECTORY include/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/VecGeom/gdml"
   FILES_MATCHING PATTERN "*.h"
 )

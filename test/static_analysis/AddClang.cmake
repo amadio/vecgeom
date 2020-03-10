@@ -101,7 +101,7 @@ macro(add_clang_library name)
                           DEPENDS ${name}
                           COMMAND "${CMAKE_COMMAND}"
                                   -DCMAKE_INSTALL_COMPONENT=${name}
-                                  -P "${CMAKE_BINARY_DIR}/cmake_install.cmake")
+                                  -P "${PROJECT_BINARY_DIR}/cmake_install.cmake")
       endif()
     endif()
     set_property(GLOBAL APPEND PROPERTY CLANG_EXPORTS ${name})
@@ -137,7 +137,7 @@ macro(add_clang_tool name)
         DEPENDS ${name}
         COMMAND "${CMAKE_COMMAND}"
         -DCMAKE_INSTALL_COMPONENT=${name}
-        -P "${CMAKE_BINARY_DIR}/cmake_install.cmake")
+        -P "${PROJECT_BINARY_DIR}/cmake_install.cmake")
     endif()
   endif()
 endmacro()

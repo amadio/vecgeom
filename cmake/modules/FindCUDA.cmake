@@ -1567,7 +1567,7 @@ macro(CUDA_WRAP_SRCS cuda_target format generated_files)
       endif()
 
       # Create up the comment string
-      file(RELATIVE_PATH generated_file_relative_path "${CMAKE_BINARY_DIR}" "${generated_file}")
+      file(RELATIVE_PATH generated_file_relative_path "${PROJECT_BINARY_DIR}" "${generated_file}")
       if(cuda_compile_to_external_module)
         set(cuda_build_comment_string "Building NVCC ${cuda_compile_to_external_module_type} file ${generated_file_relative_path}")
       else()
@@ -1708,7 +1708,7 @@ function(CUDA_LINK_SEPARABLE_COMPILATION_OBJECTS output_file cuda_target options
     # Add our general CUDA_NVCC_FLAGS with the configuration specifig flags
     set(nvcc_flags ${CUDA_NVCC_FLAGS} ${config_specific_flags} ${nvcc_flags})
 
-    file(RELATIVE_PATH output_file_relative_path "${CMAKE_BINARY_DIR}" "${output_file}")
+    file(RELATIVE_PATH output_file_relative_path "${PROJECT_BINARY_DIR}" "${output_file}")
 
     # Some generators don't handle the multiple levels of custom command
     # dependencies correctly (obj1 depends on file1, obj2 depends on obj1), so

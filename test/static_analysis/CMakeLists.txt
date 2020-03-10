@@ -33,14 +33,14 @@ find_program(CLANG_TIDY_SCRIPT "run-clang-tidy.py" HINTS ${CMAKE_CURRENT_SOURCE_
 
 # add a unit test which will check clang-tidy conformance
 add_test(static_code_test ${CMAKE_CURRENT_SOURCE_DIR}/RunChecks.sh
-    ${CMAKE_BINARY_DIR}/test/static_analysis/libclangTidyVecGeomModule.so
+    ${PROJECT_BINARY_DIR}/test/static_analysis/libclangTidyVecGeomModule.so
     ${CLANG_TIDY}
     ${CLANG_TIDY_SCRIPT}
-    ${CMAKE_BINARY_DIR}
-    ${CMAKE_SOURCE_DIR}
+    ${PROJECT_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}
     )
 
-# 
+#
 # plugin specific stuff starts here
 #
 set(LLVM_LINK_COMPONENTS support)

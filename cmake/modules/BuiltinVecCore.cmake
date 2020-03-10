@@ -1,9 +1,9 @@
 #  This function is used to force a build on a dependant project at cmake configuration phase.
 #
 function (build_external_project target globpattern ) #FOLLOWING ARGUMENTS are the ARGS of ExternalProject_Add
-  set(trigger_build_topdir ${CMAKE_BINARY_DIR}/buildExternals/${target})
-  set(trigger_src_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/trigger_src)
-  set(trigger_build_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/build)
+  set(trigger_build_topdir ${PROJECT_BINARY_DIR}/buildExternals/${target})
+  set(trigger_src_dir ${PROJECT_BINARY_DIR}/buildExternals/${target}/trigger_src)
+  set(trigger_build_dir ${PROJECT_BINARY_DIR}/buildExternals/${target}/build)
 
   #mktemp dir in build tree
   file(MAKE_DIRECTORY ${trigger_build_dir} ${trigger_src_dir} ${trigger_build_dir})
@@ -44,7 +44,7 @@ endfunction()
 set(VecCore_PROJECT "VecCore-${VecCore_VERSION}")
 set(VecCore_SRC_URI "http://lcgpackages.web.cern.ch/lcgpackages/tarFiles/sources")
 set(VecCore_SRC_MD5 "caca009e8ad655fc449ec593ce9764c1")
-set(VecCore_DESTDIR "${CMAKE_BINARY_DIR}/installExternals/${VecCore_PROJECT}")
+set(VecCore_DESTDIR "${PROJECT_BINARY_DIR}/installExternals/${VecCore_PROJECT}")
 set(VecCore_ROOTDIR "${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX}")
 set(VecCore_SRC_TAG "v${VecCore_VERSION}")
 

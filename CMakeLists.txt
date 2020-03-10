@@ -14,6 +14,25 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(MacroUtilities)
 
 ################################################################################
+# - Core CMake settings
+# - Though we check for some absolute paths, ensure there are no others
+set(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION ON)
+
+# - Never export to or search in user/system package registry
+set(CMAKE_EXPORT_NO_PACKAGE_REGISTRY ON)
+set(CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY ON)
+set(CMAKE_FIND_PACKAGE_NO_SYSTEM_PACKAGE_REGISTRY ON)
+
+# - Force project directories to appear first in any list of includes
+set(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
+
+# - Only relink shared libs when interface changes
+set(CMAKE_LINK_DEPENDS_NO_SHARED ON)
+
+# - Only report newly installed files
+set(CMAKE_INSTALL_MESSAGE LAZY)
+
+################################################################################
 # - Core build settings
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
@@ -39,20 +58,21 @@ if(APPLE)
 endif()
 
 # Install paths
-set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries.")
-set(INSTALL_INCLUDE_DIR include CACHE PATH
-    "Installation directory for header files.")
-set(INSTALL_CMAKE_DIR lib/cmake/VecGeom CACHE PATH
-    "Installation directory for CMake files.")
+include(GNUInstallDirs)
+# Add a path for CMake config files (immutable)
+set(CMAKE_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake")
+set(CMAKE_INSTALL_FULL_CMAKEDIR "${CMAKE_INSTALL_FULL_LIBDIR}/cmake")
 
-# Make relative paths absolute
-foreach(p LIB BIN INCLUDE CMAKE)
-  set(var INSTALL_${p}_DIR)
-  if(NOT IS_ABSOLUTE "${${var}}")
-    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-  endif()
-endforeach()
+# Add uninstall target if required
+if(NOT TARGET uninstall)
+  configure_file(cmake/cmake_uninstall.cmake.in
+    "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
+    @ONLY)
 
+  add_custom_target(uninstall
+    COMMAND "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}")
+endif()
 
 ################################################################################
 # Configuration options
@@ -471,7 +491,6 @@ if (ROOT)
 #---Locate the ROOT package and defines a number of variables (e.g. ROOT_INCLUDE_DIRS)
   find_package(ROOT REQUIRED COMPONENTS Geom Graf3d)
 
-  set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib)
 #---setup ROOT include + lib dirs
   include_directories(AFTER SYSTEM ${ROOT_INCLUDE_DIRS})
   link_directories(${ROOT_LIBRARY_DIR})
@@ -508,7 +527,7 @@ if(ROOT)
   # We use VGM to convert (test) geometries from ROOT input to G4
   # without needing an intermediate gdml file
   # for user friendliness .. added as external project for now
-  set(VGM_INSTALL "${CMAKE_BINARY_DIR}/vgminstall/")
+  set(VGM_INSTALL "${PROJECT_BINARY_DIR}/vgminstall/")
   ExternalProject_Add(VGM
                       GIT_REPOSITORY "https://github.com/alisw/VGM.git"
                       CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${VGM_INSTALL} -DWITH_EXAMPLES=OFF -DGeant4_DIR=${Geant4_DIR} -DROOT_DIR=${ROOT_DIR}
@@ -534,7 +553,7 @@ endif()
 include_directories(BEFORE ${PROJECT_SOURCE_DIR})
 include_directories(BEFORE ${PROJECT_BINARY_DIR})
 
-file(GLOB _createnuclei RELATIVE ${CMAKE_SOURCE_DIR} source/generated/CreateNuclei*.cpp)
+file(GLOB _createnuclei RELATIVE ${PROJECT_SOURCE_DIR} source/generated/CreateNuclei*.cpp)
 set(VECGEOM_SRCS
   #.. moved up for faster compilation
   ${_createnuclei}
@@ -662,7 +681,7 @@ set(VECGEOM_SRCS
 )
 
 foreach(SRC ${VECGEOM_SRCS})
-  set(SRC_CPP ${SRC_CPP} ${CMAKE_SOURCE_DIR}/${SRC})
+  set(SRC_CPP ${SRC_CPP} ${PROJECT_SOURCE_DIR}/${SRC})
 endforeach()
 
 # file prefixes that won't be compiled for CUDA
@@ -842,21 +861,22 @@ endif()
 ################################################################################
 # Installation
 file(RELATIVE_PATH INSTALL_INCLUDE_DIR_RELATIVE
-     "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}/.")
+     "${CMAKE_INSTALL_FULL_CMAKEDIR}/VecGeom" "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 file(RELATIVE_PATH INSTALL_LIB_DIR_RELATIVE
-     "${INSTALL_CMAKE_DIR}" "${INSTALL_LIB_DIR}/.")
+     "${CMAKE_INSTALL_FULL_CMAKEDIR}/VecGeom" "${CMAKE_INSTALL_FULL_LIBDIR}")
 # Build
 set(CONF_TYPE "build")
-set(CONF_INCLUDE_DIR "${CMAKE_SOURCE_DIR}")
-set(CONF_LIBRARY_DIR "${CMAKE_BINARY_DIR}")
+set(CONF_INCLUDE_DIR "${PROJECT_SOURCE_DIR}")
+set(CONF_LIBRARY_DIR "${PROJECT_BINARY_DIR}")
 set(CONF_LIBRARIES ${VECGEOM_LIBRARIES_EXTERNAL}
     "${CONF_LIBRARY_DIR}/${VECGEOM_LIBNAME}")
 if (CUDA)
    set(CONF_LIBRARIES ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.so")
    set(CONF_CUDA_STATIC_LIBRARY "${CONF_LIBRARY_DIR}/libvecgeomcuda_static.a")
 endif()
-configure_file(VecGeomConfig.cmake.in
-               "${PROJECT_BINARY_DIR}/VecGeomConfig.cmake" @ONLY)
+
+configure_file(VecGeomConfig.cmake.in "${PROJECT_BINARY_DIR}/VecGeomConfig.cmake" @ONLY)
+
 # Installation
 set(CONF_TYPE "install")
 set(CONF_INCLUDE_DIR "\${THIS_DIR}/${INSTALL_INCLUDE_DIR_RELATIVE}")
@@ -866,34 +886,35 @@ if (CUDA)
    set(CONF_LIBRARIES ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.so")
    set(CONF_CUDA_STATIC_LIBRARY "${CONF_LIBRARY_DIR}/libvecgeomcuda_static.a")
 endif()
+
 configure_file(VecGeomConfig.cmake.in
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake" @ONLY)
 
 # Install the VecGeomConfig.cmake
 install(FILES
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake"
-  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+  DESTINATION "${CMAKE_INSTALL_CMAKEDIR}/VecGeom" COMPONENT dev)
 
 # Install headers and libraries
 foreach(FOLDER VecGeom)
-  install(DIRECTORY ${FOLDER} DESTINATION ${INSTALL_INCLUDE_DIR}
+  install(DIRECTORY ${FOLDER} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     PATTERN "*.h.in" EXCLUDE)
 endforeach()
 install(FILES ${PROJECT_BINARY_DIR}/VecGeom/base/Config.h
-  DESTINATION "${INSTALL_INCLUDE_DIR}/VecGeom/base")
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/VecGeom/base")
 
 string(REPLACE "." ";" SYSTEM_VERSION_LIST ${CMAKE_SYSTEM_VERSION})
 list(GET SYSTEM_VERSION_LIST 0 SYSTEM_VERSION_MAJOR)
 list(GET SYSTEM_VERSION_LIST 1 SYSTEM_VERSION_MINOR)
 list(GET SYSTEM_VERSION_LIST 2 SYSTEM_VERSION_PATCH)
 if(APPLE AND ${SYSTEM_VERSION_MAJOR} LESS 14)
-   install(FILES ${PROJECT_BINARY_DIR}/${VECGEOM_LIBNAME} DESTINATION ${INSTALL_LIB_DIR})
+   install(FILES ${PROJECT_BINARY_DIR}/${VECGEOM_LIBNAME} DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 else ()
-   install(TARGETS vecgeom DESTINATION ${INSTALL_LIB_DIR})
+   install(TARGETS vecgeom DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif ()
 if (CUDA)
-  install(TARGETS vecgeomcuda DESTINATION ${INSTALL_LIB_DIR})
-  install(TARGETS vecgeomcuda_static DESTINATION ${INSTALL_LIB_DIR})
+  install(TARGETS vecgeomcuda DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+  install(TARGETS vecgeomcuda_static DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif()
 
 ################################################################################
@@ -902,9 +923,9 @@ endif()
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-  set(DOXYFILE_OUTPUT_DIR  ${CMAKE_BINARY_DIR}/doxygen)
+  set(DOXYFILE_OUTPUT_DIR  ${PROJECT_BINARY_DIR}/doxygen)
   foreach(d doc/doxygen backend base benchmarking management navigation scripts source volumes)
-    set(DOXYFILE_SOURCE_DIRS "${DOXYFILE_SOURCE_DIRS} ${CMAKE_SOURCE_DIR}/${d}")
+    set(DOXYFILE_SOURCE_DIRS "${DOXYFILE_SOURCE_DIRS} ${PROJECT_SOURCE_DIR}/${d}")
   endforeach()
 
   configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen/Doxyfile.in
@@ -912,7 +933,7 @@ if(DOXYGEN_FOUND)
   add_custom_target(doxygen
                     COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
                     COMMENT "Writing documentation to ${DOXYFILE_OUTPUT_DIR}..."
-                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
   add_custom_target(doxydir
                     COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYFILE_OUTPUT_DIR}
                     COMMENT "Creating doc directory")
