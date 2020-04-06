@@ -1,6 +1,4 @@
-
 #define some benchmark executables
-
 set(TEST_EXECUTABLES_BENCHMARK
   ${PROJECT_SOURCE_DIR}/test/benchmark/BoxBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/benchmark/SExtruBenchmark.cpp
@@ -39,13 +37,12 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${PROJECT_SOURCE_DIR}/test/benchmark/MultiUnionBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/benchmark/UnionFlatteningBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
- PARENT_SCOPE
+  PARENT_SCOPE
 )
 
 #define which ones should be run under ctest
-
 set(THISCTESTS
-# TESTS MARKED # FAIL AND NEED ATTENTION
+  # TESTS MARKED # FAIL AND NEED ATTENTION
   ${PROJECT_SOURCE_DIR}/test/benchmark/BoxBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/benchmark/SExtruBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/benchmark/ConcaveSExtruBenchmark.cpp

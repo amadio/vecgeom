@@ -90,20 +90,30 @@ endfunction()
 if(DATA_DOWNLOAD)
   message(STATUS "Downloading data files")
 
-  download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/cms2015.root" "cms2015.root"
-                             "${PROJECT_SOURCE_DIR}/test/cmstestdata/" "fb3ede867532b372c5e6f7138d00c07e")
-  download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/ExN03.root" "ExN03.root"
-                            "${CMAKE_CURRENT_BINARY_DIR}"                   "b6b0cfdd5035117171bfe1b7f1f40c3f")
+  download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/cms2015.root"
+    "cms2015.root"
+    "${PROJECT_SOURCE_DIR}/test/cmstestdata/"
+    "fb3ede867532b372c5e6f7138d00c07e")
+  download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/ExN03.root"
+    "ExN03.root"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "b6b0cfdd5035117171bfe1b7f1f40c3f")
 endif()
 
 ################################################################################
 # Define executables
 ################################################################################
-# - Benchmark tests
-if(BENCHMARK)
+# - Dedicated Benchmark tests
+if(VECGEOM_BENCHMARK)
   add_subdirectory(benchmark)
   build_executables("${TEST_EXECUTABLES_BENCHMARK}")
   add_to_ctest("${CTESTS_BENCHMARK}")
+endif()
+
+################################################################################
+# - Static Analysis tests
+if(STATIC_ANALYSIS)
+  add_subdirectory(static_analysis)
 endif()
 
 ################################################################################
@@ -139,28 +149,23 @@ if(CTEST)
     core/TestHybridBVH.cpp
     core/TestEarlyReturns.cpp
     core/CreateTessels.cpp
-    core/CreateExtruded.cpp
-  )
+    core/CreateExtruded.cpp)
 
   if(USE_INDEXEDNAVSTATES)
     list(APPEND TEST_EXECUTABLES_CORE core/TestNavigationState.cpp)
   endif()
 
-  if(NOT CUDA)
-    list(APPEND TEST_EXECUTABLES_CORE
-      core/testVectorSafety.cpp
-    )
-  endif(NOT CUDA)
+  if(NOT VECGEOM_ENABLE_CUDA)
+    list(APPEND TEST_EXECUTABLES_CORE core/testVectorSafety.cpp)
+  endif()
 
-build_executables("${TEST_EXECUTABLES_CORE}")
+  build_executables("${TEST_EXECUTABLES_CORE}")
   add_to_ctest("${TEST_EXECUTABLES_CORE}")
-  # set_tests_properties(TestSExtru PROPERTIES TIMEOUT 30)
 endif()
-
 
 ################################################################################
 # - ROOT Tests
-if(ROOT)
+if(VECGEOM_ROOT)
   set(TEST_EXECUTABLES_ROOT
     core/TestNavigationStatePool.cpp
     core/BoxBoxIntersectionTest.cpp
@@ -182,19 +187,18 @@ if(ROOT)
     globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
     # ???
     ${PROJECT_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
-    ${PROJECT_SOURCE_DIR}/services/LibraryGenerator.cpp
-  )
-  if(BENCHMARK)
+    ${PROJECT_SOURCE_DIR}/services/LibraryGenerator.cpp)
+
+  if(VECGEOM_BENCHMARK)
     list(APPEND TEST_EXECUTABLES_ROOT
       root/BenchmarkShapeFromROOTFile.cpp
       root/BenchmarkShapeFromROOTFile_WithVisualization.cpp
       root/CompareDistances.cpp
       root/GenerateSurfacePoints.cpp
-      shape_tester/shapeDebug.cpp
-    )
+      shape_tester/shapeDebug.cpp)
   endif()
 
-  if(EMBREE)
+  if(VECGEOM_EMBREE)
     list(APPEND TEST_EXECUTABLES_ROOT core/EmbreeManagerTest.cpp)
   endif()
 
@@ -203,8 +207,7 @@ if(ROOT)
     root/complex_test1.cpp
     root/E03Test.cpp
     root/TestExportToROOT.cpp
-    root/ImportTGeoPgon.cpp
-  )
+    root/ImportTGeoPgon.cpp)
 
   build_executables("${TEST_EXECUTABLES_ROOT}")
   add_to_ctest("${TEST_UNITTESTEXECUTABLES_ROOT}")
@@ -212,7 +215,7 @@ endif()
 
 ################################################################################
 # - Visualization tests
-if(ROOT)
+if(VECGEOM_ROOT)
   set(TEST_EXECUTABLES_VISUALIZATION
     visualization/VisualizeTrap.cpp
     visualization/VisualizePolycone.cpp
@@ -230,9 +233,9 @@ if(ROOT)
     visualization/VisualizeParallelepiped.cpp
     visualization/VisualizeCutTube.cpp
     # visualization/VisualizeExtruded.cpp
-  )
+    )
 
-  if(NOT CUDA)
+  if(NOT VECGEOM_ENABLE_CUDA)
     list(APPEND TEST_EXECUTABLES_VISUALIZATION visualization/VisualizeMultiUnion.cpp)
   endif()
 
@@ -263,14 +266,12 @@ set(TEST_EXECUTABLES_SHAPES
   unit_tests/TestTorus2.cpp
   unit_tests/TestParaboloid.cpp
   unit_tests/TestReducedPolycone.cpp
-  unit_tests/TestUtils3D.cpp
-)
+  unit_tests/TestUtils3D.cpp)
 
-if(NOT CUDA)
+if(NOT VECGEOM_ENABLE_CUDA)
   list(APPEND TEST_EXECUTABLES_SHAPES
     unit_tests/TestTessellated.cpp
-    unit_tests/TestMesh.cpp
-  )
+    unit_tests/TestMesh.cpp)
 endif()
 
 if(CTEST OR VALIDATION)
@@ -287,20 +288,18 @@ if(CTEST OR VALIDATION)
   add_test(NAME TestParallelepiped COMMAND TestParallelepiped)
   add_test(NAME TestHype COMMAND TestHype)
   add_test(NAME TestGenTrap COMMAND TestGenTrap)
-  if(NOT CUDA)
+  if(NOT VECGEOM_ENABLE_CUDA)
     add_test(NAME TestTessellated COMMAND TestTessellated)
   endif()
 endif()
 
 ################################################################################
 # - CUDA tests
-if(CUDA)
+if(VECGEOM_ENABLE_CUDA)
   set(TEST_EXECUTABLES_CUDA
     cuda/MapTest.cpp
-    cuda/MapTestClass.cpp
-  )
+    cuda/MapTestClass.cpp)
   build_executables("${TEST_EXECUTABLES_CUDA}")
-  #  add_to_ctest("${TEST_EXECUTABLES_CUDA}")
 endif()
 
 
@@ -330,26 +329,24 @@ set(TEST_EXECUTABLES_SHAPETESTER
   shape_tester/shape_testTorus2.cpp
   shape_tester/shape_testCutTube.cpp
   shape_tester/shape_testExtruded.cpp
-  shape_tester/shape_testMultiUnion.cpp
-)
+  shape_tester/shape_testMultiUnion.cpp)
 
-if(ROOT)
+if(VECGEOM_ROOT)
   list(APPEND TEST_EXECUTABLES_SHAPETESTER
     shape_tester/shape_testFromROOTFile.cpp
-    shape_tester/shape_debugFromROOTFile.cpp
-  )
+    shape_tester/shape_debugFromROOTFile.cpp)
 endif()
 
-if(NOT CUDA)
+if(NOT VECGEOM_ENABLE_CUDA)
   list(APPEND TEST_EXECUTABLES_SHAPETESTER shape_tester/shape_testTessellated.cpp)
 endif()
 
-if(BENCHMARK)
+if(VECGEOM_BENCHMARK)
   build_executables("${TEST_EXECUTABLES_SHAPETESTER}")
 endif()
 
 
-if(VALIDATION AND ROOT)
+if(VALIDATION AND VECGEOM_ROOT)
   macro(add_cmsshapevalidation_test TESTNAME SHAPEFILE)
     add_test(NAME ${TESTNAME} COMMAND bash -c "${PROJECT_SOURCE_DIR}/test/scripts/RunRandomValidation ${PROJECT_BINARY_DIR}/BenchmarkShapeFromROOTFile  ${PROJECT_SOURCE_DIR}/test/cmstestdata/cms2015.root  ${PROJECT_SOURCE_DIR}/test/cmstestdata/${SHAPEFILE}" )
   endmacro()
