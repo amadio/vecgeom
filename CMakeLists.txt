@@ -94,11 +94,20 @@ enum_option(VECGEOM_VECTOR DOC "Vector instruction set to be used"
   CASE_INSENSITIVE)
 
 # - ISA Backend
-# Case sensitive because pass to VecCore components is
-set(VECGEOM_BACKENDS Scalar UMESIMD Vc)
+set(VECGEOM_BACKENDS scalar umesimd vc)
 enum_option(BACKEND DOC "Vector backend API to be used"
   TYPE STRING
-  VALUES ${VECGEOM_BACKENDS})
+  VALUES ${VECGEOM_BACKENDS}
+  CASE_INSENSITIVE)
+
+# Case adjustment because pass to VecCore components is
+if(BACKEND STREQUAL "scalar")
+  set(BACKEND "Scalar")
+elseif(BACKEND STREQUAL "umesimd")
+  set(BACKEND "UMESIMD")
+elseif(BACKEND STREQUAL "vc")
+  set(BACKEND "Vc")
+endif()
 
 # Configure backend for export to VecGeom's Config.h and setting up VecCore
 string(TOUPPER "${BACKEND}" _BACKEND_UP)
@@ -224,7 +233,7 @@ endif()
 # Let's see if we can find VecCore
 if(NOT BUILTIN_VECCORE)
   # Find VecCore with selected components turned on (CUDA and backend)
-  find_package(VecCore ${VecCore_VERSION} COMPONENTS ${VecCore_COMPONENTS})
+  find_package(VecCore ${VecCore_VERSION} QUIET COMPONENTS ${VecCore_COMPONENTS})
   if(NOT VecCore_FOUND)
     set(BUILTIN_VECCORE ON)
   endif()
