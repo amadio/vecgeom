@@ -32,9 +32,9 @@ Backend::Backend()
   fDOMParser           = new xercesc::XercesDOMParser;
   auto const schemaDir = std::getenv("GDMLDIR"); // get the alternative schema location for offline use
   if (schemaDir) {
-    auto const shemaFile = (schemaDir + std::string("gdml.xsd")).c_str();
-    fDOMParser->setExternalNoNamespaceSchemaLocation(shemaFile);
-    fDOMParser->loadGrammar(shemaFile, xercesc::Grammar::SchemaGrammarType, true);
+    auto const schemaFile = (schemaDir + std::string("gdml.xsd"));
+    fDOMParser->setExternalNoNamespaceSchemaLocation(schemaFile.c_str());
+    fDOMParser->loadGrammar(schemaFile.c_str(), xercesc::Grammar::SchemaGrammarType, true);
   }
   fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
   fDOMParser->setDoNamespaces(true);
