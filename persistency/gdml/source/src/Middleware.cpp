@@ -149,7 +149,8 @@ double Middleware::GetDoubleAttribute(std::string const &attrName,
 bool Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument)
 {
   auto *rootDocElement = aDOMDocument->getDocumentElement();
-  auto *rootDocNode    = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *>(rootDocElement);
+  if (!rootDocElement) return false;
+  auto *rootDocNode = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *>(rootDocElement);
   return processNode(rootDocNode);
 }
 
