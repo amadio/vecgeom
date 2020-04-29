@@ -23,7 +23,7 @@ class Backend {
   xercesc::XercesDOMParser *fDOMParser;
 
 public:
-  Backend();
+  Backend(bool validate);
   XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Load(std::string const &aFilename);
   void Save(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDoc, std::string const &aFilename);
 };

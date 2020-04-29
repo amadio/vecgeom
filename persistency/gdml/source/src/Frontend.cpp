@@ -13,9 +13,9 @@
 namespace vgdml {
 
 namespace Frontend {
-bool Load(std::string const &aFilename)
+bool Load(std::string const &aFilename, bool validate)
 {
-  auto aBackend      = vgdml::Backend();
+  auto aBackend      = vgdml::Backend(validate);
   auto const aDOMDoc = aBackend.Load(aFilename);
   if (!aDOMDoc) {
     std::cerr << "== Error: GDML file " << aFilename << " could not be loaded\n";

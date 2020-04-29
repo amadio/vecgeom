@@ -57,10 +57,8 @@ public:
   void resetErrors() {}
 };
 
-Backend::Backend()
+Backend::Backend(bool validate)
 {
-  bool validate = true;
-
   // TODO catch errors, do once per program
   xercesc::XMLPlatformUtils::Initialize();
 
@@ -73,7 +71,7 @@ Backend::Backend()
   }
 
   // Should be optional.
-  fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
+  if (validate) fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
 
   fDOMParser->setDoNamespaces(true);
   fDOMParser->setDoSchema(true);
