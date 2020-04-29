@@ -5,6 +5,7 @@
 //!
 
 #include "Backend.h"
+#include "Helper.h"
 
 // TODO leave only the needed
 #include <xercesc/util/PlatformUtils.hpp>
@@ -19,13 +20,47 @@
 #include <xercesc/dom/DOMLSParser.hpp>
 #include <xercesc/dom/DOMLSOutput.hpp>
 #include <xercesc/framework/psvi/PSVIHandler.hpp>
+#include <xercesc/sax/SAXParseException.hpp>
+#include <iostream>
 
 #include <cstdlib>
 
 namespace vgdml {
 
+class ErrorHandler : public xercesc::ErrorHandler {
+  bool fSuppress;
+
+public:
+  ErrorHandler(const bool set) { fSuppress = set; }
+
+  void warning(const xercesc::SAXParseException &exception)
+  {
+    if (fSuppress) {
+      return;
+    }
+    char *message = xercesc::XMLString::transcode(exception.getMessage());
+    std::cerr << "VGDML: VALIDATION WARNING! " << message << " at line: " << exception.getLineNumber() << std::endl;
+    xercesc::XMLString::release(&message);
+  }
+
+  void error(const xercesc::SAXParseException &exception)
+  {
+    if (fSuppress) {
+      return;
+    }
+    char *message = xercesc::XMLString::transcode(exception.getMessage());
+    std::cerr << "VGDML: VALIDATION ERROR! " << message << " at line: " << exception.getLineNumber() << std::endl;
+    xercesc::XMLString::release(&message);
+  }
+
+  void fatalError(const xercesc::SAXParseException &exception) { error(exception); }
+  void resetErrors() {}
+};
+
 Backend::Backend()
 {
+  bool validate = true;
+
   // TODO catch errors, do once per program
   xercesc::XMLPlatformUtils::Initialize();
 
@@ -36,18 +71,32 @@ Backend::Backend()
     fDOMParser->setExternalNoNamespaceSchemaLocation(schemaFile.c_str());
     fDOMParser->loadGrammar(schemaFile.c_str(), xercesc::Grammar::SchemaGrammarType, true);
   }
+
+  // Should be optional.
   fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
+
   fDOMParser->setDoNamespaces(true);
   fDOMParser->setDoSchema(true);
   fDOMParser->setDoXInclude(true);
   fDOMParser->setCreateSchemaInfo(true);
   fDOMParser->setIncludeIgnorableWhitespace(false);
+
+  xercesc::ErrorHandler *handler = new ErrorHandler(!validate);
+  fDOMParser->setErrorHandler(handler);
 }
 
 XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Backend::Load(std::string const &aFilename)
 {
   fDOMParser->resetDocumentPool();
-  fDOMParser->parse(aFilename.c_str());
+
+  try {
+    fDOMParser->parse(aFilename.c_str());
+  } catch (const xercesc::XMLException &e) {
+    std::cerr << "VGDML: " << Helper::Transcode(e.getMessage()) << std::endl;
+  } catch (const xercesc::DOMException &e) {
+    std::cerr << "VGDML: " << Helper::Transcode(e.getMessage()) << std::endl;
+  }
+
   auto doc = fDOMParser->getDocument();
   return doc;
 }
