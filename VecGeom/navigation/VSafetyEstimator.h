@@ -40,6 +40,7 @@ public:
   //! by the navigationstate
   //! this function is a convenience interface to ComputeSafetyForLocalPoint and will usually be implemented in terms of
   //! the latter
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeSafety(Vector3D<Precision> const & /*globalpoint*/,
                                   NavigationState const & /*state*/) const = 0;
 
@@ -92,6 +93,7 @@ template <typename Impl>
 class VSafetyEstimatorHelper : public VSafetyEstimator {
 
 public:
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeSafety(Vector3D<Precision> const &globalpoint, NavigationState const &state) const override
   {
     // calculate local point from global point
