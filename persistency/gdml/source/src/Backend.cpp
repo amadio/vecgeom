@@ -71,7 +71,10 @@ Backend::Backend(bool validate)
   }
 
   // Should be optional.
-  if (validate) fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
+  if (validate)
+    fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
+  else
+    fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
 
   fDOMParser->setDoNamespaces(true);
   fDOMParser->setDoSchema(validate);
