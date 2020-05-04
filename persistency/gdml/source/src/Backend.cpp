@@ -74,7 +74,8 @@ Backend::Backend(bool validate)
   if (validate) fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
 
   fDOMParser->setDoNamespaces(true);
-  fDOMParser->setDoSchema(true);
+  fDOMParser->setDoSchema(validate);
+  fDOMParser->setValidationSchemaFullChecking(validate);
   fDOMParser->setDoXInclude(true);
   fDOMParser->setCreateSchemaInfo(true);
   fDOMParser->setIncludeIgnorableWhitespace(false);
