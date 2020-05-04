@@ -83,7 +83,7 @@ Backend::Backend(bool validate)
   fDOMParser->setCreateSchemaInfo(true);
   fDOMParser->setIncludeIgnorableWhitespace(false);
 
-  xercesc::ErrorHandler *handler = new ErrorHandler(!validate);
+  xercesc::ErrorHandler *handler = new ErrorHandler(false); // Geant4 suppression errors when not validating (!validate);
   fDOMParser->setErrorHandler(handler);
 }
 
