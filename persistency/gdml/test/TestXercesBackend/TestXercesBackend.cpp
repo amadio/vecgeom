@@ -24,7 +24,7 @@ int main(int argC, char *argV[])
     usage();
   }
   auto const filename = std::string((argC > 1) ? argV[1] : "TestXercesBackend.gdml");
-  auto aBackend       = vgdml::Backend();
+  auto aBackend       = vgdml::Backend(true);
   auto const loaded   = aBackend.Load(filename);
   aBackend.Save(loaded, "TestXercesBackend.out.gdml");
   return 0;

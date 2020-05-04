@@ -34,7 +34,7 @@ int main(int argC, char *argV[])
     usage();
   }
   auto const filename = std::string((argC > 1) ? argV[1] : "TestXercesMiddleware.gdml");
-  auto aBackend       = vgdml::Backend();
+  auto aBackend       = vgdml::Backend(true);
   auto const aDOMDoc  = aBackend.Load(filename);
   aBackend.Save(aDOMDoc, "TestXercesMiddleware.out.gdml");
   auto aMiddleware      = vgdml::Middleware();
