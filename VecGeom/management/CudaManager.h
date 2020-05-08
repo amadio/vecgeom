@@ -29,7 +29,13 @@ VECGEOM_DEVICE_FORWARD_DECLARE(void InitDeviceCompactPlacedVolBufferPtr(void *);
 namespace globaldevicegeomdata {
 VECCORE_ATT_DEVICE
 VPlacedVolume *&GetCompactPlacedVolBuffer();
-}
+
+VECCORE_ATT_DEVICE
+NavIndex_t *&GetNavIndex();
+
+VECCORE_ATT_DEVICE
+int GetMaxDepth();
+} // namespace globaldevicegeomdata
 
 #ifndef VECCORE_CUDA
 inline
@@ -72,6 +78,7 @@ private:
   VPlacedVolume const *world_;
   DevicePtr<vecgeom::cuda::VPlacedVolume> world_gpu_;
   DevicePtr<vecgeom::cuda::VPlacedVolume> fPlacedVolumeBufferOnDevice;
+  DevicePtr<NavIndex_t> fNavTableOnDevice;
 
 private:
   /**
@@ -196,6 +203,9 @@ private:
    */
   bool AllocatePlacedVolumesOnCoproc();
 
+  /** Allocator method for the navigation index table */
+  bool AllocateNavIndexOnCoproc();
+
   // template <typename TrackContainer>
   // void LocatePointsTemplate(TrackContainer const &container, const int n,
   //                           const int depth, int *const output) const;
@@ -212,7 +222,7 @@ inline VPlacedVolume const *CudaManager::LookupPlacedCPUPtr(const void *address)
   assert(cpu_ptr != NULL);
   return cpu_ptr;
 }
-}
-} // End global namespace
+} // namespace cxx
+} // namespace vecgeom
 
 #endif // VECGEOM_MANAGEMENT_CUDAMANAGER_H_

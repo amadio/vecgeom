@@ -100,6 +100,16 @@ public:
                    const Precision r7, const Precision r8);
 
   /**
+   * Constructor copying the translation and rotation from memory
+   * geometry.
+   */
+  VECCORE_ATT_HOST_DEVICE
+  Transformation3D(const Precision *trans, const Precision *rot, bool has_trans, bool has_rot)
+  {
+    this->Set(trans, rot, has_trans, has_rot);
+  }
+
+  /**
    * Constructor for a rotation based on a given direction
    * @param axis direction of the new z axis
    * @param inverse if true the origial axis will be rotated into (0,0,u)
@@ -222,6 +232,19 @@ public:
   void SetRotation(const Precision rot0, const Precision rot1, const Precision rot2, const Precision rot3,
                    const Precision rot4, const Precision rot5, const Precision rot6, const Precision rot7,
                    const Precision rot8);
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void Set(const Precision *trans, const Precision *rot, bool has_trans, bool has_rot)
+  {
+    constexpr size_t kN3 = 3 * sizeof(Precision);
+    constexpr size_t kN9 = 9 * sizeof(Precision);
+    memcpy(fTranslation, trans, kN3);
+    memcpy(fRotation, rot, kN9);
+    fHasTranslation = has_trans;
+    fHasRotation    = has_rot;
+    fIdentity       = !fHasTranslation && !fHasRotation;
+  }
 
   // Generation of template parameter codes
 
@@ -764,8 +787,10 @@ void Transformation3D::MultiplyFromRight(Transformation3D const &rhs)
   // TODO: this code should directly operator on Vector3D and Matrix3D
 
   if (rhs.fIdentity) return;
+  fIdentity = false;
 
   if (rhs.HasTranslation()) {
+    fHasTranslation = true;
     // ideal for fused multiply add
     fTranslation[0] += fRotation[0] * rhs.fTranslation[0];
     fTranslation[0] += fRotation[1] * rhs.fTranslation[1];
@@ -781,6 +806,7 @@ void Transformation3D::MultiplyFromRight(Transformation3D const &rhs)
   }
 
   if (rhs.HasRotation()) {
+    fHasRotation   = true;
     Precision tmpx = fRotation[0];
     Precision tmpy = fRotation[1];
     Precision tmpz = fRotation[2];

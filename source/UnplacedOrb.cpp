@@ -128,28 +128,26 @@ SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, size_t nSegm
   typedef Vector3D<double> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
-
-
-  Vec_t *vertices      = new Vec_t[(nSegments + 1) * (nSegments + 1)];
+  Vec_t *vertices = new Vec_t[(nSegments + 1) * (nSegments + 1)];
 
   sm->ResetMesh((nSegments + 1) * (nSegments + 1), nSegments * nSegments);
 
-  double phi_step = 2 * M_PI / nSegments;
-  double theta_step   = M_PI / nSegments;
+  double phi_step   = 2 * M_PI / nSegments;
+  double theta_step = M_PI / nSegments;
   double phi, theta;
 
   double x, y, z, xy;
   for (size_t i = 0; i <= nSegments; ++i) {
     theta = M_PI / 2 - i * theta_step; // starting from pi/2 to -pi/2
-    xy             = GetRadius() * std::cos(theta);
-    z              = GetRadius() * std::sin(theta);
+    xy    = GetRadius() * std::cos(theta);
+    z     = GetRadius() * std::sin(theta);
 
     for (size_t j = 0; j <= nSegments; ++j) {
       phi = j * phi_step; // starting from 0 to 2pi
 
       // vertex position (x, y, z)
-      x                                   = xy * std::cos(phi);
-      y                                   = xy * std::sin(phi);
+      x                                 = xy * std::cos(phi);
+      y                                 = xy * std::sin(phi);
       vertices[i * (nSegments + 1) + j] = Vec_t(x, y, z);
     }
   }
@@ -162,7 +160,6 @@ SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, size_t nSegm
       sm->AddPolygon(4, {k + 1, k, l, l + 1}, true);
     }
   }
-
 
   return sm;
 }
@@ -207,24 +204,25 @@ VPlacedVolume *UnplacedOrb::SpecializedVolume(LogicalVolume const *const volume,
 template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
-                                   Transformation3D const *const transformation, const int id,
-                                   VPlacedVolume *const placement)
+                                   Transformation3D const *const transformation, const int id, const int copy_no,
+                                   const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, id);
+    new (placement) SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, id);
+  return new SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedOrb::SpecializedVolume(LogicalVolume const *const volume,
                                               Transformation3D const *const transformation,
                                               const TranslationCode trans_code, const RotationCode rot_code,
-                                              const int id, VPlacedVolume *const placement) const
+                                              const int id, const int copy_no, const int child_id,
+                                              VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedOrb>(volume, transformation, trans_code, rot_code, id,
-                                                            placement);
+  return VolumeFactory::CreateByTransformation<UnplacedOrb>(volume, transformation, trans_code, rot_code, id, copy_no,
+                                                            child_id, placement);
 }
 
 #endif

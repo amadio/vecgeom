@@ -35,7 +35,7 @@
 using namespace vecgeom;
 
 // create a VecGeom geometry
-LogicalVolume const *make3LevelBooleanSubtraction()
+LogicalVolume *const make3LevelBooleanSubtraction()
 {
   // components for boolean solid
   UnplacedBox const *motherbox       = new UnplacedBox(5., 5., 5.);
@@ -60,7 +60,7 @@ LogicalVolume const *make3LevelBooleanSubtraction()
 
   UnplacedBooleanVolume<kSubtraction> const *booleansolid2 =
       new UnplacedBooleanVolume<kSubtraction>(kSubtraction, booleanlogical->Place(), placedsubtractedbox);
-  LogicalVolume const *booleanlogical2 = new LogicalVolume("booleanL2", booleansolid2);
+  LogicalVolume *const booleanlogical2 = new LogicalVolume("booleanL2", booleansolid2);
   return booleanlogical2;
 }
 

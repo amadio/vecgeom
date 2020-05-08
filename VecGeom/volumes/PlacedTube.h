@@ -39,8 +39,8 @@ public:
   }
 #else
   VECCORE_ATT_DEVICE PlacedTube(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-                                PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id)
+                                PlacedBox const *const boundingBox, const int id, const int copy_no, const int child_id)
+      : VPlacedVolume(logical_volume, transformation, boundingBox, id, copy_no, child_id)
   {
   }
 #endif
@@ -69,7 +69,7 @@ public:
   typedef UnplacedTube UnplacedShape_t;
   using Base::Base;
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLACEDTUBE_H_

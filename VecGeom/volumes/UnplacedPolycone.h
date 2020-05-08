@@ -187,7 +187,6 @@ public:
   virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, size_t nSegments) const override;
 #endif
 
-
   std::ostream &StreamInfo(std::ostream &os) const;
   std::string GetEntityType() const { return "Polycone"; }
 
@@ -264,7 +263,7 @@ public:
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                               const int id,
+                               const int id, const int copy_no, const int child_id,
 #endif
                                VPlacedVolume *const placement = NULL);
 
@@ -283,10 +282,11 @@ public:
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code, const int id,
+                                           const int copy_no, const int child_id,
                                            VPlacedVolume *const placement = NULL) const override
   {
-    return VolumeFactory::CreateByTransformation<SUnplacedPolycone<PolyconeType>>(volume, transformation, trans_code,
-                                                                                  rot_code, id, placement);
+    return VolumeFactory::CreateByTransformation<SUnplacedPolycone<PolyconeType>>(
+        volume, transformation, trans_code, rot_code, id, copy_no, child_id, placement);
   }
 #endif
 };

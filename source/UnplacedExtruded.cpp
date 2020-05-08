@@ -234,7 +234,6 @@ bool UnplacedExtruded::Normal(Vector3D<Precision> const &point, Vector3D<Precisi
   return valid;
 }
 
-
 #ifndef VECCORE_CUDA
 SolidMesh *UnplacedExtruded::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
@@ -243,17 +242,16 @@ SolidMesh *UnplacedExtruded::CreateMesh3D(Transformation3D const &trans, size_t 
 
   SolidMesh *sm = new SolidMesh();
 
-  size_t n      = GetNVertices();
+  size_t n         = GetNVertices();
   size_t nSections = GetNSections();
 
-
   Vec_t *vertices = new Vec_t[nSections * (n + 1)];
-  size_t idx = 0;
-  for(size_t i = 0; i < nSections; i++){
-	  for(size_t j = n; j > 0; j--){
-		  vertices[idx++] = GetStruct().VertexToSection(j - 1, i);
-	  }
-	  vertices[idx++] = GetStruct().VertexToSection(n-1, i);
+  size_t idx      = 0;
+  for (size_t i = 0; i < nSections; i++) {
+    for (size_t j = n; j > 0; j--) {
+      vertices[idx++] = GetStruct().VertexToSection(j - 1, i);
+    }
+    vertices[idx++] = GetStruct().VertexToSection(n - 1, i);
   }
 
   sm->ResetMesh(nSections * (n + 1), (nSections - 1) * (n) + 2);
@@ -261,29 +259,25 @@ SolidMesh *UnplacedExtruded::CreateMesh3D(Transformation3D const &trans, size_t 
   delete[] vertices;
   sm->TransformVertices(trans);
 
-
-
   std::vector<size_t> indices;
-  for(size_t i = n; i > 0; i--){
-	  indices.push_back(i - 1);
+  for (size_t i = n; i > 0; i--) {
+    indices.push_back(i - 1);
   }
   sm->AddPolygon(n, indices, GetStruct().IsConvexPolygon());
 
   indices.clear();
 
-  for(size_t i = 0, k = (nSections - 1)*(n+1); i < n; i++,k++ ){
-	  indices.push_back(k);
+  for (size_t i = 0, k = (nSections - 1) * (n + 1); i < n; i++, k++) {
+    indices.push_back(k);
   }
 
   sm->AddPolygon(n, indices, GetStruct().IsConvexPolygon());
 
-
-
   size_t k = 0;
-  for(size_t i = 0; i < nSections - 1; i++, k++){
-	  for (size_t j = 0; j < n; j++, k++) {
-		  sm->AddPolygon(4, {k,k + 1,k + 1 + n + 1, k + n + 1}, true);
-	  }
+  for (size_t i = 0; i < nSections - 1; i++, k++) {
+    for (size_t j = 0; j < n; j++, k++) {
+      sm->AddPolygon(4, {k, k + 1, k + 1 + n + 1, k + n + 1}, true);
+    }
   }
 
   return sm;
@@ -362,7 +356,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedExtruded::CopyToGpu() const
 {
 #ifdef HYBRID_NAVIGATOR_PORTED_TO_CUDA
   return CopyToGpuImpl<UnplacedExtruded>();
-#else 
+#else
   assert(0 && "Attempted to copy UnplacedExtruded to GPU.  This is not yet supported");
   return DevicePtr<cuda::VUnplacedVolume>(nullptr);
 #endif
@@ -370,9 +364,10 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedExtruded::CopyToGpu() const
 
 #ifndef HYBRID_NAVIGATOR_PORTED_TO_CUDA
 template <>
-size_t DevicePtr<vecgeom::cuda::LoopSpecializedVolImplHelper<vecgeom::cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric> >::SizeOf()
+size_t DevicePtr<vecgeom::cuda::LoopSpecializedVolImplHelper<vecgeom::cuda::ExtrudedImplementation,
+                                                             translation::kGeneric, rotation::kGeneric>>::SizeOf()
 {
-   return 0;
+  return 0;
 }
 
 template <>
@@ -380,12 +375,11 @@ template <>
 void DevicePtr<
     cuda::LoopSpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>>::
     Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>,
-              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int) const
+              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int, int, int) const
 {
   return;
 }
 #endif
-
 
 #endif // VECGEOM_CUDA_INTERFACE
 

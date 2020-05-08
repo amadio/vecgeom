@@ -202,7 +202,7 @@ public:
       static VPlacedVolume *
       Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-             const int id,
+             const int id, const int copy_no, const int child_id,
 #endif
              VPlacedVolume *const placement = NULL);
 
@@ -219,7 +219,7 @@ public:
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                           const int id,
+                                           const int id, const int copy_no, const int child_id,
 #endif
                                            VPlacedVolume *const placement = NULL) const final;
 };

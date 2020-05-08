@@ -337,7 +337,10 @@ public:
 
 /// Generates mesh representation of the solid
 #ifndef VECCORE_CUDA
-  virtual SolidMesh *CreateMesh3D(Transformation3D const &/*trans*/, const size_t /*nSegments*/) const { return nullptr; };
+  virtual SolidMesh *CreateMesh3D(Transformation3D const & /*trans*/, const size_t /*nSegments*/) const
+  {
+    return nullptr;
+  };
 #endif
 
   // Is not static because a virtual function must be called to initialize
@@ -362,6 +365,7 @@ private:
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code, const int id,
+                                           const int copy_no, const int child_id,
                                            VPlacedVolume *const placement = NULL) const = 0;
 
 #endif

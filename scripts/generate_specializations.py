@@ -16,7 +16,7 @@ specialization_string = """\
     return VolumeType::template Create<{:s}, {:#05x}>(
       logical_volume, transformation,
 #ifdef VECCORE_CUDA
-           id,
+           id, copy_no, child_id,
 #endif
       placement);
   }}
@@ -28,12 +28,12 @@ generic_string = """\
   return VolumeType::template Create<translation::kGeneric, rotation::kGeneric>(
       logical_volume, transformation,
 #ifdef VECCORE_CUDA
-           id,
+           id, copy_no, child_id,
 #endif
       placement);\
 """
 
-output_file = open("../management/TransformationSpecializations.icc", "w")
+output_file = open("../VecGeom/management/TransformationSpecializations.icc", "w")
 
 output_file.write(header_string)
 for r in rotation:

@@ -47,8 +47,8 @@ public:
 
   VECCORE_ATT_DEVICE PlacedSphere(LogicalVolume const *const logical_volume,
                                   Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                                  const int id)
-      : Base(logical_volume, transformation, boundingBox, id)
+                                  const int id, const int copy_no, const int child_id)
+      : Base(logical_volume, transformation, boundingBox, id, copy_no, child_id)
   {
   }
 

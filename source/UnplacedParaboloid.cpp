@@ -154,14 +154,13 @@ SolidMesh *UnplacedParaboloid::CreateMesh3D(Transformation3D const &trans, size_
   typedef Vector3D<double> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
-
   size_t nMeshVertices = (nSegments + 1) * (nSegments + 1);
   Vec_t *vertices      = new Vec_t[nMeshVertices];
 
   sm->ResetMesh(nMeshVertices, nSegments * nSegments + 2);
 
-  double phi_step  = 2 * M_PI / nSegments;
-  double phi = 0.;
+  double phi_step = 2 * M_PI / nSegments;
+  double phi      = 0.;
 
   double z_step = 2 * GetDz() / nSegments;
   double z      = -GetDz();
@@ -232,24 +231,25 @@ VPlacedVolume *UnplacedParaboloid::SpecializedVolume(LogicalVolume const *const 
 template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedParaboloid::Create(LogicalVolume const *const logical_volume,
-                                          Transformation3D const *const transformation, const int id,
-                                          VPlacedVolume *const placement)
+                                          Transformation3D const *const transformation, const int id, const int copy_no,
+                                          const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedParaboloid<trans_code, rot_code>(logical_volume, transformation, id);
+    new (placement) SpecializedParaboloid<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedParaboloid<trans_code, rot_code>(logical_volume, transformation, id);
+  return new SpecializedParaboloid<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedParaboloid::SpecializedVolume(LogicalVolume const *const volume,
                                                      Transformation3D const *const transformation,
                                                      const TranslationCode trans_code, const RotationCode rot_code,
-                                                     const int id, VPlacedVolume *const placement) const
+                                                     const int id, const int copy_no, const int child_id,
+                                                     VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedParaboloid>(volume, transformation, trans_code, rot_code, id,
-                                                                   placement);
+                                                                   copy_no, child_id, placement);
 }
 
 #endif

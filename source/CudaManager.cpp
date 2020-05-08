@@ -8,6 +8,7 @@
 #include "VecGeom/base/Stopwatch.h"
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/management/VolumeFactory.h"
+#include "VecGeom/management/NavIndexTable.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/PlacedBooleanVolume.h"
 #include "VecGeom/volumes/PlacedScaledShape.h"
@@ -23,7 +24,8 @@ namespace vecgeom {
 namespace cuda {
 // forward declare a global function
 extern __global__ void InitDeviceCompactPlacedVolBufferPtr(void *gpu_ptr);
-}
+extern __global__ void InitDeviceNavIndexPtr(void *gpu_ptr, int maxdepth);
+} // namespace cuda
 
 inline namespace cxx {
 
@@ -34,7 +36,7 @@ CudaManager::CudaManager() : world_gpu_(), fGPUtoCPUmapForPlacedVolumes()
   verbose_      = 0;
   total_volumes = 0;
 
-  auto res = cudaDeviceSetLimit(cudaLimitStackSize, 4096);
+  auto res = cudaDeviceSetLimit(cudaLimitStackSize, 8192);
   CudaAssertError(res);
 }
 
@@ -55,6 +57,11 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
   Stopwatch timer, overalltimer;
   overalltimer.Start();
   if (verbose_ > 0) std::cerr << "Starting synchronization to GPU.\n";
+
+#ifdef VECGEOM_USE_NAVINDEX
+  if (NavIndexTable::Instance()->GetTableSize() == 0)
+    throw std::runtime_error("VECGEOM_USE_NAVINDEX is defined but navigation index table is not built");
+#endif
 
   // Will return null if no geometry is loaded
   if (synchronized) return vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume>(world_gpu_);
@@ -224,7 +231,7 @@ bool CudaManager::AllocateCollectionOnCoproc(const char *verbose_title, const Co
 
   // record a GPU memory location for each object in the collection to be copied
   for (auto i : data) {
-    memory_map[ToCpuAddress(i)]                                   = gpu_address;
+    memory_map[ToCpuAddress(i)] = gpu_address;
     if (isforplacedvol) fGPUtoCPUmapForPlacedVolumes[gpu_address] = i;
     gpu_address += i->DeviceSizeOf();
   }
@@ -233,6 +240,34 @@ bool CudaManager::AllocateCollectionOnCoproc(const char *verbose_title, const Co
     std::cout << " OK: #elems in alloc_mem=" << allocated_memory_.size() << ", mem_map=" << memory_map.size() << "\n";
   }
 
+  return true;
+}
+
+// Copy navigation index table on the coprocessor
+bool CudaManager::AllocateNavIndexOnCoproc()
+{
+  if (!GeoManager::gNavIndex) return false;
+  auto table_size = NavIndexTable::Instance()->GetTableSize();
+  auto table      = NavIndexTable::Instance()->GetTable();
+
+  // if (verbose_ > 2)
+  std::cout << "Allocating navigation index table...\n";
+
+  GpuAddress gpu_address;
+  gpu_address.Allocate(table_size);
+
+  // store this address for later access (on the host)
+  fNavTableOnDevice = DevicePtr<NavIndex_t>(gpu_address);
+  // this address has to be made known globally to the device side
+  vecgeom::cuda::InitDeviceNavIndexPtr(gpu_address.GetPtr(), GeoManager::Instance().getMaxDepth());
+
+  allocated_memory_.push_back(gpu_address);
+
+  // Copy the table
+  CopyToGpu((char *)table, gpu_address.GetPtr(), table_size);
+
+  // if (verbose_ > 2)
+  std::cout << " OK\n";
   return true;
 }
 
@@ -248,7 +283,7 @@ bool CudaManager::AllocatePlacedVolumesOnCoproc()
   // we start from the compact buffer on the CPU
   unsigned int size = placed_volumes_.size();
 
-  if (verbose_ > 2) std::cout << "Allocating placed volume...\n";
+  if (verbose_ > 2) std::cout << "Allocating placed volumes...\n";
 
   size_t totalSize = 0;
   // calculate total size of buffer on GPU to hold the GPU copies of the collection
@@ -310,6 +345,9 @@ void CudaManager::AllocateGeometry()
   // function
   AllocatePlacedVolumesOnCoproc(); // for placed volumes
 
+  // allocate the navigation index table (if any) on the coprocessor
+  AllocateNavIndexOnCoproc();
+
   // this we should only do if not using inplace transformations
   AllocateCollectionOnCoproc("transformations", transformations_);
 
@@ -338,7 +376,7 @@ void CudaManager::AllocateGeometry()
 
   if (verbose_ > 2) {
     std::cout << " geometry OK: #elems in alloc_mem=" << allocated_memory_.size() << ", mem_map=" << memory_map.size()
-	      << ", dau_gpu_c_array=" << gpu_memory_map.size() << "\n";
+              << ", dau_gpu_c_array=" << gpu_memory_map.size() << "\n";
   }
 
   fprintf(stderr, "NUMBER OF PLACED VOLUMES %ld\n", placed_volumes_.size());
@@ -464,5 +502,5 @@ void CudaManager::PrintGeometry() const
 //   CudaFree(z_gpu);
 //   CudaFree(soa3d_gpu);
 // }
-}
+} // namespace cxx
 } // End namespace vecgeom

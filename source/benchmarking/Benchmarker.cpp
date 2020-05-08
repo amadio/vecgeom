@@ -15,6 +15,7 @@
 
 #ifdef VECGEOM_CUDA_INTERFACE
 #include "VecGeom/backend/cuda/Backend.h"
+#include "VecGeom/management/GeoManager.h"
 #include "VecGeom/management/CudaManager.h"
 #endif
 

@@ -1164,14 +1164,14 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
         vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::Instance().RegisterLogicalVolume(logicVolume);
       }
     } else if (theChildNodeName == "physvol") {
-      auto const daughterVolume = processPhysicalVolume(aDOMElement);
+      auto daughterVolume = processPhysicalVolume(aDOMElement);
       logicVolume->PlaceDaughter(daughterVolume);
     }
   }
   return logicVolume;
 }
 
-vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *Middleware::processPhysicalVolume(
+vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *const Middleware::processPhysicalVolume(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {

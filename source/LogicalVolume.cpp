@@ -78,17 +78,9 @@ LogicalVolume::LogicalVolume(char const *const label, VUnplacedVolume const *con
 VECCORE_ATT_DEVICE
 LogicalVolume::LogicalVolume(VUnplacedVolume const *const unplaced_vol, Vector<Daughter> *GetDaughter)
     // Id for logical volumes is not needed on the device for CUDA
-    : fUnplacedVolume(unplaced_vol),
-      fId(-1),
-      fLabel(nullptr),
-      fUserExtensionPtr(nullptr),
-      fMaterialPtr(nullptr),
-      fMaterialCutsPtr(nullptr),
-      fBasketManagerPtr(nullptr),
-      fDaughters(GetDaughter),
-      fLevelLocator(nullptr),
-      fSafetyEstimator(SimpleSafetyEstimator::Instance()),
-      fNavigator(NewSimpleNavigator<>::Instance())
+    : fUnplacedVolume(unplaced_vol), fId(-1), fLabel(nullptr), fUserExtensionPtr(nullptr), fMaterialPtr(nullptr),
+      fMaterialCutsPtr(nullptr), fBasketManagerPtr(nullptr), fDaughters(GetDaughter), fLevelLocator(nullptr),
+      fSafetyEstimator(SimpleSafetyEstimator::Instance()), fNavigator(NewSimpleNavigator<>::Instance())
 {
 }
 
@@ -128,16 +120,16 @@ VPlacedVolume *LogicalVolume::Place() const
   return Place(fLabel->c_str());
 }
 
-VPlacedVolume const *LogicalVolume::PlaceDaughter(char const *const label, LogicalVolume const *const volume,
+VPlacedVolume const *LogicalVolume::PlaceDaughter(char const *const label, LogicalVolume *const volume,
                                                   Transformation3D const *const transformation)
 {
-  VPlacedVolume const *const placed = volume->Place(label, transformation);
+  VPlacedVolume *const placed = volume->Place(label, transformation);
   //  std::cerr << label <<" LogVol@"<< this <<" and placed@"<< placed << std::endl;
   PlaceDaughter(placed);
   return placed;
 }
 
-VPlacedVolume const *LogicalVolume::PlaceDaughter(LogicalVolume const *const volume,
+VPlacedVolume const *LogicalVolume::PlaceDaughter(LogicalVolume *const volume,
                                                   Transformation3D const *const transformation)
 {
   return PlaceDaughter(volume->GetLabel().c_str(), volume, transformation);
@@ -145,8 +137,12 @@ VPlacedVolume const *LogicalVolume::PlaceDaughter(LogicalVolume const *const vol
 
 #endif
 
-void LogicalVolume::PlaceDaughter(VPlacedVolume const *const placed)
+void LogicalVolume::PlaceDaughter(VPlacedVolume *const placed)
 {
+  int ichild = fDaughters->size();
+  assert(placed->GetChildId() < 0 &&
+         "===FFF=== LogicalVolume::PlaceDaughter: Not allowed to add the same placed volume twice - make a copy first");
+  placed->SetChildId(ichild);
   fDaughters->push_back(placed);
 
   // a good moment to update the bounding boxes
@@ -256,7 +252,7 @@ DevicePtr<cuda::LogicalVolume> LogicalVolume::CopyToGpu(DevicePtr<cuda::VUnplace
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -265,8 +261,8 @@ namespace cxx {
 template size_t DevicePtr<cuda::LogicalVolume>::SizeOf();
 template void DevicePtr<cuda::LogicalVolume>::Construct(DevicePtr<cuda::VUnplacedVolume> const,
                                                         DevicePtr<cuda::Vector<cuda::VPlacedVolume const *>>) const;
-}
+} // namespace cxx
 
 #endif // VECCORE_CUDA
 
-} // End global namespace
+} // namespace vecgeom

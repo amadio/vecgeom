@@ -265,14 +265,14 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::Create(LogicalVolume const *const logical_volume,
                                                            Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                                           const int id,
+                                                           const int id, const int copy_no, const int child_id,
 #endif
                                                            VPlacedVolume *const placement)
 {
   return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kSubtraction, transCodeT, rotCodeT>>(
       logical_volume, transformation,
 #ifdef VECCORE_CUDA
-      id,
+      id, copy_no, child_id,
 #endif
       placement); // TODO: add bounding box?
 }
@@ -283,14 +283,14 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume<kUnion>::Create(LogicalVolume const *const logical_volume,
                                                      Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                                     const int id,
+                                                     const int id, const int copy_no, const int child_id,
 #endif
                                                      VPlacedVolume *const placement)
 {
   return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kUnion, transCodeT, rotCodeT>>(
       logical_volume, transformation,
 #ifdef VECCORE_CUDA
-      id,
+      id, copy_no, child_id,
 #endif
       placement); // TODO: add bounding box?
 }
@@ -301,14 +301,14 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume<kIntersection>::Create(LogicalVolume const *const logical_volume,
                                                             Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                                            const int id,
+                                                            const int id, const int copy_no, const int child_id,
 #endif
                                                             VPlacedVolume *const placement)
 {
   return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kIntersection, transCodeT, rotCodeT>>(
       logical_volume, transformation,
 #ifdef VECCORE_CUDA
-      id,
+      id, copy_no, child_id,
 #endif
       placement); // TODO: add bounding box?
 }
@@ -320,7 +320,8 @@ VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::SpecializedVolume(LogicalVol
                                                                       const TranslationCode trans_code,
                                                                       const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                                                      const int id,
+                                                                      const int id, const int copy_no,
+                                                                      const int child_id,
 #endif
                                                                       VPlacedVolume *const placement) const
 {
@@ -329,7 +330,7 @@ VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::SpecializedVolume(LogicalVol
   return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kSubtraction>>(volume, transformation, trans_code,
                                                                                     rot_code,
 #ifdef VECCORE_CUDA
-                                                                                    id,
+                                                                                    id, copy_no, child_id,
 #endif
                                                                                     placement);
 
@@ -348,7 +349,7 @@ VPlacedVolume *UnplacedBooleanVolume<kUnion>::SpecializedVolume(LogicalVolume co
                                                                 const TranslationCode trans_code,
                                                                 const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                                                const int id,
+                                                                const int id, const int copy_no, const int child_id,
 #endif
                                                                 VPlacedVolume *const placement) const
 {
@@ -357,7 +358,7 @@ VPlacedVolume *UnplacedBooleanVolume<kUnion>::SpecializedVolume(LogicalVolume co
   return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kUnion>>(volume, transformation, trans_code,
                                                                               rot_code,
 #ifdef VECCORE_CUDA
-                                                                              id,
+                                                                              id, copy_no, child_id,
 #endif
                                                                               placement);
 
@@ -376,7 +377,8 @@ VPlacedVolume *UnplacedBooleanVolume<kIntersection>::SpecializedVolume(LogicalVo
                                                                        const TranslationCode trans_code,
                                                                        const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                                                       const int id,
+                                                                       const int id, const int copy_no,
+                                                                       const int child_id,
 #endif
                                                                        VPlacedVolume *const placement) const
 {
@@ -385,7 +387,7 @@ VPlacedVolume *UnplacedBooleanVolume<kIntersection>::SpecializedVolume(LogicalVo
   return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kIntersection>>(volume, transformation, trans_code,
                                                                                      rot_code,
 #ifdef VECCORE_CUDA
-                                                                                     id,
+                                                                                     id, copy_no, child_id,
 #endif
                                                                                      placement);
 

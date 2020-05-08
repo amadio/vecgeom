@@ -71,7 +71,7 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_volume,
                                            Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                           const int id,
+                                           const int id, const int copy_no, const int child_id,
 #endif
                                            VPlacedVolume *const placement)
 {
@@ -79,7 +79,7 @@ VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_vo
     new (placement) SpecializedScaledShape<trans_code, rot_code>(logical_volume, transformation
 #ifdef VECCORE_CUDA
                                                                  ,
-                                                                 id
+                                                                 id, copy_no, child_id
 #endif
     );
     return placement;
@@ -87,7 +87,7 @@ VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_vo
   return new SpecializedScaledShape<trans_code, rot_code>(logical_volume, transformation
 #ifdef VECCORE_CUDA
                                                           ,
-                                                          id
+                                                          id, copy_no, child_id
 #endif
   );
 }
@@ -99,13 +99,13 @@ VPlacedVolume *UnplacedScaledShape::CreateSpecializedVolume(LogicalVolume const 
                                                             const TranslationCode trans_code,
                                                             const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                                            const int id,
+                                                            const int id, const int copy_no, const int child_id,
 #endif
                                                             VPlacedVolume *const placement)
 {
   return VolumeFactory::CreateByTransformation<UnplacedScaledShape>(volume, transformation, trans_code, rot_code,
 #ifdef VECCORE_CUDA
-                                                                    id,
+                                                                    id, copy_no, child_id,
 #endif
                                                                     placement);
 }

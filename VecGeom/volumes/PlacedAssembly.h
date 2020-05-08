@@ -5,6 +5,7 @@
 
 #include "VecGeom/volumes/UnplacedAssembly.h"
 #include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/navigation/NavStateFwd.h"
 
 namespace vecgeom {
 
@@ -13,7 +14,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedAssembly);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class NavigationState;
+// class NavigationState;
 
 // placed version of an assembly
 // simple and unspecialized implementation
@@ -31,8 +32,8 @@ public:
 #else
   VECCORE_ATT_DEVICE PlacedAssembly(char const *const label, LogicalVolume const *const logical_volume,
                                     Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                                    const int id)
-      : VPlacedVolume(logical_volume, transformation, nullptr, id)
+                                    const int id, const int copy_no, const int child_id)
+      : VPlacedVolume(logical_volume, transformation, nullptr, id, copy_no, child_id)
   {
   }
 #endif

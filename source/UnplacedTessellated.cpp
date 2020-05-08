@@ -168,9 +168,10 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTessellated::CopyToGpu() const
 
 #ifndef HYBRID_NAVIGATOR_PORTED_TO_CUDA
 template <>
-size_t DevicePtr<vecgeom::cuda::LoopSpecializedVolImplHelper<vecgeom::cuda::TessellatedImplementation, translation::kGeneric, rotation::kGeneric> >::SizeOf()
+size_t DevicePtr<vecgeom::cuda::LoopSpecializedVolImplHelper<vecgeom::cuda::TessellatedImplementation,
+                                                             translation::kGeneric, rotation::kGeneric>>::SizeOf()
 {
-   return 0;
+  return 0;
 }
 
 template <>
@@ -178,7 +179,7 @@ template <>
 void DevicePtr<
     cuda::LoopSpecializedVolImplHelper<cuda::TessellatedImplementation, translation::kGeneric, rotation::kGeneric>>::
     Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>,
-              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int) const
+              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int, int, int) const
 {
   return;
 }
@@ -186,7 +187,7 @@ void DevicePtr<
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -195,8 +196,8 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedTessellated>::SizeOf();
 template void DevicePtr<cuda::UnplacedTessellated>::Construct() const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom

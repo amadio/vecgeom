@@ -11,6 +11,7 @@
 #include "VecGeom/volumes/UnplacedVolume.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/kernel/BoxImplementation.h"
+#include "VecGeom/navigation/NavStateFwd.h"
 
 namespace vecgeom {
 
@@ -18,8 +19,6 @@ VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedAssembly;);
 VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedAssembly);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
-
-class NavigationState;
 
 // An assembly volume offering navigation interfaces (Contains/Distances/...) in a loose/logical group of volumes
 // An UnplacedAssembly is always strongly coupled to a logical volume because the later naturally manages the actual
@@ -57,7 +56,7 @@ public:
   LogicalVolume const *GetLogicalVolume() const { return fLogicalVolume; }
 
   // add content
-  void AddVolume(VPlacedVolume const *);
+  void AddVolume(VPlacedVolume *const);
 
   // get number of volumes
   size_t GetNVolumes() const { return fLogicalVolume->GetDaughters().size(); }
@@ -222,10 +221,11 @@ public:
   VECCORE_ATT_DEVICE VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                                       Transformation3D const *const transformation,
                                                       const TranslationCode trans_code, const RotationCode rot_code,
-                                                      const int id, VPlacedVolume *const placement) const override;
+                                                      const int id, const int copy_no, const int child_id,
+                                                      VPlacedVolume *const placement) const override;
 #endif
 };
-}
-}
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_UNPLACEDASSEMBLY_H

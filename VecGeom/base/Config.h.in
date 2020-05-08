@@ -55,6 +55,9 @@
 // When USE_INDEXEDNAVSTATES is ON
 #cmakedefine VECGEOM_USE_INDEXEDNAVSTATES
 
+// When USE_NAVINDEX is ON
+#cmakedefine VECGEOM_USE_NAVINDEX
+
 // Testing, debugging, profiling...
 // When DISTANCE_DEBUG is ON
 #cmakedefine VECGEOM_DISTANCE_DEBUG
@@ -64,5 +67,8 @@
 
 // When VTUNE is ON
 #cmakedefine VECGEOM_VTUNE
+
+// When GDML id ON
+#cmakedefine VECGEOM_GDML
 
 #endif

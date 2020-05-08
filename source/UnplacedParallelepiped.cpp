@@ -14,7 +14,6 @@
 #include "VecGeom/volumes/utilities/GenerationUtilities.h"
 #include "VecGeom/base/RNG.h"
 
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -36,18 +35,16 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, s
 
   Vector3D<double> a = Vector3D<double>(dx, 0, 0);
   Vector3D<double> b = Vector3D<double>(dy * std::cos(gamma), dy * std::sin(gamma), 0);
-  Vector3D<double> c = Vector3D<double>(dz * std::cos(beta), dz * intermediate,
-                                        dz * std::sqrt(1 - std::cos(beta) * std::cos(beta) - intermediate * intermediate ));
+  Vector3D<double> c =
+      Vector3D<double>(dz * std::cos(beta), dz * intermediate,
+                       dz * std::sqrt(1 - std::cos(beta) * std::cos(beta) - intermediate * intermediate));
 
-
-  Utils3D::Vec_t vertices[] = {a, a + b, a + b + c, a + c, Vector3D<double>(),
-                                     b, b + c, c};
+  Utils3D::Vec_t vertices[] = {a, a + b, a + b + c, a + c, Vector3D<double>(), b, b + c, c};
 
   // subtract to move the origin to center
   Vector3D<double> origin = (a + b + c) * 0.5;
-  for(auto & vertex: vertices)
-	  vertex -= origin;
-
+  for (auto &vertex : vertices)
+    vertex -= origin;
 
   sm->SetVertices(vertices, 8);
   sm->TransformVertices(trans);
@@ -163,14 +160,14 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedParallelepiped::Create(LogicalVolume const *const logical_volume,
                                               Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                              const int id,
+                                              const int id, const int copy_no, const int child_id,
 #endif
                                               VPlacedVolume *const placement)
 {
 
   return CreateSpecializedWithPlacement<SpecializedParallelepiped<transCodeT, rotCodeT>>(
 #ifdef VECCORE_CUDA
-      logical_volume, transformation, id, placement); // TODO: add bounding box?
+      logical_volume, transformation, id, copy_no, child_id, placement); // TODO: add bounding box?
 #else
       logical_volume, transformation, placement);
 #endif
@@ -182,13 +179,13 @@ VPlacedVolume *UnplacedParallelepiped::SpecializedVolume(LogicalVolume const *co
                                                          Transformation3D const *const transformation,
                                                          const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                                         const int id,
+                                                         const int id, const int copy_no, const int child_id,
 #endif
                                                          VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedParallelepiped>(volume, transformation, trans_code, rot_code,
 #ifdef VECCORE_CUDA
-                                                                       id,
+                                                                       id, copy_no, child_id,
 #endif
                                                                        placement);
 }

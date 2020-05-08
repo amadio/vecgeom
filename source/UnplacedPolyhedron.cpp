@@ -63,7 +63,7 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_volume,
                                           Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                          const int id,
+                                          const int id, const int copy_no, const int child_id,
 #endif
                                           VPlacedVolume *const placement)
 {
@@ -84,7 +84,7 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
 #else
 #define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI)                                                                   \
   return CreateSpecializedWithPlacement<SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, INNER, PHI>>( \
-      logical_volume, transformation, id, placement)
+      logical_volume, transformation, id, copy_no, child_id, placement)
 #endif
 
   if (innerRadii == EInnerRadii::kTrue) {
@@ -100,18 +100,20 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
 
   // Return value in case of NO_SPECIALIZATION
   if (placement) {
-    new (placement) SpecializedPolyhedron<transCodeT, rotCodeT, Polyhedron::EInnerRadii::kGeneric,
+    new (placement)
+        SpecializedPolyhedron<transCodeT, rotCodeT, Polyhedron::EInnerRadii::kGeneric,
 #ifdef VECCORE_CUDA
-                                          Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation, id);
+                              Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation, id, copy_no, child_id);
 #else
-                                          Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation);
+                              Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation);
 #endif
     return placement;
   }
 
   return new SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, Polyhedron::EInnerRadii::kGeneric,
 #ifdef VECCORE_CUDA
-                                   Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation, id);
+                                   Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation, id, copy_no,
+                                                                     child_id);
 #else
                                    Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation);
 #endif
@@ -124,14 +126,14 @@ VPlacedVolume *UnplacedPolyhedron::SpecializedVolume(LogicalVolume const *const 
                                                      Transformation3D const *const transformation,
                                                      const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                                     const int id,
+                                                     const int id, const int copy_no, const int child_id,
 #endif
                                                      VPlacedVolume *const placement) const
 {
 
   return VolumeFactory::CreateByTransformation<UnplacedPolyhedron>(volume, transformation, trans_code, rot_code,
 #ifdef VECCORE_CUDA
-                                                                   id,
+                                                                   id, copy_no, child_id,
 #endif
                                                                    placement);
 }

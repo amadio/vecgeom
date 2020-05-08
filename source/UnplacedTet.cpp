@@ -136,34 +136,36 @@ SolidMesh *UnplacedTet::CreateMesh3D(Transformation3D const &trans, const size_t
   sm->SetVertices(fTet.fVertex, 4);
   sm->TransformVertices(trans);
 
+  Vector3D<Precision> n0 =
+      (sm->GetVertices()[1] - sm->GetVertices()[0]).Cross(sm->GetVertices()[2] - sm->GetVertices()[0]);
+  Vector3D<Precision> n1 =
+      (sm->GetVertices()[2] - sm->GetVertices()[1]).Cross(sm->GetVertices()[3] - sm->GetVertices()[1]);
+  Vector3D<Precision> n2 =
+      (sm->GetVertices()[3] - sm->GetVertices()[2]).Cross(sm->GetVertices()[0] - sm->GetVertices()[2]);
+  Vector3D<Precision> n3 =
+      (sm->GetVertices()[0] - sm->GetVertices()[3]).Cross(sm->GetVertices()[1] - sm->GetVertices()[3]);
 
+  if (n0.Dot(sm->GetVertices()[3] - sm->GetVertices()[0]) > 0) {
+    sm->AddPolygon(3, {1, 0, 2}, true);
+  } else {
+    sm->AddPolygon(3, {0, 1, 2}, true);
+  }
 
-    Vector3D<Precision> n0 = (sm->GetVertices()[1] - sm->GetVertices()[0]).Cross(sm->GetVertices()[2] - sm->GetVertices()[0]);
-    Vector3D<Precision> n1 = (sm->GetVertices()[2] - sm->GetVertices()[1]).Cross(sm->GetVertices()[3] - sm->GetVertices()[1]);
-    Vector3D<Precision> n2 = (sm->GetVertices()[3] - sm->GetVertices()[2]).Cross(sm->GetVertices()[0] - sm->GetVertices()[2]);
-    Vector3D<Precision> n3 = (sm->GetVertices()[0] - sm->GetVertices()[3]).Cross(sm->GetVertices()[1] - sm->GetVertices()[3]);
-
-    if (n0.Dot(sm->GetVertices()[3] - sm->GetVertices()[0]) > 0){
-  	  sm->AddPolygon(3, {1, 0, 2}, true);
-    }else{
-    	sm->AddPolygon(3, {0, 1, 2}, true);
-    }
-
-    if (n1.Dot(sm->GetVertices()[0] - sm->GetVertices()[1]) > 0){
-    	sm->AddPolygon(3, {2, 1, 3}, true);
-    }else{
-    	sm->AddPolygon(3, {1, 2, 3}, true);
-    }
-    if (n2.Dot(sm->GetVertices()[1] - sm->GetVertices()[2]) > 0){
-    	sm->AddPolygon(3, {3, 2, 0}, true);
-    }else{
-    	sm->AddPolygon(3, {2, 3, 0}, true);
-    }
-    if (n3.Dot(sm->GetVertices()[2] - sm->GetVertices()[3]) > 0){
-    	sm->AddPolygon(3, {0, 3, 1}, true);
-    }else{
-    	sm->AddPolygon(3, {3, 0, 1}, true);
-    }
+  if (n1.Dot(sm->GetVertices()[0] - sm->GetVertices()[1]) > 0) {
+    sm->AddPolygon(3, {2, 1, 3}, true);
+  } else {
+    sm->AddPolygon(3, {1, 2, 3}, true);
+  }
+  if (n2.Dot(sm->GetVertices()[1] - sm->GetVertices()[2]) > 0) {
+    sm->AddPolygon(3, {3, 2, 0}, true);
+  } else {
+    sm->AddPolygon(3, {2, 3, 0}, true);
+  }
+  if (n3.Dot(sm->GetVertices()[2] - sm->GetVertices()[3]) > 0) {
+    sm->AddPolygon(3, {0, 3, 1}, true);
+  } else {
+    sm->AddPolygon(3, {3, 0, 1}, true);
+  }
 
   return sm;
 }
@@ -193,24 +195,25 @@ VPlacedVolume *UnplacedTet::SpecializedVolume(LogicalVolume const *const volume,
 template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTet::Create(LogicalVolume const *const logical_volume,
-                                   Transformation3D const *const transformation, const int id,
-                                   VPlacedVolume *const placement)
+                                   Transformation3D const *const transformation, const int id, const int copy_no,
+                                   const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedTet<trans_code, rot_code>(logical_volume, transformation, id);
+    new (placement) SpecializedTet<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedTet<trans_code, rot_code>(logical_volume, transformation, id);
+  return new SpecializedTet<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTet::SpecializedVolume(LogicalVolume const *const volume,
                                               Transformation3D const *const transformation,
                                               const TranslationCode trans_code, const RotationCode rot_code,
-                                              const int id, VPlacedVolume *const placement) const
+                                              const int id, const int copy_no, const int child_id,
+                                              VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedTet>(volume, transformation, trans_code, rot_code, id,
-                                                            placement);
+  return VolumeFactory::CreateByTransformation<UnplacedTet>(volume, transformation, trans_code, rot_code, id, copy_no,
+                                                            child_id, placement);
 }
 
 #endif

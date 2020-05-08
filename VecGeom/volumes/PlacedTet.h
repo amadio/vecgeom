@@ -56,8 +56,8 @@ public:
 #else
   /// CUDA version of constructor
   VECCORE_ATT_DEVICE PlacedTet(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                               PlacedBox const *const boundingTet, const int id)
-      : Base(logicalVolume, transformation, boundingTet, id)
+                               PlacedBox const *const boundingTet, const int id, const int copy_no, const int child_id)
+      : Base(logicalVolume, transformation, boundingTet, id, copy_no, child_id)
   {
   }
 #endif

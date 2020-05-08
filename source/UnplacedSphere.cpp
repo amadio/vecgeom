@@ -38,9 +38,7 @@ UnplacedSphere::UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi
 
 // specialized constructor for orb like instantiation
 VECCORE_ATT_HOST_DEVICE
-UnplacedSphere::UnplacedSphere(Precision pR) : UnplacedSphere(0, pR)
-{
-}
+UnplacedSphere::UnplacedSphere(Precision pR) : UnplacedSphere(0, pR) {}
 
 VECCORE_ATT_HOST_DEVICE
 void UnplacedSphere::DetectConvexity()
@@ -132,8 +130,8 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
     auto Dy = Rmax * sin(fSphere.fSPhi + fSphere.fDPhi);
 
     // then rewrite box sides whenever each one of those phis are not contained in the tube section
-    if (phi0out) aMax.x()   = Max(Cx, Dx);
-    if (phi90out) aMax.y()  = Max(Cy, Dy);
+    if (phi0out) aMax.x() = Max(Cx, Dx);
+    if (phi90out) aMax.y() = Max(Cy, Dy);
     if (phi180out) aMin.x() = Min(Cx, Dx);
     if (phi270out) aMin.y() = Min(Cy, Dy);
 
@@ -252,9 +250,7 @@ std::string UnplacedSphere::GetEntityType() const
 #endif // !VECCORE_CUDA
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedSphere::ComputeBBox() const
-{
-}
+void UnplacedSphere::ComputeBBox() const {}
 
 /*UnplacedSphere *UnplacedSphere::Clone() const
 {
@@ -310,89 +306,82 @@ void UnplacedSphere::Print(std::ostream &os) const
      << GetDeltaPhiAngle() << " " << GetStartThetaAngle() << " " << GetDeltaThetaAngle() << " }";
 }
 
-
 #ifndef VECCORE_CUDA
 #include "VecGeom/volumes/SolidMesh.h"
 SolidMesh *UnplacedSphere::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
   typedef Vector3D<double> Vec_t;
-  SolidMesh *sm = new SolidMesh();
-  Vec_t *vertices      = new Vec_t[2 * (nSegments + 1) * (nSegments + 1)];
+  SolidMesh *sm   = new SolidMesh();
+  Vec_t *vertices = new Vec_t[2 * (nSegments + 1) * (nSegments + 1)];
 
- // sm->ResetMesh(nMeshVertices, nVertical * nHorizontal);
+  // sm->ResetMesh(nMeshVertices, nVertical * nHorizontal);
 
-  double phi_step = GetDPhi() / nSegments;
-  double theta_step   = GetDTheta() / nSegments;
-  double phi = GetSPhi();
-  double theta = GetSTheta();
+  double phi_step   = GetDPhi() / nSegments;
+  double theta_step = GetDTheta() / nSegments;
+  double phi        = GetSPhi();
+  double theta      = GetSTheta();
 
-  size_t idx = 0;
+  size_t idx  = 0;
   size_t idx2 = (nSegments + 1) * (nSegments + 1);
   double z, xy;
   for (size_t i = 0; i <= nSegments; ++i) {
-    theta =  M_PI / 2 - GetSTheta() - i * theta_step; // starting from pi/2 to -pi/2
-    xy             = GetOuterRadius() * std::cos(theta);
-    z              = GetOuterRadius() * std::sin(theta);
+    theta = M_PI / 2 - GetSTheta() - i * theta_step; // starting from pi/2 to -pi/2
+    xy    = GetOuterRadius() * std::cos(theta);
+    z     = GetOuterRadius() * std::sin(theta);
 
     for (size_t j = 0; j <= nSegments; ++j) {
-      phi = GetSPhi() +  j * phi_step; // starting from 0 to 2pi
+      phi             = GetSPhi() + j * phi_step; // starting from 0 to 2pi
       vertices[idx++] = Vec_t(xy * std::cos(phi), xy * std::sin(phi), z);
     }
 
-    xy             = GetInnerRadius() * std::cos(theta);
-    z              = GetInnerRadius() * std::sin(theta);
+    xy = GetInnerRadius() * std::cos(theta);
+    z  = GetInnerRadius() * std::sin(theta);
 
     for (size_t j = 0; j <= nSegments; ++j) {
-      phi = GetSPhi() +  j * phi_step; // starting from 0 to 2pi
+      phi              = GetSPhi() + j * phi_step; // starting from 0 to 2pi
       vertices[idx2++] = Vec_t(xy * std::cos(phi), xy * std::sin(phi), z);
     }
-
   }
-  sm->SetVertices(vertices, 2*(nSegments + 1) * (nSegments + 1));
+  sm->SetVertices(vertices, 2 * (nSegments + 1) * (nSegments + 1));
   delete[] vertices;
   sm->TransformVertices(trans);
 
-
-
   for (size_t j = 0, k = 0; j < nSegments; j++, k++) {
     for (size_t i = 0, l = k + nSegments + 1; i < nSegments; i++, k++, l++) {
-      sm->AddPolygon(4, {k + 1, k, l, l + 1}, true); //outer
+      sm->AddPolygon(4, {k + 1, k, l, l + 1}, true); // outer
     }
   }
-
 
   for (size_t j = 0, k = (nSegments + 1) * (nSegments + 1); j < nSegments; j++, k++) {
     for (size_t i = 0, l = k + nSegments + 1; i < nSegments; i++, k++, l++) {
-      sm->AddPolygon(4, {k, k  + 1, l + 1, l}, true); //inner
+      sm->AddPolygon(4, {k, k + 1, l + 1, l}, true); // inner
     }
   }
 
-  if(!IsFullThetaSphere()){
-	    for (size_t i = 0, k = 0, l = k + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k++, l++) {
-	      sm->AddPolygon(4, {k, k + 1, l + 1, l}, true); //upper at sTheta
-	    }
-
-	    for (size_t i = 0, k = nSegments * (nSegments + 1), l = k + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k++, l++) {
-	      sm->AddPolygon(4, {k + 1, k, l, l + 1}, true); //lower at sTheta + dTheta
-	    }
-  }
-
-
-    if(!IsFullPhiSphere()){
-
-        for (size_t i = 0, k = 0, l = k + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k+= nSegments + 1, l += nSegments + 1) {
-          sm->AddPolygon(4, {k + nSegments + 1, k, l, l + nSegments + 1}, true); //lateral at sPhi
-        }
-
-        for (size_t i = 0, k = nSegments, l = k + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k+= nSegments + 1, l += nSegments + 1) {
-          sm->AddPolygon(4, {k + nSegments + 1,l + nSegments + 1, l, k}, true); //lateral at sPhi + dPhi
-        }
-
-
+  if (!IsFullThetaSphere()) {
+    for (size_t i = 0, k = 0, l = k + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, k++, l++) {
+      sm->AddPolygon(4, {k, k + 1, l + 1, l}, true); // upper at sTheta
     }
 
+    for (size_t i = 0, k = nSegments * (nSegments + 1), l = k + (nSegments + 1) * (nSegments + 1); i < nSegments;
+         i++, k++, l++) {
+      sm->AddPolygon(4, {k + 1, k, l, l + 1}, true); // lower at sTheta + dTheta
+    }
+  }
 
+  if (!IsFullPhiSphere()) {
+
+    for (size_t i = 0, k = 0, l = k + (nSegments + 1) * (nSegments + 1); i < nSegments;
+         i++, k += nSegments + 1, l += nSegments + 1) {
+      sm->AddPolygon(4, {k + nSegments + 1, k, l, l + nSegments + 1}, true); // lateral at sPhi
+    }
+
+    for (size_t i = 0, k = nSegments, l = k + (nSegments + 1) * (nSegments + 1); i < nSegments;
+         i++, k += nSegments + 1, l += nSegments + 1) {
+      sm->AddPolygon(4, {k + nSegments + 1, l + nSegments + 1, l, k}, true); // lateral at sPhi + dPhi
+    }
+  }
 
   return sm;
 }
@@ -441,24 +430,23 @@ VPlacedVolume *UnplacedSphere::CreateSpecializedVolume(LogicalVolume const *cons
 template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedSphere::Create(LogicalVolume const *const logical_volume,
-                                      Transformation3D const *const transformation, const int id,
-                                      VPlacedVolume *const placement)
+                                      Transformation3D const *const transformation, const int id, const int copy_no,
+                                      const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, NULL, id);
+    new (placement)
+        SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, NULL, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, NULL, id);
+  return new SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, NULL, id, copy_no, child_id);
 }
 
-VECCORE_ATT_DEVICE VPlacedVolume *UnplacedSphere::CreateSpecializedVolume(LogicalVolume const *const volume,
-                                                                          Transformation3D const *const transformation,
-                                                                          const TranslationCode trans_code,
-                                                                          const RotationCode rot_code, const int id,
-                                                                          VPlacedVolume *const placement)
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedSphere::CreateSpecializedVolume(
+    LogicalVolume const *const volume, Transformation3D const *const transformation, const TranslationCode trans_code,
+    const RotationCode rot_code, const int id, const int copy_no, const int child_id, VPlacedVolume *const placement)
 {
   return VolumeFactory::CreateByTransformation<UnplacedSphere>(volume, transformation, trans_code, rot_code, id,
-                                                               placement);
+                                                               copy_no, child_id, placement);
 }
 
 #endif
@@ -478,7 +466,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedSphere::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -489,8 +477,8 @@ template void DevicePtr<cuda::UnplacedSphere>::Construct(const Precision rmin, c
                                                          const Precision sphi, const Precision dphi,
                                                          const Precision stheta, const Precision dtheta) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom

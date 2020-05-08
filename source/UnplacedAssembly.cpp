@@ -16,7 +16,7 @@ UnplacedAssembly::UnplacedAssembly() : fLogicalVolume(nullptr), fLowerCorner(-kI
 
 UnplacedAssembly::~UnplacedAssembly() {}
 
-void UnplacedAssembly::AddVolume(VPlacedVolume const *v)
+void UnplacedAssembly::AddVolume(VPlacedVolume *const v)
 {
   fLogicalVolume->PlaceDaughter(v);
 }
@@ -103,12 +103,13 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedAssembly::SpecializedVolume(LogicalVolume const *const volume,
                                                    Transformation3D const *const transformation,
                                                    const TranslationCode trans_code, const RotationCode rot_code,
-                                                   const int id, VPlacedVolume *const placement) const
+                                                   const int id, const int copy_no, const int child_id,
+                                                   VPlacedVolume *const placement) const
 {
   if (placement) {
-    return new (placement) PlacedAssembly("", volume, transformation, nullptr, id);
+    return new (placement) PlacedAssembly("", volume, transformation, nullptr, id, copy_no, child_id);
   }
-  return new PlacedAssembly("", volume, transformation, nullptr, id);
+  return new PlacedAssembly("", volume, transformation, nullptr, id, copy_no, child_id);
 }
 #endif
 

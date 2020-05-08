@@ -1,4 +1,4 @@
-#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/NavStatePath.h"
 #include "VecGeom/base/Global.h"
 #include <iostream>
 #ifdef NDEBUG
@@ -9,6 +9,7 @@ using namespace vecgeom;
 
 void NavStateUnitTest1()
 {
+  using NavigationState   = NavStatePath;
   NavigationState *state1 = NavigationState::MakeInstance(10);
   NavigationState *state2 = NavigationState::MakeInstance(10);
   // test - 0 ( one empty path )

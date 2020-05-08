@@ -1,8 +1,8 @@
-/// \file NavigationState.cpp
+/// \file NavStatePath.cpp
 /// \author Sandro Wenzel (sandro.wenzel@cern.ch)
 /// \date 17.04.2014
 
-#include "VecGeom/navigation/NavigationState.h"
+#include "VecGeom/navigation/NavStatePath.h"
 
 #include <iostream>
 #include <list>
@@ -19,7 +19,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECCORE_ATT_HOST_DEVICE
-Vector3D<Precision> NavigationState::GlobalToLocal(Vector3D<Precision> const &globalpoint, int tolevel) const
+Vector3D<Precision> NavStatePath::GlobalToLocal(Vector3D<Precision> const &globalpoint, int tolevel) const
 {
   Vector3D<Precision> tmp = globalpoint;
   Vector3D<Precision> current;
@@ -32,7 +32,7 @@ Vector3D<Precision> NavigationState::GlobalToLocal(Vector3D<Precision> const &gl
 }
 
 VECCORE_ATT_HOST_DEVICE
-void NavigationState::TopMatrix(int tolevel, Transformation3D &global_matrix) const
+void NavStatePath::TopMatrix(int tolevel, Transformation3D &global_matrix) const
 {
   for (int i = 1; i < tolevel; ++i) {
     global_matrix.MultiplyFromRight(*(At(i)->GetTransformation()));
@@ -43,7 +43,7 @@ void NavigationState::TopMatrix(int tolevel, Transformation3D &global_matrix) co
 // coordinates given in reference frame of this->Top() to the reference frame of other->Top()
 // simply with otherlocalcoordinate = delta.Transform( thislocalcoordinate )
 VECCORE_ATT_HOST_DEVICE
-void NavigationState::DeltaTransformation(NavigationState const &other, Transformation3D &delta) const
+void NavStatePath::DeltaTransformation(NavStatePath const &other, Transformation3D &delta) const
 {
   Transformation3D g2;
   Transformation3D g1;
@@ -63,7 +63,7 @@ void NavigationState::DeltaTransformation(NavigationState const &other, Transfor
  * ( equivalent to using a global matrix )
  */
 VECCORE_ATT_HOST_DEVICE
-Vector3D<Precision> NavigationState::GlobalToLocal(Vector3D<Precision> const &globalpoint) const
+Vector3D<Precision> NavStatePath::GlobalToLocal(Vector3D<Precision> const &globalpoint) const
 {
   Vector3D<Precision> tmp = globalpoint;
   Vector3D<Precision> current;
@@ -91,7 +91,7 @@ VPlacedVolume const *GetDaughterWithinMother(VPlacedVolume const *mother, uint i
   return NULL;
 }
 
-void NavigationState::GetPathAsListOfIndices(std::list<uint> &indices) const
+void NavStatePath::GetPathAsListOfIndices(std::list<uint> &indices) const
 {
   indices.clear();
   if (IsOutside()) return;
@@ -102,22 +102,22 @@ void NavigationState::GetPathAsListOfIndices(std::list<uint> &indices) const
 }
 
 VECCORE_ATT_HOST_DEVICE
-void NavigationState::Print() const
+void NavStatePath::Print() const
 {
 // printf("VariableSizeObj: fPath=%p (%l bytes)\n", fPath, sizeof(fPath));
 #ifndef VECCORE_CUDA
-  printf("NavState: Level=%i/%i,  onBoundary=%s, path=<", fCurrentLevel, GetMaxLevel(),
+  printf("NavStatePath: level=%i/%i,  onBoundary=%s, path=<", fCurrentLevel - 1, GetMaxLevel(),
          (fOnBoundary ? "true" : "false"));
   for (int i = 0; i < fCurrentLevel; ++i)
     printf("/%s", ToPlacedVolume(fPath[i]) ? ToPlacedVolume(fPath[i])->GetLabel().c_str() : "NULL");
   printf(">\n");
 #else
-  printf("NavState: Level=%i/%i,  onBoundary=%s, topVol=<%p>, this=%p\n", fCurrentLevel, GetMaxLevel(),
+  printf("NavStatePath: level=%i/%i,  onBoundary=%s, topVol=<%p>, this=%p\n", fCurrentLevel - 1, GetMaxLevel(),
          (fOnBoundary ? "true" : "false"), Top(), (const void *)this);
 #endif
 }
 
-void NavigationState::ResetPathFromListOfIndices(VPlacedVolume const *world, std::list<uint> const &indices)
+void NavStatePath::ResetPathFromListOfIndices(VPlacedVolume const *world, std::list<uint> const &indices)
 {
   // clear current nav state
   fCurrentLevel = indices.size();
@@ -134,7 +134,7 @@ void NavigationState::ResetPathFromListOfIndices(VPlacedVolume const *world, std
 }
 
 #ifdef VECGEOM_ROOT
-TGeoBranchArray *NavigationState::ToTGeoBranchArray() const
+TGeoBranchArray *NavStatePath::ToTGeoBranchArray() const
 {
 // attention: the counting of levels is different: fLevel=0 means that
 // this is a branch which is filled at level zero
@@ -170,7 +170,7 @@ TGeoBranchArray *NavigationState::ToTGeoBranchArray() const
   return tmp;
 }
 
-NavigationState &NavigationState::operator=(TGeoBranchArray const &other)
+NavStatePath &NavStatePath::operator=(TGeoBranchArray const &other)
 {
   // attention: the counting of levels is different: fLevel=0 means that
   // this is a branch which is filled at level zero
@@ -190,7 +190,7 @@ NavigationState &NavigationState::operator=(TGeoBranchArray const &other)
 
 #endif
 
-std::string NavigationState::RelativePath(NavigationState const &other) const
+std::string NavStatePath::RelativePath(NavStatePath const &other) const
 {
   int lastcommonlevel = -1;
   int maxlevel        = Min(GetCurrentLevel(), other.GetCurrentLevel());
@@ -250,5 +250,5 @@ std::string NavigationState::RelativePath(NavigationState const &other) const
   }
   return str.str();
 }
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom

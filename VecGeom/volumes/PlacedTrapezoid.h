@@ -48,8 +48,8 @@ public:
 #else
   VECCORE_ATT_DEVICE PlacedTrapezoid(LogicalVolume const *const logicalVolume,
                                      Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                                     const int id)
-      : Base(logicalVolume, transformation, boundingBox, id)
+                                     const int id, const int copy_no, const int child_id)
+      : Base(logicalVolume, transformation, boundingBox, id, copy_no, child_id)
   {
   }
 #endif
@@ -75,7 +75,7 @@ public:
 #endif // VECCORE_CUDA
 };
 
-} // end inline namespace
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

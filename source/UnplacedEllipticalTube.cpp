@@ -147,18 +147,18 @@ SolidMesh *UnplacedEllipticalTube::CreateMesh3D(Transformation3D const &trans, s
   double c = GetDz();
 
   SolidMesh *sm = new SolidMesh();
-  sm->ResetMesh(2*(nSegments + 1), nSegments + 2);
+  sm->ResetMesh(2 * (nSegments + 1), nSegments + 2);
 
   typedef Vector3D<double> Vec_t;
-  Vec_t *const vertices = new Vec_t[2*(nSegments + 1)];
+  Vec_t *const vertices = new Vec_t[2 * (nSegments + 1)];
   double acos, bsin;
   for (size_t i = 0; i <= nSegments; i++) {
-	  acos = a*std::cos(i * 2 * M_PI / nSegments);
-	  bsin = b*std::sin(i * 2 * M_PI / nSegments);
-    vertices[i]     = Vec_t(acos, bsin, -c); // lower vertices
-    vertices[i + nSegments + 1] = Vec_t(acos, bsin, c); // upper vertices
+    acos                        = a * std::cos(i * 2 * M_PI / nSegments);
+    bsin                        = b * std::sin(i * 2 * M_PI / nSegments);
+    vertices[i]                 = Vec_t(acos, bsin, -c); // lower vertices
+    vertices[i + nSegments + 1] = Vec_t(acos, bsin, c);  // upper vertices
   }
-  sm->SetVertices(vertices, 2*(nSegments + 1));
+  sm->SetVertices(vertices, 2 * (nSegments + 1));
   delete[] vertices;
 
   sm->TransformVertices(trans);
@@ -166,23 +166,23 @@ SolidMesh *UnplacedEllipticalTube::CreateMesh3D(Transformation3D const &trans, s
   Utils3D::vector_t<size_t> indices;
   indices.reserve(nSegments);
   // upper surface
-   for (size_t i = 0; i < nSegments; i++) {
-     indices.push_back(i+ nSegments + 1);
-   }
+  for (size_t i = 0; i < nSegments; i++) {
+    indices.push_back(i + nSegments + 1);
+  }
 
-   sm->AddPolygon(nSegments, indices, true);
-   indices.clear();
+  sm->AddPolygon(nSegments, indices, true);
+  indices.clear();
 
-   // lower surface
-   for (size_t i = nSegments; i > 0; i--) {
-     indices.push_back(i - 1);
-   }
-   sm->AddPolygon(nSegments, indices, true);
+  // lower surface
+  for (size_t i = nSegments; i > 0; i--) {
+    indices.push_back(i - 1);
+  }
+  sm->AddPolygon(nSegments, indices, true);
 
-   // lateral surfaces
-   for (size_t i = 0; i < nSegments; i++) {
-     sm->AddPolygon(4, {i, i + 1, i + 1 + nSegments + 1, i + nSegments + 1}, true);
-   }
+  // lateral surfaces
+  for (size_t i = 0; i < nSegments; i++) {
+    sm->AddPolygon(4, {i, i + 1, i + 1 + nSegments + 1, i + nSegments + 1}, true);
+  }
 
   return sm;
 }
@@ -215,23 +215,25 @@ template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedEllipticalTube::Create(LogicalVolume const *const logical_volume,
                                               Transformation3D const *const transformation, const int id,
-                                              VPlacedVolume *const placement)
+                                              const int copy_no, const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedEllipticalTube<trans_code, rot_code>(logical_volume, transformation, id);
+    new (placement)
+        SpecializedEllipticalTube<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedEllipticalTube<trans_code, rot_code>(logical_volume, transformation, id);
+  return new SpecializedEllipticalTube<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedEllipticalTube::SpecializedVolume(LogicalVolume const *const volume,
                                                          Transformation3D const *const transformation,
                                                          const TranslationCode trans_code, const RotationCode rot_code,
-                                                         const int id, VPlacedVolume *const placement) const
+                                                         const int id, const int copy_no, const int child_id,
+                                                         VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedEllipticalTube>(volume, transformation, trans_code, rot_code, id,
-                                                                       placement);
+                                                                       copy_no, child_id, placement);
 }
 
 #endif

@@ -183,7 +183,15 @@ if(USE_INDEXEDNAVSTATES)
   set(VECGEOM_USE_INDEXEDNAVSTATES ON)
 endif()
 
+option(USE_NAVINDEX "Use navigation index table and states" OFF)
+if(USE_NAVINDEX)
+  set(VECGEOM_USE_NAVINDEX ON)
+endif()
+
 option(GDML "Enable GDML persistency. Requres Xerces-C" OFF)
+if(GDML)
+  set(VECGEOM_GDML ON)
+endif()
 option(GDMLDEBUG "Enable additional debug information in GDML module" OFF)
 
 option(EMBREE "Enable Intel Embree" OFF)
@@ -601,7 +609,9 @@ set(VECGEOM_COMMON_SRCS
   source/UnplacedMultiUnion.cpp
   source/UnplacedExtruded.cpp
   source/UnplacedVolume.cpp
-  source/NavigationState.cpp
+  source/NavStateIndex.cpp
+  source/NavStatePath.cpp
+  source/NavIndexTable.cpp
 
   source/UnplacedOrb.cpp
   source/PlacedOrb.cpp
@@ -717,7 +727,8 @@ if(VECGEOM_BENCHMARK)
 
   list(APPEND VECGEOM_CUDA_SRCS
     source/benchmarking/Benchmarker.cu
-    source/benchmarking/NavigationBenchmarker.cu)
+    source/benchmarking/NavigationBenchmarker.cu
+    test/benchmark/TestNavIndex.cu)
 endif()
 
 ################################################################################

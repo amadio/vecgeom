@@ -158,7 +158,7 @@ template <>
 void DevicePtr<
     cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric, rotation::kGeneric>>::
     Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>,
-              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int) const
+              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int, int, int) const
 {
   return;
 }

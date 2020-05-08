@@ -28,7 +28,6 @@ SolidMesh *UnplacedBox::CreateMesh3D(Transformation3D const &trans, const size_t
   sm->AddPolygon(4, {2, 6, 7, 3}, true);
   sm->AddPolygon(4, {3, 7, 4, 0}, true);
 
-
   return sm;
 }
 #endif
@@ -97,24 +96,25 @@ VPlacedVolume *UnplacedBox::SpecializedVolume(LogicalVolume const *const volume,
 template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBox::Create(LogicalVolume const *const logical_volume,
-                                   Transformation3D const *const transformation, const int id,
-                                   VPlacedVolume *const placement)
+                                   Transformation3D const *const transformation, const int id, const int copy_no,
+                                   const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedBox<trans_code, rot_code>(logical_volume, transformation, id);
+    new (placement) SpecializedBox<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedBox<trans_code, rot_code>(logical_volume, transformation, id);
+  return new SpecializedBox<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBox::SpecializedVolume(LogicalVolume const *const volume,
                                               Transformation3D const *const transformation,
                                               const TranslationCode trans_code, const RotationCode rot_code,
-                                              const int id, VPlacedVolume *const placement) const
+                                              const int id, const int copy_no, const int child_id,
+                                              VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedBox>(volume, transformation, trans_code, rot_code, id,
-                                                            placement);
+  return VolumeFactory::CreateByTransformation<UnplacedBox>(volume, transformation, trans_code, rot_code, id, copy_no,
+                                                            child_id, placement);
 }
 
 #endif

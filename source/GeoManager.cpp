@@ -5,12 +5,14 @@
 /// \file GeoManager.cpp
 
 #include "VecGeom/management/GeoManager.h"
+#include "VecGeom/management/NavIndexTable.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/management/ABBoxManager.h"
 #include "VecGeom/volumes/UnplacedBooleanVolume.h"
 #include "VecGeom/volumes/UnplacedScaledShape.h"
 #include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/management/GeoVisitor.h"
 
 #include <dlfcn.h>
 #include <stdio.h>
@@ -23,6 +25,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VPlacedVolume *GeoManager::gCompactPlacedVolBuffer = nullptr;
+NavIndex_t *GeoManager::gNavIndex                  = nullptr;
 
 void GeoManager::RegisterLogicalVolume(LogicalVolume *const logical_volume)
 {
@@ -207,8 +210,32 @@ void GeoManager::CloseGeometry()
 
   CompactifyMemory();
   vecgeom::ABBoxManager::Instance().InitABBoxesForCompleteGeometry();
-
   fIsClosed = true;
+
+#ifdef VECGEOM_USE_NAVINDEX
+  if (fCacheDepth == 0 || fCacheDepth > fMaxDepth) fCacheDepth = fMaxDepth;
+  auto pretty_bytes = [](unsigned int bytes) {
+    char buf[50];
+    const char *suffixes[7] = {"Bytes", "KB", "MB", "GB", "TB", "PB", "EB"};
+    uint s                  = 0; // which suffix to use
+    double count            = bytes;
+    while (count >= 1024 && s++ < 7)
+      count /= 1024;
+
+    if (count - std::floor(count) == 0.0)
+      sprintf(buf, "%d %s", (int)count, suffixes[s]);
+    else
+      sprintf(buf, "%.1f %s", count, suffixes[s]);
+    std::string sbytes = buf;
+    return sbytes;
+  };
+  MakeNavIndexTable(fCacheDepth);
+  std::cout << "\n============================================================================\n"
+            << "  Geometry closed in navigation index mode. The table size is "
+            << pretty_bytes(NavIndexTable::Instance()->GetTableSize()) << "\n  Transformation caching depth is "
+            << fCacheDepth << "\n"
+            << "============================================================================\n\n";
+#endif
 }
 
 void GeoManager::LoadGeometryFromSharedLib(std::string libname, bool close)
@@ -328,7 +355,29 @@ void GeoManager::Clear()
     free(gCompactPlacedVolBuffer);
     gCompactPlacedVolBuffer = nullptr;
   }
+
+  if (GeoManager::gNavIndex != nullptr) {
+    NavIndexTable::Instance()->CleanTable();
+    gNavIndex = nullptr;
+  }
 }
+
+#ifdef VECGEOM_USE_NAVINDEX
+bool GeoManager::MakeNavIndexTable(int depth_limit, bool validate) const
+{
+  if (gNavIndex) {
+    std::cerr << "=== GeoManager::MakeNavIndexTable: navigation table already created\n";
+    return false;
+  }
+  bool success = NavIndexTable::Instance()->CreateTable(GetWorld(), getMaxDepth(), depth_limit);
+  if (success) {
+    gNavIndex = NavIndexTable::Instance()->GetTable();
+    NavIndexTable::Instance()->SetVolumeBuffer(gCompactPlacedVolBuffer);
+  }
+  if (validate) success = NavIndexTable::Instance()->Validate(GetWorld(), getMaxDepth());
+  return success;
+}
+#endif
 
 template <typename Container>
 class GetPathsForLogicalVolumeVisitor : public GeoVisitorWithAccessToPath<Container> {
@@ -389,5 +438,5 @@ __attribute__((noinline)) void GeoManager::getAllPathForLogicalVolume(LogicalVol
 template void GeoManager::getAllPathForLogicalVolume(LogicalVolume const *lvol, std::list<NavigationState *> &c) const;
 template void GeoManager::getAllPathForLogicalVolume(LogicalVolume const *lvol,
                                                      std::vector<NavigationState *> &c) const;
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom

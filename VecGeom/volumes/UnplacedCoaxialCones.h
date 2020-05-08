@@ -87,11 +87,13 @@ public:
   template <TranslationCode trans_code, RotationCode rot_code>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-                               const int id, VPlacedVolume *const placement = NULL);
+                               const int id, const int copy_no, const int child_id,
+                               VPlacedVolume *const placement = NULL);
   VECCORE_ATT_DEVICE VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                                       Transformation3D const *const transformation,
                                                       const TranslationCode trans_code, const RotationCode rot_code,
-                                                      const int id, VPlacedVolume *const placement) const override;
+                                                      const int id, const int copy_no, const int child_id,
+                                                      VPlacedVolume *const placement) const override;
 
 #endif
 };

@@ -92,25 +92,28 @@ public:
 #else // Compiling for CUDA
   VECCORE_ATT_DEVICE CommonSpecializedVolImplHelper(LogicalVolume const *const logical_volume,
                                                     Transformation3D const *const transformation,
-                                                    PlacedBox const *const boundingBox, const unsigned int id)
-      : PlacedShape_t(logical_volume, transformation, boundingBox, id)
+                                                    PlacedBox const *const boundingBox, const unsigned int id,
+                                                    const int copy_no, const int child_id)
+      : PlacedShape_t(logical_volume, transformation, boundingBox, id, copy_no, child_id)
   {
   }
 
   VECCORE_ATT_DEVICE CommonSpecializedVolImplHelper(LogicalVolume const *const logical_volume,
-                                                    Transformation3D const *const transformation, const unsigned int id)
-      : PlacedShape_t(logical_volume, transformation, details::UseIfSameType<PlacedShape_t, PlacedBox>::Get(this), id)
+                                                    Transformation3D const *const transformation, const unsigned int id,
+                                                    const int copy_no, const int child_id)
+      : PlacedShape_t(logical_volume, transformation, details::UseIfSameType<PlacedShape_t, PlacedBox>::Get(this), id,
+                      copy_no, child_id)
   {
   }
 #endif
-  using PlacedShape_t::SafetyToOut;
-  using PlacedShape_t::DistanceToOut;
-  using PlacedShape_t::UnplacedContains;
   using PlacedShape_t::Contains;
-  using PlacedShape_t::SafetyToIn;
   using PlacedShape_t::DistanceToIn;
+  using PlacedShape_t::DistanceToOut;
   using PlacedShape_t::Inside;
   using PlacedShape_t::PlacedShape_t;
+  using PlacedShape_t::SafetyToIn;
+  using PlacedShape_t::SafetyToOut;
+  using PlacedShape_t::UnplacedContains;
 
   virtual int MemorySize() const override { return sizeof(*this); }
 
@@ -226,7 +229,7 @@ static void ContainsLoopKernel(typename Specialization::UnplacedStruct_t const &
     Specialization::template Contains<Real_v>(shapestruct, trans.Transform<transC, rotC>(point), result);
     // vecCore::StoreMask(result, output);
     // StoreMask has problem -> see VECCORE-21
-    for (size_t j   = 0; j < vecCore::VectorSize<Real_v>(); ++j)
+    for (size_t j = 0; j < vecCore::VectorSize<Real_v>(); ++j)
       output[i + j] = vecCore::MaskLaneAt(result, j);
   }
 }
@@ -244,7 +247,7 @@ static void InsideLoopKernel(typename Specialization::UnplacedStruct_t const &sh
     Index_t result;
     Specialization::template Inside<Real_v>(shapestruct, trans.Transform<transC, rotC>(point), result);
     // TODO: make a proper store here
-    for (size_t j   = 0; j < vecCore::VectorSize<Index_t>(); ++j)
+    for (size_t j = 0; j < vecCore::VectorSize<Index_t>(); ++j)
       output[i + j] = vecCore::LaneAt<Index_t>(result, j);
   }
 }
@@ -291,14 +294,14 @@ class SIMDSpecializedVolImplHelper : public CommonSpecializedVolImplHelper<Speci
   using CommonHelper_t = CommonSpecializedVolImplHelper<Specialization, transC, rotC>;
 
 public:
-  using CommonHelper_t::SafetyToOut;
-  using CommonHelper_t::DistanceToOut;
-  using CommonHelper_t::UnplacedContains;
-  using CommonHelper_t::Contains;
-  using CommonHelper_t::SafetyToIn;
-  using CommonHelper_t::DistanceToIn;
-  using CommonHelper_t::Inside;
   using CommonHelper_t::CommonHelper_t;
+  using CommonHelper_t::Contains;
+  using CommonHelper_t::DistanceToIn;
+  using CommonHelper_t::DistanceToOut;
+  using CommonHelper_t::Inside;
+  using CommonHelper_t::SafetyToIn;
+  using CommonHelper_t::SafetyToOut;
+  using CommonHelper_t::UnplacedContains;
 
   SIMDSpecializedVolImplHelper(VPlacedVolume const *other)
       : CommonHelper_t(other->GetName(), other->GetLogicalVolume(), other->GetTransformation())
@@ -395,7 +398,8 @@ public:
                                            DevicePtr<cuda::VPlacedVolume> const in_gpu_ptr) const override
   {
     DevicePtr<CudaType_t<ThisClass_t>> gpu_ptr(in_gpu_ptr);
-    gpu_ptr.Construct(logical_volume, transform, DevicePtr<cuda::PlacedBox>(), this->id());
+    gpu_ptr.Construct(logical_volume, transform, DevicePtr<cuda::PlacedBox>(), this->id(), this->GetCopyNo(),
+                      this->GetChildId());
     CudaAssertError();
     // Need to go via the void* because the regular c++ compilation
     // does not actually see the declaration for the cuda version
@@ -420,14 +424,14 @@ class LoopSpecializedVolImplHelper : public CommonSpecializedVolImplHelper<Speci
   using UnplacedVolume_t = typename Specialization::UnplacedVolume_t;
 
 public:
-  using CommonHelper_t::SafetyToOut;
-  using CommonHelper_t::DistanceToOut;
-  using CommonHelper_t::UnplacedContains;
-  using CommonHelper_t::Contains;
-  using CommonHelper_t::SafetyToIn;
-  using CommonHelper_t::DistanceToIn;
-  using CommonHelper_t::Inside;
   using CommonHelper_t::CommonHelper_t;
+  using CommonHelper_t::Contains;
+  using CommonHelper_t::DistanceToIn;
+  using CommonHelper_t::DistanceToOut;
+  using CommonHelper_t::Inside;
+  using CommonHelper_t::SafetyToIn;
+  using CommonHelper_t::SafetyToOut;
+  using CommonHelper_t::UnplacedContains;
 
   LoopSpecializedVolImplHelper(VPlacedVolume const *other)
       : CommonHelper_t(other->GetName(), other->GetLogicalVolume(), other->GetTransformation())
@@ -509,7 +513,8 @@ public:
                                            DevicePtr<cuda::VPlacedVolume> const in_gpu_ptr) const override
   {
     DevicePtr<CudaType_t<ThisClass_t>> gpu_ptr(in_gpu_ptr);
-    gpu_ptr.Construct(logical_volume, transform, DevicePtr<cuda::PlacedBox>(), this->id());
+    gpu_ptr.Construct(logical_volume, transform, DevicePtr<cuda::PlacedBox>(), this->id(), this->GetCopyNo(),
+                      this->GetChildId());
     CudaAssertError();
     // Need to go via the void* because the regular c++ compilation
     // does not actually see the declaration for the cuda version
@@ -527,8 +532,8 @@ public:
 #endif // VECGEOM_CUDA_INTERFACE
 
 }; // end Loop Helper
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #ifndef __clang__
 #pragma GCC diagnostic pop

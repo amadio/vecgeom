@@ -6,7 +6,6 @@
 /// \file LogicalVolume.h
 /// \author created by Johannes de Fine Licht, Sandro Wenzel (CERN)
 
-
 #ifndef VECGEOM_VOLUMES_LOGICALVOLUME_H_
 #define VECGEOM_VOLUMES_LOGICALVOLUME_H_
 
@@ -138,6 +137,11 @@ public:
   VECGEOM_FORCE_INLINE
   Vector<Daughter> *GetDaughtersp() { return fDaughters; }
 
+  /// Returns user request for caching transformations
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  bool IsReqCaching() const { return false; }
+
   //  VECCORE_ATT_HOST_DEVICE
   //  VECGEOM_FORCE_INLINE
   //  VPlacedVolume const* GetDaughter(unsigned int i) const { return daughters_->operator[](i); }
@@ -255,16 +259,16 @@ public:
   /// @param label Name of placed daughter volume.
   /// @param volume The logical volume to be added to the list of daughter volumes.
   /// @param transformation The transformation used to place the daughter.
-  VPlacedVolume const *PlaceDaughter(char const *const label, LogicalVolume const *const volume,
+  VPlacedVolume const *PlaceDaughter(char const *const label, LogicalVolume *const volume,
                                      Transformation3D const *const transformation);
 
   /// Adds/places a daughter volume inside this logical volume.
   /// @param volume The logical volume to be added to the list of daughter volumes.
   /// @param transformation The transformation used to place the daughter.
-  VPlacedVolume const *PlaceDaughter(LogicalVolume const *const volume, Transformation3D const *const transformation);
+  VPlacedVolume const *PlaceDaughter(LogicalVolume *const volume, Transformation3D const *const transformation);
 
   /// Adds/places an already existing placed daughter volume
-  void PlaceDaughter(VPlacedVolume const *const placed);
+  void PlaceDaughter(VPlacedVolume *const placed);
 
   /// Returns true of at least one of the daughters is an assembly.
   bool ContainsAssembly() const;
@@ -305,7 +309,7 @@ inline void LogicalVolume::SetRegion(Region *region, bool pushdown)
   }
 }
 
-} // End inline namespace
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_LOGICALVOLUME_H_

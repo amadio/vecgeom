@@ -2,13 +2,14 @@
 
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/Vector3D.h"
+#include "VecGeom/navigation/NavStateFwd.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class LogicalVolume;
 class VPlacedVolume;
-class NavigationState;
+// class NavigationState;
 
 //! Pure virtual base class for LevelLocators
 

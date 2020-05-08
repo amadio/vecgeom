@@ -266,8 +266,10 @@ SolidMesh *UnplacedGenTrap::CreateMesh3D(Transformation3D const &trans, size_t n
       sm->AddPolygon(4, {s2, s2 + 1, s3 + 1, s3}, true); // lateral surface 2
       sm->AddPolygon(4, {s3, s3 + 1, s0 + 1, s0}, true); // lateral surface 3
     }
-    sm->AddPolygon(4, {0, nSegments + 1, 2 * (nSegments  + 1), 3 * (nSegments + 1)}, true);
-    sm->AddPolygon(4, {3 * (nSegments + 1) + nSegments,2 * (nSegments  + 1) + nSegments, nSegments + 1 + nSegments,  0 + nSegments}, true);
+    sm->AddPolygon(4, {0, nSegments + 1, 2 * (nSegments + 1), 3 * (nSegments + 1)}, true);
+    sm->AddPolygon(
+        4, {3 * (nSegments + 1) + nSegments, 2 * (nSegments + 1) + nSegments, nSegments + 1 + nSegments, 0 + nSegments},
+        true);
   }
 
   return sm;
@@ -280,13 +282,13 @@ VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const vol
                                                   Transformation3D const *const transformation,
                                                   const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                                  const int id,
+                                                  const int id, const int copy_no, const int child_id,
 #endif
                                                   VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedGenTrap>(volume, transformation, trans_code, rot_code,
 #ifdef VECCORE_CUDA
-                                                                id,
+                                                                id, copy_no, child_id,
 #endif
                                                                 placement);
 }
@@ -297,7 +299,7 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume,
                                        Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                       const int id,
+                                       const int id, const int copy_no, const int child_id,
 #endif
                                        VPlacedVolume *const placement)
 {
@@ -305,7 +307,7 @@ VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume
     new (placement) SpecializedGenTrap<trans_code, rot_code>(logical_volume, transformation
 #ifdef VECCORE_CUDA
                                                              ,
-                                                             id
+                                                             id, copy_no, child_id
 #endif
     );
     return placement;
@@ -313,7 +315,7 @@ VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume
   return new SpecializedGenTrap<trans_code, rot_code>(logical_volume, transformation
 #ifdef VECCORE_CUDA
                                                       ,
-                                                      id
+                                                      id, copy_no, child_id
 #endif
   );
 }

@@ -47,8 +47,9 @@ public:
 #else
   VECCORE_ATT_DEVICE PlacedBooleanVolume(LogicalVolume const *const logicalVolume,
                                          Transformation3D const *const transformation,
-                                         PlacedBox const *const boundingBox, const int id)
-      : Base(logicalVolume, transformation, boundingBox, id)
+                                         PlacedBox const *const boundingBox, const int id, const int copy_no,
+                                         const int child_id)
+      : Base(logicalVolume, transformation, boundingBox, id, copy_no, child_id)
   {
   }
 #endif
