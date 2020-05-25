@@ -108,17 +108,14 @@ set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX}
 if("$ENV{LABEL}" MATCHES cuda)
   list(APPEND config_options -DCUDA=ON)
   list(APPEND config_options -DCUDA_VOLUME_SPECIALIZATION=OFF)
+  list(APPEND config_options -DCMAKE_CUDA_STANDARD=14)
 endif()
 
 if (DEFINED ENV{BACKEND})
 list(APPEND config_options -DBACKEND=$ENV{BACKEND})
 endif()
 
-if("$ENV{COMPILER}" MATCHES gcc7)
-  list(APPEND config_options -DCMAKE_CXX_STANDARD=17)
-else()
-  list(APPEND config_options -DCMAKE_CXX_STANDARD=14)
-endif()
+list(APPEND config_options -DCMAKE_CXX_STANDARD=17)
 
 if("$ENV{OPTION}" STREQUAL "SPEC")
   list(APPEND config_options -DNO_SPECIALIZATION=OFF)
