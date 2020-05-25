@@ -33,8 +33,6 @@ if [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM ]; then
 elif [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE ]; then
   echo source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE/setup.sh
   source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE/setup.sh
-elif [[ $PLATFORM == *slc6* ]] || [[ $PLATFORM == *centos7* ]]; then
-  export PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/latest/Linux-$ARCH/bin:${PATH}
 else
   echo "No externals for $PLATFORM in /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS"
 fi
