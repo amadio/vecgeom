@@ -38,8 +38,13 @@ else
   exit 1
 fi
 
-if [ $LABEL == slc6 ] || [ $LABEL == centos7 ] || [ $LABEL == cuda10 ] || [ $LABEL == physical ]; then
+# Setup kerberos for some of the labels
+if [ $LABEL == slc6 ] || [ $LABEL == centos7 ] || [ $LABEL == cuda ] || [ $LABEL == physical ]; then
   kinit sftnight@CERN.CH -5 -V -k -t /ec/conf/sftnight.keytab
+fi
+
+if [ $LABEL == cuda10 ]; then
+  source /cvmfs/sft.cern.ch/lcg/contrib/cuda/10.2/$(echo $PLATFORM| cut -d'-' -f 1,2)/setup.sh
 fi
 
 if [[ $COMPILER == *gcc* ]]; then
