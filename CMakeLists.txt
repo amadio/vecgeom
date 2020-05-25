@@ -400,7 +400,7 @@ endif()
 
 if(VECGEOM_ENABLE_CUDA)
   set(VECGEOM_NVCC_COMPILATION_FLAGS ${VECGEOM_NVCC_COMPILATION_FLAGS}
-    -std=c++${CMAKE_CXX_STANDARD}
+    -std=c++${CMAKE_CUDA_STANDARD}
     -Xcompiler -Wno-unused-function
     -Xcudafe "--diag_suppress=code_is_unreachable"
     -Xcudafe "--diag_suppress=initialization_not_reachable")
