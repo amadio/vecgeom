@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -x 
 
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
@@ -26,24 +26,21 @@ PLATFORM=`$THIS/getPlatform.py`
 COMPATIBLE=`$THIS/getCompatiblePlatform.py $PLATFORM`
 ARCH=$(uname -m)
 
-
 # Set up the externals against devgeantv in CVMFS
 if [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM ]; then
+  echo source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM/setup.sh
   source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM/setup.sh
 elif [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE ]; then
+  echo source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE/setup.sh
   source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE/setup.sh
 elif [[ $PLATFORM == *slc6* ]] || [[ $PLATFORM == *centos7* ]]; then
-  export PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/3.7.0/Linux-$ARCH/bin:${PATH}
+  export PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/latest/Linux-$ARCH/bin:${PATH}
 else
   echo "No externals for $PLATFORM in /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS"
 fi
 
-if [ $LABEL == slc6 ] || [ $LABEL == gvslc6 ] || [ $LABEL == cc7 ] || [ $LABEL == cuda7 ] || [ $LABEL == slc6-physical ] || [  $LABEL == continuous-sl6 ] || [  $LABEL == continuous-cuda7 ] || [ $LABEL == continuous-xeonphi ] || [ $LABEL == c7-checker ]
-then
+if [ $LABEL == slc6 ] || [ $LABEL == centos7 ] || [ $LABEL == cuda10 ] || [ $LABEL == physical ]; then
   kinit sftnight@CERN.CH -5 -V -k -t /ec/conf/sftnight.keytab
-elif [ $LABEL == xeonphi ]
-then
-  kinit sftnight@CERN.CH -5 -V -k -t /data/sftnight/ec/conf/sftnight.keytab
 fi
 
 if [[ $COMPILER == *gcc* ]]; then
