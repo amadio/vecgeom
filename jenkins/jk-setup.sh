@@ -35,6 +35,7 @@ elif [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE ]; then
   source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE/setup.sh
 else
   echo "No externals for $PLATFORM in /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS"
+  exit 1
 fi
 
 if [ $LABEL == slc6 ] || [ $LABEL == centos7 ] || [ $LABEL == cuda10 ] || [ $LABEL == physical ]; then
