@@ -26,7 +26,7 @@ target_include_directories(vgdml PUBLIC
 )
 target_link_libraries(vgdml PUBLIC ${VECGEOM_LIBRARIES} XercesC::XercesC)
 
-install(TARGETS vgdml DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+install(TARGETS vgdml EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 install(DIRECTORY include/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/VecGeom/gdml"
   FILES_MATCHING PATTERN "*.h"
 )

@@ -226,6 +226,7 @@ endif()
 # Minimum version of VecCore we need.
 set(VecCore_VERSION "0.5.2")
 
+# Specifically to handle "CUDA_ROOT" in cmake >= 3.12
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
 endif()
@@ -248,10 +249,8 @@ endif()
 find_package(VecCore ${VecCore_VERSION} REQUIRED COMPONENTS ${VecCore_COMPONENTS})
 
 # Should no longer need this as VecCore provides usage requirements
-include_directories(${VecCore_INCLUDE_DIRS})
-set(VECGEOM_DEFINITIONS "${VecCore_DEFINITIONS}")
-set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${VecCore_INCLUDE_DIRS}")
-set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${VecCore_LIBRARIES})
+#include_directories(${VecCore_INCLUDE_DIRS})
+set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} VecCore::VecCore)
 
 ################################################################################
 # - Compiler Flags/Settings for each build type
@@ -456,7 +455,7 @@ endif()
 # We may have addition in compiler flags from the above included packages
 # We don't want to have trailing CMAKE_CXX_FLAGS_"BUILD_TYPE" options on the command line
 # but rather have it as first set of argument.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}} ${VECGEOM_CXX_FLAGS} ${VECGEOM_DEFINITIONS} ${VECGEOM_COMPILATION_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}} ${VECGEOM_CXX_FLAGS} ${VECGEOM_COMPILATION_FLAGS}")
 
 # At this point, all changes to CXXFLAGS have been made.
 # The line below is necessary to allow passing extra options
@@ -719,10 +718,6 @@ endif()
 
 ################################################################################
 # Build libraries
-# TODO: Move to target_include_directories
-include_directories(BEFORE ${PROJECT_SOURCE_DIR})
-include_directories(BEFORE ${PROJECT_BINARY_DIR})
-
 if(NOT APPLE)
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt pthread)
 endif()
@@ -734,8 +729,11 @@ add_library(vecgeom
   ${PROJECT_BINARY_DIR}/VecGeom/base/Config.h
   ${VECGEOM_COMMON_SRCS}
   ${VECGEOM_CPPONLY_SRCS})
-
-target_link_libraries(vecgeom
+target_include_directories(vecgeom PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_link_libraries(vecgeom PUBLIC
   ${VECGEOM_LIBRARIES}
   ${VECGEOM_LIBRARIES_EXTERNAL})
 
@@ -747,12 +745,6 @@ set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeom)
 
 if(GDML)
   set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vgdml)
-endif()
-
-if(BUILD_SHARED_LIBS)
-  set(VECGEOM_LIBNAME "libvecgeom${CMAKE_SHARED_LIBRARY_SUFFIX}")
-else()
-  set(VECGEOM_LIBNAME "libvecgeom${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
 
 # build the CUDA version of the library
@@ -797,39 +789,6 @@ add_subdirectory(test)
 
 ################################################################################
 # Installation
-file(RELATIVE_PATH INSTALL_INCLUDE_DIR_RELATIVE
-  "${CMAKE_INSTALL_FULL_CMAKEDIR}/VecGeom" "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
-file(RELATIVE_PATH INSTALL_LIB_DIR_RELATIVE
-  "${CMAKE_INSTALL_FULL_CMAKEDIR}/VecGeom" "${CMAKE_INSTALL_FULL_LIBDIR}")
-# Build
-set(CONF_TYPE "build")
-set(CONF_INCLUDE_DIR "${PROJECT_SOURCE_DIR}")
-set(CONF_LIBRARY_DIR "${PROJECT_BINARY_DIR}")
-set(CONF_LIBRARIES ${VECGEOM_LIBRARIES_EXTERNAL} "${CONF_LIBRARY_DIR}/${VECGEOM_LIBNAME}")
-if(VECGEOM_ENABLE_CUDA)
-   set(CONF_LIBRARIES ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.so")
-   set(CONF_CUDA_STATIC_LIBRARY "${CONF_LIBRARY_DIR}/libvecgeomcuda_static.a")
-endif()
-
-configure_file(VecGeomConfig.cmake.in "${PROJECT_BINARY_DIR}/VecGeomConfig.cmake" @ONLY)
-
-# Installation
-set(CONF_TYPE "install")
-set(CONF_INCLUDE_DIR "\${THIS_DIR}/${INSTALL_INCLUDE_DIR_RELATIVE}")
-set(CONF_LIBRARY_DIR "\${THIS_DIR}/${INSTALL_LIB_DIR_RELATIVE}")
-set(CONF_LIBRARIES ${VECGEOM_LIBRARIES_EXTERNAL} ${CONF_LIBRARY_DIR}/${VECGEOM_LIBNAME})
-if(VECGEOM_ENABLE_CUDA)
-  set(CONF_LIBRARIES ${CONF_LIBRARIES} "${CONF_LIBRARY_DIR}/libvecgeomcuda.so")
-  set(CONF_CUDA_STATIC_LIBRARY "${CONF_LIBRARY_DIR}/libvecgeomcuda_static.a")
-endif()
-
-configure_file(VecGeomConfig.cmake.in
-  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake" @ONLY)
-
-# Install the VecGeomConfig.cmake
-install(FILES "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake"
-  DESTINATION "${CMAKE_INSTALL_CMAKEDIR}/VecGeom" COMPONENT dev)
-
 # Install headers and libraries
 install(DIRECTORY VecGeom DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
   PATTERN "*.h.in" EXCLUDE)
@@ -837,21 +796,46 @@ install(DIRECTORY VecGeom DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 install(FILES ${PROJECT_BINARY_DIR}/VecGeom/base/Config.h
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/VecGeom/base")
 
-string(REPLACE "." ";" SYSTEM_VERSION_LIST ${CMAKE_SYSTEM_VERSION})
-list(GET SYSTEM_VERSION_LIST 0 SYSTEM_VERSION_MAJOR)
-list(GET SYSTEM_VERSION_LIST 1 SYSTEM_VERSION_MINOR)
-list(GET SYSTEM_VERSION_LIST 2 SYSTEM_VERSION_PATCH)
-
-if(APPLE AND ${SYSTEM_VERSION_MAJOR} LESS 14)
-  install(FILES ${PROJECT_BINARY_DIR}/${VECGEOM_LIBNAME} DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-else()
-  install(TARGETS vecgeom DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-endif()
+install(TARGETS vecgeom EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
 if(VECGEOM_ENABLE_CUDA)
-  install(TARGETS vecgeomcuda DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-  install(TARGETS vecgeomcuda_static DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+  install(TARGETS vecgeomcuda EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+  install(TARGETS vecgeomcuda_static EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif()
+
+# CMake support files
+include(CMakePackageConfigHelpers)
+
+file(RELATIVE_PATH INSTALL_INCLUDE_DIR_RELATIVE
+  "${CMAKE_INSTALL_FULL_CMAKEDIR}/VecGeom" "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
+file(RELATIVE_PATH INSTALL_LIB_DIR_RELATIVE
+  "${CMAKE_INSTALL_FULL_CMAKEDIR}/VecGeom" "${CMAKE_INSTALL_FULL_LIBDIR}")
+
+# Common
+write_basic_package_version_file(VecGeomConfigVersion.cmake COMPATIBILITY AnyNewerVersion)
+
+# Build
+set(CONF_INCLUDE_DIR "${PROJECT_SOURCE_DIR}")
+configure_package_config_file(VecGeomConfig.cmake.in
+  "${PROJECT_BINARY_DIR}/VecGeomConfig.cmake"
+  INSTALL_PREFIX "${PROJECT_BINARY_DIR}"
+  INSTALL_DESTINATION "${PROJECT_BINARY_DIR}")
+export(EXPORT VecGeomTargets NAMESPACE VecGeom::)
+
+# Installation
+set(CONF_INCLUDE_DIR "\${THIS_DIR}/${INSTALL_INCLUDE_DIR_RELATIVE}")
+configure_package_config_file(VecGeomConfig.cmake.in
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_CMAKEDIR}/VecGeom")
+
+# Install the VecGeom{Config,Version,Targets}.cmake
+install(FILES "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake"
+  "${PROJECT_BINARY_DIR}/VecGeomConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_CMAKEDIR}/VecGeom" COMPONENT dev)
+install(EXPORT VecGeomTargets
+  NAMESPACE VecGeom::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/VecGeom")
+
 
 ################################################################################
 # Doxygen documentation
