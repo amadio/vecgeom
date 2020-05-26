@@ -55,10 +55,6 @@ elif [[ $COMPILER == *native* && $PLATFORM == *mac* ]]; then
   export CC=`which clang`
   export CXX=`which clang++`
   export FC=`which gfortran`
-elif [[ $PLATFORM == *native* ]]; then
-  export CC=`which gcc`
-  export CXX=`which g++`
-  export FC=`which gfortran`
 elif [[ $COMPILER == *icc* ]]; then
   iccyear=2013
   icc14year=2013
@@ -79,21 +75,11 @@ elif [[ $COMPILER == *icc* ]]; then
   export CXX=icc
   export FC=ifort
 elif [[ $COMPILER == *clang* ]]; then
-  clang34version=3.4
-  clang35version=3.5
-  clang36version=3.6
-  clang37version=3.7
-  clang38version=3.8
+  clang10version=10
+  clang9version=9
+  clang8version=8
   COMPILERversion=${COMPILER}version
-  clang34gcc=48
-  clang35gcc=49
-  clang37gcc=49
-  clang38gcc=49
-  GCCversion=${COMPILER}gcc
-  . /afs/cern.ch/sw/lcg/external/llvm/${!COMPILERversion}/${ARCH}-${LABEL_COMPILER}/setup.sh
-  export CC=`which clang`
-  export CXX=`which clang++`
-  export FC=`which gfortran`
+  source /cvmfs/sft.cern.ch/lcg/contrib/clang/${!COMPILERversion}/$(echo $PLATFORM| cut -d'-' -f 1,2)/setup.sh
 fi
 
 # Setup ccache
