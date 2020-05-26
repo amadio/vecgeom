@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 THIS=$(dirname $0)
 echo source $THIS/jk-setup.sh $LABEL $COMPILER $BUILDTYPE $EXTERNALS $BACKEND > setup.sh
 source $THIS/jk-setup.sh $LABEL $COMPILER $BUILDTYPE $EXTERNALS $BACKEND
