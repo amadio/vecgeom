@@ -16,8 +16,15 @@
 include(CMakeFindDependencyMacro)
 
 # Always VecCore
-find_dependency(VecCore @VecCore_VERSION@ COMPONENTS @VecCore_COMPONENTS@)
+set(VecGeom_BUILTIN_VECCORE @BUILTIN_VECCORE@)
+if(VecGeom_BUILTIN_VECCORE)
+  # Must find our builtin where we expect
+  find_dependency(VecCore @VecCore_VERSION@ NO_DEFAULT_PATH PATHS "@PACKAGE_VECCORE_PREFIX@" COMPONENTS @VecCore_COMPONENTS@ )
+else()
+  find_dependency(VecCore @VecCore_VERSION@ COMPONENTS @VecCore_COMPONENTS@)
+endif(
 
+)
 # Optional CUDA (no dependency?)
 set(VecGeom_CUDA_FOUND @VECGEOM_ENABLE_CUDA@)
 set(VECGEOM_CUDA_ARCH "@CUDA_ARCH@")

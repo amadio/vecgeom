@@ -236,7 +236,8 @@ if(NOT BUILTIN_VECCORE)
   # Find VecCore with selected components turned on (CUDA and backend)
   find_package(VecCore ${VecCore_VERSION} QUIET COMPONENTS ${VecCore_COMPONENTS})
   if(NOT VecCore_FOUND)
-    set(BUILTIN_VECCORE ON)
+    # This is forced because otherwise re-cmake will setup non-builtin VecCore
+    set(BUILTIN_VECCORE ON CACHE BOOL "Build VecCore and its dependencies from source" FORCE)
   endif()
 endif()
 
@@ -816,16 +817,30 @@ write_basic_package_version_file(VecGeomConfigVersion.cmake COMPATIBILITY AnyNew
 
 # Build
 set(CONF_INCLUDE_DIR "${PROJECT_SOURCE_DIR}")
+
+if(BUILTIN_VECCORE)
+  set(VECCORE_PREFIX "${VecCore_ROOTDIR}")
+  set(PATH_VARS_ARG PATH_VARS VECCORE_PREFIX)
+endif()
+
 configure_package_config_file(VecGeomConfig.cmake.in
   "${PROJECT_BINARY_DIR}/VecGeomConfig.cmake"
+  ${PATH_VARS_ARG}
   INSTALL_PREFIX "${PROJECT_BINARY_DIR}"
   INSTALL_DESTINATION "${PROJECT_BINARY_DIR}")
 export(EXPORT VecGeomTargets NAMESPACE VecGeom::)
 
 # Installation
 set(CONF_INCLUDE_DIR "\${THIS_DIR}/${INSTALL_INCLUDE_DIR_RELATIVE}")
+
+if(BUILTIN_VECCORE)
+  set(VECCORE_PREFIX "${CMAKE_INSTALL_PREFIX}")
+  set(PATH_VARS_ARG PATH_VARS VECCORE_PREFIX)
+endif()
+
 configure_package_config_file(VecGeomConfig.cmake.in
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake"
+  ${PATH_VARS_ARG}
   INSTALL_DESTINATION "${CMAKE_INSTALL_CMAKEDIR}/VecGeom")
 
 # Install the VecGeom{Config,Version,Targets}.cmake
