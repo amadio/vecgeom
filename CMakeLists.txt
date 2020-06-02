@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.1.0)
 include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
 
-project(VecGeom VERSION 1.1.6)
+project(VecGeom VERSION 1.1.7)
 
 ################################################################################
 # - Core CMake settings
