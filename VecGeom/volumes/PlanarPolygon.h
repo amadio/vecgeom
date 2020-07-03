@@ -426,12 +426,14 @@ private:
 
     const auto kS = fNVertices;
     int counter(0);
-    for (size_t i = 0; i < kS - 1; ++i) {
-      const double p1[2] = {vertx[i] - fShiftedXJ[i], verty[i] - fShiftedYJ[i]};
-      const double p2[2] = {vertx[(i + 1)] - vertx[i], verty[(i + 1)] - verty[i]};
+    for (size_t i = 0; i < kS; ++i) {
+      size_t j           = (i + 1) % kS;
+      size_t k           = (i + 2) % kS;
+      const double p1[2] = {vertx[j] - vertx[i], verty[j] - verty[i]};
+      const double p2[2] = {vertx[k] - vertx[j], verty[k] - verty[j]};
       counter += (p1[0] * p2[1] - p1[1] * p2[0]) < 0 ? -1 : 1;
     }
-    fIsConvex = (size_t)std::abs(counter) == kS - 1;
+    fIsConvex = (size_t)std::abs(counter) == kS;
   }
 };
 
