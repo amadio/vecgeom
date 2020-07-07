@@ -203,7 +203,10 @@ public:
 #endif
   }
 #ifndef VECCORE_CUDA
-  SolidMesh *CreateMesh3D(size_t nFaces) const { return GetUnplacedVolume()->CreateMesh3D(fTransformation, nFaces); }
+  SolidMesh *CreateMesh3D(size_t nFaces) const
+  {
+    return GetUnplacedVolume()->CreateMesh3D(*this->GetTransformation(), nFaces);
+  }
 #endif
   /// Sets logical volume.
   VECCORE_ATT_HOST_DEVICE
