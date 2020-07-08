@@ -41,6 +41,7 @@ int main(int argC, char *argV[])
   auto loadedMiddleware = aMiddleware.Load(aDOMDoc);
   //  std::cout << loadedMiddleware << std::endl;
   auto const *world = vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::Instance().GetWorld();
+  if (!loadedMiddleware || !world) return 1;
 #ifdef VECGEOM_ROOT
   auto &aROOTmanager = vecgeom::RootGeoManager::Instance();
   //  aROOTmanager.EnableTGeoUnits(); // does not work at export stage
@@ -58,5 +59,5 @@ int main(int argC, char *argV[])
   }
 #endif
 
-  return loadedMiddleware && world;
+  return 0;
 }
