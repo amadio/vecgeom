@@ -1,25 +1,11 @@
-Installation
-============
+# Installation
 
 VecGeom uses [CMake](http://www.cmake.org/) for configuration and GMake for building.
 
-Quick start
------------
-
-Configure and build VecGeom using default parameters, installing into the build directory:
-
-    mkdir build
-    cd build
-    cmake ../ -DCMAKE_INSTALL_PREFIX=`pwd`
-    make install
-
-Requirements
-------------
-
-### Configuration
-CMake >= 2.8.8.
+## Requirements
 
 ### Compilation
+
 A C++11 compatible compiler is required.
 The library has been tested to compile with (but is not necessarily limited to):
 
@@ -30,44 +16,59 @@ The library has been tested to compile with (but is not necessarily limited to):
 ### Dependencies
 
 #### Vc
-If Vc is used as the backend for SIMD instructions, CMake must be able to find the package. The Vc library is an [open source project](http://code.compeng.uni-frankfurt.de/projects/vc/).
 
-Tested to compile with Vc >= 1.0
+If Vc is used as the backend for SIMD instructions, CMake must be able to find the package.
+The Vc library is an [open source project](https://github.com/VcDevel/Vc).
 
-#### Cilk Plus
-When using Intel's Cilk Plus for SIMD instructions, CMake must be configured to compile with ICC.
+Tested to compile with Vc >= 1.3.3.
 
 #### CUDA
-For CUDA support, an nVIDIA GPU with [compute capability](http://en.wikipedia.org/wiki/CUDA#Supported_GPUs) >= 2.0 must be available, and the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) must be installed.
 
-Tested to compile with CUDA >= 7.0 on GTX series >= 500.
+For CUDA support, an nVIDIA GPU with [compute capability](http://en.wikipedia.org/wiki/CUDA#Supported_GPUs) >= 3.0 must be available,
+and the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) must be installed.
 
-CMake options
--------------
+Tested to compile with CUDA >= 10.0.
 
-    OPTION [Default]
-      Description.
+Quick start
+-----------
 
-    BACKEND [Vc]
-      Specifies the backend used to generate CPU instructions. Available backends are:
-      - Vc
-      - Cilk
-      - Scalar
+Below are instructions to configure and build VecGeom using mostly default settings:
 
-    CUDA [OFF]
-      Enable CUDA support.
+```sh
+$ mkdir build && cd build
+$ cmake ..
+$ cmake --build .
+$ cmake --build . --target install
+```
 
-    CUDA_ARCH [20]
-      nVidia GPU architecture for which CUDA will be compiled. Will be passed directly to NVCC as -arch=<CUDA_ARCH>.
+The table below shows some options you may want to customise:
 
-    BENCHMARK [OFF]
-      Enables the benchmarking module. Will support a number of targets to benchmark against depending on which optional dependencies are activated. Flags that affect this are:
-      - CUDA
-      - ROOT
-      - GEANT4
-
-    ROOT [OFF]
-      Look for a ROOT installation to include ROOT interfacing modules and enable ROOT as a benchmarking case.
-
-    GEANT4 [OFF]
-      Enable Geant4 as a benchmarking case.
+|Option|Default|Description|
+|------|:-----:|-----------|
+|BACKEND|scalar|Vector backend API to be used|
+|BENCHMARK|OFF|Enable performance comparisons|
+|BUILTIN_VECCORE|OFF|Build VecCore and its dependencies from source|
+|COVERAGE_TESTING|OFF|Enable coverage testing flags|
+|CTEST|ON|Enable CTest when building|
+|CUDA|OFF|Enable compilation for CUDA|
+|CUDA_ARCH|30|Default CUDA device architecture|
+|CUDA_USE_STATIC_CUDA_RUNTIME|OFF|Use the static version of the CUDA runtime library if available|
+|CUDA_VOLUME_SPECIALIZATION|OFF|Use specialized volumes for CUDA|
+|DATA_DOWNLOAD|OFF|Enable downloading of data for tests|
+|DISTANCE_DEBUG|OFF|Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes|
+|EMBREE|OFF|Enable Intel Embree|
+|FAST_MATH|OFF|Enable the -ffast-math compiler option in Release builds|
+|GDML|OFF|Enable GDML persistency. Requres Xerces-C|
+|GDMLDEBUG|OFF|Enable additional debug information in GDML module|
+|GEANT4|OFF|Build with support for Geant4 (https://geant4.web.cern.ch)|
+|INPLACE_TRANSFORMATIONS|ON|Put transformation as members rather than pointers into PlacedVolume objects|
+|NO_SPECIALIZATION|ON|Disable specialization of volumes|
+|PLANESHELL|ON|Enable the use of PlaneShell class for the trapezoid|
+|QUADRILATERAL_ACCELERATION|ON|Enable SIMD vectorization when looping over quadrilaterals|
+|ROOT|OFF|Build with support for ROOT (https://root.cern)|
+|STATIC_ANALYSIS|OFF|Enable static analysis on VecGeom|
+|USE_CACHED_TRANSFORMATIONS|OFF|Use cached transformations in navigation states|
+|USE_INDEXEDNAVSTATES|ON|Use indices rather than volume pointers in NavigationState objects|
+|USE_NAVINDEX|OFF|Use navigation index table and states|
+|VALIDATION|OFF|Enable validation tests from CMS geometry|
+|VECGEOM_VECTOR|sse2|Vector instruction set to be used|
