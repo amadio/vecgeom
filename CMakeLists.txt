@@ -133,7 +133,7 @@ if(CUDA)
   endif()
 
   set(CUDA_ARCH 30 CACHE STRING "CUDA device architecture.")
-  set(CUDA_ARCH "-arch=compute_${CUDA_ARCH}")
+  set(CUDA_ARCH "-arch=sm_${CUDA_ARCH}")
 
   set(VecCore_COMPONENTS ${VecCore_COMPONENTS} "CUDA")
 endif()
