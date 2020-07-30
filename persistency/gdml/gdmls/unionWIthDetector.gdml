@@ -13,6 +13,15 @@
     <rotation name="rotate" unit="deg" x="4.6566141051" y="-17.7642262946" z="-36.6806769949" />
   </define>
 
+  <materials>
+    <material Z="13" name="Aluminium" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.69999857937074"/>
+      <atom unit="g/mole" value="26.9799858042305"/>
+    </material>
+  </materials>
+
   <solids>
     <box lunit="cm" name="firstHalf" x="100" y="100" z="100" />
     <box lunit="cm" name="secondHalf" x="70" y="70" z="70" />
@@ -27,9 +36,11 @@
 
   <structure>
     <volume name="Detector">
+      <materialref ref="Aluminium"/>
       <solidref ref="secondHalf"/>
     </volume>
     <volume name="World">
+      <materialref ref="Aluminium"/>
       <solidref ref="world"/>
       <physvol>
         <volumeref ref="Detector"/>

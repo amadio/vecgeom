@@ -6,12 +6,25 @@
 <!-- unsupported by ROOT as of 6.13/03 version -->
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
+  <define>
+  </define>
+
+  <materials>
+    <material Z="13" name="Aluminium" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.69999857937074"/>
+      <atom unit="g/mole" value="26.9799858042305"/>
+    </material>
+  </materials>
+
   <solids>
     <twistedtrd lunit="cm" aunit="rad" name="world" x1="90" x2="80" y1="60" y2="50" z="100" PhiTwist="1"/>
   </solids>
 
   <structure>
     <volume name="World">
+      <materialref ref="Aluminium"/>
       <solidref ref="world"/>
     </volume>
   </structure>

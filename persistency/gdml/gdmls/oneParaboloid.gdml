@@ -6,12 +6,25 @@
 <!-- parsed with TGDMLParse, the example from GDML manual contains an extra tag aunit -->
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
+  <define>
+  </define>
+
+  <materials>
+    <material Z="13" name="Aluminium" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.69999857937074"/>
+      <atom unit="g/mole" value="26.9799858042305"/>
+    </material>
+  </materials>
+
   <solids>
     <paraboloid name="world" rlo="50" rhi="75" dz="100" lunit="cm"/>
   </solids>
 
   <structure>
     <volume name="World">
+      <materialref ref="Aluminium"/>
       <solidref ref="world"/>
     </volume>
   </structure>

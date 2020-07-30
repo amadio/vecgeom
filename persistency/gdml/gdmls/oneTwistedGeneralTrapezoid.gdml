@@ -6,12 +6,25 @@
 <!-- parsed with TGDMLParse, the information in the GDML Users' Guide 2.7 is outdated-->
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
+  <define>
+  </define>
+
+  <materials>
+    <material Z="13" name="Aluminium" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.69999857937074"/>
+      <atom unit="g/mole" value="26.9799858042305"/>
+    </material>
+  </materials>
+
   <solids>
-    <twistedtrap lunit="cm" name="world" z="100" theta="1" phi="2" y1="150" x1="100" x2="10" alpha1="1" y2="150" x3="10" x4="10" alpha2="1" PhiTwist="1" aunit="rad"/>
+    <twistedtrap lunit="cm" name="world" z="100" Theta="1" Phi="2" x1="100" y1="150" x2="10" y2="150" x3="10" x4="10" Alph="1" PhiTwist="1" aunit="rad"/>
   </solids>
 
   <structure>
     <volume name="World">
+      <materialref ref="Aluminium"/>
       <solidref ref="world"/>
     </volume>
   </structure>

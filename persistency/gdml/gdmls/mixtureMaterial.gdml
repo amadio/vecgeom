@@ -6,9 +6,8 @@
 <!-- parsed with TGDMLParse -->
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
-  <solids>
-    <orb name="world" r="100" lunit="cm"/>
-  </solids>
+  <define>
+  </define>
   
   <materials>
     <material Z="7" name="Nitrogen" >
@@ -25,6 +24,10 @@
       <fraction n="0.3" ref="Oxygen" />
     </material>
   </materials>
+
+  <solids>
+    <orb name="world" r="100" lunit="cm"/>
+  </solids>
 
   <structure>
     <volume name="World">

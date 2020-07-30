@@ -10,6 +10,15 @@
     <scale name="shrink" x="0.7" y="0.5" z="0.3"/>
   </define>  
 
+  <materials>
+    <material Z="13" name="Aluminium" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.69999857937074"/>
+      <atom unit="g/mole" value="26.9799858042305"/>
+    </material>
+  </materials>
+
   <solids>
     <box lunit="cm" name="box" x="100" y="100" z="100" />
     <scaledSolid name="world" >
@@ -20,6 +29,7 @@
 
   <structure>
     <volume name="World">
+      <materialref ref="Aluminium"/>
       <solidref ref="world"/>
     </volume>
   </structure>

@@ -5,18 +5,32 @@
 <!-- \license Distributed under the Apache license 2.0 -->
 <!-- unsupported by TGDMLParse as of ROOT 6.13/03 -->
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
-  <define/>
-  <materials/>
+
+  <define>
+  </define>
+
+  <materials>
+    <material Z="13" name="Aluminium" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.69999857937074"/>
+      <atom unit="g/mole" value="26.9799858042305"/>
+    </material>
+  </materials>
+
   <solids>
     <twistedtubs name="world" endinnerrad="1" endouterrad="4" twistedangle="1" aunit="rad" lunit="cm"/>
   </solids>
+
   <structure>
     <volume name="World">
-      <materialref ref=""/>
+      <materialref ref="Aluminium"/>
       <solidref ref="world"/>
     </volume>
   </structure>
+
   <setup name="default" version="1.0">
     <world ref="World"/>
   </setup>
+
 </gdml>

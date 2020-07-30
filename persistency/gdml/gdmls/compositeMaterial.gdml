@@ -6,24 +6,27 @@
 <!-- parsed with TGDMLParse -->
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
+  <define>
+  </define>
+  
+  <materials>
+    <element Z="8" formula="O" name="Oxygen">
+      <atom value="16" />
+    </element>
+    <element Z="1" formula="H" name="Hydrogen">
+      <atom value="1" />
+    </element>
+  
+    <material formula="H2O" name="Water">
+      <D value="1.0" />
+      <composite n="2" ref="Hydrogen"/>
+      <composite n="1" ref="Oxygen"/>
+    </material>
+  </materials>
+
   <solids>
     <orb name="world" r="100" lunit="cm"/>
   </solids>
-  
-  <element Z="8" formula="O" name="Oxygen" >
-    <atom value="16" />
-  </element>
-  <element Z="1" formula="H" name="Hydrogen" >
-    <atom value="1" />
-  </element>
-  
-  <materials>
-    <material formula="H2O" name="Water" >
-      <D value="1.0" />
-      <composite n="2" ref="Hydrogen" />
-      <composite n="1" ref="Oxygen" />
-    </material>
-  </materials>
 
   <structure>
     <volume name="World">
@@ -32,7 +35,7 @@
     </volume>
   </structure>
 
-  <setup name="default" version="1.0" >
+  <setup name="default" version="1.0">
     <world ref="World" />
   </setup>
 

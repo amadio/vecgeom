@@ -13,12 +13,22 @@
     <position name="v4" x="0" y="0" z="10"/>
   </define>
 
+  <materials>
+    <material Z="13" name="Aluminium" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.69999857937074"/>
+      <atom unit="g/mole" value="26.9799858042305"/>
+    </material>
+  </materials>
+
   <solids>
     <tet name="world" vertex1="v1" vertex2="v2" vertex3="v3" vertex4="v4"/>
   </solids>
 
   <structure>
     <volume name="World">
+      <materialref ref="Aluminium"/>
       <solidref ref="world"/>
     </volume>
   </structure>
