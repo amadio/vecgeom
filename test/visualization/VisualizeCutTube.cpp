@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   G4CutTubs *g4ctub = (G4CutTubs *)cuttube.ConvertToGeant4();
 #endif
   // Get the extent
-  Vector3D<double> amin, amax;
+  Vector3D<Precision> amin, amax;
   cuttube.Extent(amin, amax);
   std::cout << "VecGeom extent is: "
             << "min: " << amin << " max: " << amax << std::endl;

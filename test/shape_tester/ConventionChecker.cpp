@@ -43,9 +43,9 @@
 #include <sstream>
 #include <vector>
 
-using vecgeom::kInfLength;
 using vecgeom::kHalfTolerance;
-using Vec_t = vecgeom::Vector3D<double>;
+using vecgeom::kInfLength;
+using Vec_t = vecgeom::Vector3D<Precision>;
 
 // Function to set the number of Points to be displayed in case of convention not followed
 template <typename ImplT>
@@ -143,8 +143,9 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
-	ReportError(&nError, point, direction, Dist,
-		    "DistanceToIn for Surface Point entering into the Shape should be 0 within tolerance (VecGeom convention)");
+        ReportError(
+            &nError, point, direction, Dist,
+            "DistanceToIn for Surface Point entering into the Shape should be 0 within tolerance (VecGeom convention)");
       }
     }
 
@@ -184,8 +185,8 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
-	ReportError(&nError, point, direction, Dist,
-		    "DistanceToOut for Surface Point exiting the shape should be <= tolerance (VecGeom convention)");
+        ReportError(&nError, point, direction, Dist,
+                    "DistanceToOut for Surface Point exiting the shape should be <= tolerance (VecGeom convention)");
       }
     }
 
@@ -210,8 +211,8 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
-	ReportError(&nError, point, direction, Dist,
-		    "SafetyFromOutside for Surface Point should be 0 (VecGeom convention)");
+        ReportError(&nError, point, direction, Dist,
+                    "SafetyFromOutside for Surface Point should be 0 (VecGeom convention)");
       }
     }
 
@@ -224,8 +225,8 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
-	ReportError(&nError, point, direction, Dist,
-		    "SafetyFromInside for Surface Point should be <= tolerance (VecGeom convention)");
+        ReportError(&nError, point, direction, Dist,
+                    "SafetyFromInside for Surface Point should be <= tolerance (VecGeom convention)");
       }
     }
   }
@@ -257,7 +258,8 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
     {
       bool ok = Dist < 0.;
       if (!ok) {
-        ReportError(&nError, point, direction, Dist, "DistanceToIn for Inside Point should be Negative (-1.) (Wrong side)");
+        ReportError(&nError, point, direction, Dist,
+                    "DistanceToIn for Inside Point should be Negative (-1.) (Wrong side)");
         fScore |= (1 << indx);
         insidePointConventionPassed &= false;
       }
@@ -282,7 +284,8 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
     {
       bool ok = (Dist < 0.);
       if (!ok) {
-	ReportError(&nError, point, direction, Dist, "SafetyFromOutside for Inside Point should be Negative (-1.) (Wrong side, VecGeom conv)");
+        ReportError(&nError, point, direction, Dist,
+                    "SafetyFromOutside for Inside Point should be Negative (-1.) (Wrong side, VecGeom conv)");
         fScore |= (1 << indx);
         insidePointConventionPassed &= false;
       }
@@ -339,7 +342,8 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
     {
       bool ok = (Dist < 0.);
       if (!ok) {
-        ReportError(&nError, point, direction, Dist, "DistanceToOut for Outside Point should be Negative (-1.) (Wrong side).");
+        ReportError(&nError, point, direction, Dist,
+                    "DistanceToOut for Outside Point should be Negative (-1.) (Wrong side).");
         fScore |= (1 << indx);
         outsidePointConventionPassed &= false;
       }
@@ -362,7 +366,8 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
     {
       bool ok = (Dist < 0.);
       if (!ok) {
-        ReportError(&nError, point, direction, Dist, "SafetyFromInside for Outside Point should be Negative (-1) (Wrong side)");
+        ReportError(&nError, point, direction, Dist,
+                    "SafetyFromInside for Outside Point should be Negative (-1) (Wrong side)");
         fScore |= (1 << indx);
         outsidePointConventionPassed &= false;
       }

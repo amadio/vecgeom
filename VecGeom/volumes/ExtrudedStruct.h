@@ -24,13 +24,13 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 // extruded sections or a tessellated structure in case of more
 
 struct XtruVertex2 {
-  double x;
-  double y;
+  Precision x;
+  Precision y;
 };
 
 struct XtruSection {
-  Vector3D<double> fOrigin; // Origin of the section
-  double fScale;
+  Vector3D<Precision> fOrigin; // Origin of the section
+  Precision fScale;
 };
 
 class ExtrudedStruct {
@@ -41,16 +41,16 @@ class ExtrudedStruct {
   using vector_t = vecgeom::Vector<U>;
 
 public:
-  bool fIsSxtru               = false;     ///< Flag for sxtru representation
-  bool fInitialized           = false;     ///< Flag for initialization
-  double *fZPlanes            = nullptr;   ///< Z position of planes
-  mutable double fCubicVolume = 0.;        ///< Cubic volume
-  mutable double fSurfaceArea = 0.;        ///< Surface area
-  PolygonalShell fSxtruHelper;             ///< Sxtru helper
-  TessellatedStruct<3, double> fTslHelper; ///< Tessellated helper
+  bool fIsSxtru                  = false;     ///< Flag for sxtru representation
+  bool fInitialized              = false;     ///< Flag for initialization
+  Precision *fZPlanes            = nullptr;   ///< Z position of planes
+  mutable Precision fCubicVolume = 0.;        ///< Cubic volume
+  mutable Precision fSurfaceArea = 0.;        ///< Surface area
+  PolygonalShell fSxtruHelper;                ///< Sxtru helper
+  TessellatedStruct<3, Precision> fTslHelper; ///< Tessellated helper
 #ifndef VECGEOM_ENABLE_CUDA
-  bool fUseTslSections = false;                        ///< Use tessellated section helper
-  vector_t<TessellatedSection<double> *> fTslSections; ///< Tessellated sections
+  bool fUseTslSections = false;                           ///< Use tessellated section helper
+  vector_t<TessellatedSection<Precision> *> fTslSections; ///< Tessellated sections
 #endif
   vector_t<XtruVertex2> fVertices; ///< Polygone vertices
   vector_t<XtruSection> fSections; ///< Vector of sections
@@ -92,11 +92,11 @@ public:
 
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  int FindZSegment(double const &pointZ) const
+  int FindZSegment(Precision const &pointZ) const
   {
-    int index           = -1;
-    double const *begin = fZPlanes;
-    double const *end   = fZPlanes + fSections.size() + 1;
+    int index              = -1;
+    Precision const *begin = fZPlanes;
+    Precision const *end   = fZPlanes + fSections.size() + 1;
     while (begin < end - 1 && pointZ - kTolerance > *begin) {
       ++index;
       ++begin;
@@ -110,7 +110,7 @@ public:
   {
     if (fInitialized) return;
     assert(nsections > 1 && nvertices > 2);
-    fZPlanes         = new double[nsections];
+    fZPlanes         = new Precision[nsections];
     fZPlanes[0]      = sections[0].fOrigin.z();
     bool degenerated = false;
     for (size_t i = 1; i < (size_t)nsections; ++i) {
@@ -129,8 +129,8 @@ public:
       fIsSxtru = true;
     if (fIsSxtru) {
       // Put vertices in arrays
-      double *x = new double[nvertices];
-      double *y = new double[nvertices];
+      Precision *x = new Precision[nvertices];
+      Precision *y = new Precision[nvertices];
       for (size_t i = 0; i < (size_t)nvertices; ++i) {
         x[i] = sections[0].fOrigin.x() + sections[0].fScale * vertices[i].x;
         y[i] = sections[0].fOrigin.y() + sections[0].fScale * vertices[i].y;
@@ -163,8 +163,8 @@ public:
       fSections.push_back(sections[isect]);
 
     // Create the polygon
-    double *vx = new double[nvertices];
-    double *vy = new double[nvertices];
+    Precision *vx = new Precision[nvertices];
+    Precision *vy = new Precision[nvertices];
     for (size_t i = 0; i < nvertices; ++i) {
       vx[i] = vertices[i].x;
       vy[i] = vertices[i].y;
@@ -177,7 +177,7 @@ public:
       fTslSections.reserve(nsections);
       for (size_t i = 0; i < nsections - 1; ++i) {
         fTslSections[i] =
-            new TessellatedSection<double>(nvertices, sections[i].fOrigin.z(), sections[i + 1].fOrigin.z());
+            new TessellatedSection<Precision>(nvertices, sections[i].fOrigin.z(), sections[i + 1].fOrigin.z());
       }
     }
 #endif
@@ -283,7 +283,7 @@ public:
   /** @brief Get the polygone vertex i */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void GetVertex(int i, double &x, double &y) const
+  void GetVertex(int i, Precision &x, Precision &y) const
   {
     x = fPolygon.GetVertices().x()[i];
     y = fPolygon.GetVertices().y()[i];
@@ -294,17 +294,17 @@ public:
   VECGEOM_FORCE_INLINE
   bool IsSameLine(size_t i, size_t i1, size_t i2) const
   {
-    const double *x = fPolygon.GetVertices().x();
-    const double *y = fPolygon.GetVertices().y();
+    const Precision *x = fPolygon.GetVertices().x();
+    const Precision *y = fPolygon.GetVertices().y();
     if (x[i1] == x[i2]) return std::fabs(x[i] - x[i1]) < kTolerance * 0.5;
 
-    double slope = (y[i2] - y[i1]) / (x[i2] - x[i1]);
-    double predy = y[i1] + slope * (x[i] - x[i1]);
-    double dy    = y[i] - predy;
+    Precision slope = (y[i2] - y[i1]) / (x[i2] - x[i1]);
+    Precision predy = y[i1] + slope * (x[i] - x[i1]);
+    Precision dy    = y[i] - predy;
 
     // Check perpendicular distance vs tolerance 'directly'
-    const double tol = 0.5 * kTolerance;
-    bool squareComp  = (dy * dy < (1 + slope * slope) * tol * tol);
+    const Precision tol = 0.5 * kTolerance;
+    bool squareComp     = (dy * dy < (1 + slope * slope) * tol * tol);
     return squareComp;
   }
 
@@ -313,8 +313,8 @@ public:
   VECGEOM_FORCE_INLINE
   bool IsSameLineSegment(size_t i, size_t i1, size_t i2) const
   {
-    const double *x = fPolygon.GetVertices().x();
-    const double *y = fPolygon.GetVertices().y();
+    const Precision *x = fPolygon.GetVertices().x();
+    const Precision *y = fPolygon.GetVertices().y();
     if (x[i] < std::min(x[i1], x[i2]) - kTolerance * 0.5 || x[i] > std::max(x[i1], x[i2]) + kTolerance * 0.5 ||
         y[i] < std::min(y[i1], y[i2]) - kTolerance * 0.5 || y[i] > std::max(y[i1], y[i2]) + kTolerance * 0.5)
       return false;
@@ -327,8 +327,8 @@ public:
   VECGEOM_FORCE_INLINE
   bool IsSameSide(size_t i, size_t j, size_t i1, size_t i2) const
   {
-    const double *x = fPolygon.GetVertices().x();
-    const double *y = fPolygon.GetVertices().y();
+    const Precision *x = fPolygon.GetVertices().x();
+    const Precision *y = fPolygon.GetVertices().y();
 
     return ((x[i] - x[i1]) * (y[i2] - y[i1]) - (x[i2] - x[i1]) * (y[i] - y[i1])) *
                ((x[j] - x[i1]) * (y[i2] - y[i1]) - (x[i2] - x[i1]) * (y[j] - y[i1])) >
@@ -340,8 +340,8 @@ public:
   VECGEOM_FORCE_INLINE
   bool IsPointInside(size_t i1, size_t i2, size_t i3, size_t i) const
   {
-    const double *x = fPolygon.GetVertices().x();
-    const double *y = fPolygon.GetVertices().y();
+    const Precision *x = fPolygon.GetVertices().x();
+    const Precision *y = fPolygon.GetVertices().y();
 
     // Check extent first
     if ((x[i] < x[i1] && x[i] < x[i2] && x[i] < x[i3]) || (x[i] > x[i1] && x[i] > x[i2] && x[i] > x[i3]) ||
@@ -360,9 +360,9 @@ public:
   VECGEOM_FORCE_INLINE
   bool IsConvexSide(size_t i0, size_t i1, size_t i2)
   {
-    const double *x = fPolygon.GetVertices().x();
-    const double *y = fPolygon.GetVertices().y();
-    double cross    = (x[i1] - x[i0]) * (y[i2] - y[i1]) - (x[i2] - x[i1]) * (y[i1] - y[i0]);
+    const Precision *x = fPolygon.GetVertices().x();
+    const Precision *y = fPolygon.GetVertices().y();
+    Precision cross    = (x[i1] - x[i0]) * (y[i2] - y[i1]) - (x[i2] - x[i1]) * (y[i1] - y[i0]);
     return cross < 0.;
   }
 
@@ -374,13 +374,13 @@ public:
   /** @brief Returns the coordinates for a given vertex index at a given section */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Vector3D<double> VertexToSection(size_t ivert, size_t isect) const
+  Vector3D<Precision> VertexToSection(size_t ivert, size_t isect) const
   {
-    const double *x = fPolygon.GetVertices().x();
-    const double *y = fPolygon.GetVertices().y();
-    Vector3D<double> vert(fSections[isect].fOrigin[0] + fSections[isect].fScale * x[ivert],
-                          fSections[isect].fOrigin[1] + fSections[isect].fScale * y[ivert],
-                          fSections[isect].fOrigin[2]);
+    const Precision *x = fPolygon.GetVertices().x();
+    const Precision *y = fPolygon.GetVertices().y();
+    Vector3D<Precision> vert(fSections[isect].fOrigin[0] + fSections[isect].fScale * x[ivert],
+                             fSections[isect].fOrigin[1] + fSections[isect].fScale * y[ivert],
+                             fSections[isect].fOrigin[2]);
     return vert;
   }
 };

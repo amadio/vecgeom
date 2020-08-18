@@ -255,8 +255,8 @@ public:
 private:
   void GenerateVolumePointers(VPlacedVolume_t const vol);
 
-  BenchmarkResult GenerateBenchmarkResult(const double elapsed, const EBenchmarkedMethod method,
-                                          const EBenchmarkedLibrary library, const double bias) const;
+  BenchmarkResult GenerateBenchmarkResult(Precision elapsed, const EBenchmarkedMethod method,
+                                          const EBenchmarkedLibrary library, const Precision bias) const;
   void RunInsideSpecialized(bool *contains, Inside_t *inside);
   void RunToInSpecialized(Precision *distances, Precision *safeties);
   void RunToOutSpecialized(Precision *distances, Precision *safeties);
@@ -271,13 +271,13 @@ private:
 
 #ifdef VECGEOM_ROOT
   void RunInsideRoot(bool *inside);
-  void RunToInRoot(double *distances, Precision *safeties);
-  void RunToOutRoot(double *distances, Precision *safeties);
+  void RunToInRoot(Precision *distances, Precision *safeties);
+  void RunToOutRoot(Precision *distances, Precision *safeties);
 #endif
 #ifdef VECGEOM_GEANT4
   void RunInsideGeant4(::EInside *inside);
-  void RunToInGeant4(double *distances, Precision *safeties);
-  void RunToOutGeant4(double *distances, Precision *safeties);
+  void RunToInGeant4(Precision *distances, Precision *safeties);
+  void RunToOutGeant4(Precision *distances, Precision *safeties);
 #endif
 #ifdef VECGEOM_ENABLE_CUDA
   void RunInsideCuda(Precision *posX, Precision *posY, Precision *posZ, bool *contains, Inside_t *inside);

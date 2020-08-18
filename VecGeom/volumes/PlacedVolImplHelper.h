@@ -67,7 +67,7 @@ public:
   }
 #endif
 
-  virtual double SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }
+  virtual Precision SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }
 
   VECCORE_ATT_HOST_DEVICE
   virtual bool UnplacedContains(Vector3D<Precision> const &point) const override

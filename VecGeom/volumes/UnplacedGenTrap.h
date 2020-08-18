@@ -29,7 +29,7 @@ class UnplacedGenTrap : public SIMDUnplacedVolumeImplHelper<GenTrapImplementatio
 public:
   using Vertex_t = Vector3D<Precision>;
 
-  GenTrapStruct<double> fGenTrap; /** The generic trapezoid structure */
+  GenTrapStruct<Precision> fGenTrap; /** The generic trapezoid structure */
 
 public:
   /** @brief UnplacedGenTrap dummy constructor */
@@ -60,7 +60,7 @@ public:
 
   /** @brief Getter for the generic trapezoid structure */
   VECCORE_ATT_HOST_DEVICE
-  GenTrapStruct<double> const &GetStruct() const { return fGenTrap; }
+  GenTrapStruct<Precision> const &GetStruct() const { return fGenTrap; }
 
   /** @brief Getter for the surface shell */
   VECCORE_ATT_HOST_DEVICE

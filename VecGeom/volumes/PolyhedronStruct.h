@@ -32,7 +32,7 @@ VECGEOM_DEVICE_DECLARE_CONV(struct, ZSegment);
 namespace Polyhedron {
 using ::EInnerRadii;
 using ::EPhiCutout;
-}
+} // namespace Polyhedron
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -116,16 +116,16 @@ struct PolyhedronStruct {
     // the vertices with (rmin, rmax, z) plane representation.
 
     // detect if vertices are defined clockwise
-    double area = 0;
+    Precision area = 0;
     for (int i = 0; i < verticesCount; ++i) {
       int j = (i + 1) % verticesCount;
       area += r[i] * z[j] - r[j] * z[i];
     }
 
-    bool cw   = (area < 0);
-    int inc   = cw ? -1 : 1;
-    double zt = z[0];
-    double zb = z[0];
+    bool cw      = (area < 0);
+    int inc      = cw ? -1 : 1;
+    Precision zt = z[0];
+    Precision zb = z[0];
     // Find min/max on Z
     for (int i = 0; i < verticesCount; ++i) {
       if (z[i] > zt) zt = z[i];
@@ -133,8 +133,8 @@ struct PolyhedronStruct {
     }
 
     // Add implicit vertices
-    double *rnew       = new double[2 * verticesCount];
-    double *znew       = new double[2 * verticesCount];
+    Precision *rnew    = new Precision[2 * verticesCount];
+    Precision *znew    = new Precision[2 * verticesCount];
     int verticesCount1 = 0;
     for (int i0 = 0; i0 < verticesCount; ++i0) {
       rnew[verticesCount1]   = r[i0];
@@ -147,17 +147,17 @@ struct PolyhedronStruct {
           znew[verticesCount1++] = z[i0];
         }
       }
-      int i1    = (i0 + 1) % verticesCount;
-      double dz = z[i1] - z[i0];
+      int i1       = (i0 + 1) % verticesCount;
+      Precision dz = z[i1] - z[i0];
       if (vecCore::math::Abs(dz) < kTolerance) continue;
-      double zmin = vecCore::math::Min(z[i0], z[i1]);
-      double zmax = vecCore::math::Max(z[i0], z[i1]);
+      Precision zmin = vecCore::math::Min(z[i0], z[i1]);
+      Precision zmax = vecCore::math::Max(z[i0], z[i1]);
       for (int j = 0; j < verticesCount - 2; ++j) {
         // go backward
         int k = (i0 - 1 - j + verticesCount) % verticesCount;
         if (z[k] > zmin + kTolerance && z[k] < zmax - kTolerance) {
           // Project the vertex on current segment to get a new vertex
-          double rp = r[i0] + (r[i1] - r[i0]) * (z[k] - z[i0]) / dz;
+          Precision rp = r[i0] + (r[i1] - r[i0]) * (z[k] - z[i0]) / dz;
           assert(rp >= 0);
           // We need to insert point (rp, z[k]) after i1
           rnew[verticesCount1]   = rp;
@@ -177,15 +177,15 @@ struct PolyhedronStruct {
     if (vecCore::math::Abs(zb - znew[(i0 + inc) % verticesCount1]) < kTolerance) i0 = (i0 + inc) % verticesCount1;
 
     if (phiDelta > kTwoPi) phiDelta = kTwoPi;
-    Precision sidePhi               = phiDelta / sideCount;
-    Precision cosHalfDeltaPhi       = cos(0.5 * sidePhi);
+    Precision sidePhi         = phiDelta / sideCount;
+    Precision cosHalfDeltaPhi = cos(0.5 * sidePhi);
 
     // We count vertices starting from imin, making sure we move counter-clockwise
 
-    int Nz       = verticesCount1 / 2;
-    double *rMin = new double[Nz];
-    double *rMax = new double[Nz];
-    double *zArg = new double[Nz];
+    int Nz          = verticesCount1 / 2;
+    Precision *rMin = new Precision[Nz];
+    Precision *rMax = new Precision[Nz];
+    Precision *zArg = new Precision[Nz];
 
     for (int i = 0; i < Nz; ++i) {
       // Current vertex index going always ccw from (rmin,zmin)
@@ -215,7 +215,7 @@ struct PolyhedronStruct {
   }
 
   VECCORE_ATT_HOST_DEVICE
-  bool CheckContinuityInSlope(const double rOuter[], const double zPlane[], const unsigned int nz)
+  bool CheckContinuityInSlope(const Precision rOuter[], const Precision zPlane[], const unsigned int nz)
   {
 
     Precision prevSlope = kInfLength;
@@ -248,11 +248,11 @@ struct PolyhedronStruct {
     copy(rMax, rMax + zPlaneCount, &fRMax[0]);
     fSameZ.Allocate(zPlaneCount);
 
-    double startRmax = rMax[0];
+    Precision startRmax = rMax[0];
     for (int i = 0; i < zPlaneCount; i++) {
       fConvexityPossible &= (rMin[i] == 0.);
       fEqualRmax &= (startRmax == rMax[i]);
-      fSameZ[i]                                                                     = false;
+      fSameZ[i] = false;
       if (i > 0 && i < zPlaneCount - 1 && fZPlanes[i] == fZPlanes[i + 1]) fSameZ[i] = true;
     }
     fContinuousInSlope = CheckContinuityInSlope(rMax, zPlanes, zPlaneCount);
@@ -289,9 +289,9 @@ struct PolyhedronStruct {
 
     // Compute the cylindrical coordinate phi along which the corners are placed
     assert(phiDelta > 0);
-    phiStart                        = NormalizeAngle<kScalar>(phiStart);
+    phiStart = NormalizeAngle<kScalar>(phiStart);
     if (phiDelta > kTwoPi) phiDelta = kTwoPi;
-    Precision sidePhi               = phiDelta / sideCount;
+    Precision sidePhi = phiDelta / sideCount;
     vecgeom::unique_ptr<Precision[]> vertixPhi(new Precision[sideCount + 1]);
     for (int i = 0, iMax = sideCount + 1; i < iMax; ++i) {
       vertixPhi[i]                     = NormalizeAngle<kScalar>(phiStart + i * sidePhi);
@@ -333,8 +333,8 @@ struct PolyhedronStruct {
     // innerRadius /= cosHalfDeltaPhi;
     // outerRadius /= cosHalfDeltaPhi;
 
-    fBoundingTube = TubeStruct<double>(innerRadius - kHalfTolerance, outerRadius + kHalfTolerance, boundingTubeZ,
-                                       boundsPhiStart, boundsPhiDelta);
+    fBoundingTube = TubeStruct<Precision>(innerRadius - kHalfTolerance, outerRadius + kHalfTolerance, boundingTubeZ,
+                                          boundsPhiStart, boundsPhiDelta);
 
     // The offset has to match the middle of the polyhedron
     fBoundingTubeOffset = 0.5 * (zPlanes[0] + zPlanes[zPlaneCount - 1]);
@@ -410,7 +410,7 @@ struct PolyhedronStruct {
     } // End loop over segments
   }
 };
-}
-} // end global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

@@ -23,26 +23,26 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, s
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(8, 6);
 
-  double dx = fPara.fDimensions[0] * 2;
-  double dy = fPara.fDimensions[1] * 2;
-  double dz = fPara.fDimensions[2] * 2;
+  Precision dx = fPara.fDimensions[0] * 2;
+  Precision dy = fPara.fDimensions[1] * 2;
+  Precision dz = fPara.fDimensions[2] * 2;
 
-  double gamma = fPara.fPhi;
-  double alpha = fPara.fTheta;
-  double beta  = fPara.fAlpha;
+  Precision gamma = fPara.fPhi;
+  Precision alpha = fPara.fTheta;
+  Precision beta  = fPara.fAlpha;
 
-  double intermediate = (std::cos(alpha) - std::cos(beta) * std::cos(gamma)) / std::sin(gamma);
+  Precision intermediate = (std::cos(alpha) - std::cos(beta) * std::cos(gamma)) / std::sin(gamma);
 
-  Vector3D<double> a = Vector3D<double>(dx, 0, 0);
-  Vector3D<double> b = Vector3D<double>(dy * std::cos(gamma), dy * std::sin(gamma), 0);
-  Vector3D<double> c =
-      Vector3D<double>(dz * std::cos(beta), dz * intermediate,
-                       dz * std::sqrt(1 - std::cos(beta) * std::cos(beta) - intermediate * intermediate));
+  Vector3D<Precision> a = Vector3D<Precision>(dx, 0, 0);
+  Vector3D<Precision> b = Vector3D<Precision>(dy * std::cos(gamma), dy * std::sin(gamma), 0);
+  Vector3D<Precision> c =
+      Vector3D<Precision>(dz * std::cos(beta), dz * intermediate,
+                          dz * std::sqrt(1 - std::cos(beta) * std::cos(beta) - intermediate * intermediate));
 
-  Utils3D::Vec_t vertices[] = {a, a + b, a + b + c, a + c, Vector3D<double>(), b, b + c, c};
+  Utils3D::Vec_t vertices[] = {a, a + b, a + b + c, a + c, Vector3D<Precision>(), b, b + c, c};
 
   // subtract to move the origin to center
-  Vector3D<double> origin = (a + b + c) * 0.5;
+  Vector3D<Precision> origin = (a + b + c) * 0.5;
   for (auto &vertex : vertices)
     vertex -= origin;
 

@@ -186,7 +186,7 @@ VECCORE_ATT_HOST_DEVICE
 bool UnplacedCutTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   bool valid;
-  CutTubeImplementation::NormalKernel<double>(fCutTube, point, normal, valid);
+  CutTubeImplementation::NormalKernel<Precision>(fCutTube, point, normal, valid);
   return valid;
 }
 
@@ -196,7 +196,7 @@ SolidMesh *UnplacedCutTube::CreateMesh3D(Transformation3D const &trans, size_t n
 
   SolidMesh *sm = new SolidMesh();
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   sm->ResetMesh(4 * (nSegments + 1), 4 * nSegments + 2);
 
   Vec_t *const vertices = new Vec_t[4 * (nSegments + 1)];
@@ -206,10 +206,10 @@ SolidMesh *UnplacedCutTube::CreateMesh3D(Transformation3D const &trans, size_t n
   size_t idx2 = 2 * (nSegments + 1);
   size_t idx3 = 3 * (nSegments + 1);
 
-  double phi      = sphi();
-  double phi_step = dphi() / nSegments;
+  Precision phi      = sphi();
+  Precision phi_step = dphi() / nSegments;
 
-  double x, y;
+  Precision x, y;
   for (size_t i = 0; i <= nSegments; i++, phi += phi_step) {
     x               = rmax() * std::cos(phi);
     y               = rmax() * std::sin(phi);

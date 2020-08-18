@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
   LogicalVolume world("world", &worldUnplaced);
 
   /* GenericPolycone as specified in jira issue 425 */
-  const int numRZ1    = 10;
-  double polycone_r[] = {1, 5, 3, 4, 9, 9, 3, 3, 2, 1};
-  double polycone_z[] = {0, 1, 2, 3, 0, 5, 4, 3, 2, 1};
+  const int numRZ1       = 10;
+  Precision polycone_r[] = {1, 5, 3, 4, 9, 9, 3, 3, 2, 1};
+  Precision polycone_z[] = {0, 1, 2, 3, 0, 5, 4, 3, 2, 1};
   auto genericPolyconeUnplaced =
       GeoManager::MakeInstance<UnplacedGenericPolycone>(sphi, dphi, numRZ1, polycone_r, polycone_z);
 

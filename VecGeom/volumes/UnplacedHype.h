@@ -61,7 +61,7 @@ public:
 
   /// Getter for the structure storing hyperboloid data.
   VECCORE_ATT_HOST_DEVICE
-  HypeStruct<double> const &GetStruct() const { return fHype; }
+  HypeStruct<Precision> const &GetStruct() const { return fHype; }
 
   /// Getter for tolerance relative to the Z half-length.
   VECCORE_ATT_HOST_DEVICE

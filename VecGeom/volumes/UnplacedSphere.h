@@ -25,7 +25,7 @@ private:
 
 public:
   VECCORE_ATT_HOST_DEVICE
-  SphereStruct<double> const &GetStruct() const { return fSphere; }
+  SphereStruct<Precision> const &GetStruct() const { return fSphere; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE

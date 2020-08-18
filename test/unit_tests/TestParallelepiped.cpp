@@ -48,7 +48,7 @@ bool TestParallelepiped()
   Vec_t vmxmy(-1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
   Vec_t vxmy(1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
 
-  double Dist;
+  Precision Dist;
   Vec_t normal, norm;
   bool valid;
 
@@ -56,16 +56,16 @@ bool TestParallelepiped()
 
   int Npoints = 10000000;
   std::cout << "=== Check Capacity()" << std::endl;
-  double vol      = para.Capacity();
-  double volCheck = para.GetUnplacedVolume()->EstimateCapacity(Npoints);
+  Precision vol      = para.Capacity();
+  Precision volCheck = para.GetUnplacedVolume()->EstimateCapacity(Npoints);
   std::cout << " vol = " << vol << "   mc_estimated = " << volCheck << std::endl;
   assert(std::abs(vol - volCheck) < 0.01 * vol);
 
   // Check Surface area
 
   std::cout << "=== Check SurfaceArea()" << std::endl;
-  double surf      = para.SurfaceArea();
-  double surfCheck = para.GetUnplacedVolume()->EstimateSurfaceArea(Npoints);
+  Precision surf      = para.SurfaceArea();
+  Precision surfCheck = para.GetUnplacedVolume()->EstimateSurfaceArea(Npoints);
   std::cout << " surf = " << surf << "   mc_estimated = " << surfCheck << std::endl;
   assert(std::abs(surf - surfCheck) < 0.01 * surf);
 
@@ -288,58 +288,58 @@ bool TestParallelepiped()
   Dist = para.SafetyToIn(ponmzside);
   assert(Dist == 0.);
 
-  assert(ApproxEqual(para.SafetyToIn(pbigx), para.SafetyToIn(pbigmx)));
-  assert(ApproxEqual(para.SafetyToIn(pbigy), para.SafetyToIn(pbigmy)));
-  assert(ApproxEqual(para.SafetyToIn(pbigz), para.SafetyToIn(pbigmz)));
+  assert(ApproxEqual<Precision>(para.SafetyToIn(pbigx), para.SafetyToIn(pbigmx)));
+  assert(ApproxEqual<Precision>(para.SafetyToIn(pbigy), para.SafetyToIn(pbigmy)));
+  assert(ApproxEqual<Precision>(para.SafetyToIn(pbigz), para.SafetyToIn(pbigmz)));
 
   // DistanceToOut(P,V)
 
   std::cout << "=== Check DistanceToOut()" << std::endl;
   Dist = para.DistanceToOut(pzero, vx);
-  assert(ApproxEqual(Dist, dx));
+  assert(ApproxEqual<Precision>(Dist, dx));
   Dist = para.DistanceToOut(pzero, vmx);
-  assert(ApproxEqual(Dist, dx));
+  assert(ApproxEqual<Precision>(Dist, dx));
   Dist = para.DistanceToOut(pzero, vy);
-  assert(ApproxEqual(Dist, dy));
+  assert(ApproxEqual<Precision>(Dist, dy));
   Dist = para.DistanceToOut(pzero, vmy);
-  assert(ApproxEqual(Dist, dy));
+  assert(ApproxEqual<Precision>(Dist, dy));
   Dist = para.DistanceToOut(pzero, vz);
-  assert(ApproxEqual(Dist, dz));
+  assert(ApproxEqual<Precision>(Dist, dz));
   Dist = para.DistanceToOut(pzero, vmz);
-  assert(ApproxEqual(Dist, dz));
+  assert(ApproxEqual<Precision>(Dist, dz));
 
   Dist = para.DistanceToOut(ponxside, vx);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = para.DistanceToOut(ponmxside, vmx);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = para.DistanceToOut(ponyside, vy);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = para.DistanceToOut(ponmyside, vmy);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = para.DistanceToOut(ponzside, vz);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = para.DistanceToOut(ponmzside, vmz);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
 
   // DistanceToIn(P,V)
 
   std::cout << "=== Check DistanceToIn()" << std::endl;
   Dist = para.DistanceToIn(pbigx, vmx);
-  assert(ApproxEqual(Dist, 100 - dx));
+  assert(ApproxEqual<Precision>(Dist, 100 - dx));
   Dist = para.DistanceToIn(pbigmx, vx);
-  assert(ApproxEqual(Dist, 100 - dx));
+  assert(ApproxEqual<Precision>(Dist, 100 - dx));
   Dist = para.DistanceToIn(pbigy, vmy);
-  assert(ApproxEqual(Dist, 100 - dy));
+  assert(ApproxEqual<Precision>(Dist, 100 - dy));
   Dist = para.DistanceToIn(pbigmy, vy);
-  assert(ApproxEqual(Dist, 100 - dy));
+  assert(ApproxEqual<Precision>(Dist, 100 - dy));
   Dist = para.DistanceToIn(pbigz, vmz);
-  assert(ApproxEqual(Dist, 100 - dz));
+  assert(ApproxEqual<Precision>(Dist, 100 - dz));
   Dist = para.DistanceToIn(pbigmz, vz);
-  assert(ApproxEqual(Dist, 100 - dz));
+  assert(ApproxEqual<Precision>(Dist, 100 - dz));
   Dist = para.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
   Dist = para.DistanceToIn(pbigmx, vxy);
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   // Check SamplePointOnSurface()
 
@@ -350,13 +350,13 @@ bool TestParallelepiped()
   Vec_t Nx = Vy.Cross(Vz);
   Vec_t Ny = Vz.Cross(Vx);
   Vec_t Nz(0., 0., 1.);
-  double sx = 4. * para.GetY() * para.GetZ() * Nx.Mag();
-  double sy = 4. * para.GetZ() * para.GetX() * Ny.Mag();
-  double sz = 4. * para.GetX() * para.GetY();
+  Precision sx = 4. * para.GetY() * para.GetZ() * Nx.Mag();
+  Precision sy = 4. * para.GetZ() * para.GetX() * Ny.Mag();
+  Precision sz = 4. * para.GetX() * para.GetY();
   Nx.Normalize();
   Ny.Normalize();
-  double Dx = -Nx.x() * para.GetX();
-  double Dy = -Ny.y() * para.GetY();
+  Precision Dx = -Nx.x() * para.GetX();
+  Precision Dy = -Ny.y() * para.GetY();
   int nxneg = 0, nxpos = 0, nyneg = 0, nypos = 0, nzneg = 0, nzpos = 0;
   int nfactor = 100, ntot = 2. * (sx + sy + sz) * nfactor;
   for (int i = 0; i < ntot; i++) {

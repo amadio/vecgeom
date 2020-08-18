@@ -49,7 +49,7 @@ T GetRadiusInRing(T rmin, T rmax)
 #endif
 
 namespace SphereUtilities {
-using UnplacedStruct_t = SphereStruct<double>;
+using UnplacedStruct_t = SphereStruct<Precision>;
 
 template <class Real_v>
 VECCORE_ATT_HOST_DEVICE
@@ -149,15 +149,15 @@ typename vecCore::Mask_v<Real_v> IsPointOnRadialSurfaceAndMovingOut(UnplacedStru
 
   if (MovingOut) {
     if (ForInnerRadius) {
-      return IsPointOnInnerRadius<Real_v>(unplaced, point) && (dir.Dot(-point) > 0.);
+      return IsPointOnInnerRadius<Real_v>(unplaced, point) && (dir.Dot(-point) > Real_v(0.));
     } else {
-      return IsPointOnOuterRadius<Real_v>(unplaced, point) && (dir.Dot(point) > 0.);
+      return IsPointOnOuterRadius<Real_v>(unplaced, point) && (dir.Dot(point) > Real_v(0.));
     }
   } else {
     if (ForInnerRadius) {
-      return IsPointOnInnerRadius<Real_v>(unplaced, point) && (dir.Dot(-point) < 0.);
+      return IsPointOnInnerRadius<Real_v>(unplaced, point) && (dir.Dot(-point) < Real_v(0.));
     } else
-      return IsPointOnOuterRadius<Real_v>(unplaced, point) && (dir.Dot(point) < 0.);
+      return IsPointOnOuterRadius<Real_v>(unplaced, point) && (dir.Dot(point) < Real_v(0.));
   }
 }
 
@@ -194,8 +194,8 @@ typename vecCore::Mask_v<Real_v> IsPointOnSurfaceAndMovingOut(UnplacedStruct_t c
   return isPointOnSurfaceAndMovingOut;
 }
 
-} // end of sphereUtilities namespace
-}
-} // End global namespace
+} // namespace SphereUtilities
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_SPHEREUTILITIES_H_

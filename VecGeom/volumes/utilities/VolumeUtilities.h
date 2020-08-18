@@ -773,8 +773,8 @@ inline void FillGlobalPointsAndDirectionsForLogicalVolume(LogicalVolume const *l
         s2->Clear();
         GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), globalpoints[placedcount], *s1, true);
         assert(s1->Top()->GetLogicalVolume() == lvol);
-        double step = vecgeom::kInfLength;
-        auto nav    = s1->Top()->GetLogicalVolume()->GetNavigator();
+        Precision step = vecgeom::kInfLength;
+        auto nav       = s1->Top()->GetLogicalVolume()->GetNavigator();
         nav->FindNextBoundaryAndStep(globalpoints[placedcount], directions[placedcount], *s1, *s2, vecgeom::kInfLength,
                                      step);
 #ifdef DEBUG

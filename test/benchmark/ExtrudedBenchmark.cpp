@@ -26,16 +26,16 @@ int main(int argc, char *argv[])
   OPTION_BOOL(convex, 't');
   OPTION_BOOL(tsl, 't');
 
-  double rmin = 10.;
-  double rmax = 20.;
+  Precision rmin = 10.;
+  Precision rmax = 20.;
 
   vecgeom::XtruVertex2 *vertices = new vecgeom::XtruVertex2[nvert];
   vecgeom::XtruSection *sections = new vecgeom::XtruSection[nsect];
-  double *x                      = new double[nvert];
-  double *y                      = new double[nvert];
+  Precision *x                   = new Precision[nvert];
+  Precision *y                   = new Precision[nvert];
 
-  double phi = 2. * kPi / nvert;
-  double r;
+  Precision phi = 2. * kPi / nvert;
+  Precision r;
   for (int i = 0; i < nvert; ++i) {
     r = rmax;
     if (i % 2 > 0 && !convex) r = rmin;

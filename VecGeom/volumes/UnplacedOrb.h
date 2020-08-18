@@ -33,7 +33,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedOrb : public SIMDUnplacedVolumeImplHelper<OrbImplementation>, public AlignedBase {
 
 private:
-  OrbStruct<double> fOrb; ///< Structure holding the data for Orb
+  OrbStruct<Precision> fOrb; ///< Structure holding the data for Orb
 
   Precision fCubicVolume, fSurfaceArea; ///< Variable to store the cached value of Volume and SurfaceArea
 
@@ -63,7 +63,7 @@ public:
 
   /// Getter for the structure storing Orb data.
   VECCORE_ATT_HOST_DEVICE
-  OrbStruct<double> const &GetStruct() const { return fOrb; }
+  OrbStruct<Precision> const &GetStruct() const { return fOrb; }
 
   /// Getter for Radius
   VECCORE_ATT_HOST_DEVICE
@@ -100,7 +100,7 @@ public:
       @param[out] aArray User array to be filled (rMin, stIn, rMax, stOut, dz)
   */
   VECCORE_ATT_HOST_DEVICE
-  void GetParametersList(int aNumber, double *aArray) const;
+  void GetParametersList(int aNumber, Precision *aArray) const;
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedOrb *Clone() const;

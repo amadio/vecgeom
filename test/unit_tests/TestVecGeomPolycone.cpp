@@ -41,9 +41,9 @@ int main()
 {
   int Nz = 4;
   // a few cones
-  double rmin[] = {0.1, 0.0, 0.0, 0.4};
-  double rmax[] = {1., 2., 2., 1.5};
-  double z[]    = {-1, -0.5, 0.5, 2};
+  Precision rmin[] = {0.1, 0.0, 0.0, 0.4};
+  Precision rmax[] = {1., 2., 2., 1.5};
+  Precision z[]    = {-1, -0.5, 0.5, 2};
 
   auto poly1 = GeoManager::MakeInstance<UnplacedPolycone>(0.,      /* initial phi starting angle */
                                                           kTwoPi,  /* total phi angle */
@@ -85,12 +85,12 @@ int main()
   assert(placedpoly1->Contains(Vec3D_t(0., 0., 1.8)) == false);
 
   // test DistanceToIn
-  assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(0., 0., -3.), Vec3D_t(0., 0., 1.)), 2.5));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(0., 0., -3.), Vec3D_t(0., 0., 1.)), 2.5));
   assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., -2.), Vec3D_t(0., 0., -1.)) == vecgeom::kInfLength);
-  assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., -1.)), 2.5));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., -1.)), 2.5));
   assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., 1.)) == vecgeom::kInfLength);
-  assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(3., 0., 0), Vec3D_t(-1., 0., 0.)), 1.));
-  assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 1.999999999), Vec3D_t(1., 0., 0.)), 0.4));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(3., 0., 0), Vec3D_t(-1., 0., 0.)), 1.));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 1.999999999), Vec3D_t(1., 0., 0.)), 0.4));
 
   {
     // test vector interface
@@ -98,7 +98,7 @@ int main()
     Vec3D_v p(Real_v(0.), Real_v(0.), Real_v(-3)), d(Real_v(0.), Real_v(0.), Real_v(1.));
     const auto dist = placedpoly1->DistanceToInVec(p, d);
     for (size_t lane = 0; lane < vecCore::VectorSize<Real_v>(); ++lane) {
-      assert(ApproxEqual(vecCore::LaneAt(dist, lane), 2.5));
+      assert(ApproxEqual<Precision>(vecCore::LaneAt(dist, lane), 2.5));
     }
   }
 
@@ -118,13 +118,14 @@ int main()
   //  assert( placedpoly1-> SafetyToOut( Vec3D_t(1.4,0.,2) ) == 0. );
 
   // test DistanceToOut
-  // [see VECGEOM-414] assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., 1.)), 0.5));
-  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., -1.)), 0.5));
-  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(1., 0., 0.)), 0.));
-  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(-1., 0., 0.)), 4.));
-  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(1., 0., 2), Vec3D_t(0., 0., 1.)), 0.));
-  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., -1.)), 0.));
-  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., 1.)), 3.));
+  // [see VECGEOM-414] assert(ApproxEqual<Precision>(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0.,
+  // 0., 1.)), 0.5));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., -1.)), 0.5));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(1., 0., 0.)), 0.));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(-1., 0., 0.)), 4.));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToOut(Vec3D_t(1., 0., 2), Vec3D_t(0., 0., 1.)), 0.));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., -1.)), 0.));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., 1.)), 3.));
   std::cout << "VecGeomPolycone tests passed.\n";
   return 0;
 }

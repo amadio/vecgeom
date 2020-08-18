@@ -200,16 +200,16 @@ void UnplacedEllipticalCone::Print(std::ostream &os) const
 SolidMesh *UnplacedEllipticalCone::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
-  double a       = GetSemiAxisX();
-  double b       = GetSemiAxisY();
-  double h       = GetZMax();
-  double zTopCut = GetZTopCut();
-  SolidMesh *sm  = new SolidMesh();
-  typedef Vector3D<double> Vec_t;
+  Precision a       = GetSemiAxisX();
+  Precision b       = GetSemiAxisY();
+  Precision h       = GetZMax();
+  Precision zTopCut = GetZTopCut();
+  SolidMesh *sm     = new SolidMesh();
+  typedef Vector3D<Precision> Vec_t;
 
   sm->ResetMesh(2 * (nSegments + 1), nSegments + 2);
   Vec_t *const vertices = new Vec_t[2 * (nSegments + 1)];
-  double cos, sin;
+  Precision cos, sin;
   for (size_t i = 0; i <= nSegments; i++) {
     cos = std::cos(2 * i * M_PI / nSegments);
     sin = std::sin(2 * i * M_PI / nSegments);

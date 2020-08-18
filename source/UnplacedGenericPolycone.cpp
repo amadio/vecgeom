@@ -36,7 +36,7 @@ UnplacedGenericPolycone::UnplacedGenericPolycone(Precision phiStart, // initial 
 
   Vector<Vector2D<Precision>> rzVect;
   for (int i = 0; i < numRZ; i++) {
-    rzVect.push_back(Vector2D<double>(r[i], z[i]));
+    rzVect.push_back(Vector2D<Precision>(r[i], z[i]));
   }
   ReducedPolycone rd(rzVect);
   Vector<Precision> zS;

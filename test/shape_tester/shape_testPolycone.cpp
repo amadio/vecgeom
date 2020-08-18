@@ -3,6 +3,7 @@
 #include "VecGeom/volumes/Polycone.h"
 
 typedef vecgeom::SimplePolycone Poly_t;
+using vecgeom::Precision;
 
 int main(int argc, char *argv[])
 {
@@ -12,7 +13,7 @@ int main(int argc, char *argv[])
 
   using namespace vecgeom;
 
-  double Z_ValP[15];
+  Precision Z_ValP[15];
   Z_ValP[0]  = -1520;
   Z_ValP[1]  = -804;
   Z_ValP[2]  = -804;
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
   Z_ValP[12] = 982.812;
   Z_ValP[13] = 1166.7;
   Z_ValP[14] = 1524;
-  double R_MinP[15];
+  Precision R_MinP[15];
   R_MinP[0]  = 1238;
   R_MinP[1]  = 1238;
   R_MinP[2]  = 1238;
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
   R_MinP[12] = 1238;
   R_MinP[13] = 1238;
   R_MinP[14] = 1455.22;
-  double R_MaxP[15];
+  Precision R_MaxP[15];
 
   R_MaxP[0]  = 1555.01;
   R_MaxP[1]  = 1555.01;

@@ -28,9 +28,7 @@
 
 namespace vecgeom {
 
-Benchmarker::Benchmarker() : Benchmarker(NULL)
-{
-}
+Benchmarker::Benchmarker() : Benchmarker(NULL) {}
 
 Benchmarker::Benchmarker(VPlacedVolume const *const world)
     : fPointCount(1024), fPoolMultiplier(1), fRepetitions(1024), fMeasurementCount(1), fVerbosity(1), fToInBias(0.8),
@@ -106,7 +104,7 @@ void Benchmarker::GenerateVolumePointers(VPlacedVolume const *const vol)
 }
 
 BenchmarkResult Benchmarker::GenerateBenchmarkResult(Precision elapsed, const EBenchmarkedMethod method,
-                                                     const EBenchmarkedLibrary library, const double bias) const
+                                                     const EBenchmarkedLibrary library, const Precision bias) const
 {
   const BenchmarkResult benchmark = {.elapsed     = elapsed,
                                      .method      = method,
@@ -560,11 +558,9 @@ int Benchmarker::RunInsideBenchmark()
            "%i repetitions.\n",
            fPointCount, fRepetitions);
   }
-#ifndef VECGEOM_SCALAR
   if (fVerbosity > 1) {
-    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
+    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
-#endif
 
   if (fPointPool) delete fPointPool;
   fPointPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
@@ -651,7 +647,7 @@ int Benchmarker::RunInsideBenchmark()
       if (fVerbosity > 2) {
         mismatchOutput << containsVectorized[i] << " / " << containsSpecialized[i] << " / " << containsUnspecialized[i];
       }
-      if (containsSpecialized[i] != containsVectorized[i]) mismatch    = true;
+      if (containsSpecialized[i] != containsVectorized[i]) mismatch = true;
       if (containsSpecialized[i] != containsUnspecialized[i]) mismatch = true;
 #ifdef VECGEOM_ROOT
       if (fOkToRunROOT) {
@@ -690,7 +686,7 @@ int Benchmarker::RunInsideBenchmark()
       if (fVerbosity > 2) {
         mismatchOutput << insideVectorized[i] << " / " << insideSpecialized[i] << " / " << insideUnspecialized[i];
       }
-      if (insideSpecialized[i] != insideVectorized[i]) mismatch    = true;
+      if (insideSpecialized[i] != insideVectorized[i]) mismatch = true;
       if (insideSpecialized[i] != insideUnspecialized[i]) mismatch = true;
 #ifdef VECGEOM_GEANT4
       if (fOkToRunG4) {
@@ -782,9 +778,7 @@ int Benchmarker::RunToInBenchmark()
            fPointCount, fRepetitions);
   }
   if (fVerbosity > 1) {
-#ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
-#endif
+    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
 
   // Allocate memory
@@ -796,7 +790,7 @@ int Benchmarker::RunToInBenchmark()
   fDirectionPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
   fStepMax       = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfLength;
+    fStepMax[i] = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points with bias %f...", fToInBias);
 
@@ -951,13 +945,11 @@ int Benchmarker::RunToOutBenchmark()
            fPointCount, fRepetitions);
   }
   if (fVerbosity > 1) {
-#ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
-#endif
+    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfLength;
+    fStepMax[i] = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points...");
 
@@ -1105,14 +1097,12 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
            fPointCount, fRepetitions);
   }
   if (fVerbosity > 1) {
-#ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
-#endif
+    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
 
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfLength;
+    fStepMax[i] = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
 
@@ -1283,14 +1273,12 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
            fPointCount, fRepetitions);
   }
   if (fVerbosity > 1) {
-#ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
-#endif
+    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
 
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfLength;
+    fStepMax[i] = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
 
@@ -1442,9 +1430,7 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
            fPointCount, fRepetitions);
   }
   if (fVerbosity > 1) {
-#ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
-#endif
+    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
 
   if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
@@ -1597,14 +1583,12 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
            fPointCount, fRepetitions);
   }
   if (fVerbosity > 1) {
-#ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
-#endif
+    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
 
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfLength;
+    fStepMax[i] = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
 
@@ -2193,9 +2177,9 @@ void Benchmarker::RunInsideRoot(bool *inside)
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                     = index + i;
-        Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
-        inside[i]                 = v->ROOT()->Contains(&point[0]);
+        int p                  = index + i;
+        Vector3D<double> point = transformation->Transform((*fPointPool)[p]);
+        inside[i]              = v->ROOT()->Contains(&point[0]);
       }
     }
   }
@@ -2218,10 +2202,10 @@ void Benchmarker::RunToInRoot(Precision *const distances, Precision *const safet
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                     = index + i;
-        Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
-        Vector3D<Precision> dir   = transformation->TransformDirection((*fDirectionPool)[p]);
-        distances[i]              = v->ROOT()->DistFromOutside(&point[0], &dir[0], 3);
+        int p                  = index + i;
+        Vector3D<double> point = transformation->Transform((*fPointPool)[p]);
+        Vector3D<double> dir   = transformation->TransformDirection((*fDirectionPool)[p]);
+        distances[i]           = v->ROOT()->DistFromOutside(&point[0], &dir[0], 3);
       }
     }
   }
@@ -2232,9 +2216,9 @@ void Benchmarker::RunToInRoot(Precision *const distances, Precision *const safet
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                     = index + i;
-        Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
-        safeties[i]               = v->ROOT()->Safety(&point[0], false);
+        int p                  = index + i;
+        Vector3D<double> point = transformation->Transform((*fPointPool)[p]);
+        safeties[i]            = v->ROOT()->Safety(&point[0], false);
       }
     }
   }
@@ -2257,10 +2241,10 @@ void Benchmarker::RunToOutRoot(Precision *const distances, Precision *const safe
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                     = index + i;
-        Vector3D<Precision> point = (*fPointPool)[p];
-        Vector3D<Precision> dir   = (*fDirectionPool)[p];
-        distances[i]              = v->ROOT()->DistFromInside(&point[0], &dir[0], 3);
+        int p                  = index + i;
+        Vector3D<double> point = (*fPointPool)[p];
+        Vector3D<double> dir   = (*fDirectionPool)[p];
+        distances[i]           = v->ROOT()->DistFromInside(&point[0], &dir[0], 3);
       }
     }
   }
@@ -2270,9 +2254,9 @@ void Benchmarker::RunToOutRoot(Precision *const distances, Precision *const safe
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                     = index + i;
-        Vector3D<Precision> point = (*fPointPool)[p];
-        safeties[i]               = v->ROOT()->Safety(&point[0], true);
+        int p                  = index + i;
+        Vector3D<double> point = (*fPointPool)[p];
+        safeties[i]            = v->ROOT()->Safety(&point[0], true);
       }
     }
   }

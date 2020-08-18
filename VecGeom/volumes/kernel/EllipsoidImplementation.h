@@ -32,7 +32,7 @@ class UnplacedEllipsoid;
 struct EllipsoidImplementation {
 
   using PlacedShape_t    = PlacedEllipsoid;
-  using UnplacedStruct_t = EllipsoidStruct<double>;
+  using UnplacedStruct_t = EllipsoidStruct<Precision>;
   using UnplacedVolume_t = UnplacedEllipsoid;
 
   VECCORE_ATT_HOST_DEVICE
@@ -129,8 +129,8 @@ struct EllipsoidImplementation {
 
     // Move point closer, if required
     Real_v Rfar2(1024. * ellipsoid.fRsph * ellipsoid.fRsph); // 1024 = 32 * 32
-    vecCore__MaskedAssignFunc(pcur, ((pcur.Mag2() > Rfar2) && (direction.Dot(point) < 0.)),
-                              pcur + (offset = pcur.Mag() - 2. * ellipsoid.fRsph) * direction);
+    vecCore__MaskedAssignFunc(pcur, ((pcur.Mag2() > Rfar2) && (direction.Dot(point) < Real_v(0.))),
+                              pcur + (offset = pcur.Mag() - Real_v(2.) * ellipsoid.fRsph) * direction);
 
     // Scale ellipsoid to sphere
     Real_v px = pcur.x() * ellipsoid.fSx;
@@ -145,11 +145,12 @@ struct EllipsoidImplementation {
     Real_v dzcut = Real_v(ellipsoid.fScZDimCut);
     Real_v distZ = vecCore::math::Abs(pzcut) - dzcut;
 
-    Real_v rr      = px * px + py * py + pz * pz;
-    Real_v vv      = vx * vx + vy * vy + vz * vz;
-    Real_v pv      = px * vx + py * vy + pz * vz;
-    Real_v distR   = ellipsoid.fQ1 * rr - ellipsoid.fQ2;
-    Bool_v leaving = (distZ >= -kHalfTolerance && pzcut * vz >= 0.) || (distR >= -kHalfTolerance && pv >= 0);
+    Real_v rr    = px * px + py * py + pz * pz;
+    Real_v vv    = vx * vx + vy * vy + vz * vz;
+    Real_v pv    = px * vx + py * vy + pz * vz;
+    Real_v distR = ellipsoid.fQ1 * rr - ellipsoid.fQ2;
+    Bool_v leaving =
+        (distZ >= -kHalfTolerance && pzcut * vz >= Real_v(0.)) || (distR >= -kHalfTolerance && pv >= Real_v(0.));
 
     // Find intersection with Z planes
     Real_v invz  = Real_v(-1.) / NonZero(vz);
@@ -171,7 +172,7 @@ struct EllipsoidImplementation {
     Real_v tmax = vecCore::math::Min(tzmax, trmax);
 
     // Check if no intersection
-    Real_v EPS  = 2. * rr * vv * kEpsilon;
+    Real_v EPS  = Real_v(2.) * rr * vv * kEpsilon;
     Bool_v done = leaving || (D <= EPS) || ((tmax - tmin) <= kHalfTolerance);
 
     // Set distance
@@ -211,7 +212,7 @@ struct EllipsoidImplementation {
 
     // Find intersection with Z planes
     Real_v tzmax = kMaximum;
-    vecCore__MaskedAssignFunc(tzmax, vz != 0., (vecCore::math::CopySign(Real_v(dzcut), vz) - pzcut) / vz);
+    vecCore__MaskedAssignFunc(tzmax, vz != Real_v(0.), (vecCore::math::CopySign(Real_v(dzcut), vz) - pzcut) / vz);
 
     // Find intersection with sphere
     Real_v B     = pv / vv;
@@ -221,7 +222,7 @@ struct EllipsoidImplementation {
     Real_v trmax = -B + sqrtD;
 
     // Check if no intersection
-    Real_v EPS  = 2. * rr * vv * kEpsilon;
+    Real_v EPS  = Real_v(2.) * rr * vv * kEpsilon;
     Bool_v done = outside || (D <= EPS);
 
     // Set distance
@@ -247,7 +248,7 @@ struct EllipsoidImplementation {
     Real_v distZ  = vecCore::math::Max(point.z() - ellipsoid.fZTopCut, ellipsoid.fZBottomCut - point.z());
     Real_v distXY = vecCore::math::Max(vecCore::math::Abs(point.x()) - ellipsoid.fXmax,
                                        vecCore::math::Abs(point.y()) - ellipsoid.fYmax);
-    vecCore__MaskedAssignFunc(safety, safety > 0., vecCore::math::Max(safety, distZ, distXY));
+    vecCore__MaskedAssignFunc(safety, safety > Real_v(0.), vecCore::math::Max(safety, distZ, distXY));
   }
 
   template <typename Real_v>
@@ -266,7 +267,7 @@ struct EllipsoidImplementation {
     vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) <= kHalfTolerance, Real_v(0.));
     // Adjust safety in z direction
     Real_v distZ = vecCore::math::Min(ellipsoid.fZTopCut - point.z(), point.z() - ellipsoid.fZBottomCut);
-    vecCore__MaskedAssignFunc(safety, safety > 0., vecCore::math::Min(safeR, distZ));
+    vecCore__MaskedAssignFunc(safety, safety > Real_v(0.), vecCore::math::Min(safeR, distZ));
   }
 
   template <typename Real_v>
@@ -306,7 +307,7 @@ struct EllipsoidImplementation {
 
     // Average normal, if required
     vecCore__MaskedAssignFunc(normal, normal.Mag2() > 1., normal.Unit());
-    vecCore::Mask_v<Real_v> done = normal.Mag2() > 0.;
+    vecCore::Mask_v<Real_v> done = normal.Mag2() > Real_v(0.);
     if (vecCore::MaskFull(done)) return normal;
 
     // Point is not on the surface - normally, this should never be
@@ -314,7 +315,7 @@ struct EllipsoidImplementation {
     vecCore__MaskedAssignFunc(valid, !done, false);
     vecCore__MaskedAssignFunc(normal[2], !done, vecCore::math::Sign(z - ellipsoid.fScZMidCut));
     vecCore__MaskedAssignFunc(distR, !done, vecCore::math::Sqrt(mag2) - ellipsoid.fR);
-    vecCore__MaskedAssignFunc(normal, !done && distR > distZ && mag2 > 0.,
+    vecCore__MaskedAssignFunc(normal, !done && distR > distZ && mag2 > Real_v(0.),
                               Vector3D<Real_v>(px / (A * A), py / (B * B), pz / (C * C)).Unit());
     return normal;
   }

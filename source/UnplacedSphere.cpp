@@ -161,7 +161,7 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
 
 #endif // !VECCORE_CUDA
 
-void UnplacedSphere::GetParametersList(int, double *aArray) const
+void UnplacedSphere::GetParametersList(int, Precision *aArray) const
 {
   aArray[0] = GetInnerRadius();
   aArray[1] = GetOuterRadius();
@@ -311,20 +311,20 @@ void UnplacedSphere::Print(std::ostream &os) const
 SolidMesh *UnplacedSphere::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   SolidMesh *sm   = new SolidMesh();
   Vec_t *vertices = new Vec_t[2 * (nSegments + 1) * (nSegments + 1)];
 
   // sm->ResetMesh(nMeshVertices, nVertical * nHorizontal);
 
-  double phi_step   = GetDPhi() / nSegments;
-  double theta_step = GetDTheta() / nSegments;
-  double phi        = GetSPhi();
-  double theta      = GetSTheta();
+  Precision phi_step   = GetDPhi() / nSegments;
+  Precision theta_step = GetDTheta() / nSegments;
+  Precision phi        = GetSPhi();
+  Precision theta      = GetSTheta();
 
   size_t idx  = 0;
   size_t idx2 = (nSegments + 1) * (nSegments + 1);
-  double z, xy;
+  Precision z, xy;
   for (size_t i = 0; i <= nSegments; ++i) {
     theta = M_PI / 2 - GetSTheta() - i * theta_step; // starting from pi/2 to -pi/2
     xy    = GetOuterRadius() * std::cos(theta);

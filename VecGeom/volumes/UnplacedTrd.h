@@ -31,7 +31,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 /// - lateral surface consists of four isosceles trapeziums
 class UnplacedTrd : public VUnplacedVolume {
 private:
-  TrdStruct<double> fTrd; ///< Structure with trapezoid parameters
+  TrdStruct<Precision> fTrd; ///< Structure with trapezoid parameters
 
 public:
   /// Default constructor
@@ -71,7 +71,7 @@ public:
 
   /// Getter for the structure storing Trd data
   VECCORE_ATT_HOST_DEVICE
-  TrdStruct<double> const &GetStruct() const { return fTrd; }
+  TrdStruct<Precision> const &GetStruct() const { return fTrd; }
 
   /// Setter for all parameters
   /// @param x1 Half-length along x at the surface positioned at -dz

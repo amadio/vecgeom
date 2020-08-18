@@ -34,7 +34,7 @@ VECCORE_ATT_HOST_DEVICE
 bool UnplacedScaledShape::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   bool valid = false;
-  ScaledShapeImplementation::NormalKernel<double>(fScaled, point, normal, valid);
+  ScaledShapeImplementation::NormalKernel<Precision>(fScaled, point, normal, valid);
   return valid;
 }
 

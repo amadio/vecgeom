@@ -185,16 +185,16 @@ bool TestReducedPolycone()
   assert(!contour && "X2 symbole (X2) Fails ....");
 
   std::cout << "======================  (Trivial Using UnplacedPolycone) =========================" << std::endl;
-  const int numRZ = 10;
-  double r[numRZ] = {0., 0., 0., 1., 1., 3., 3., 4., 4., 0.};
-  double z[numRZ] = {0., 1., 1., 1., 2., 2., 1., 1., 0., 0.};
-  auto poly       = GeoManager::MakeInstance<UnplacedPolycone>(0., kTwoPi, numRZ, r, z);
+  const int numRZ    = 10;
+  Precision r[numRZ] = {0., 0., 0., 1., 1., 3., 3., 4., 4., 0.};
+  Precision z[numRZ] = {0., 1., 1., 1., 2., 2., 1., 1., 0., 0.};
+  auto poly          = GeoManager::MakeInstance<UnplacedPolycone>(0., kTwoPi, numRZ, r, z);
   std::cout << "SurfaceArea : " << poly->SurfaceArea() << std::endl;
 
-  const int numRZ1    = 7;
-  double polycone_r[] = {0., 1., 1., 2., 3., 3., 1.};
-  double polycone_z[] = {0., 1., 2., 3., 2.5, -1., -2.};
-  auto poly1          = GeoManager::MakeInstance<UnplacedPolycone>(0., kTwoPi, numRZ1, polycone_r, polycone_z);
+  const int numRZ1       = 7;
+  Precision polycone_r[] = {0., 1., 1., 2., 3., 3., 1.};
+  Precision polycone_z[] = {0., 1., 2., 3., 2.5, -1., -2.};
+  auto poly1             = GeoManager::MakeInstance<UnplacedPolycone>(0., kTwoPi, numRZ1, polycone_r, polycone_z);
   std::cout << "SurfaceArea : " << poly1->SurfaceArea() << std::endl;
   std::cout << "Contour : " << contour << std::endl;
   return true;

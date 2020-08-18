@@ -70,7 +70,7 @@ void testVecAssign(Vector3D<Precision> const &a, Vector3D<Precision> &b)
 void test1()
 {
   VPlacedVolume const *world = GeoManager::Instance().GetWorld();
-  NavigationState *state = NavigationState::MakeInstance(4);
+  NavigationState *state     = NavigationState::MakeInstance(4);
   VPlacedVolume const *vol;
 
   // point should be in world
@@ -86,7 +86,7 @@ void test2()
 {
   // inside box3 check
   VPlacedVolume const *world = GeoManager::Instance().GetWorld();
-  NavigationState *state = NavigationState::MakeInstance(4);
+  NavigationState *state     = NavigationState::MakeInstance(4);
   VPlacedVolume const *vol;
 
   // point should be in box3
@@ -108,7 +108,7 @@ void test3()
 {
   // inside box1 left check
   VPlacedVolume const *world = GeoManager::Instance().GetWorld();
-  NavigationState *state = NavigationState::MakeInstance(4);
+  NavigationState *state     = NavigationState::MakeInstance(4);
 
   VPlacedVolume const *vol;
   Vector3D<Precision> p1(-9 / 10., 9 * 5 / 10., 0.);
@@ -122,7 +122,7 @@ void test3_2()
 {
   // inside box1 right check
   VPlacedVolume const *world = GeoManager::Instance().GetWorld();
-  NavigationState *state = NavigationState::MakeInstance(4);
+  NavigationState *state     = NavigationState::MakeInstance(4);
   VPlacedVolume const *vol;
   Vector3D<Precision> p1(9 / 10., 9 * 5 / 10., 0.);
   vol = GlobalLocator::LocateGlobalPoint(world, p1, *state, true);
@@ -135,7 +135,7 @@ void test4()
 {
   // inside box2 check
   VPlacedVolume const *world = GeoManager::Instance().GetWorld();
-  NavigationState *state = NavigationState::MakeInstance(4);
+  NavigationState *state     = NavigationState::MakeInstance(4);
   VPlacedVolume const *vol;
   Vector3D<Precision> p1(5., 9 * 5 / 10., 0.);
   vol = GlobalLocator::LocateGlobalPoint(world, p1, *state, true);
@@ -148,7 +148,7 @@ void test5()
 {
   // outside world check
   VPlacedVolume const *world = GeoManager::Instance().GetWorld();
-  NavigationState *state = NavigationState::MakeInstance(4);
+  NavigationState *state     = NavigationState::MakeInstance(4);
 
   VPlacedVolume const *vol;
   Vector3D<Precision> p1(-20, 0., 0.);
@@ -267,13 +267,14 @@ void testnavsimple()
 
   NavigationState *currentstate = NavigationState::MakeInstance(maxdepth);
 
-  VPlacedVolume const *vol = GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), p1, *currentstate, true);
+  VPlacedVolume const *vol =
+      GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), p1, *currentstate, true);
   assert(RootGeoManager::Instance().tgeonode(vol) == ::gGeoManager->GetTopNode());
 
   NavigationState *newstate = NavigationState::MakeInstance(maxdepth);
 
   // check with a large physical step
-  double step = 0.0, tolerance = 1.0e-4;
+  Precision step = 0.0, tolerance = 1.0e-4;
   auto nav = NewSimpleNavigator<>::Instance();
   nav->FindNextBoundaryAndStep(p1, d, *currentstate, *newstate, vecgeom::kInfLength, step);
   assert(std::abs(step - 4.0) < tolerance);
@@ -326,14 +327,14 @@ void test9(double pstep = 1E30)
     GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), p, *state, true);
     state->CopyTo(state2);
 
-    double step   = 0;
-    VNavigator *n = Navigator::Instance();
-    step          = n->ComputeStep(p, d, pstep, *state, *newstate);
+    Precision step = 0;
+    VNavigator *n  = Navigator::Instance();
+    step           = n->ComputeStep(p, d, pstep, *state, *newstate);
 
     // crosscheck with similar interface also calculating safety
-    double safety = 0.;
-    double step2  = 0.;
-    step2         = n->ComputeStepAndSafety(p, d, pstep, *state2, true, safety);
+    Precision safety = 0.;
+    Precision step2  = 0.;
+    step2            = n->ComputeStepAndSafety(p, d, pstep, *state2, true, safety);
     assert(!(safety > step2 && step != pstep));
     assert(step2 == step);
 
@@ -414,7 +415,7 @@ void test_NavigationStateToTGeoBranchArrayConversion()
     Vector3D<Precision> d = sampleDir();
 
     GlobalLocator::LocateGlobalPoint(RootGeoManager::Instance().world(), p, *state, true);
-    double step = 0;
+    Precision step = 0;
     NewSimpleNavigator<>::Instance()->FindNextBoundaryAndStep(p, d, *state, *newstate, 1E30, step);
 
     TGeoNavigator *rootnav = ::gGeoManager->GetCurrentNavigator();

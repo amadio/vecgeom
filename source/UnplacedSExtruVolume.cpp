@@ -22,12 +22,12 @@ void UnplacedSExtruVolume::Print(std::ostream &os) const
 SolidMesh *UnplacedSExtruVolume::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
   const PlanarPolygon &polygon = fPolyShell.GetPolygon();
-  const double lowerZ          = fPolyShell.GetLowerZ();
-  const double upperZ          = fPolyShell.GetUpperZ();
+  const Precision lowerZ       = fPolyShell.GetLowerZ();
+  const Precision upperZ       = fPolyShell.GetUpperZ();
 
-  const double *verticesX = polygon.GetVertices().x();
-  const double *verticesY = polygon.GetVertices().y();
-  size_t nVertices        = polygon.GetVertices().size();
+  const Precision *verticesX = polygon.GetVertices().x();
+  const Precision *verticesY = polygon.GetVertices().y();
+  size_t nVertices           = polygon.GetVertices().size();
 
   size_t nMeshVertices = nVertices * 2;
   size_t nMeshPolygons = 2 + nVertices;
@@ -35,7 +35,7 @@ SolidMesh *UnplacedSExtruVolume::CreateMesh3D(Transformation3D const &trans, siz
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(nMeshVertices, nMeshPolygons);
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   Vec_t *const vertices = new Vec_t[nMeshVertices];
   for (size_t i = 0; i < nVertices; i++) {
     vertices[2 * i]     = Vec_t(verticesX[i], verticesY[i], lowerZ); // even lower vertices
@@ -163,7 +163,8 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedSExtruVolume::CopyToGpu() const
 namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedSExtruVolume>::SizeOf();
-template void DevicePtr<cuda::UnplacedSExtruVolume>::Construct(int, double *, double *, Precision, Precision) const;
+template void DevicePtr<cuda::UnplacedSExtruVolume>::Construct(int, Precision *, Precision *, Precision,
+                                                               Precision) const;
 
 } // namespace cxx
 

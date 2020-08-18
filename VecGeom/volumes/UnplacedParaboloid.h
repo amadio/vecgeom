@@ -41,7 +41,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedParaboloid : public SIMDUnplacedVolumeImplHelper<ParaboloidImplementation>, public AlignedBase {
 
 private:
-  ParaboloidStruct<double> fParaboloid; ///< The paraboloid structure
+  ParaboloidStruct<Precision> fParaboloid; ///< The paraboloid structure
 
   Precision fCubicVolume; ///< Cached value of the volume
   Precision fSurfaceArea; ///< Cached value of the surface area
@@ -60,7 +60,7 @@ public:
 
   /// Getter for the structure storing the paraboloid data
   VECCORE_ATT_HOST_DEVICE
-  ParaboloidStruct<double> const &GetStruct() const { return fParaboloid; }
+  ParaboloidStruct<Precision> const &GetStruct() const { return fParaboloid; }
 
   /// Getter for the raduis of the circle at z = -dz
   VECCORE_ATT_HOST_DEVICE
@@ -161,7 +161,7 @@ public:
 
   /// Get list of the paraboloid parameters as an array. Not implemented !!!
   VECCORE_ATT_HOST_DEVICE
-  void GetParametersList(int aNumber, double *aArray) const;
+  void GetParametersList(int aNumber, Precision *aArray) const;
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedParaboloid *Clone() const;

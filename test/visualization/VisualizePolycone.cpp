@@ -18,55 +18,55 @@ int main()
   // Precision rmax[4]={20.,15.};//,15.,10.};
   // Precision z[4]={0.,20.};//,20.,50.};
 
-  double phiStart = 0., deltaPhi = kTwoPi;
+  Precision phiStart = 0., deltaPhi = kTwoPi;
   // int nZ=10;
-  // double rmin[4]={0.,0.,0.,0.};
-  // double rmax[4]={15.,15.,15.,10.};
-  // double z[4]={0.,20.,30.,40.};
+  // Precision rmin[4]={0.,0.,0.,0.};
+  // Precision rmax[4]={15.,15.,15.,10.};
+  // Precision z[4]={0.,20.,30.,40.};
 
   // constexpr int nZ=3;
-  // double rmin[nZ]={0.,0.,0.};
-  // double rmax[nZ]={10.,20.,20};
-  // double z[nZ]=    {0.,10.,10.};
+  // Precision rmin[nZ]={0.,0.,0.};
+  // Precision rmax[nZ]={10.,20.,20};
+  // Precision z[nZ]=    {0.,10.,10.};
 
   // int nZ = 5;
-  // double rmin[5] = {0., 0., 0., 0., 0.};
-  // double rmax[5] = {10., 20., 20., 15.,10.};
-  // double z[5] = {0., 10., 20., 20., 30.};
+  // Precision rmin[5] = {0., 0., 0., 0., 0.};
+  // Precision rmax[5] = {10., 20., 20., 15.,10.};
+  // Precision z[5] = {0., 10., 20., 20., 30.};
 
-  deltaPhi         = kTwoPi;
-  constexpr int nZ = 3;
-  double rmin[nZ]  = {5., 0., 0.};
-  double rmax[nZ]  = {10., 20., 30.};
-  double z[nZ]     = {0., 10., 30.};
-
-  // constexpr int nZ = 3;
-  // double rmin[nZ] = {0., 0., 0.};
-  /// double rmax[nZ] = {10., 20., 30.};
-  // double z[nZ] = {0., 10., 30.};
+  deltaPhi           = kTwoPi;
+  constexpr int nZ   = 3;
+  Precision rmin[nZ] = {5., 0., 0.};
+  Precision rmax[nZ] = {10., 20., 30.};
+  Precision z[nZ]    = {0., 10., 30.};
 
   // constexpr int nZ = 3;
-  // double rmin[nZ] = {0., 0., 0.};
-  // double rmax[nZ] = {10., 20., 30.};
-  // double z[nZ] = {0., 10., 30.};
+  // Precision rmin[nZ] = {0., 0., 0.};
+  /// Precision rmax[nZ] = {10., 20., 30.};
+  // Precision z[nZ] = {0., 10., 30.};
+
+  // constexpr int nZ = 3;
+  // Precision rmin[nZ] = {0., 0., 0.};
+  // Precision rmax[nZ] = {10., 20., 30.};
+  // Precision z[nZ] = {0., 10., 30.};
 
   // int nZ=8;
-  // double rmin[8]={0.,0.,0.,0.,0.,0.,0.,0.};
-  // double rmax[8]={10.,20.,20.,10.,10.,5.,5.,20.};
-  // double z[8]={0.,20.,20.,40.,45.,50.,50.,60.};
+  // Precision rmin[8]={0.,0.,0.,0.,0.,0.,0.,0.};
+  // Precision rmax[8]={10.,20.,20.,10.,10.,5.,5.,20.};
+  // Precision z[8]={0.,20.,20.,40.,45.,50.,50.,60.};
 
   // constexpr int nZ = 3;
-  // double rmin[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-  // double rmax[10]={10.,10.,10.,20.,20.,10.,10.,5.,5.,20.};
-  // double z[10]={-20.,0.,0.,20.,20.,40.,45.,50.,50.,60.};
+  // Precision rmin[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+  // Precision rmax[10]={10.,10.,10.,20.,20.,10.,10.,5.,5.,20.};
+  // Precision z[10]={-20.,0.,0.,20.,20.,40.,45.,50.,50.,60.};
 
-  // double rmin[nZ]={0.,0.,0.,0.,0.,0.};
-  // double rmax[nZ]={10., 20., 20., 30., 20., 10.};
-  // double z[nZ]={0., 10., 20., 20., 20.,30.};
+  // Precision rmin[nZ]={0.,0.,0.,0.,0.,0.};
+  // Precision rmax[nZ]={10., 20., 20., 30., 20., 10.};
+  // Precision z[nZ]={0., 10., 20., 20., 20.,30.};
 
-  // double rmin[nZ]={0.,0.,0.};
-  // double rmax[nZ]={10.,20.,30.};
-  // double z[nZ]={0.,10.,10.};
+  // Precision rmin[nZ]={0.,0.,0.};
+  // Precision rmax[nZ]={10.,20.,30.};
+  // Precision z[nZ]={0.,10.,10.};
 
   SimplePolycone polycone("Visualizer Polycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
   std::cout << "Convexity : " << polycone.GetUnplacedVolume()->IsConvex() << std::endl;

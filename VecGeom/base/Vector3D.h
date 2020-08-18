@@ -195,11 +195,11 @@ public:
   /// \sa Vector3D::Length()
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void Normalize() { *this *= (1. / Length()); }
+  void Normalize() { *this *= (Type(1.) / Length()); }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Vector3D<Type> Normalized() const { return Vector3D<Type>(*this) * (1. / Length()); }
+  Vector3D<Type> Normalized() const { return Vector3D<Type>(*this) * (Type(1.) / Length()); }
 
   // checks if vector is normalized
   // only reasonable to call with standard scalare usage
@@ -209,7 +209,7 @@ public:
   {
     // static_assert here that Type should be primitive type
     Precision norm = Mag2();
-    return 1. - vecgeom::kTolerance < norm && norm < 1 + vecgeom::kTolerance;
+    return Type(1.) - vecgeom::kTolerance < norm && norm < Type(1.) + vecgeom::kTolerance;
   }
 
   /// \return Azimuthal angle between -pi and pi.
@@ -304,7 +304,7 @@ public:
     return *this;
   }
 
-// Inplace binary operators
+  // Inplace binary operators
 
 #define VECTOR3D_TEMPLATE_INPLACE_BINARY_OP(OPERATOR)                                                       \
   VECCORE_ATT_HOST_DEVICE                                                                                   \

@@ -45,11 +45,13 @@
 #include "TPolyLine3D.h"
 #endif
 
+using vecgeom::Precision;
+
 #ifdef VECGEOM_ROOT
 void DrawPolygon(vecgeom::Utils3D::Polygon const &poly, vecgeom::Visualizer &visualizer, size_t color)
 {
   using namespace vecgeom;
-  using Vec_t = Vector3D<double>;
+  using Vec_t = Vector3D<Precision>;
   TPolyLine3D pl(poly.fN + 1);
   pl.SetLineColor(color);
   for (size_t i = 0; i < poly.fN; ++i)
@@ -81,11 +83,11 @@ void DrawPolyhedron(const vecgeom::Utils3D::Polyhedron &polyh, vecgeom::Visualiz
 vecgeom::VUnplacedVolume *CreateSexTru(bool convex)
 {
 #define N 10
-  double dx = 5;
-  double dy = 4;
-  double dz = 3;
+  Precision dx = 5;
+  Precision dy = 4;
+  Precision dz = 3;
 
-  double x[N], y[N];
+  Precision x[N], y[N];
   for (size_t i = 0; i < (size_t)N; ++i) {
     x[i] = dx * std::sin(i * (2. * M_PI) / N);
     y[i] = dy * std::cos(i * (2. * M_PI) / N);
@@ -103,16 +105,16 @@ vecgeom::VUnplacedVolume *CreateExtruded(bool convex)
 #define nvert 10
 #define nsect 5
 
-  double rmin = 3.;
-  double rmax = 5.;
+  Precision rmin = 3.;
+  Precision rmax = 5.;
 
   vecgeom::XtruVertex2 *vertices = new vecgeom::XtruVertex2[nvert];
   vecgeom::XtruSection *sections = new vecgeom::XtruSection[nsect];
-  double *x                      = new double[nvert];
-  double *y                      = new double[nvert];
+  Precision *x                   = new Precision[nvert];
+  Precision *y                   = new Precision[nvert];
 
-  double phi = 2. * vecgeom::kPi / nvert;
-  double r;
+  Precision phi = 2. * vecgeom::kPi / nvert;
+  Precision r;
   for (int i = 0; i < nvert; ++i) {
     r = rmax;
     if (i % 2 > 0 && !convex) r = rmin;
@@ -134,9 +136,9 @@ vecgeom::VUnplacedVolume *CreateExtruded(bool convex)
 }
 #endif
 
-void CreateConcave(std::vector<vecgeom::Vector3D<double>> &v, vecgeom::Utils3D::Polygon &p)
+void CreateConcave(std::vector<vecgeom::Vector3D<Precision>> &v, vecgeom::Utils3D::Polygon &p)
 {
-  using Vec_t = vecgeom::Vector3D<double>;
+  using Vec_t = vecgeom::Vector3D<Precision>;
 
   v.push_back(Vec_t(2, 2, 0));
   v.push_back(Vec_t(-2, 2, 0));
@@ -193,10 +195,10 @@ void print_msg()
                "";
 }
 
-double random_double(double min, double max)
+Precision random_double(Precision min, Precision max)
 {
 
-  return ((double)rand() / RAND_MAX) * (max - min) + min;
+  return ((Precision)rand() / RAND_MAX) * (max - min) + min;
 }
 
 int main(int argc, char *argv[])
@@ -223,7 +225,7 @@ int main(int argc, char *argv[])
     return 0;
   }
 
-  vector<double> ps;
+  vector<Precision> ps;
   for (int i = 6; i < argc; i++) {
     ps.push_back(stod(string(argv[i]), NULL));
   }
@@ -232,7 +234,7 @@ int main(int argc, char *argv[])
 #define WORLDSIZE 10
   int nSegments                   = stod(string(argv[4]), NULL);
   VUnplacedVolume *unplacedvolume = nullptr;
-  using Vec_t                     = Vector3D<double>;
+  using Vec_t                     = Vector3D<Precision>;
 
   if (!v.compare("box")) {
     unplacedvolume = GeoManager::MakeInstance<UnplacedBox>(ps[0], ps[1], ps[2]);
@@ -296,15 +298,15 @@ int main(int argc, char *argv[])
 
   else if (!v.compare("polycone")) {
     /*
-    double rmin[]  = {0., 3., 7., 8};
-    double rmax[]  = {5., 4., 8., 9};
-    double z[]     = {-3, 0, 3, 8};
+    Precision rmin[]  = {0., 3., 7., 8};
+    Precision rmax[]  = {5., 4., 8., 9};
+    Precision z[]     = {-3, 0, 3, 8};
     */
 
-    int Nz       = ps[2];
-    double *rmin = new double[Nz];
-    double *rmax = new double[Nz];
-    double *z    = new double[Nz];
+    int Nz          = ps[2];
+    Precision *rmin = new Precision[Nz];
+    Precision *rmax = new Precision[Nz];
+    Precision *z    = new Precision[Nz];
 
     size_t idx = 0;
     for (size_t i = 3; i < ps.size(); i += 3) {
@@ -323,11 +325,11 @@ int main(int argc, char *argv[])
     Precision rInner[nPlanes]  = {3, 4, 5, 5, 7};
     Precision rOuter[nPlanes]  = {8, 9, 9, 9, 10};
     */
-    int nPlanes     = ps[3];
-    double *rInner  = new double[nPlanes];
-    double *rOuter  = new double[nPlanes];
-    double *zPlanes = new double[nPlanes];
-    size_t idx      = 0;
+    int nPlanes        = ps[3];
+    Precision *rInner  = new Precision[nPlanes];
+    Precision *rOuter  = new Precision[nPlanes];
+    Precision *zPlanes = new Precision[nPlanes];
+    size_t idx         = 0;
     for (size_t i = 4; i < ps.size(); i += 3) {
       rInner[idx]  = ps[i];
       rOuter[idx]  = ps[i + 1];
@@ -843,19 +845,19 @@ int main(int argc, char *argv[])
     p.fInd = {0, 1, 2, 3, 4};
     p.Init();
 
-    double x[2], y[2], z[2];
+    Precision x[2], y[2], z[2];
     p.Extent(x, y, z);
 
     int nPoints = nSegments;
     int offset  = 2;
     for (int i = 0; i < nPoints; i++) {
 
-      double randX = random_double(x[0] - offset, x[1] + offset);
-      double randY = random_double(y[0] - offset, y[1] + offset);
-      double randZ = random_double(z[0] - offset, z[1] + offset);
+      Precision randX = random_double(x[0] - offset, x[1] + offset);
+      Precision randY = random_double(y[0] - offset, y[1] + offset);
+      Precision randZ = random_double(z[0] - offset, z[1] + offset);
 
       Vec_t randPoint = Vec_t(randX, randY, randZ);
-      double dot      = (randPoint - p.fVert[p.fInd[0]]).Dot(p.fNorm);
+      Precision dot   = (randPoint - p.fVert[p.fInd[0]]).Dot(p.fNorm);
       // std::cout << dot << ' ' << p.fNorm;
       Vec_t projected = randPoint - p.fNorm * dot;
 
@@ -885,19 +887,19 @@ int main(int argc, char *argv[])
     p.fInd = {0, 1, 2};
     p.Init();
 
-    double x[2], y[2], z[2];
+    Precision x[2], y[2], z[2];
     p.Extent(x, y, z);
 
     int nPoints = nSegments;
     int offset  = 2;
     for (int i = 0; i < nPoints; i++) {
 
-      double randX = random_double(x[0] - offset, x[1] + offset);
-      double randY = random_double(y[0] - offset, y[1] + offset);
-      double randZ = random_double(z[0] - offset, z[1] + offset);
+      Precision randX = random_double(x[0] - offset, x[1] + offset);
+      Precision randY = random_double(y[0] - offset, y[1] + offset);
+      Precision randZ = random_double(z[0] - offset, z[1] + offset);
 
       Vec_t randPoint = Vec_t(randX, randY, randZ);
-      double dot      = (randPoint - p.fVert[p.fInd[0]]).Dot(p.fNorm);
+      Precision dot   = (randPoint - p.fVert[p.fInd[0]]).Dot(p.fNorm);
       // std::cout << dot << ' ' << p.fNorm;
       Vec_t projected = randPoint - p.fNorm * dot;
 

@@ -84,7 +84,7 @@ class UnplacedPolyhedron
       public AlignedBase {
 
 private:
-  PolyhedronStruct<double> fPoly; ///< Structure holding polyhedron data
+  PolyhedronStruct<Precision> fPoly; ///< Structure holding polyhedron data
 
 public:
   UnplacedPolyhedron() : fPoly() {}
@@ -141,7 +141,7 @@ public:
   virtual ~UnplacedPolyhedron() {}
 
   VECCORE_ATT_HOST_DEVICE
-  PolyhedronStruct<double> const &GetStruct() const { return fPoly; }
+  PolyhedronStruct<Precision> const &GetStruct() const { return fPoly; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -201,7 +201,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  TubeStruct<double> const &GetBoundingTube() const { return fPoly.fBoundingTube; }
+  TubeStruct<Precision> const &GetBoundingTube() const { return fPoly.fBoundingTube; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE

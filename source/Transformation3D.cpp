@@ -174,6 +174,12 @@ TranslationCode Transformation3D::GenerateTranslationCode() const
 // mainly used for the benchmark comparisons with ROOT
 TGeoMatrix *Transformation3D::ConvertToTGeoMatrix() const
 {
+  double rotd[9];
+  if (fHasRotation) {
+    for (auto i = 0; i < 9; ++i)
+      rotd[i] = Rotation()[i];
+  }
+
   if (fIdentity) {
     return new TGeoIdentity();
   }
@@ -182,12 +188,12 @@ TGeoMatrix *Transformation3D::ConvertToTGeoMatrix() const
   }
   if (fHasRotation && !fHasTranslation) {
     TGeoRotation *tmp = new TGeoRotation();
-    tmp->SetMatrix(Rotation());
+    tmp->SetMatrix(rotd);
     return tmp;
   }
   if (fHasTranslation && fHasRotation) {
     TGeoRotation *tmp = new TGeoRotation();
-    tmp->SetMatrix(Rotation());
+    tmp->SetMatrix(rotd);
     return new TGeoCombiTrans(fTranslation[0], fTranslation[1], fTranslation[2], tmp);
   }
   return 0;
@@ -226,7 +232,7 @@ DevicePtr<cuda::Transformation3D> Transformation3D::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -239,8 +245,8 @@ template void DevicePtr<cuda::Transformation3D>::Construct(const Precision tx, c
                                                            const Precision r6, const Precision r7,
                                                            const Precision r8) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif // VECCORE_CUDA
 
-} // End global namespace
+} // namespace vecgeom

@@ -65,20 +65,19 @@ void UnplacedCone::Print(std::ostream &os) const
 SolidMesh *UnplacedCone::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   SolidMesh *sm = new SolidMesh();
-
 
   Vec_t *vertices = new Vec_t[4 * (nSegments + 1)];
 
-  double cos, sin;
-  double phi = GetSPhi();
-  double phi_step  = GetDPhi() / nSegments;
+  Precision cos, sin;
+  Precision phi      = GetSPhi();
+  Precision phi_step = GetDPhi() / nSegments;
 
-  size_t idx0  = 0;
-  size_t idx1  = nSegments + 1;
-  size_t idx2  = 2 * (nSegments + 1);
-  size_t idx3  = 3 * (nSegments + 1);
+  size_t idx0 = 0;
+  size_t idx1 = nSegments + 1;
+  size_t idx2 = 2 * (nSegments + 1);
+  size_t idx3 = 3 * (nSegments + 1);
   for (size_t i = 0; i <= nSegments; ++i, phi += phi_step) {
     cos              = std::cos(phi);
     sin              = std::sin(phi);
@@ -222,8 +221,6 @@ bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &nor
   Precision pRMin, widRMin;
   Precision pRMax, widRMax;
 
-  const double kHalfTolerance = 0.5 * kTolerance;
-
   Vector3D<Precision> sumnorm(0., 0., 0.), nZ = Vector3D<Precision>(0., 0., 1.);
   Vector3D<Precision> nR, nr(0., 0., 0.), nPs, nPe;
   norm = sumnorm;
@@ -248,7 +245,7 @@ bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &nor
   distRMin = std::fabs(distRMin);
 
   // keep track of nearest normal, needed in case point is not on a surface
-  double distNearest              = distZ;
+  Precision distNearest           = distZ;
   Vector3D<Precision> normNearest = nZ;
   if (p.z() < 0.) normNearest.Set(0, 0, -1.);
 
@@ -402,8 +399,8 @@ Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
   Vector3D<Precision> retPt;
   do {
 
-    double Aone, Atwo, Athree, Afour, Afive, slin, slout, phi;
-    double zRand, cosu, sinu, rRand1, rRand2, chose, rone, rtwo, qone, qtwo;
+    Precision Aone, Atwo, Athree, Afour, Afive, slin, slout, phi;
+    Precision zRand, cosu, sinu, rRand1, rRand2, chose, rone, rtwo, qone, qtwo;
     rone = (fCone.fRmax1 - fCone.fRmax2) / (2. * fCone.fDz);
     rtwo = (fCone.fRmin1 - fCone.fRmin2) / (2. * fCone.fDz);
     qone = 0.;
@@ -475,9 +472,9 @@ Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
 {
   // implementation taken from UCons; not verified
   //
-  double rad = 0.;
+  Precision rad = 0.;
   Vector3D<Precision> retPt;
-  double zRand      = RNG::Instance().uniform(-1. * fCone.fDz, fCone.fDz);
+  Precision zRand   = RNG::Instance().uniform(-1. * fCone.fDz, fCone.fDz);
   int surfSelection = 0;
   if (!fCone.fRmin1 && !fCone.fRmin2) {
     if (fCone.fDPhi < vecgeom::kTwoPi)
@@ -515,26 +512,26 @@ Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
 
   if (surfSelection == 5) {
     // Generate point on startPhi Surface
-    double rmin = 0.;
+    Precision rmin = 0.;
     if (fCone.fRmin1 || fCone.fRmin2) rmin = GetRadiusOfConeAtPoint<true>(zRand);
-    double rmax   = GetRadiusOfConeAtPoint<false>(zRand);
-    double rinter = RNG::Instance().uniform(rmin, rmax);
+    Precision rmax   = GetRadiusOfConeAtPoint<false>(zRand);
+    Precision rinter = RNG::Instance().uniform(rmin, rmax);
     retPt.Set(rinter * std::cos(fCone.fSPhi), rinter * std::sin(fCone.fSPhi), zRand);
     return retPt;
   }
   if (surfSelection == 6) {
     // Generate point on endPhi Surface
-    double rmin = 0.;
+    Precision rmin = 0.;
     if (fCone.fRmin1 || fCone.fRmin2) rmin = GetRadiusOfConeAtPoint<true>(zRand);
-    double rmax   = GetRadiusOfConeAtPoint<false>(zRand);
-    double rinter = RNG::Instance().uniform(rmin, rmax);
+    Precision rmax   = GetRadiusOfConeAtPoint<false>(zRand);
+    Precision rinter = RNG::Instance().uniform(rmin, rmax);
     retPt.Set(rinter * std::cos(fCone.fSPhi + fCone.fDPhi), rinter * std::sin(fCone.fSPhi + fCone.fDPhi), zRand);
     return retPt;
   }
 
-  double theta = RNG::Instance().uniform(fCone.fSPhi, fCone.fSPhi + fCone.fDPhi);
-  retPt.x()    = rad * std::cos(theta);
-  retPt.y()    = rad * std::sin(theta);
+  Precision theta = RNG::Instance().uniform(fCone.fSPhi, fCone.fSPhi + fCone.fDPhi);
+  retPt.x()       = rad * std::cos(theta);
+  retPt.y()       = rad * std::sin(theta);
   return retPt;
 }
 #endif

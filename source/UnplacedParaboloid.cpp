@@ -107,7 +107,7 @@ std::string UnplacedParaboloid::GetEntityType() const
 
 /*
 VECCORE_ATT_HOST_DEVICE
-void UnplacedParaboloid::GetParametersList(int, double *aArray) const
+void UnplacedParaboloid::GetParametersList(int, Precision *aArray) const
 {
   aArray[0] = GetRadius();
 }
@@ -151,7 +151,7 @@ void UnplacedParaboloid::Print(std::ostream &os) const
 #ifndef VECCORE_CUDA
 SolidMesh *UnplacedParaboloid::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
   size_t nMeshVertices = (nSegments + 1) * (nSegments + 1);
@@ -159,15 +159,15 @@ SolidMesh *UnplacedParaboloid::CreateMesh3D(Transformation3D const &trans, size_
 
   sm->ResetMesh(nMeshVertices, nSegments * nSegments + 2);
 
-  double phi_step = 2 * M_PI / nSegments;
-  double phi      = 0.;
+  Precision phi_step = 2 * M_PI / nSegments;
+  Precision phi      = 0.;
 
-  double z_step = 2 * GetDz() / nSegments;
-  double z      = -GetDz();
+  Precision z_step = 2 * GetDz() / nSegments;
+  Precision z      = -GetDz();
 
   size_t idx = 0;
   for (size_t i = 0; i <= nSegments; ++i, z += z_step, phi = 0.) {
-    double intermediate = std::sqrt(std::abs((z - GetB()) / GetA()));
+    Precision intermediate = std::sqrt(std::abs((z - GetB()) / GetA()));
     for (size_t j = 0; j <= nSegments; ++j, phi += phi_step) {
       vertices[idx++] = Vec_t(intermediate * std::cos(phi), intermediate * std::sin(phi), z);
     }

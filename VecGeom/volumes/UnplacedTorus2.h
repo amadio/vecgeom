@@ -73,7 +73,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  TorusStruct2<double> const &GetStruct() const { return fTorus; }
+  TorusStruct2<Precision> const &GetStruct() const { return fTorus; }
 
   VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();

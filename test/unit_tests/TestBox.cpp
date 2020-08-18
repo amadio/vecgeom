@@ -13,7 +13,8 @@
 #include <cmath>
 
 using vecgeom::kInfLength;
-using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
+using vecgeom::Precision;
+using Vec_t = vecgeom::Vector3D<Precision>;
 
 bool testvecgeom = false;
 
@@ -40,7 +41,7 @@ bool TestBox()
   Vec_t vxmy(1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
   Vec_t vxmz(1 / std::sqrt(2.0), 0, -1 / std::sqrt(2.0));
 
-  double Dist;
+  Precision Dist;
 
   Box_t b1("Test Box #1", 20, 30, 40);
   Box_t b2("Test Box #2", 10, 10, 10);
@@ -101,8 +102,8 @@ bool TestBox()
   Vec_t edgeYmZ(0.0, 30.0, -40.0);
   Vec_t edgemYZ(0.0, -30.0, 40.0);
 
-  double invSqrt2 = 1.0 / std::sqrt(2.0);
-  double invSqrt3 = 1.0 / std::sqrt(3.0);
+  Precision invSqrt2 = 1.0 / std::sqrt(2.0);
+  Precision invSqrt3 = 1.0 / std::sqrt(3.0);
 
   valid = b1.Normal(edgeXY, normal);
   assert(valid == true);
@@ -162,80 +163,80 @@ bool TestBox()
   // DistanceToOut(P,V) with asserts for normal and convex
   Dist  = b1.DistanceToOut(pzero, vx);
   valid = b1.Normal(pzero + Dist * vx, normal);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, vx));
+  assert(ApproxEqual<Precision>(Dist, 20) && ApproxEqual(normal, vx));
 
   Dist  = b1.DistanceToOut(pzero, vmx);
   valid = b1.Normal(pzero + Dist * vmx, normal);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, vmx));
+  assert(ApproxEqual<Precision>(Dist, 20) && ApproxEqual(normal, vmx));
 
   Dist  = b1.DistanceToOut(pzero, vy);
   valid = b1.Normal(pzero + Dist * vy, normal);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, vy));
+  assert(ApproxEqual<Precision>(Dist, 30) && ApproxEqual(normal, vy));
 
   Dist  = b1.DistanceToOut(pzero, vmy);
   valid = b1.Normal(pzero + Dist * vmy, normal);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, vmy));
+  assert(ApproxEqual<Precision>(Dist, 30) && ApproxEqual(normal, vmy));
 
   Dist  = b1.DistanceToOut(pzero, vz);
   valid = b1.Normal(pzero + Dist * vz, normal);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vz));
+  assert(ApproxEqual<Precision>(Dist, 40) && ApproxEqual(normal, vz));
 
   Dist  = b1.DistanceToOut(pzero, vmz);
   valid = b1.Normal(pzero + Dist * vmz, normal);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vmz));
+  assert(ApproxEqual<Precision>(Dist, 40) && ApproxEqual(normal, vmz));
 
   Dist  = b1.DistanceToOut(pzero, vxy);
   valid = b1.Normal(pzero + Dist * vxy, normal);
-  assert(ApproxEqual(Dist, std::sqrt(800.)));
+  assert(ApproxEqual<Precision>(Dist, std::sqrt(800.)));
 
   // testing a few special directions ( with special zero values )
   // important since we sometimes operate with sign bits etc.
   Dist = b1.DistanceToOut(pzero, Vec_t(-0, -0, -1));
-  assert(ApproxEqual(Dist, 40.));
+  assert(ApproxEqual<Precision>(Dist, 40.));
   Dist = b1.DistanceToOut(pzero, Vec_t(0, -0, 1));
-  assert(ApproxEqual(Dist, 40.));
+  assert(ApproxEqual<Precision>(Dist, 40.));
   Dist = b1.DistanceToOut(pzero, Vec_t(0, 0, -1));
-  assert(ApproxEqual(Dist, 40.));
+  assert(ApproxEqual<Precision>(Dist, 40.));
   Dist = b1.DistanceToOut(pzero, Vec_t(0, 1, 0));
-  assert(ApproxEqual(Dist, 30.));
+  assert(ApproxEqual<Precision>(Dist, 30.));
   Dist = b1.DistanceToOut(pzero, Vec_t(0, 1, -0));
-  assert(ApproxEqual(Dist, 30.));
+  assert(ApproxEqual<Precision>(Dist, 30.));
   Dist = b1.DistanceToOut(pzero, Vec_t(-0, 1, 0));
-  assert(ApproxEqual(Dist, 30.));
+  assert(ApproxEqual<Precision>(Dist, 30.));
   Dist = b1.DistanceToOut(pzero, Vec_t(1, -0, 0));
-  assert(ApproxEqual(Dist, 20.));
+  assert(ApproxEqual<Precision>(Dist, 20.));
   Dist = b1.DistanceToOut(pzero, Vec_t(-1, 0, -0));
-  assert(ApproxEqual(Dist, 20.));
+  assert(ApproxEqual<Precision>(Dist, 20.));
   Dist = b1.DistanceToOut(pzero, Vec_t(-1, -0, -0));
-  assert(ApproxEqual(Dist, 20.));
+  assert(ApproxEqual<Precision>(Dist, 20.));
 
   Dist  = b1.DistanceToOut(ponxside, vx);
   valid = b1.Normal(ponxside + Dist * vx, normal);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vx));
+  assert(ApproxEqual<Precision>(Dist, 0) && ApproxEqual(normal, vx));
 
   Dist  = b1.DistanceToOut(ponxside, vmx);
   valid = b1.Normal(ponxside + Dist * vmx, normal);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vmx));
+  assert(ApproxEqual<Precision>(Dist, 40) && ApproxEqual(normal, vmx));
 
   Dist  = b1.DistanceToOut(ponmxside, vmx);
   valid = b1.Normal(ponmxside + Dist * vmx, normal);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmx));
+  assert(ApproxEqual<Precision>(Dist, 0) && ApproxEqual(normal, vmx));
 
   Dist  = b1.DistanceToOut(ponyside, vy);
   valid = b1.Normal(ponyside + Dist * vy, normal);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vy));
+  assert(ApproxEqual<Precision>(Dist, 0) && ApproxEqual(normal, vy));
 
   Dist  = b1.DistanceToOut(ponmyside, vmy);
   valid = b1.Normal(ponmyside + Dist * vmy, normal);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmy));
+  assert(ApproxEqual<Precision>(Dist, 0) && ApproxEqual(normal, vmy));
 
   Dist  = b1.DistanceToOut(ponzside, vz);
   valid = b1.Normal(ponzside + Dist * vy, normal);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vz));
+  assert(ApproxEqual<Precision>(Dist, 0) && ApproxEqual(normal, vz));
 
   Dist  = b1.DistanceToOut(ponmzside, vmz);
   valid = b1.Normal(ponmzside + Dist * vmz, normal);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmz));
+  assert(ApproxEqual<Precision>(Dist, 0) && ApproxEqual(normal, vmz));
 
   // Check Inside
   assert(b1.Inside(pzero) == vecgeom::EInside::kInside);
@@ -258,134 +259,134 @@ bool TestBox()
 
   // SafetyToOut(P)
   Dist = b1.SafetyToOut(pzero);
-  assert(ApproxEqual(Dist, 20));
+  assert(ApproxEqual<Precision>(Dist, 20));
   Dist = b1.SafetyToOut(vx);
-  assert(ApproxEqual(Dist, 19));
+  assert(ApproxEqual<Precision>(Dist, 19));
   Dist = b1.SafetyToOut(vy);
-  assert(ApproxEqual(Dist, 20));
+  assert(ApproxEqual<Precision>(Dist, 20));
   Dist = b1.SafetyToOut(vz);
-  assert(ApproxEqual(Dist, 20));
+  assert(ApproxEqual<Precision>(Dist, 20));
 
   // Check DistanceToOut
   Dist = b1.DistanceToOut(pzero, vx);
-  assert(ApproxEqual(Dist, 20));
+  assert(ApproxEqual<Precision>(Dist, 20));
   Dist = b1.DistanceToOut(pzero, vmx);
-  assert(ApproxEqual(Dist, 20));
+  assert(ApproxEqual<Precision>(Dist, 20));
   Dist = b1.DistanceToOut(pzero, vy);
-  assert(ApproxEqual(Dist, 30));
+  assert(ApproxEqual<Precision>(Dist, 30));
   Dist = b1.DistanceToOut(pzero, vmy);
-  assert(ApproxEqual(Dist, 30));
+  assert(ApproxEqual<Precision>(Dist, 30));
   Dist = b1.DistanceToOut(pzero, vz);
-  assert(ApproxEqual(Dist, 40));
+  assert(ApproxEqual<Precision>(Dist, 40));
   Dist = b1.DistanceToOut(pzero, vmz);
-  assert(ApproxEqual(Dist, 40));
+  assert(ApproxEqual<Precision>(Dist, 40));
   Dist = b1.DistanceToOut(pzero, vxy);
-  assert(ApproxEqual(Dist, std::sqrt(800.)));
+  assert(ApproxEqual<Precision>(Dist, std::sqrt(800.)));
 
   Dist = b1.DistanceToOut(ponxside, vx);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = b1.DistanceToOut(ponxside, vmx);
-  assert(ApproxEqual(Dist, 40));
+  assert(ApproxEqual<Precision>(Dist, 40));
   Dist = b1.DistanceToOut(ponmxside, vmx);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = b1.DistanceToOut(ponyside, vy);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = b1.DistanceToOut(ponmyside, vmy);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = b1.DistanceToOut(ponzside, vz);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = b1.DistanceToOut(ponmzside, vmz);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
 
   // SafetyToIn(P)
   Dist = b1.SafetyToIn(pbigx);
-  assert(ApproxEqual(Dist, 80));
+  assert(ApproxEqual<Precision>(Dist, 80));
   Dist = b1.SafetyToIn(pbigmx);
-  assert(ApproxEqual(Dist, 80));
+  assert(ApproxEqual<Precision>(Dist, 80));
   Dist = b1.SafetyToIn(pbigy);
-  assert(ApproxEqual(Dist, 70));
+  assert(ApproxEqual<Precision>(Dist, 70));
   Dist = b1.SafetyToIn(pbigmy);
-  assert(ApproxEqual(Dist, 70));
+  assert(ApproxEqual<Precision>(Dist, 70));
   Dist = b1.SafetyToIn(pbigz);
-  assert(ApproxEqual(Dist, 60));
+  assert(ApproxEqual<Precision>(Dist, 60));
   Dist = b1.SafetyToIn(pbigmz);
-  assert(ApproxEqual(Dist, 60));
+  assert(ApproxEqual<Precision>(Dist, 60));
 
   // DistanceToIn(P,V)
   Dist = b1.DistanceToIn(pbigx, vmx);
-  assert(ApproxEqual(Dist, 80));
+  assert(ApproxEqual<Precision>(Dist, 80));
   Dist = b1.DistanceToIn(pbigmx, vx);
-  assert(ApproxEqual(Dist, 80));
+  assert(ApproxEqual<Precision>(Dist, 80));
   Dist = b1.DistanceToIn(pbigy, vmy);
-  assert(ApproxEqual(Dist, 70));
+  assert(ApproxEqual<Precision>(Dist, 70));
   Dist = b1.DistanceToIn(pbigmy, vy);
-  assert(ApproxEqual(Dist, 70));
+  assert(ApproxEqual<Precision>(Dist, 70));
   Dist = b1.DistanceToIn(pbigz, vmz);
-  assert(ApproxEqual(Dist, 60));
+  assert(ApproxEqual<Precision>(Dist, 60));
   Dist = b1.DistanceToIn(pbigmz, vz);
-  assert(ApproxEqual(Dist, 60));
+  assert(ApproxEqual<Precision>(Dist, 60));
 
   // testing a few special directions ( with special zero values )
   // important since we sometimes operate with sign bits etc.
   Dist = b1.DistanceToIn(Vec_t(0, 0, -50), Vec_t(-0, -0, 1));
-  assert(ApproxEqual(Dist, 10.));
+  assert(ApproxEqual<Precision>(Dist, 10.));
   Dist = b1.DistanceToIn(Vec_t(0, 0, -50), Vec_t(0, -0, 1));
-  assert(ApproxEqual(Dist, 10.));
+  assert(ApproxEqual<Precision>(Dist, 10.));
   Dist = b1.DistanceToIn(Vec_t(0, 0, 50), Vec_t(0, 0, -1));
-  assert(ApproxEqual(Dist, 10.));
+  assert(ApproxEqual<Precision>(Dist, 10.));
   Dist = b1.DistanceToIn(Vec_t(0, -40, 0), Vec_t(0, 1, 0));
-  assert(ApproxEqual(Dist, 10.));
+  assert(ApproxEqual<Precision>(Dist, 10.));
   Dist = b1.DistanceToIn(Vec_t(0, -40, 0), Vec_t(0, 1, -0));
-  assert(ApproxEqual(Dist, 10.));
+  assert(ApproxEqual<Precision>(Dist, 10.));
   Dist = b1.DistanceToIn(Vec_t(0, -40, 0), Vec_t(-0, 1, 0));
-  assert(ApproxEqual(Dist, 10.));
+  assert(ApproxEqual<Precision>(Dist, 10.));
   Dist = b1.DistanceToIn(Vec_t(-30, 0, -0), Vec_t(1, -0, 0));
-  assert(ApproxEqual(Dist, 10.));
+  assert(ApproxEqual<Precision>(Dist, 10.));
   Dist = b1.DistanceToIn(Vec_t(30, 0., 0.), Vec_t(-1, 0, -0));
-  assert(ApproxEqual(Dist, 10.));
+  assert(ApproxEqual<Precision>(Dist, 10.));
   Dist = b1.DistanceToIn(Vec_t(-30, 0, 0), Vec_t(1, -0, -0));
-  assert(ApproxEqual(Dist, 10.));
+  assert(ApproxEqual<Precision>(Dist, 10.));
 
   Dist = b1.DistanceToIn(pbigx, vxy);
   if (Dist >= kInfLength) Dist = kInfLength;
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
   Dist = b1.DistanceToIn(pbigmx, vxy);
   if (Dist >= kInfLength) Dist = kInfLength;
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Vec_t pJohnXZ(9, 0, 12);
   Dist = b2.DistanceToIn(pJohnXZ, vxmz);
   if (Dist >= kInfLength) Dist = kInfLength;
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Vec_t pJohnXY(12, 9, 0);
   Dist = b2.DistanceToIn(pJohnXY, vmxy);
   if (Dist >= kInfLength) Dist = kInfLength;
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Dist = b2.DistanceToIn(pJohnXY, vmx);
-  assert(ApproxEqual(Dist, 2));
+  assert(ApproxEqual<Precision>(Dist, 2));
 
   Vec_t pMyXY(32, -11, 0);
   Dist = b2.DistanceToIn(pMyXY, vmxy);
   if (Dist >= kInfLength) Dist = kInfLength;
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Dist = b1.DistanceToIn(Vec_t(-25, -35, 0), vx);
   if (Dist >= kInfLength) Dist = kInfLength;
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Dist = b1.DistanceToIn(Vec_t(-25, -35, 0), vy);
   if (Dist >= kInfLength) Dist = kInfLength;
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Dist = b2.DistanceToIn(pJohnXY, vmx);
-  assert(ApproxEqual(Dist, 2));
+  assert(ApproxEqual<Precision>(Dist, 2));
 
   Vec_t tempDir = Vec_t(-0.76165597579890043, 0.64364445891356026, -0.074515708658524193);
   Dist = box3.DistanceToIn(Vec_t(0.15000000000000185, -22.048743592955137, 2.4268539333219472), tempDir.Unit());
 
-  assert(ApproxEqual(Dist, 0.0));
+  assert(ApproxEqual<Precision>(Dist, 0.0));
 
   /** testing tolerance of DistanceToIn **/
   Box_t b4("Box4", 5., 5., 5.);
@@ -425,7 +426,7 @@ bool Test_VECGEOM_431()
 {
   Vec_t vx(1, 0, 0), vy(0, 1, 0), vz(0, 0, 1);
   Vec_t normal;
-  double Dist;
+  Precision Dist;
 
   //=== add a couple test cases related to VECGEOM-431
   Box_t bx("Test Box #x", 1, 200, 200);
@@ -434,13 +435,13 @@ bool Test_VECGEOM_431()
   Vec_t testv = Vec_t(0, 1, 1) - 4.e-06 * vx;
   testv.Normalize();
   Dist = bx.DistanceToIn(testp, testv);
-  assert(ApproxEqual(Dist, 0.0));
+  assert(ApproxEqual<Precision>(Dist, 0.0));
   Dist       = bx.DistanceToOut(testp, testv);
   bool valid = bx.Normal(testp + Dist * testv, normal);
   std::cout << "Line " << __LINE__ << ": point=" << testp << ", dir=" << testv << ", distOut=" << Dist
             << ", norm=" << normal << "\n";
   assert(valid);
-  assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
+  assert(ApproxEqual<Precision>(Dist, 200. * sqrt(2.0)));
   assert(ApproxEqual(normal, (vy + vz).Normalized()));
   assert(valid);
 
@@ -448,7 +449,7 @@ bool Test_VECGEOM_431()
   Dist  = bx.DistanceToOut(testp, vx);
   valid = bx.Normal(testp + Dist * vx, normal);
   assert(valid);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
   assert(ApproxEqual(normal, vx));
   assert(valid);
 
@@ -457,13 +458,13 @@ bool Test_VECGEOM_431()
   testv = Vec_t(0, 1, 1) + 4.e-06 * vx;
   testv.Normalize();
   Dist = bx.DistanceToIn(testp, testv);
-  assert(ApproxEqual(Dist, 0.0));
+  assert(ApproxEqual<Precision>(Dist, 0.0));
   Dist  = bx.DistanceToOut(testp, testv);
   valid = bx.Normal(testp + Dist * testv, normal);
   std::cout << "Line " << __LINE__ << ": point=" << testp << ", dir=" << testv << ", distOut=" << Dist
             << ", norm=" << normal << "\n";
   assert(valid);
-  assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
+  assert(ApproxEqual<Precision>(Dist, 200. * sqrt(2.0)));
   assert(ApproxEqual(normal, (vy + vz).Normalized()));
   assert(valid);
 
@@ -471,7 +472,7 @@ bool Test_VECGEOM_431()
   Dist  = bx.DistanceToOut(testp, -vx);
   valid = bx.Normal(testp - Dist * vx, normal);
   assert(valid);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
   assert(ApproxEqual(normal, -vx));
   assert(valid);
 
@@ -481,18 +482,18 @@ bool Test_VECGEOM_431()
   testv = Vec_t(1, 0, 1) - 4.e-6 * vy;
   testv.Normalize();
   Dist = by.DistanceToIn(testp, testv);
-  assert(ApproxEqual(Dist, 0.0));
+  assert(ApproxEqual<Precision>(Dist, 0.0));
   Dist = by.DistanceToOut(testp, testv);
   std::cout << "Line " << __LINE__ << ": point=" << testp << ", dir=" << testv << ", distOut=" << Dist
             << ", norm=" << normal << "\n";
-  assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
+  assert(ApproxEqual<Precision>(Dist, 200. * sqrt(2.0)));
   valid = by.Normal(testp + Dist * testv, normal);
   assert(valid);
   assert(ApproxEqual(normal, (vx + vz).Normalized()));
 
   // and exiting
   Dist = by.DistanceToOut(testp, vy);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
   valid = by.Normal(testp + Dist * vy, normal);
   assert(valid);
   assert(ApproxEqual(normal, vy));
@@ -502,16 +503,16 @@ bool Test_VECGEOM_431()
   testv = Vec_t(1, 0, 1) + 4.e-6 * vy;
   testv.Normalize();
   Dist = by.DistanceToIn(testp, testv);
-  assert(ApproxEqual(Dist, 0.0));
+  assert(ApproxEqual<Precision>(Dist, 0.0));
   Dist = by.DistanceToOut(testp, testv);
-  assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
+  assert(ApproxEqual<Precision>(Dist, 200. * sqrt(2.0)));
   valid = by.Normal(testp + Dist * testv, normal);
   assert(valid);
   assert(ApproxEqual(normal, (vx + vz).Normalized()));
 
   // and exiting
   Dist = by.DistanceToOut(testp, -vy);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
   valid = by.Normal(testp - Dist * vy, normal);
   assert(valid);
   assert(ApproxEqual(normal, -vy));
@@ -522,16 +523,16 @@ bool Test_VECGEOM_431()
   testv = Vec_t(1, 1, 0) - 4.e-6 * vz;
   testv.Normalize();
   Dist = bz.DistanceToIn(testp, testv);
-  assert(ApproxEqual(Dist, 0.0));
+  assert(ApproxEqual<Precision>(Dist, 0.0));
   Dist = bz.DistanceToOut(testp, testv);
-  assert(ApproxEqual(Dist, 200 * sqrt(2.0)));
+  assert(ApproxEqual<Precision>(Dist, 200 * sqrt(2.0)));
   valid = bz.Normal(testp + Dist * testv, normal);
   assert(valid);
   assert(ApproxEqual(normal, (vx + vy).Normalized()));
 
   // and exiting
   Dist = bz.DistanceToOut(testp, vz);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
   valid = bz.Normal(testp + Dist * vz, normal);
   assert(valid);
   assert(ApproxEqual(normal, vz));
@@ -541,16 +542,16 @@ bool Test_VECGEOM_431()
   testv = Vec_t(1, 1, 0) + 4.e-6 * vz;
   testv.Normalize();
   Dist = bz.DistanceToIn(testp, testv);
-  assert(ApproxEqual(Dist, 0.0));
+  assert(ApproxEqual<Precision>(Dist, 0.0));
   Dist = bz.DistanceToOut(testp, testv);
-  assert(ApproxEqual(Dist, 200 * sqrt(2.0)));
+  assert(ApproxEqual<Precision>(Dist, 200 * sqrt(2.0)));
   valid = bz.Normal(testp + Dist * testv, normal);
   assert(valid);
   assert(ApproxEqual(normal, (vx + vy).Normalized()));
 
   // and exiting
   Dist = bz.DistanceToOut(testp, -vz);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
   valid = bz.Normal(testp - Dist * vz, normal);
   assert(valid);
   assert(ApproxEqual(normal, -vz));
@@ -560,24 +561,24 @@ bool Test_VECGEOM_431()
   testv = Vec_t(0, 1, 1) + 4.e-6 * vx;
   testv.Normalize();
   Dist = bx.DistanceToIn(testp, testv);
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
   Dist = bx.DistanceToOut(testp, testv);
-  assert(ApproxEqual(Dist, 0.0));
+  assert(ApproxEqual<Precision>(Dist, 0.0));
 
   // slightly inside of -x face
   testp = Vec_t(-1, 0, 0) + 6.e-15 * vx;
   testv = Vec_t(0, 1, 1) - 4.e-6 * vx;
   testv.Normalize();
   Dist = bx.DistanceToIn(testp, testv);
-  assert(ApproxEqual(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
   Dist = bx.DistanceToOut(testp, testv);
-  assert(ApproxEqual(Dist, 0.0));
+  assert(ApproxEqual<Precision>(Dist, 0.0));
 
   // slightly outside of +x face and exiting
   Box_t cube("cube", 10, 10, 10);
   testp = Vec_t(10, 0, 0) + 4.e-10 * vx;
   Dist  = cube.DistanceToOut(testp, vx);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
   valid = cube.Normal(testp + Dist * vz, normal);
   assert(valid);
   assert(ApproxEqual(normal, vx.Normalized()));

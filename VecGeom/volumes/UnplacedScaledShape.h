@@ -53,7 +53,7 @@ static UnplacedScaledShape *MakeScaledInstance(Scale3D scale, Argtypes... args)
 class UnplacedScaledShape : public SIMDUnplacedVolumeImplHelper<ScaledShapeImplementation>, public AlignedBase {
 
 public:
-  ScaledShapeStruct<double> fScaled; /* The scaled shape structure */
+  ScaledShapeStruct<Precision> fScaled; /* The scaled shape structure */
 
 public:
   /// Dummy ctor
@@ -133,7 +133,7 @@ public:
 
   /// Getter for the generic scaled shape structure
   VECCORE_ATT_HOST_DEVICE
-  ScaledShapeStruct<double> const &GetStruct() const { return fScaled; }
+  ScaledShapeStruct<Precision> const &GetStruct() const { return fScaled; }
 
   virtual int MemorySize() const final { return (sizeof(*this) + fScaled.fPlaced->MemorySize()); }
 

@@ -15,6 +15,7 @@ bool testvecgeom = false;
 
 using vecgeom::kInfLength;
 using vecgeom::kTolerance;
+using vecgeom::Precision;
 
 template <class CoaxialCones_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestCoaxialCones()
@@ -26,12 +27,12 @@ bool TestCoaxialCones()
 
   Vec_t pt(0., 0., 0.);
   // vecgeom::Vector<vecgeom::ConeParam> coneParamVector;
-  int numOfCones = 2;
-  double rmin1[] = {0., 15.};
-  double rmax1[] = {5., 20.};
-  double rmin2[] = {0., 15.};
-  double rmax2[] = {8., 20.};
-  double dz      = 5.;
+  int numOfCones    = 2;
+  Precision rmin1[] = {0., 15.};
+  Precision rmax1[] = {5., 20.};
+  Precision rmin2[] = {0., 15.};
+  Precision rmax2[] = {8., 20.};
+  Precision dz      = 5.;
 
   CoaxialCones_t Simple("CoaxialCones", numOfCones, rmin1, rmax1, rmin2, rmax2, dz, 0., 2 * vecgeom::kPi);
   std::cout << "Location : " << Simple.Inside(pt) << " : " << vecgeom::EInside::kInside << std::endl;
@@ -86,7 +87,7 @@ bool TestCoaxialCones()
   // SafetyToOut
   std::cout << "============= Safety Unit Tests =============" << std::endl;
   std::cout << "Location of (0.,0.,0.) : " << Simple.Inside(Vec_t(0., 0., 0.)) << std::endl;
-  double safetyDist = Simple.SafetyToOut(Vec_t(0., 0., 0.));
+  Precision safetyDist = Simple.SafetyToOut(Vec_t(0., 0., 0.));
   std::cout << "SafetyToOut Dist : " << safetyDist << std::endl;
   safetyDist = Simple.SafetyToIn(Vec_t(0., 0., 0.));
   std::cout << "SafetyToIn Dist : " << safetyDist << std::endl;
@@ -105,7 +106,7 @@ bool TestCoaxialCones()
   // Generating point on conical surface and checking its location and normal validity
   Vec_t temp1(5., 0., -5), temp2(8., 0., 5);
   Vec_t tempDir       = (temp2 - temp1).Unit();
-  double dist         = (temp2 - temp1).Mag();
+  Precision dist      = (temp2 - temp1).Mag();
   Vec_t tempSurfPoint = temp1 + dist * 0.3 * tempDir;
   assert(Simple.Normal(tempSurfPoint, normal) && (Simple.Inside(tempSurfPoint) == vecgeom::EInside::kSurface));
 

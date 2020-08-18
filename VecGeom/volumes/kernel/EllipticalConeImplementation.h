@@ -32,7 +32,7 @@ class UnplacedEllipticalCone;
 struct EllipticalConeImplementation {
 
   using PlacedShape_t    = PlacedEllipticalCone;
-  using UnplacedStruct_t = EllipticalConeStruct<double>;
+  using UnplacedStruct_t = EllipticalConeStruct<Precision>;
   using UnplacedVolume_t = UnplacedEllipticalCone;
 
   VECCORE_ATT_HOST_DEVICE
@@ -132,8 +132,8 @@ struct EllipticalConeImplementation {
 
     // Move point closer, if required
     Real_v Rfar2(1024. * ellipticalcone.fRsph * ellipticalcone.fRsph); // 1024 = 32 * 32
-    vecCore__MaskedAssignFunc(offset, ((p.Mag2() > Rfar2) && (direction.Dot(p) < 0.)),
-                              p.Mag() - 2. * ellipticalcone.fRsph);
+    vecCore__MaskedAssignFunc(offset, ((p.Mag2() > Rfar2) && (direction.Dot(p) < Real_v(0.))),
+                              p.Mag() - Real_v(2.) * ellipticalcone.fRsph);
     p += offset * direction;
 
     // Special cases to keep in mind:
@@ -176,16 +176,17 @@ struct EllipticalConeImplementation {
     Real_v sfz = vecCore::math::Abs(pz) - ellipticalcone.fZCut;
     Real_v nz  = vecCore::math::Sqrt(Cr);
     Real_v sfr = (nz + pz0) * ellipticalcone.cosAxisMin;
-    vecCore::MaskedAssign(nz, (vecCore::math::Abs(p.x()) + vecCore::math::Abs(p.y()) < 0.1 * kHalfTolerance),
-                          Real_v(1.));        // point is on z-axis
-    Real_v pzA  = pz0 + ellipticalcone.dApex; // slightly shifted apex position for "flying away" check
-    Bool_v done = (sfz >= -kHalfTolerance && pz * vz >= 0.) || (sfr >= -kHalfTolerance && Br + nz * vz >= 0.) ||
-                  (pz0 * ellipticalcone.cosAxisMin > -kHalfTolerance && (Cr - pzA * pzA) <= 0. && A >= 0.);
+    vecCore::MaskedAssign(nz, (vecCore::math::Abs(p.x()) + vecCore::math::Abs(p.y()) < Real_v(0.1) * kHalfTolerance),
+                          Real_v(1.));       // point is on z-axis
+    Real_v pzA = pz0 + ellipticalcone.dApex; // slightly shifted apex position for "flying away" check
+    Bool_v done =
+        (sfz >= -kHalfTolerance && pz * vz >= Real_v(0.)) || (sfr >= -kHalfTolerance && Br + nz * vz >= Real_v(0.)) ||
+        (pz0 * ellipticalcone.cosAxisMin > -kHalfTolerance && (Cr - pzA * pzA) <= Real_v(0.) && A >= Real_v(0.));
 
     // 2) Check if scratching (D < eps & A > 0) or no intersection (D < 0)
     // 3) if (D < eps & A < 0) then trajectory traverses the apex area - continue calculation
-    vecCore__MaskedAssignFunc(D, (sfr <= 0. && D < 0.), Real_v(0.));
-    done |= (D < 0.) || ((D < kTwoEpsilon * B * B) && (A >= 0.));
+    vecCore__MaskedAssignFunc(D, (sfr <= Real_v(0.) && D < Real_v(0.)), Real_v(0.));
+    done |= (D < Real_v(0.)) || ((D < kTwoEpsilon * B * B) && (A >= Real_v(0.)));
 
     // Find intersection with Z planes
     Real_v invz  = Real_v(-1.) / NonZero(vz);
@@ -198,7 +199,7 @@ struct EllipticalConeImplementation {
     vecCore__MaskedAssignFunc(tmp, !done, -B - vecCore::math::CopySign(vecCore::math::Sqrt(D), B));
     vecCore__MaskedAssignFunc(t1, !done, tmp / A);
     vecCore__MaskedAssignFunc(t2, !done && tmp != 0, C / tmp);
-    vecCore__MaskedAssignFunc(t2, !done && tinyA && B != 0., -C / (2. * B0)); // A ~ 0, t = -C / 2B
+    vecCore__MaskedAssignFunc(t2, !done && tinyA && B != Real_v(0.), -C / (Real_v(2.) * B0)); // A ~ 0, t = -C / 2B
     Real_v tmin = vecCore::math::Min(t1, t2);
     Real_v tmax = vecCore::math::Max(t1, t2);
 
@@ -206,13 +207,13 @@ struct EllipticalConeImplementation {
     Real_v trin  = tmin;
     Real_v trout = tmax;
     // Check if intersection with upper nappe only, return infinity
-    done |= (A >= 0. && pz0 + vz * tmin >= 0.);
+    done |= (A >= Real_v(0.) && pz0 + vz * tmin >= Real_v(0.));
 
     // Check if intersection with both nappes (A < 0)
-    vecCore__MaskedAssignFunc(trin, (!done && A < 0.), Real_v(-kInfLength));
-    vecCore__MaskedAssignFunc(trout, (!done && A < 0.), Real_v(kInfLength));
-    vecCore__MaskedAssignFunc(trin, (!done && A < 0. && vz < 0.), tmax);
-    vecCore__MaskedAssignFunc(trout, (!done && A < 0. && vz > 0.), tmin);
+    vecCore__MaskedAssignFunc(trin, (!done && A < Real_v(0.)), Real_v(-kInfLength));
+    vecCore__MaskedAssignFunc(trout, (!done && A < Real_v(0.)), Real_v(kInfLength));
+    vecCore__MaskedAssignFunc(trin, (!done && A < Real_v(0.) && vz < Real_v(0.)), tmax);
+    vecCore__MaskedAssignFunc(trout, (!done && A < Real_v(0.) && vz > Real_v(0.)), tmin);
 
     // Set distance
     // No special check for inside points, distance for inside points will be negative
@@ -274,34 +275,34 @@ struct EllipticalConeImplementation {
     Real_v B0 = Br - pz0 * direction.z(); // B calculated with original v.z()
     Real_v C  = Cr - Cz;
     Real_v D  = B * B - A * C;
-    vecCore__MaskedAssignFunc(D, (sfr <= 0. && D < 0.), Real_v(0.));
+    vecCore__MaskedAssignFunc(D, (sfr <= Real_v(0.) && D < Real_v(0.)), Real_v(0.));
 
     // 2) Check if scratching (D < eps & A > 0) or no intersection (D < 0)
     // 3) if (D < eps & A < 0) then trajectory traverses the apex area - continue calculation
-    done |= (D < 0.) || (D < kTwoEpsilon * B * B && A >= 0.);
+    done |= (D < Real_v(0.)) || (D < kTwoEpsilon * B * B && A >= Real_v(0.));
 
     // Find intersection with Z planes
     Real_v tzout = kMaximum;
-    vecCore__MaskedAssignFunc(tzout, vz != 0.,
+    vecCore__MaskedAssignFunc(tzout, vz != Real_v(0.),
                               (vecCore::math::CopySign(Real_v(ellipticalcone.fZCut), vz) - pz) / direction.z());
 
     // Find roots of the quadratic equation
     Real_v tmp(0.), t1(0.), t2(0.);
     vecCore__MaskedAssignFunc(tmp, !done, -B - vecCore::math::CopySign(vecCore::math::Sqrt(D), B));
     vecCore__MaskedAssignFunc(t1, !done, tmp / A);
-    vecCore__MaskedAssignFunc(t2, !done && tmp != 0., C / tmp);
-    vecCore__MaskedAssignFunc(t2, !done && tinyA && B0 != 0., -C / (2. * B0)); // A ~ 0, t = -C / 2B
+    vecCore__MaskedAssignFunc(t2, !done && tmp != Real_v(0.), C / tmp);
+    vecCore__MaskedAssignFunc(t2, !done && tinyA && B0 != Real_v(0.), -C / (Real_v(2.) * B0)); // A ~ 0, t = -C / 2B
     Real_v tmin = vecCore::math::Min(t1, t2);
     Real_v tmax = vecCore::math::Max(t1, t2);
 
     // Set default - intersection with lower nappe (A > 0)
     Real_v trout = tmax;
     // Check if intersection with upper nappe only or flying away, return 0
-    done |= ((A >= 0. && pz0 + vz * tmax >= 0.) || (pz0 >= 0. && vz >= 0.));
+    done |= ((A >= Real_v(0.) && pz0 + vz * tmax >= Real_v(0.)) || (pz0 >= Real_v(0.) && vz >= Real_v(0.)));
 
     // Check if intersection with both nappes (A < 0)
-    vecCore__MaskedAssignFunc(trout, (!done && A < 0.), Real_v(kInfLength));
-    vecCore__MaskedAssignFunc(trout, (!done && A < 0. && vz > 0.), tmin);
+    vecCore__MaskedAssignFunc(trout, (!done && A < Real_v(0.)), Real_v(kInfLength));
+    vecCore__MaskedAssignFunc(trout, (!done && A < Real_v(0.) && vz > Real_v(0.)), tmin);
 
     // Set distance
     // No special check for inside points, distance for inside points will be negative
@@ -365,13 +366,13 @@ struct EllipticalConeImplementation {
     Real_v nx = px * ellipticalcone.invDx * ellipticalcone.invDx;
     Real_v ny = py * ellipticalcone.invDy * ellipticalcone.invDy;
     Real_v nz = vecCore::math::Sqrt(px * nx + py * ny);
-    vecCore__MaskedAssignFunc(nz, (nx * nx + ny * ny) == 0., 1.); // z-axis
+    vecCore__MaskedAssignFunc(nz, (nx * nx + ny * ny) == Real_v(0.), Real_v(1.)); // z-axis
     Vector3D<Real_v> nside(nx, ny, nz);
     Real_v ds = (nz + pz - ellipticalcone.fDz) * ellipticalcone.cosAxisMin;
     vecCore__MaskedAssignFunc(normal, vecCore::math::Abs(ds) <= kHalfTolerance, (normal + nside.Unit()).Unit());
 
     // Check if done
-    vecCore::Mask_v<Real_v> done = normal.Mag2() > 0.;
+    vecCore::Mask_v<Real_v> done = normal.Mag2() > Real_v(0.);
     if (vecCore::MaskFull(done)) return normal;
 
     // Point is not on the surface - normally, this should never be

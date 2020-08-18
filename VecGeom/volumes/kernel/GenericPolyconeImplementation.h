@@ -28,7 +28,7 @@ class UnplacedGenericPolycone;
 struct GenericPolyconeImplementation {
 
   using PlacedShape_t    = PlacedGenericPolycone;
-  using UnplacedStruct_t = GenericPolyconeStruct<double>;
+  using UnplacedStruct_t = GenericPolyconeStruct<Precision>;
   using UnplacedVolume_t = UnplacedGenericPolycone;
 
   VECCORE_ATT_HOST_DEVICE

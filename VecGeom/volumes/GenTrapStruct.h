@@ -249,7 +249,7 @@ struct GenTrapStruct {
     // bottom segments are not parallel (cross product not null)
 
     bool twisted = false;
-    double dx1, dy1, dx2, dy2;
+    Precision dx1, dy1, dx2, dy2;
     const int nv = 4; // half the number of verices
 
     for (int i = 0; i < 4; ++i) {

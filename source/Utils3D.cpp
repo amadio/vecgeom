@@ -131,7 +131,6 @@ bool Polygon::isPointInsideTriangle(const Vec_t &p, size_t i0, size_t i1, size_t
   return (r + t <= 1);
 }
 
-
 void Polygon::TriangulatePolygon(vector_t<Polygon> &polys) const
 {
 
@@ -263,7 +262,7 @@ bool Polygon::IsPointInside(const Vec_t &p) const
   return false;
 }
 
-void Polygon::Extent(double x[2], double y[2], double z[2])
+void Polygon::Extent(Precision x[2], Precision y[2], Precision z[2])
 {
   x[0] = x[1] = fVert[fInd[0]].x();
   y[0] = y[1] = fVert[fInd[0]].y();
@@ -721,7 +720,7 @@ void FillBoxPolyhedron(Vec_t const &box, Polyhedron &polyh)
     polys[i].Init();
 }
 
-EPlaneXing_t PlaneXing(Plane const &pl1, Plane const &pl2, Vector3D<double> &point, Vector3D<double> &direction)
+EPlaneXing_t PlaneXing(Plane const &pl1, Plane const &pl2, Vector3D<Precision> &point, Vector3D<Precision> &direction)
 {
   direction        = pl1.fNorm.Cross(pl2.fNorm);
   const double det = direction.Mag2();
@@ -741,7 +740,7 @@ EPlaneXing_t PlaneXing(Plane const &pl1, Plane const &pl2, Vector3D<double> &poi
 
 EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
 {
-  using Vec_t = Vector3D<double>;
+  using Vec_t = Vector3D<Precision>;
   using vecCore::math::CopySign;
   using vecCore::math::Max;
   using vecCore::math::Min;
@@ -789,7 +788,7 @@ EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
     if (crosspts.Mag2() < mag2crossdirs + kTolerance) {
       // Crossing line hits the current edge
       crosspts      = (point - poly1.GetVertex(i)).Cross(poly1.fSides[i]);
-      double distsq = CopySign(crosspts.Mag2() / mag2crossdirs, crosspts.Dot(crossdirs));
+      double distsq = CopySign<double>(crosspts.Mag2() / mag2crossdirs, crosspts.Dot(crossdirs));
       smin1         = Min(smin1, distsq);
       smax1         = Max(smax1, distsq);
     }
@@ -807,7 +806,7 @@ EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
     if (crosspts.Mag2() < mag2crossdirs + kTolerance) {
       // Crossing line hits the current edge
       crosspts      = (point - poly2.GetVertex(i)).Cross(poly2.fSides[i]);
-      double distsq = CopySign(crosspts.Mag2() / mag2crossdirs, crosspts.Dot(crossdirs));
+      double distsq = CopySign<double>(crosspts.Mag2() / mag2crossdirs, crosspts.Dot(crossdirs));
       smin2         = Min(smin2, distsq);
       smax2         = Max(smax2, distsq);
     }
@@ -818,8 +817,8 @@ EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
     double dmin = Max(smin1, smin2);
     double dmax = Min(smax1, smax2);
     assert(dmax - dmin > -kTolerance);
-    line->fPts[0] = point + direction * CopySign(Sqrt(Abs(dmin)), dmin);
-    line->fPts[1] = point + direction * CopySign(Sqrt(Abs(dmax)), dmax);
+    line->fPts[0] = point + direction * CopySign<double>(Sqrt(Abs(dmin)), dmin);
+    line->fPts[1] = point + direction * CopySign<double>(Sqrt(Abs(dmax)), dmax);
   }
   return kOverlapping;
 }
@@ -840,11 +839,11 @@ EBodyXing_t PolyhedronXing(Polyhedron const &polyh1, Polyhedron const &polyh2, v
   return result;
 }
 
-EBodyXing_t BoxCollision(Vector3D<double> const &box1, Transformation3D const &tr1, Vector3D<double> const &box2,
+EBodyXing_t BoxCollision(Vector3D<Precision> const &box1, Transformation3D const &tr1, Vector3D<Precision> const &box2,
                          Transformation3D const &tr2)
 {
   // A fast check if the bounding spheres touch
-  using Vec_t = Vector3D<double>;
+  using Vec_t = Vector3D<Precision>;
   using vecCore::math::Max;
   using vecCore::math::Min;
 

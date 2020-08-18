@@ -33,7 +33,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  TubeStruct<double> const &GetStruct() const { return fTube; }
+  TubeStruct<Precision> const &GetStruct() const { return fTube; }
 
   VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();

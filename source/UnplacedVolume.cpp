@@ -122,8 +122,8 @@ void VUnplacedVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMa
 // based on the six-point method of G4
 Precision VUnplacedVolume::EstimateSurfaceArea(int nStat) const
 {
-  static const double s2 = 1. / Sqrt(2.);
-  static const double s3 = 1. / Sqrt(3.);
+  static const Precision s2 = 1. / Sqrt(2.);
+  static const Precision s3 = 1. / Sqrt(3.);
 
   // Predefined directions
   //
@@ -177,11 +177,11 @@ Precision VUnplacedVolume::EstimateSurfaceArea(int nStat) const
 
   // Define statistics and shell thickness
   //
-  int npoints   = (nStat < 1000) ? 1000 : nStat;
-  double coeff  = 0.5 / Cbrt(double(npoints));
-  double eps    = coeff * bdim.Min(); // half thickness
-  double twoeps = 2. * eps;
-  double del    = 1.8 * eps; // six-point offset - should be more than sqrt(3.)
+  int npoints      = (nStat < 1000) ? 1000 : nStat;
+  Precision coeff  = 0.5 / Cbrt(Precision(npoints));
+  Precision eps    = coeff * bdim.Min(); // half thickness
+  Precision twoeps = 2. * eps;
+  Precision del    = 1.8 * eps; // six-point offset - should be more than sqrt(3.)
 
   // Enlarge bounding box by eps
   //
@@ -192,12 +192,12 @@ Precision VUnplacedVolume::EstimateSurfaceArea(int nStat) const
   //
   int icount = 0;
   for (int i = 0; i < npoints; ++i) {
-    double px = bmin.x() + bdim.x() * RNG::Instance().uniform();
-    double py = bmin.y() + bdim.y() * RNG::Instance().uniform();
-    double pz = bmin.z() + bdim.z() * RNG::Instance().uniform();
+    Precision px = bmin.x() + bdim.x() * RNG::Instance().uniform();
+    Precision py = bmin.y() + bdim.y() * RNG::Instance().uniform();
+    Precision pz = bmin.z() + bdim.z() * RNG::Instance().uniform();
     Vec3D p(px, py, pz);
-    EnumInside in = this->Inside(p);
-    double dist   = 0;
+    EnumInside in  = this->Inside(p);
+    Precision dist = 0;
     if (in == EInside::kInside) {
       if (this->SafetyToOut(p) >= eps) continue;
       int icase = 0;
@@ -237,9 +237,9 @@ Precision VUnplacedVolume::EstimateSurfaceArea(int nStat) const
 
 // estimating the cubic volume by sampling
 // based on the method of G4
-double VUnplacedVolume::EstimateCapacity(int nStat) const
+Precision VUnplacedVolume::EstimateCapacity(int nStat) const
 {
-  double epsilon = 1E-4;
+  Precision epsilon = 1E-4;
 
   // limits
   if (nStat < 100) nStat = 100;

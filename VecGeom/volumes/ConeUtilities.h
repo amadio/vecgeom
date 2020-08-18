@@ -16,9 +16,6 @@
 #include "VecGeom/volumes/kernel/TubeImplementation.h"
 #include <cstdio>
 
-#define kConeTolerance 1e-7
-#define kHalfConeTolerance 0.5 * kConeTolerance
-
 namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -26,7 +23,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedCone;
 template <typename T>
 struct ConeStruct;
-using UnplacedStruct_t = ConeStruct<double>;
+using UnplacedStruct_t = ConeStruct<Precision>;
 
 namespace ConeUtilities {
 
@@ -170,9 +167,9 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
   // this depends whether we use it for DistanceToIn or DistanceToOut
   // Note: wedge normals poing towards the wedge inside, by convention!
   if (insectorCheck)
-    ok = ((dir.x() * normalX) + (dir.y() * normalY) > 0.); // DistToIn  -- require tracks entering volume
+    ok = ((dir.x() * normalX) + (dir.y() * normalY) > Real_v(0.)); // DistToIn  -- require tracks entering volume
   else
-    ok = ((dir.x() * normalX) + (dir.y() * normalY) < 0.); // DistToOut -- require tracks leaving volume
+    ok = ((dir.x() * normalX) + (dir.y() * normalY) < Real_v(0.)); // DistToOut -- require tracks leaving volume
 
   // if( /*Backend::early_returns &&*/ vecCore::MaskEmpty(ok) ) return;
 
@@ -195,13 +192,13 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
     // if(insector){} requires PosDirPhiVec==true to run
     //  --> shapeTester still finishes OK (no mismatches) (some cycles saved...)
     if (PositiveDirectionOfPhiVector) {
-      ok = ok && ((hitx * alongX) + (hity * alongY)) > 0.;
+      ok = ok && ((hitx * alongX) + (hity * alongY)) > Real_v(0.);
     }
   } else {
     if (PositiveDirectionOfPhiVector) {
       Real_v hitx = pos.x() + dist * dir.x();
       Real_v hity = pos.y() + dist * dir.y();
-      ok          = ok && ((hitx * alongX) + (hity * alongY)) >= 0.;
+      ok          = ok && ((hitx * alongX) + (hity * alongY)) >= Real_v(0.);
     }
   }
 }
@@ -264,7 +261,7 @@ static typename vecCore::Mask_v<Real_v> IsMovingOutsideConicalSurface(UnplacedSt
                                                                       Vector3D<Real_v> const &direction)
 {
   return IsOnConicalSurface<Real_v, ForInnerSurface>(cone, point) &&
-         (direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) >= 0.);
+         (direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) >= Real_v(0.));
 }
 
 template <typename Real_v, bool ForInnerSurface>
@@ -275,7 +272,7 @@ static typename vecCore::Mask_v<Real_v> IsMovingInsideConicalSurface(UnplacedStr
                                                                      Vector3D<Real_v> const &direction)
 {
   return IsOnConicalSurface<Real_v, ForInnerSurface>(cone, point) &&
-         (direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) <= 0.);
+         (direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) <= Real_v(0.));
 }
 
 template <typename Real_v>
@@ -308,11 +305,12 @@ static typename vecCore::Mask_v<Real_v> IsOnZPlaneAndMovingInside(UnplacedStruct
 
   if (ForTopPlane) {
     return (rho > (cone.fSqRmin2 - kHalfConeTolerance)) && (rho < (cone.fSqRmax2 + kHalfConeTolerance)) &&
-           (point.z() < (fDz + kHalfConeTolerance)) && (point.z() > (fDz - kHalfConeTolerance)) && (direction.z() < 0.);
+           (point.z() < (fDz + kHalfConeTolerance)) && (point.z() > (fDz - kHalfConeTolerance)) &&
+           (direction.z() < Real_v(0.));
   } else {
     return (rho > (cone.fSqRmin1 - kHalfConeTolerance)) && (rho < (cone.fSqRmax1 + kHalfConeTolerance)) &&
            (point.z() < (-fDz + kHalfConeTolerance)) && (point.z() > (-fDz - kHalfConeTolerance)) &&
-           (direction.z() > 0.);
+           (direction.z() > Real_v(0.));
   }
 }
 
@@ -328,7 +326,8 @@ static typename vecCore::Mask_v<Real_v> IsOnZPlaneAndMovingOutside(UnplacedStruc
 
   if (ForTopPlane) {
     return (rho > (cone.fSqRmin2 - kHalfConeTolerance)) && (rho < (cone.fSqRmax2 + kHalfConeTolerance)) &&
-           (point.z() < (fDz + kHalfConeTolerance)) && (point.z() > (fDz - kHalfConeTolerance)) && (direction.z() > 0.);
+           (point.z() < (fDz + kHalfConeTolerance)) && (point.z() > (fDz - kHalfConeTolerance)) &&
+           (direction.z() > Real_v(0.));
   } else {
     return (rho > (cone.fSqRmin1 - kHalfConeTolerance)) && (rho < (cone.fSqRmax1 + kHalfConeTolerance)) &&
            (point.z() < (-fDz + kHalfConeTolerance)) && (point.z() > (-fDz - kHalfConeTolerance)) &&
@@ -433,14 +432,14 @@ public:
 
       Real_v delta = Sqrt(vecCore::math::Abs(d2));
       if (ForDistToIn) {
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b >= Real_v(0.)), (c / NonZero(-b - delta)));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b < Real_v(0.)), (-b + delta) / NonZero(a));
       } else {
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b >= 0.), (-b - delta) / NonZero(a));
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b >= Real_v(0.)), (-b - delta) / NonZero(a));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b < Real_v(0.)), (c / NonZero(-b + delta)));
       }
 
-      if (vecCore::MaskFull(distance < 0.)) return Bool_t(false);
+      if (vecCore::MaskFull(distance < Real_v(0.))) return Bool_t(false);
       Real_v newZ = point.z() + (direction.z() * distance);
       ok          = (Abs(newZ) < fDz);
 
@@ -472,21 +471,21 @@ public:
       Real_v delta = Sqrt(vecCore::math::Abs(d2));
 
       if (ForDistToIn) {
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b > 0.), (-b - delta) / NonZero(a));
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b > Real_v(0.)), (-b - delta) / NonZero(a));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b < Real_v(0.)), (c / NonZero(-b + delta)));
       } else {
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
-        ok = distance > 0.;
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b < Real_v(0.)), (-b + delta) / NonZero(a));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b >= Real_v(0.)), (c / NonZero(-b - delta)));
+        ok = distance > Real_v(0.);
       }
 
-      if (vecCore::MaskFull(distance < 0.)) return Bool_t(false);
+      if (vecCore::MaskFull(distance < Real_v(0.))) return Bool_t(false);
       if (ForDistToIn) {
         Real_v newZ = point.z() + (direction.z() * distance);
         ok          = (Abs(newZ) < cone.fDz + kHalfTolerance);
       }
     }
-    vecCore__MaskedAssignFunc(distance, distance < 0., Real_v(kInfLength));
+    vecCore__MaskedAssignFunc(distance, distance < Real_v(0.), Real_v(kInfLength));
 
     if (checkPhiTreatment<coneTypeT>(cone)) {
       Real_v hitx(0), hity(0), hitz(0);

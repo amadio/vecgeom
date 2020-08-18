@@ -112,8 +112,8 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
   using Bool_v = vecCore::Mask_v<Real_v>;
 
   Real_v delta = b * b - c;
-  ok           = delta > 0.0;
-  if (LargestSolution) ok |= delta == 0.; // this takes care of scratching conventions
+  ok           = delta > Real_v(0.);
+  if (LargestSolution) ok |= delta == Real_v(0.); // this takes care of scratching conventions
 
   vecCore::MaskedAssign(delta, !ok, Real_v(0.));
   delta = Sqrt(delta);
@@ -270,9 +270,9 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
   // this depends whether we use it for DistanceToIn or DistanceToOut
   // Note: wedge normals poing towards the wedge inside, by convention!
   if (insectorCheck)
-    ok = (dir.x() * normalX + dir.y() * normalY > 0.); // DistToIn  -- require tracks entering volume
+    ok = (dir.x() * normalX + dir.y() * normalY > Real_v(0.)); // DistToIn  -- require tracks entering volume
   else
-    ok = (dir.x() * normalX + dir.y() * normalY < 0.); // DistToOut -- require tracks leaving volume
+    ok = (dir.x() * normalX + dir.y() * normalY < Real_v(0.)); // DistToOut -- require tracks leaving volume
 
   // if( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok) ) return;
 
@@ -292,13 +292,13 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
     // if(insector){} requires PosDirPhiVec==true to run
     //  --> shapeTester still finishes OK (no mismatches) (some cycles saved...)
     if (PositiveDirectionOfPhiVector) {
-      ok = ok && (hitx * alongX + hity * alongY) > 0.;
+      ok = ok && (hitx * alongX + hity * alongY) > Real_v(0.);
     }
   } else {
     if (PositiveDirectionOfPhiVector) {
       Real_v hitx = pos.x() + dist * dir.x();
       Real_v hity = pos.y() + dist * dir.y();
-      ok          = ok && (hitx * alongX + hity * alongY) >= 0.;
+      ok          = ok && (hitx * alongX + hity * alongY) >= Real_v(0.);
     }
   }
 }
@@ -338,7 +338,7 @@ typename vecCore::Mask_v<Real_v> IsMovingInsideTubeSurface(UnplacedStruct_t cons
                                                            Vector3D<Real_v> const &direction)
 {
   return IsOnTubeSurface<Real_v, UnplacedStruct_t, ForInnerSurface>(tube, point) &&
-         (direction.Dot(GetNormal<Real_v, ForInnerSurface>(point)) <= 0.);
+         (direction.Dot(GetNormal<Real_v, ForInnerSurface>(point)) <= Real_v(0.));
 }
 
 } // namespace TubeUtilities
@@ -350,7 +350,7 @@ class SUnplacedTube;
 template <typename tubeTypeT>
 struct TubeImplementation {
 
-  using UnplacedStruct_t = ::vecgeom::TubeStruct<double>;
+  using UnplacedStruct_t = ::vecgeom::TubeStruct<Precision>;
   using UnplacedVolume_t = SUnplacedTube<tubeTypeT>;
   using PlacedShape_t    = SPlacedTube<UnplacedVolume_t>;
 
@@ -603,7 +603,7 @@ struct TubeImplementation {
     //=== Next step: intersection of the trajectories with the two circles
 
     // Here for values used in both rmin and rmax calculations
-    Real_v invnsq = 1.0 / NonZero(1.0 - dir.z() * dir.z());
+    Real_v invnsq = Real_v(1.) / NonZero(Real_v(1.) - dir.z() * dir.z());
     Real_v b      = invnsq * rdotn;
 
     /*
@@ -724,17 +724,17 @@ struct TubeImplementation {
     // smallest of possible intersections
     vecCore::MaskedAssign(distance, !done, Real_v(kInfLength));
 
-    Real_v invdirz = 1. / NonZero(dir.z());
+    Real_v invdirz = Real_v(1.) / NonZero(dir.z());
     distz          = (tube.fZ - point.z()) * invdirz;
     vecCore__MaskedAssignFunc(distz, dir.z() < 0, (-tube.fZ - point.z()) * invdirz);
-    vecCore::MaskedAssign(distance, !done && dir.z() != 0. && distz < distance, distz);
+    vecCore::MaskedAssign(distance, !done && dir.z() != Real_v(0.) && distz < distance, distz);
 
     /*
      * Find the intersection of the trajectories with the two circles.
      * Here I compute values used in both rmin and rmax calculations.
      */
 
-    Real_v invnsq = 1. / NonZero(1. - dir.z() * dir.z());
+    Real_v invnsq = Real_v(1.) / NonZero(Real_v(1.) - dir.z() * dir.z());
     Real_v b      = invnsq * rdotn;
 
     /*
@@ -818,8 +818,8 @@ struct TubeImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void SafetyAssign(Real_v safety, Real_v &positiveSafety, Real_v &negativeSafety)
   {
-    vecCore::MaskedAssign(positiveSafety, safety >= 0. && safety < positiveSafety, safety);
-    vecCore::MaskedAssign(negativeSafety, safety <= 0. && safety > negativeSafety, safety);
+    vecCore::MaskedAssign(positiveSafety, safety >= Real_v(0.) && safety < positiveSafety, safety);
+    vecCore::MaskedAssign(negativeSafety, safety <= Real_v(0.) && safety > negativeSafety, safety);
   }
 
   /** SafetyKernel finds distances from point to each face of the tube,
@@ -964,10 +964,10 @@ struct TubeImplementation {
     Real_v radius   = point.Perp();
     Real_v distRMax = vecCore::math::Abs(radius - unplaced.fRmax);
     Real_v distRMin = kInfLength;
-    vecCore__MaskedAssignFunc(distRMax, distRMax < 0.0, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distRMax, distRMax < Real_v(0.), InfinityLength<Real_v>());
     if (unplaced.fRmin) {
       distRMin = Abs(unplaced.fRmin - radius);
-      vecCore__MaskedAssignFunc(distRMin, distRMin < 0.0, InfinityLength<Real_v>());
+      vecCore__MaskedAssignFunc(distRMin, distRMin < Real_v(0.), InfinityLength<Real_v>());
     }
     Real_v distMin = Min(distRMin, distRMax);
 
@@ -976,14 +976,14 @@ struct TubeImplementation {
       distPhi1 = point.x() * unplaced.fPhiWedge.GetNormal1().x() + point.y() * unplaced.fPhiWedge.GetNormal1().y();
       distPhi2 = point.x() * unplaced.fPhiWedge.GetNormal2().x() + point.y() * unplaced.fPhiWedge.GetNormal2().y();
 
-      vecCore__MaskedAssignFunc(distPhi1, distPhi1 < 0.0, InfinityLength<Real_v>());
-      vecCore__MaskedAssignFunc(distPhi2, distPhi2 < 0.0, InfinityLength<Real_v>());
+      vecCore__MaskedAssignFunc(distPhi1, distPhi1 < Real_v(0.), InfinityLength<Real_v>());
+      vecCore__MaskedAssignFunc(distPhi2, distPhi2 < Real_v(0.), InfinityLength<Real_v>());
       distMin = Min(distMin, Min(distPhi1, distPhi2));
     }
 
     Real_v distZ = kInfLength;
-    vecCore__MaskedAssignFunc(distZ, point.z() < 0., vecCore::math::Abs(point.z() + unplaced.fZ));
-    vecCore__MaskedAssignFunc(distZ, point.z() >= 0., vecCore::math::Abs(point.z() - unplaced.fZ));
+    vecCore__MaskedAssignFunc(distZ, point.z() < Real_v(0.), vecCore::math::Abs(point.z() + unplaced.fZ));
+    vecCore__MaskedAssignFunc(distZ, point.z() >= Real_v(0.), vecCore::math::Abs(point.z() - unplaced.fZ));
     distMin = Min(distMin, distZ);
 
     if (unplaced.fDphi) {
@@ -993,12 +993,12 @@ struct TubeImplementation {
       vecCore__MaskedAssignFunc(norm, distMin == distPhi2, -normal2);
     }
 
-    vecCore__MaskedAssignFunc(norm, (distMin == distZ) && (point.z() < 0.), Vector3D<Real_v>(0., 0., -1.));
-    vecCore__MaskedAssignFunc(norm, (distMin == distZ) && (point.z() >= 0.), Vector3D<Real_v>(0., 0., 1.));
+    vecCore__MaskedAssignFunc(norm, (distMin == distZ) && (point.z() < Real_v(0.)), Vector3D<Real_v>(0., 0., -1.));
+    vecCore__MaskedAssignFunc(norm, (distMin == distZ) && (point.z() >= Real_v(0.)), Vector3D<Real_v>(0., 0., 1.));
 
     if (vecCore::math::Abs(point.z()) < (unplaced.fZ + kTolerance)) {
       Vector3D<Real_v> temp = point;
-      temp.z()              = 0.;
+      temp.z()              = Real_v(0.);
       vecCore__MaskedAssignFunc(norm, distMin == distRMax, temp.Unit());
       if (unplaced.fRmin) vecCore__MaskedAssignFunc(norm, distMin == distRMin, -temp.Unit());
     }
@@ -1029,19 +1029,15 @@ struct TubeImplementation {
     // bool inPhi = fWedge.Contains(point);
     // can we combine these two into one??
     if (inR && (Abs(point.z() - unplaced.fZ) <= kTolerance)) { // top lid, normal along +Z
-      norm[0] = 0.;
-      norm[1] = 0.;
-      norm[2] = 1.;
+      norm.Set(0., 0., 1.);
       nosurface++;
     }
     if (inR && (Abs(point.z() + unplaced.fZ) <= kTolerance)) { // bottom base, normal along -Z
       if (nosurface > 0) {
         // norm exists already; just add to it
-        norm[2] += -1;
+        norm[2] += Real_v(-1.);
       } else {
-        norm[0] = 0.0;
-        norm[1] = 0.0;
-        norm[2] = -1;
+        norm.Set(0., 0., -1.);
       }
       nosurface++;
     }
@@ -1051,7 +1047,7 @@ struct TubeImplementation {
         if (nosurface == 0) {
           norm[0] = -point[0] * invx2y2;
           norm[1] = -point[1] * invx2y2; // -ve due to inwards
-          norm[2] = 0.0;
+          norm[2] = Real_v(0.);
         } else {
           norm[0] += -point[0] * invx2y2;
           norm[1] += -point[1] * invx2y2;
@@ -1067,7 +1063,7 @@ struct TubeImplementation {
       } else {
         norm[0] = point[0] * invx2y2;
         norm[1] = point[1] * invx2y2;
-        norm[2] = 0.0;
+        norm[2] = Real_v(0.);
       }
       nosurface++;
     }

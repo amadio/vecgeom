@@ -34,7 +34,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedParallelepiped : public SIMDUnplacedVolumeImplHelper<ParallelepipedImplementation>, public AlignedBase {
 
 private:
-  ParallelepipedStruct<double> fPara; ///< The parallelepiped structure
+  ParallelepipedStruct<Precision> fPara; ///< The parallelepiped structure
 
 public:
   using Kernel = ParallelepipedImplementation;
@@ -73,7 +73,7 @@ public:
 
   /// Getter for the structure storing parallepiped data.
   VECCORE_ATT_HOST_DEVICE
-  ParallelepipedStruct<double> const &GetStruct() const { return fPara; }
+  ParallelepipedStruct<Precision> const &GetStruct() const { return fPara; }
 
   /// Getter for parallelepiped dimensions
   VECCORE_ATT_HOST_DEVICE

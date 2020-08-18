@@ -13,7 +13,8 @@
 #endif
 const double kApproxEqualTolerance = 1E-6;
 
-using Vec_t = vecgeom::Vector3D<double>;
+using vecgeom::Precision;
+using Vec_t = vecgeom::Vector3D<Precision>;
 
 struct ShapeTesterErrorList {
   std::string fMessage;
@@ -38,13 +39,13 @@ public:
   inline void SetFilename(const std::string &newFilename) { fFilename = newFilename; }
   inline void SetMaxPoints(const int newMaxPoints) { fMaxPoints = newMaxPoints; }
   inline void SetMethod(const std::string &newMethod) { fMethod = newMethod; }
-  inline void SetInsidePercent(const double percent) { fInsidePercent = percent; }
-  inline void SetOutsidePercent(const double percent) { fOutsidePercent = percent; }
-  inline void SetEdgePercent(const double percent) { fEdgePercent = percent; }
-  inline void SetOutsideMaxRadiusMultiple(const double percent) { fOutsideMaxRadiusMultiple = percent; }
-  inline void SetOutsideRandomDirectionPercent(const double percent) { fOutsideRandomDirectionPercent = percent; }
+  inline void SetInsidePercent(const Precision percent) { fInsidePercent = percent; }
+  inline void SetOutsidePercent(const Precision percent) { fOutsidePercent = percent; }
+  inline void SetEdgePercent(const Precision percent) { fEdgePercent = percent; }
+  inline void SetOutsideMaxRadiusMultiple(const Precision percent) { fOutsideMaxRadiusMultiple = percent; }
+  inline void SetOutsideRandomDirectionPercent(const Precision percent) { fOutsideRandomDirectionPercent = percent; }
   inline void SetSaveAllData(const bool safe) { fIfSaveAllData = safe; }
-  inline void SetSolidTolerance(double value) { fSolidTolerance = value; }
+  inline void SetSolidTolerance(Precision value) { fSolidTolerance = value; }
   inline void SetTestBoundaryErrors(bool flag) { fTestBoundaryErrors = flag; }
   void SetFolder(const std::string &newFolder);
   void SetVerbose(int verbose) { fVerbose = verbose; }
@@ -102,10 +103,10 @@ private:
   int ShapeSafetyFromInside(int max);
   int ShapeSafetyFromOutside(int max);
 
-  void PropagatedNormal(const Vec_t &point, const Vec_t &direction, double distance, Vec_t &normal);
-  void PropagatedNormalU(const Vec_t &point, const Vec_t &direction, double distance, Vec_t &normal);
+  void PropagatedNormal(const Vec_t &point, const Vec_t &direction, Precision distance, Vec_t &normal);
+  void PropagatedNormalU(const Vec_t &point, const Vec_t &direction, Precision distance, Vec_t &normal);
   int TestDistanceToInSolids();
-  int TestAccuracyDistanceToIn(double dist);
+  int TestAccuracyDistanceToIn(Precision dist);
   int ShapeDistances();
   int TestFarAwayPoint();
   int TestDistanceToOutSolids();
@@ -131,11 +132,12 @@ private:
   int TestMethodAll();
 
   // This was needed because of different signature in VecGeom vs. USolids
-  double CallDistanceToOut(ImplT const *vol, const Vec_t &point, const Vec_t &dir, Vec_t &normal, bool convex) const;
+  Precision CallDistanceToOut(ImplT const *vol, const Vec_t &point, const Vec_t &dir, Vec_t &normal, bool convex) const;
 
-  inline double RandomRange(double min, double max)
+  template <typename Type>
+  inline Type RandomRange(Type min, Type max)
   {
-    double rand = min + (max - min) * fRNG.uniform();
+    Type rand = min + (max - min) * fRNG.uniform();
     return rand;
   }
 
@@ -172,13 +174,13 @@ protected:
 
   // ALL DATA MEMBERS
 protected:
-  int fMaxPoints;                        // Maximum num. of points to be generated for ShapeTester Tests.
-  int fVerbose;                          // Variable to set verbose
-  double fInsidePercent;                 // Percentage of inside points
-  double fOutsidePercent;                // Percentage of outside points
-  double fEdgePercent;                   // Percentage of edge points
-  double fOutsideMaxRadiusMultiple;      // Range of outside points
-  double fOutsideRandomDirectionPercent; // Percentage of outside random direction
+  int fMaxPoints;                           // Maximum num. of points to be generated for ShapeTester Tests.
+  int fVerbose;                             // Variable to set verbose
+  Precision fInsidePercent;                 // Percentage of inside points
+  Precision fOutsidePercent;                // Percentage of outside points
+  Precision fEdgePercent;                   // Percentage of edge points
+  Precision fOutsideMaxRadiusMultiple;      // Range of outside points
+  Precision fOutsideRandomDirectionPercent; // Percentage of outside random direction
 
   // XRay profile statistics
   int fGNumberOfScans;         // data member to store the number of different scan angle used for XRay profile

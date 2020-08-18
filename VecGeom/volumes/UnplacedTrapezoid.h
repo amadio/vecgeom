@@ -85,14 +85,14 @@ public:
   /// \brief Constructor required by Geant4
   VECCORE_ATT_HOST_DEVICE
   // Constructor corresponding to Trd1
-  UnplacedTrapezoid(double dx1, double dx2, double dy, double dz);
+  UnplacedTrapezoid(Precision dx1, Precision dx2, Precision dy, Precision dz);
 
   // Constructor corresponding to Trd2
   /// \brief Constructor for a Trd-like trapezoid
-  UnplacedTrapezoid(double dx1, double dx2, double dy1, double dy2, double dz);
+  UnplacedTrapezoid(Precision dx1, Precision dx2, Precision dy1, Precision dy2, Precision dz);
 
   /// \brief Constructor for a Parallelepiped-like trapezoid (Note: still to be validated)
-  UnplacedTrapezoid(double dx, double dy, double dz, double alpha, double theta, double phi);
+  UnplacedTrapezoid(Precision dx, Precision dy, Precision dz, Precision alpha, Precision theta, Precision phi);
 
   /// \brief Accessors
   /// @{
@@ -374,7 +374,7 @@ public:
   //   PlaneShell<4,Precision> const *GetPlanes() const { return fTrap.GetPlanes(); }
 
   // #else
-  //   using TrapSidePlane = TrapezoidStruct<double>::TrapSidePlane;
+  //   using TrapSidePlane = TrapezoidStruct<Precision>::TrapSidePlane;
   //   VECCORE_ATT_HOST_DEVICE
   //   TrapSidePlane const *GetPlanes() const { return fTrap.GetPlanes(); }
   // #endif
@@ -408,7 +408,7 @@ private:
 #else
   VECCORE_ATT_HOST_DEVICE
   bool MakeAPlane(Vector3D<Precision> const &p1, Vector3D<Precision> const &p2, Vector3D<Precision> const &p3,
-                  Vector3D<Precision> const &p4, TrapezoidStruct<double>::TrapSidePlane &plane);
+                  Vector3D<Precision> const &p4, TrapezoidStruct<Precision>::TrapSidePlane &plane);
 #endif
 
 public:

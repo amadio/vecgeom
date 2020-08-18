@@ -436,9 +436,9 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
 
     // fix dimensions - (requires making a copy of some arrays)
     const int NZs = pgon->GetNz();
-    double zs[NZs];
-    double rmins[NZs];
-    double rmaxs[NZs];
+    Precision zs[NZs];
+    Precision rmins[NZs];
+    Precision rmaxs[NZs];
     for (int i = 0; i < NZs; ++i) {
       zs[i]    = pgon->GetZ()[i] * LUnit();
       rmins[i] = pgon->GetRmin()[i] * LUnit();
@@ -566,9 +566,9 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
 
     // fix dimensions - (requires making a copy of some arrays)
     const int NZs = p->GetNz();
-    double zs[NZs];
-    double rmins[NZs];
-    double rmaxs[NZs];
+    Precision zs[NZs];
+    Precision rmins[NZs];
+    Precision rmaxs[NZs];
     for (int i = 0; i < NZs; ++i) {
       zs[i]    = p->GetZ()[i] * LUnit();
       rmins[i] = p->GetRmin()[i] * LUnit();
@@ -616,8 +616,8 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     size_t Nsect = (size_t)p->GetNz();
     if (Nsect == 2 && p->GetXOffset(0) == p->GetXOffset(1) && p->GetYOffset(0) == p->GetYOffset(1) &&
         p->GetScale(0) == p->GetScale(1)) {
-      double *x = new double[Nvert];
-      double *y = new double[Nvert];
+      Precision *x = new Precision[Nvert];
+      Precision *y = new Precision[Nvert];
       for (size_t i = 0; i < Nvert; ++i) {
         // Normally offsets should be 0 and scales should be 1, but just to be safe
         x[i] = LUnit() * (p->GetXOffset(0) + p->GetX(i) * p->GetScale(0));

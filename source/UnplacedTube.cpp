@@ -29,43 +29,38 @@ void UnplacedTube::Print(std::ostream &os) const
 #ifndef VECCORE_CUDA
 SolidMesh *UnplacedTube::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
 
   SolidMesh *sm = new SolidMesh();
 
-  sm->ResetMesh(4*(nSegments + 1), 4*nSegments + 2);
+  sm->ResetMesh(4 * (nSegments + 1), 4 * nSegments + 2);
 
   // fill vertex array
-  Vec_t *vertices = new Vec_t[4*(nSegments + 1)];
-
-
+  Vec_t *vertices = new Vec_t[4 * (nSegments + 1)];
 
   size_t idx  = 0;
   size_t idx1 = (nSegments + 1);
   size_t idx2 = 2 * (nSegments + 1);
   size_t idx3 = 3 * (nSegments + 1);
 
-  double phi      = sphi();
-  double phi_step = dphi() / nSegments;
+  Precision phi      = sphi();
+  Precision phi_step = dphi() / nSegments;
 
-  double x, y;
+  Precision x, y;
   for (size_t i = 0; i <= nSegments; i++, phi += phi_step) {
-    x               = rmax() * std::cos(phi);
-    y               = rmax() * std::sin(phi);
-    vertices[idx++] = Vec_t(x, y, z()); // top outer
+    x                = rmax() * std::cos(phi);
+    y                = rmax() * std::sin(phi);
+    vertices[idx++]  = Vec_t(x, y, z());  // top outer
     vertices[idx1++] = Vec_t(x, y, -z()); // bottom outer
     x                = rmin() * std::cos(phi);
     y                = rmin() * std::sin(phi);
-    vertices[idx2++] = Vec_t(x, y, z()); // top inner
+    vertices[idx2++] = Vec_t(x, y, z());  // top inner
     vertices[idx3++] = Vec_t(x, y, -z()); // bottom inner
   }
 
-
-
-  sm->SetVertices(vertices, 4*(nSegments + 1));
+  sm->SetVertices(vertices, 4 * (nSegments + 1));
   delete[] vertices;
   sm->TransformVertices(trans);
-
 
   for (size_t i = 0, j = nSegments + 1; i < nSegments; i++, j++) {
     sm->AddPolygon(4, {i, j, j + 1, i + 1}, true); // OUTER
@@ -89,7 +84,6 @@ SolidMesh *UnplacedTube::CreateMesh3D(Transformation3D const &trans, size_t nSeg
         4, {nSegments, nSegments + nSegments + 1, nSegments + 3 * (nSegments + 1), nSegments + 2 * (nSegments + 1)},
         true);
   }
-
 
   return sm;
 }
@@ -183,7 +177,7 @@ Vector3D<Precision> UnplacedTube::SamplePointOnSurface() const
 bool UnplacedTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
 {
   bool valid = true;
-  TubeImplementation<TubeTypes::UniversalTube>::NormalKernel<double, bool>(fTube, point, norm, valid);
+  TubeImplementation<TubeTypes::UniversalTube>::NormalKernel<Precision, bool>(fTube, point, norm, valid);
   return valid;
 }
 

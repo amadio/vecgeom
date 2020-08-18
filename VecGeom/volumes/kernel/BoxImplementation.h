@@ -32,7 +32,7 @@ class UnplacedBox;
 struct BoxImplementation {
 
   using PlacedShape_t    = PlacedBox;
-  using UnplacedStruct_t = BoxStruct<double>;
+  using UnplacedStruct_t = BoxStruct<Precision>;
   using UnplacedVolume_t = UnplacedBox;
 
   VECCORE_ATT_HOST_DEVICE
@@ -203,8 +203,8 @@ struct BoxImplementation {
     Precision tmin, tmax, tymin, tymax, tzmin, tzmax;
 
     // IF THERE IS A STEPMAX; COULD ALSO CHECK SAFETIES
-    double inverserayx = 1. / ray[0];
-    double inverserayy = 1. / ray[1];
+    Precision inverserayx = 1. / ray[0];
+    Precision inverserayy = 1. / ray[1];
 
     // TODO: we should promote this to handle multiple boxes
     int sign[3];
@@ -218,8 +218,8 @@ struct BoxImplementation {
 
     if ((tmin > tymax) || (tymin > tmax)) return false;
 
-    double inverserayz = 1. / ray.z();
-    sign[2]            = inverserayz < 0;
+    Precision inverserayz = 1. / ray.z();
+    sign[2]               = inverserayz < 0;
 
     if (tymin > tmin) tmin = tymin;
     if (tymax < tmax) tmax = tymax;
@@ -404,10 +404,10 @@ struct BoxImplementation {
     // tymin = (corners[(int)(sign[1])].y()   -point.y())*inverserayy;
     // tymax = (corners[(int)(1-sign[1])].y() -point.y())*inverserayy;
 
-    double x0 = (lowercorners.x() - point.x()) * inverseray.x();
-    double x1 = (uppercorners.x() - point.x()) * inverseray.x();
-    double y0 = (lowercorners.y() - point.y()) * inverseray.y();
-    double y1 = (uppercorners.y() - point.y()) * inverseray.y();
+    Precision x0 = (lowercorners.x() - point.x()) * inverseray.x();
+    Precision x1 = (uppercorners.x() - point.x()) * inverseray.x();
+    Precision y0 = (lowercorners.y() - point.y()) * inverseray.y();
+    Precision y1 = (uppercorners.y() - point.y()) * inverseray.y();
     // could we do this using multiplications?
     //    tmin =   !sign[0] ?  x0 : x1;
     //    tmax =   sign[0] ? x0 : x1;
@@ -427,7 +427,7 @@ struct BoxImplementation {
 
     if ((tmin > tymax) || (tymin > tmax)) return InfinityLength<Precision>();
 
-    //  double inverserayz = 1./ray.z();
+    //  Precision inverserayz = 1./ray.z();
     sign[2] = inverseray.z() < 0;
 
     if (tymin > tmin) tmin = tymin;

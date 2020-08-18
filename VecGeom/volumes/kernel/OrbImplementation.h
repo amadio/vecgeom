@@ -35,7 +35,7 @@ class UnplacedOrb;
 struct OrbImplementation {
 
   using PlacedShape_t    = PlacedOrb;
-  using UnplacedStruct_t = OrbStruct<double>;
+  using UnplacedStruct_t = OrbStruct<Precision>;
   using UnplacedVolume_t = UnplacedOrb;
 
   VECCORE_ATT_HOST_DEVICE
@@ -123,7 +123,7 @@ struct OrbImplementation {
 
     Real_v pDotV3D          = point.Dot(direction);
     Bool_v isPointOnSurface = (rad >= Real_v(orb.fR - kTolerance)) && (rad <= Real_v(orb.fR + kTolerance));
-    Bool_v cond             = (isPointOnSurface && (pDotV3D < 0.));
+    Bool_v cond             = (isPointOnSurface && (pDotV3D < Real_v(0.)));
     vecCore__MaskedAssignFunc(distance, !done && cond, Real_v(0.));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
@@ -150,7 +150,7 @@ struct OrbImplementation {
 
     Real_v pDotV3D          = point.Dot(direction);
     Bool_v isPointOnSurface = (rad >= Real_v(orb.fR - kTolerance)) && (rad <= Real_v(orb.fR + kTolerance));
-    Bool_v cond             = (isPointOnSurface && (pDotV3D > 0.));
+    Bool_v cond             = (isPointOnSurface && (pDotV3D > Real_v(0.)));
     vecCore__MaskedAssignFunc(distance, !done && cond, Real_v(0.));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
@@ -212,12 +212,12 @@ struct OrbImplementation {
     Real_v d2      = (pDotV3D * pDotV3D - c);
 
     if (ForDistanceToIn) {
-      Bool_v cond = ((d2 >= 0.) && (pDotV3D <= 0.));
+      Bool_v cond = ((d2 >= Real_v(0.)) && (pDotV3D <= Real_v(0.)));
       vecCore__MaskedAssignFunc(distance, cond, (-pDotV3D - Sqrt(vecCore::math::Abs(d2))));
       return cond;
     } else {
-      vecCore__MaskedAssignFunc(distance, (d2 >= 0.), (-pDotV3D + Sqrt(vecCore::math::Abs(d2))));
-      return (d2 >= 0.);
+      vecCore__MaskedAssignFunc(distance, (d2 >= Real_v(0.)), (-pDotV3D + Sqrt(vecCore::math::Abs(d2))));
+      return (d2 >= Real_v(0.));
     }
   }
 

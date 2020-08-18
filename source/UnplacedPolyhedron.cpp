@@ -580,13 +580,13 @@ void UnplacedPolyhedron::DetectConvexity()
 SolidMesh *UnplacedPolyhedron::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
 
   SolidMesh *sm = new SolidMesh();
 
   size_t n      = GetZSegmentCount();
   size_t nSides = GetSideCount();
-  double k      = std::cos(0.5 * GetPhiDelta() / nSides); // divide R_side by k to get the R_corner
+  Precision k   = std::cos(0.5 * GetPhiDelta() / nSides); // divide R_side by k to get the R_corner
 
   Vec_t *vertices = new Vec_t[2 * (n + 1) * (nSides + 1)];
   size_t idx      = 0;

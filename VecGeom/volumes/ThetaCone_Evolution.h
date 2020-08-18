@@ -71,14 +71,14 @@ public:
     if (fSTheta > kPi / 2) tempfSTheta = kPi - fSTheta;
     if (fETheta > kPi / 2) tempfETheta = kPi - fETheta;
 
-    tanSTheta                                               = tan(tempfSTheta);
-    tanSTheta2                                              = tanSTheta * tanSTheta;
-    tanETheta                                               = tan(tempfETheta);
-    tanETheta2                                              = tanETheta * tanETheta;
-    tanBisector                                             = tan(tempfSTheta + (fDTheta / 2));
+    tanSTheta   = tan(tempfSTheta);
+    tanSTheta2  = tanSTheta * tanSTheta;
+    tanETheta   = tan(tempfETheta);
+    tanETheta2  = tanETheta * tanETheta;
+    tanBisector = tan(tempfSTheta + (fDTheta / 2));
     if (fSTheta > kPi / 2 && fETheta > kPi / 2) tanBisector = tan(tempfSTheta - (fDTheta / 2));
-    slope1                                                  = tan(kPi / 2 - fSTheta);
-    slope2                                                  = tan(kPi / 2 - fETheta);
+    slope1 = tan(kPi / 2 - fSTheta);
+    slope2 = tan(kPi / 2 - fETheta);
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -117,12 +117,12 @@ public:
   }
 
   /* Function to calculate normal at a point to the Cone formed at
-  *  by EndTheta.
-  *
-  * @inputs : Vector3D : Point at which normal needs to be calculated
-  *
-  * @output : Vector3D : calculated normal at the input point.
-  */
+   *  by EndTheta.
+   *
+   * @inputs : Vector3D : Point at which normal needs to be calculated
+   *
+   * @output : Vector3D : calculated normal at the input point.
+   */
 
   template <typename Real_v>
   VECCORE_ATT_HOST_DEVICE
@@ -223,10 +223,10 @@ public:
 
     if (MovingOut) {
       return IsOnSurfaceGeneric<Real_v, ForStartTheta>(point) &&
-             (dir.Dot(GetNormal<Real_v, ForStartTheta>(point)) > 0.);
+             (dir.Dot(GetNormal<Real_v, ForStartTheta>(point)) > Real_v(0.));
     } else {
       return IsOnSurfaceGeneric<Real_v, ForStartTheta>(point) &&
-             (dir.Dot(GetNormal<Real_v, ForStartTheta>(point)) < 0.);
+             (dir.Dot(GetNormal<Real_v, ForStartTheta>(point)) < Real_v(0.));
     }
   }
 
@@ -295,22 +295,22 @@ public:
 
     safeTheta   = Min(sfTh1, sfTh2);
     Bool_v done = Contains<Real_v>(point);
-    vecCore__MaskedAssignFunc(safeTheta, done, Real_v(0.0));
+    vecCore__MaskedAssignFunc(safeTheta, done, Real_v(0.));
     if (vecCore::MaskFull(done)) return safeTheta;
 
     // Case 1 : Both cones are in Positive Z direction
     if (fSTheta < kPi / 2 + halfAngTolerance) {
       if (fETheta < kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          vecCore::MaskedAssign(safeTheta, (!done && point.z() < 0.0), sfTh2);
+          vecCore::MaskedAssign(safeTheta, (!done && point.z() < Real_v(0.)), sfTh2);
         }
       }
 
       // Case 2 : First Cone is in Positive Z direction and Second is in Negative Z direction
       if (fETheta > kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          vecCore::MaskedAssign(safeTheta, (!done && point.z() > 0.0), sfTh1);
-          vecCore::MaskedAssign(safeTheta, (!done && point.z() < 0.0), sfTh2);
+          vecCore::MaskedAssign(safeTheta, (!done && point.z() > Real_v(0.)), sfTh1);
+          vecCore::MaskedAssign(safeTheta, (!done && point.z() < Real_v(0.)), sfTh2);
         }
       }
     }
@@ -319,7 +319,7 @@ public:
     if (fETheta > kPi / 2 + halfAngTolerance) {
       if (fSTheta > kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          vecCore::MaskedAssign(safeTheta, (!done && point.z() > 0.0), sfTh1);
+          vecCore::MaskedAssign(safeTheta, (!done && point.z() > Real_v(0.)), sfTh1);
         }
       }
     }
@@ -347,7 +347,7 @@ public:
     if (fSTheta < kPi / 2 + halfAngTolerance) {
       if (fETheta < kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          condition = (pointRad < bisectorRad) && (fSTheta != Real_v(0.0));
+          condition = (pointRad < bisectorRad) && (fSTheta != Real_v(0.));
         }
       }
 
@@ -376,7 +376,7 @@ public:
   Real_v DistanceToLine(Precision const &slope, Real_v const &x, Real_v const &y) const
   {
 
-    Real_v dist = (y - slope * x) / Sqrt(1. + slope * slope);
+    Real_v dist = (y - slope * x) / Sqrt(Real_v(1.) + slope * slope);
     return Abs(dist);
   }
 
@@ -407,24 +407,24 @@ public:
       Real_v a    = dirRho2 - dir.z() * dir.z() * tanSTheta2;
       Real_v c    = rho2 - point.z() * point.z() * tanSTheta2;
       Real_v d2   = b * b - a * c;
-      Real_v aInv = 1. / NonZero(a);
+      Real_v aInv = Real_v(1.) / NonZero(a);
 
-      vecCore__MaskedAssignFunc(firstRoot, (d2 > 0.0), (-b + Sqrt(Abs(d2))) * aInv);
-      done |= (Abs(firstRoot) < 3.0 * kTolerance);
-      vecCore__MaskedAssignFunc(firstRoot, ((Abs(firstRoot) < 3.0 * kTolerance)), Real_v(0.0));
-      vecCore__MaskedAssignFunc(firstRoot, (!done && (firstRoot < 0.0)), InfinityLength<Real_v>());
+      vecCore__MaskedAssignFunc(firstRoot, (d2 > Real_v(0.)), (-b + Sqrt(Abs(d2))) * aInv);
+      done |= (Abs(firstRoot) < Real_v(3.) * kTolerance);
+      vecCore__MaskedAssignFunc(firstRoot, ((Abs(firstRoot) < Real_v(3.) * kTolerance)), Real_v(0.));
+      vecCore__MaskedAssignFunc(firstRoot, (!done && (firstRoot < Real_v(0.))), InfinityLength<Real_v>());
 
       Real_v b2 = pDotV2d - point.z() * dir.z() * tanETheta2;
       // Real_v a2 = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanETheta2;
       Real_v a2    = dirRho2 - dir.z() * dir.z() * tanETheta2;
       Real_v c2    = rho2 - point.z() * point.z() * tanETheta2;
       Real_v d22   = b2 * b2 - a2 * c2;
-      Real_v a2Inv = 1. / NonZero(a2);
+      Real_v a2Inv = Real_v(1.) / NonZero(a2);
 
-      vecCore__MaskedAssignFunc(secondRoot, (d22 > 0.0), (-b2 - Sqrt(Abs(d22))) * a2Inv);
-      vecCore__MaskedAssignFunc(secondRoot, (!done && (Abs(secondRoot) < 3.0 * kTolerance)), Real_v(0.0));
-      done |= (Abs(secondRoot) < 3.0 * kTolerance);
-      vecCore__MaskedAssignFunc(secondRoot, !done && (secondRoot < 0.0), InfinityLength<Real_v>());
+      vecCore__MaskedAssignFunc(secondRoot, (d22 > Real_v(0.)), (-b2 - Sqrt(Abs(d22))) * a2Inv);
+      vecCore__MaskedAssignFunc(secondRoot, (!done && (Abs(secondRoot) < Real_v(3.) * kTolerance)), Real_v(0.));
+      done |= (Abs(secondRoot) < Real_v(3.) * kTolerance);
+      vecCore__MaskedAssignFunc(secondRoot, !done && (secondRoot < Real_v(0.)), InfinityLength<Real_v>());
 
       if (fSTheta < kHalfPi + halfAngTolerance) {
         if (fETheta < kHalfPi + halfAngTolerance) {
@@ -434,13 +434,13 @@ public:
             Real_v zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
             Real_v zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
 
-            intsect1 = ((d2 > 0.) && (zOfIntSecPtCone1 > 0.));
-            intsect2 = ((d22 > 0.) && (zOfIntSecPtCone2 > 0.));
+            intsect1 = ((d2 > Real_v(0.)) && (zOfIntSecPtCone1 > Real_v(0.)));
+            intsect2 = ((d22 > Real_v(0.)) && (zOfIntSecPtCone2 > Real_v(0.)));
           }
         }
 
         if (fETheta >= kHalfPi - halfAngTolerance && fETheta <= kHalfPi + halfAngTolerance) {
-          vecCore__MaskedAssignFunc(distThetaCone2, (dir.z() > 0.0), -point.z() / dir.z());
+          vecCore__MaskedAssignFunc(distThetaCone2, (dir.z() > Real_v(0.)), -point.z() / dir.z());
           Real_v zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
           intsect2                = ((distThetaCone2 != kInfLength) && (Abs(zOfIntSecPtCone2) < halfAngTolerance));
         }
@@ -448,19 +448,19 @@ public:
         if (fETheta > kHalfPi + halfAngTolerance) {
           if (fSTheta < fETheta) {
             distThetaCone1 = firstRoot;
-            vecCore__MaskedAssignFunc(secondRoot, (d22 > 0.0), (-b2 + Sqrt(Abs(d22))) * a2Inv);
+            vecCore__MaskedAssignFunc(secondRoot, (d22 > Real_v(0.)), (-b2 + Sqrt(Abs(d22))) * a2Inv);
 
             done = fal;
-            done |= (Abs(secondRoot) < 3.0 * kTolerance);
-            vecCore__MaskedAssignFunc(secondRoot, ((Abs(secondRoot) < 3.0 * kTolerance)), Real_v(0.0));
-            vecCore__MaskedAssignFunc(secondRoot, !done && (secondRoot < 0.0), InfinityLength<Real_v>());
+            done |= (Abs(secondRoot) < Real_v(3.) * kTolerance);
+            vecCore__MaskedAssignFunc(secondRoot, ((Abs(secondRoot) < Real_v(3.) * kTolerance)), Real_v(0.));
+            vecCore__MaskedAssignFunc(secondRoot, !done && (secondRoot < Real_v(0.)), InfinityLength<Real_v>());
             distThetaCone2 = secondRoot;
 
             Real_v zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
             Real_v zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
 
-            intsect1 = ((d2 > 0) && (distThetaCone1 != kInfLength) && (zOfIntSecPtCone1 > 0.));
-            intsect2 = ((d22 > 0) && (distThetaCone2 != kInfLength) && (zOfIntSecPtCone2 < 0.));
+            intsect1 = ((d2 > 0) && (distThetaCone1 != kInfLength) && (zOfIntSecPtCone1 > Real_v(0.)));
+            intsect2 = ((d22 > 0) && (distThetaCone2 != kInfLength) && (zOfIntSecPtCone2 < Real_v(0.)));
           }
         }
       }
@@ -468,31 +468,31 @@ public:
       if (fSTheta >= kHalfPi - halfAngTolerance) {
         if (fETheta > kHalfPi + halfAngTolerance) {
           if (fSTheta < fETheta) {
-            vecCore__MaskedAssignFunc(firstRoot, (d2 > 0.0), (-b - Sqrt(Abs(d2))) * aInv);
+            vecCore__MaskedAssignFunc(firstRoot, (d2 > Real_v(0.)), (-b - Sqrt(Abs(d2))) * aInv);
             done = fal;
-            done |= (Abs(firstRoot) < 3.0 * kTolerance);
-            vecCore__MaskedAssignFunc(firstRoot, ((Abs(firstRoot) < 3.0 * kTolerance)), Real_v(0.0));
-            vecCore__MaskedAssignFunc(firstRoot, !done && (firstRoot < 0.0), InfinityLength<Real_v>());
+            done |= (Abs(firstRoot) < Real_v(3.) * kTolerance);
+            vecCore__MaskedAssignFunc(firstRoot, ((Abs(firstRoot) < Real_v(3.) * kTolerance)), Real_v(0.));
+            vecCore__MaskedAssignFunc(firstRoot, !done && (firstRoot < Real_v(0.)), InfinityLength<Real_v>());
             distThetaCone1 = firstRoot;
 
-            vecCore__MaskedAssignFunc(secondRoot, (d22 > 0.0), (-b2 + Sqrt(Abs(d22))) * a2Inv);
+            vecCore__MaskedAssignFunc(secondRoot, (d22 > Real_v(0.)), (-b2 + Sqrt(Abs(d22))) * a2Inv);
             done = fal;
-            done |= (Abs(secondRoot) < 3.0 * kTolerance);
-            vecCore__MaskedAssignFunc(secondRoot, ((Abs(secondRoot) < 3.0 * kTolerance)), Real_v(0.0));
-            vecCore__MaskedAssignFunc(secondRoot, !done && (secondRoot < 0.0), InfinityLength<Real_v>());
+            done |= (Abs(secondRoot) < Real_v(3.) * kTolerance);
+            vecCore__MaskedAssignFunc(secondRoot, ((Abs(secondRoot) < Real_v(3.) * kTolerance)), Real_v(0.));
+            vecCore__MaskedAssignFunc(secondRoot, !done && (secondRoot < Real_v(0.)), InfinityLength<Real_v>());
             distThetaCone2 = secondRoot;
 
             Real_v zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
             Real_v zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
 
-            intsect1 = ((d2 > 0) && (distThetaCone1 != kInfLength) && (zOfIntSecPtCone1 < 0.));
-            intsect2 = ((d22 > 0) && (distThetaCone2 != kInfLength) && (zOfIntSecPtCone2 < 0.));
+            intsect1 = ((d2 > 0) && (distThetaCone1 != kInfLength) && (zOfIntSecPtCone1 < Real_v(0.)));
+            intsect2 = ((d22 > 0) && (distThetaCone2 != kInfLength) && (zOfIntSecPtCone2 < Real_v(0.)));
           }
         }
       }
 
       if (fSTheta >= kHalfPi - halfAngTolerance && fSTheta <= kHalfPi + halfAngTolerance) {
-        vecCore__MaskedAssignFunc(distThetaCone1, (dir.z() < 0.0), -point.z() / dir.z());
+        vecCore__MaskedAssignFunc(distThetaCone1, (dir.z() < Real_v(0.)), -point.z() / dir.z());
         Real_v zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
         intsect1                = ((distThetaCone1 != kInfLength) && (Abs(zOfIntSecPtCone1) < halfAngTolerance));
       }
@@ -520,24 +520,27 @@ public:
     Real_v a  = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanSTheta2;
     Real_v c  = rho2 - point.z() * point.z() * tanSTheta2;
     Real_v d2 = b * b - a * c;
-    vecCore__MaskedAssignFunc(d2, d2 < 0.0 && Abs(d2) < kHalfTolerance, Real_v(0.0));
-    vecCore__MaskedAssignFunc(firstRoot, (d2 >= 0.0) && b >= 0.0 && a != 0.0, ((-b - Sqrt(Abs(d2))) / NonZero(a)));
-    vecCore__MaskedAssignFunc(firstRoot, (d2 >= 0.0) && b < 0.0, ((c) / NonZero(-b + Sqrt(Abs(d2)))));
-    vecCore__MaskedAssignFunc(firstRoot, firstRoot < 0.0, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(d2, d2 < Real_v(0.) && Abs(d2) < kHalfTolerance, Real_v(0.));
+    vecCore__MaskedAssignFunc(firstRoot, (d2 >= Real_v(0.)) && b >= Real_v(0.) && a != Real_v(0.),
+                              ((-b - Sqrt(Abs(d2))) / NonZero(a)));
+    vecCore__MaskedAssignFunc(firstRoot, (d2 >= Real_v(0.)) && b < Real_v(0.), ((c) / NonZero(-b + Sqrt(Abs(d2)))));
+    vecCore__MaskedAssignFunc(firstRoot, firstRoot < Real_v(0.), InfinityLength<Real_v>());
 
     Real_v b2 = point.x() * dir.x() + point.y() * dir.y() - point.z() * dir.z() * tanETheta2;
     Real_v a2 = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanETheta2;
 
     Real_v c2  = point.x() * point.x() + point.y() * point.y() - point.z() * point.z() * tanETheta2;
     Real_v d22 = (b2 * b2) - (a2 * c2);
-    vecCore__MaskedAssignFunc(d22, d22 < 0.0 && Abs(d22) < kHalfTolerance, Real_v(0.0));
+    vecCore__MaskedAssignFunc(d22, d22 < Real_v(0.) && Abs(d22) < kHalfTolerance, Real_v(0.));
 
-    vecCore__MaskedAssignFunc(secondRoot, (d22 >= 0.0) && b2 >= 0.0, ((c2) / NonZero(-b2 - Sqrt(Abs(d22)))));
-    vecCore__MaskedAssignFunc(secondRoot, (d22 >= 0.0) && b2 < 0.0 && a2 != 0.0,
+    vecCore__MaskedAssignFunc(secondRoot, (d22 >= Real_v(0.)) && b2 >= Real_v(0.),
+                              ((c2) / NonZero(-b2 - Sqrt(Abs(d22)))));
+    vecCore__MaskedAssignFunc(secondRoot, (d22 >= Real_v(0.)) && b2 < Real_v(0.) && a2 != Real_v(0.),
                               ((-b2 + Sqrt(Abs(d22))) / NonZero(a2)));
 
-    vecCore__MaskedAssignFunc(secondRoot, secondRoot < 0.0 && Abs(secondRoot) > kTolerance, InfinityLength<Real_v>());
-    vecCore__MaskedAssignFunc(secondRoot, Abs(secondRoot) < kTolerance, Real_v(0.0));
+    vecCore__MaskedAssignFunc(secondRoot, secondRoot < Real_v(0.) && Abs(secondRoot) > kTolerance,
+                              InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(secondRoot, Abs(secondRoot) < kTolerance, Real_v(0.));
 
     if (fSTheta < kPi / 2 + halfAngTolerance) {
       if (fETheta < kPi / 2 + halfAngTolerance) {
@@ -555,9 +558,10 @@ public:
           if (fSTheta) zs = dirRho2 / tanSTheta;
           Real_v ze(kInfLength);
           if (fETheta) ze = dirRho2 / tanETheta;
-          Bool_v cond     = (point.x() == 0. && point.y() == 0. && point.z() == 0. && dir.z() < zs && dir.z() < ze);
-          vecCore__MaskedAssignFunc(distThetaCone1, cond, Real_v(0.0));
-          vecCore__MaskedAssignFunc(distThetaCone2, cond, Real_v(0.0));
+          Bool_v cond = (point.x() == Real_v(0.) && point.y() == Real_v(0.) && point.z() == Real_v(0.) &&
+                         dir.z() < zs && dir.z() < ze);
+          vecCore__MaskedAssignFunc(distThetaCone1, cond, Real_v(0.));
+          vecCore__MaskedAssignFunc(distThetaCone2, cond, Real_v(0.));
           intsect1 |= cond;
           intsect2 |= cond;
         }
@@ -566,22 +570,23 @@ public:
       if (fETheta >= kPi / 2 - halfAngTolerance && fETheta <= kPi / 2 + halfAngTolerance) {
         distThetaCone1 = firstRoot;
         distThetaCone2 = inf;
-        vecCore__MaskedAssignFunc(distThetaCone2, (dir.z() < 0.0), -1. * point.z() / dir.z());
+        vecCore__MaskedAssignFunc(distThetaCone2, (dir.z() < Real_v(0.)), Real_v(-1.) * point.z() / dir.z());
         Real_v zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
         Real_v zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
         intsect2 = ((d22 >= 0) && (distThetaCone2 != kInfLength) && (Abs(zOfIntSecPtCone2) < kHalfTolerance) &&
-                    !(dir.z() == 0.));
+                    !(dir.z() == Real_v(0.)));
         intsect1 = ((d2 >= 0) && (distThetaCone1 != kInfLength) && (Abs(zOfIntSecPtCone1) < kHalfTolerance) &&
-                    !(dir.z() == 0.));
+                    !(dir.z() == Real_v(0.)));
       }
 
       if (fETheta > kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
           distThetaCone1 = firstRoot;
-          vecCore__MaskedAssignFunc(secondRoot, (d22 >= 0.0) && b2 > 0.0 && a2 != 0.0,
+          vecCore__MaskedAssignFunc(secondRoot, (d22 >= Real_v(0.)) && b2 > Real_v(0.) && a2 != Real_v(0.),
                                     ((-b2 - Sqrt(Abs(d22))) / NonZero(a2)));
-          vecCore__MaskedAssignFunc(secondRoot, (d22 >= 0.0) && b2 <= 0.0, ((c2) / NonZero(-b2 + Sqrt(Abs(d22)))));
-          vecCore__MaskedAssignFunc(secondRoot, secondRoot < 0.0, InfinityLength<Real_v>());
+          vecCore__MaskedAssignFunc(secondRoot, (d22 >= Real_v(0.)) && b2 <= Real_v(0.),
+                                    ((c2) / NonZero(-b2 + Sqrt(Abs(d22)))));
+          vecCore__MaskedAssignFunc(secondRoot, secondRoot < Real_v(0.), InfinityLength<Real_v>());
           distThetaCone2          = secondRoot;
           Real_v zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
           Real_v zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
@@ -594,16 +599,18 @@ public:
     if (fETheta > kPi / 2 + halfAngTolerance) {
       if (fSTheta < fETheta) {
         secondRoot = kInfLength;
-        vecCore__MaskedAssignFunc(secondRoot, (d22 >= 0.0) && b2 > 0.0 && a2 != 0.0,
+        vecCore__MaskedAssignFunc(secondRoot, (d22 >= Real_v(0.)) && b2 > Real_v(0.) && a2 != Real_v(0.),
                                   ((-b2 - Sqrt(Abs(d22))) / NonZero(a2)));
-        vecCore__MaskedAssignFunc(secondRoot, (d22 >= 0.0) && b2 <= 0.0, ((c2) / NonZero(-b2 + Sqrt(Abs(d22)))));
+        vecCore__MaskedAssignFunc(secondRoot, (d22 >= Real_v(0.)) && b2 <= Real_v(0.),
+                                  ((c2) / NonZero(-b2 + Sqrt(Abs(d22)))));
         distThetaCone2 = secondRoot;
 
         if (fSTheta > kPi / 2 + halfAngTolerance) {
-          vecCore__MaskedAssignFunc(firstRoot, (d2 >= 0.0) && b > 0.0, ((c) / NonZero(-b - Sqrt(Abs(d2)))));
-          vecCore__MaskedAssignFunc(firstRoot, (d2 >= 0.0) && b <= 0.0 && a != 0.0,
+          vecCore__MaskedAssignFunc(firstRoot, (d2 >= Real_v(0.)) && b > Real_v(0.),
+                                    ((c) / NonZero(-b - Sqrt(Abs(d2)))));
+          vecCore__MaskedAssignFunc(firstRoot, (d2 >= Real_v(0.)) && b <= Real_v(0.) && a != Real_v(0.),
                                     ((-b + Sqrt(Abs(d2))) / NonZero(a)));
-          vecCore__MaskedAssignFunc(firstRoot, firstRoot < 0.0, InfinityLength<Real_v>());
+          vecCore__MaskedAssignFunc(firstRoot, firstRoot < Real_v(0.), InfinityLength<Real_v>());
           distThetaCone1          = firstRoot;
           Real_v zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
           intsect1 = ((d2 > 0) && (distThetaCone1 != kInfLength) && ((zOfIntSecPtCone1) < kHalfTolerance));
@@ -615,9 +622,10 @@ public:
           if (tanSTheta) zs = -dirRho2 / tanSTheta;
           Real_v ze(-kInfLength);
           if (tanETheta) ze = -dirRho2 / tanETheta;
-          Bool_v cond       = (point.x() == 0. && point.y() == 0. && point.z() == 0. && dir.z() > zs && dir.z() > ze);
-          vecCore__MaskedAssignFunc(distThetaCone1, cond, Real_v(0.0));
-          vecCore__MaskedAssignFunc(distThetaCone2, cond, Real_v(0.0));
+          Bool_v cond = (point.x() == Real_v(0.) && point.y() == Real_v(0.) && point.z() == Real_v(0.) &&
+                         dir.z() > zs && dir.z() > ze);
+          vecCore__MaskedAssignFunc(distThetaCone1, cond, Real_v(0.));
+          vecCore__MaskedAssignFunc(distThetaCone2, cond, Real_v(0.));
           // intsect1 |= (cond && tr);
           // intsect2 |= (cond && tr);
           intsect1 |= cond;
@@ -629,15 +637,15 @@ public:
     if (fSTheta >= kPi / 2 - halfAngTolerance && fSTheta <= kPi / 2 + halfAngTolerance) {
       distThetaCone2 = secondRoot;
       distThetaCone1 = kInfLength;
-      vecCore__MaskedAssignFunc(distThetaCone1, (dir.z() > 0.), -1. * point.z() / NonZero(dir.z()));
+      vecCore__MaskedAssignFunc(distThetaCone1, (dir.z() > Real_v(0.)), Real_v(-1.) * point.z() / NonZero(dir.z()));
       Real_v zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
 
       Real_v zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
 
-      intsect1 =
-          ((d2 >= 0) && (distThetaCone1 != kInfLength) && (Abs(zOfIntSecPtCone1) < kHalfTolerance) && (dir.z() != 0.));
-      intsect2 =
-          ((d22 >= 0) && (distThetaCone2 != kInfLength) && (Abs(zOfIntSecPtCone2) < kHalfTolerance) && (dir.z() != 0.));
+      intsect1 = ((d2 >= 0) && (distThetaCone1 != kInfLength) && (Abs(zOfIntSecPtCone1) < kHalfTolerance) &&
+                  (dir.z() != Real_v(0.)));
+      intsect2 = ((d22 >= 0) && (distThetaCone2 != kInfLength) && (Abs(zOfIntSecPtCone2) < kHalfTolerance) &&
+                  (dir.z() != Real_v(0.)));
     }
   }
 
@@ -647,44 +655,48 @@ public:
   typename vecCore::Mask_v<Real_v> IsCompletelyInside(Vector3D<Real_v> const &localPoint) const
   {
 
-    using Bool_v          = vecCore::Mask_v<Real_v>;
-    Real_v rho            = Sqrt(localPoint.Mag2() - (localPoint.z() * localPoint.z()));
-    Real_v cone1Radius    = Abs(localPoint.z() * tanSTheta);
-    Real_v cone2Radius    = Abs(localPoint.z() * tanETheta);
-    Bool_v isPointOnZAxis = localPoint.z() != 0. && localPoint.x() == 0. && localPoint.y() == 0.;
+    using Bool_v       = vecCore::Mask_v<Real_v>;
+    Real_v rho         = Sqrt(localPoint.Mag2() - (localPoint.z() * localPoint.z()));
+    Real_v cone1Radius = Abs(localPoint.z() * tanSTheta);
+    Real_v cone2Radius = Abs(localPoint.z() * tanETheta);
+    Bool_v isPointOnZAxis =
+        localPoint.z() != Real_v(0.) && localPoint.x() == Real_v(0.) && localPoint.y() == Real_v(0.);
 
-    Bool_v isPointOnXYPlane = localPoint.z() == 0. && (localPoint.x() != 0. || localPoint.y() != 0.);
+    Bool_v isPointOnXYPlane =
+        localPoint.z() == Real_v(0.) && (localPoint.x() != Real_v(0.) || localPoint.y() != Real_v(0.));
 
     Real_v startTheta(fSTheta), endTheta(fETheta);
 
-    Bool_v completelyinside =
-        (isPointOnZAxis && ((startTheta == 0. && endTheta == kPi) || (localPoint.z() > 0. && startTheta == 0.) ||
-                            (localPoint.z() < 0. && endTheta == kPi)));
+    Bool_v completelyinside = (isPointOnZAxis && ((startTheta == Real_v(0.) && endTheta == kPi) ||
+                                                  (localPoint.z() > Real_v(0.) && startTheta == Real_v(0.)) ||
+                                                  (localPoint.z() < Real_v(0.) && endTheta == kPi)));
 
-    completelyinside |= (!completelyinside && (isPointOnXYPlane && (startTheta < kHalfPi && endTheta > kHalfPi &&
-                                                                    (kHalfPi - startTheta) > kAngTolerance &&
-                                                                    (endTheta - kHalfPi) > kTolerance)));
+    completelyinside |=
+        (!completelyinside && (isPointOnXYPlane && (startTheta < Real_v(kHalfPi) && endTheta > Real_v(kHalfPi) &&
+                                                    (Real_v(kHalfPi) - startTheta) > kAngTolerance &&
+                                                    (endTheta - Real_v(kHalfPi)) > kTolerance)));
 
     if (fSTheta < kHalfPi + halfAngTolerance) {
       if (fETheta < kHalfPi + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          Real_v tolAngMin = cone1Radius + 2 * kAngTolerance * 10.;
-          Real_v tolAngMax = cone2Radius - 2 * kAngTolerance * 10.;
+          Real_v tolAngMin = cone1Radius + Real_v(2 * kAngTolerance * 10.);
+          Real_v tolAngMax = cone2Radius - Real_v(2 * kAngTolerance * 10.);
 
           completelyinside |=
               (!completelyinside &&
-               (((rho <= tolAngMax) && (rho >= tolAngMin) && (localPoint.z() > 0.) && Bool_v(fSTheta != 0.)) ||
-                ((rho <= tolAngMax) && Bool_v(fSTheta == 0.) && (localPoint.z() > 0.))));
+               (((rho <= tolAngMax) && (rho >= tolAngMin) && (localPoint.z() > Real_v(0.)) &&
+                 Bool_v(fSTheta != Real_v(0.))) ||
+                ((rho <= tolAngMax) && Bool_v(fSTheta == Real_v(0.)) && (localPoint.z() > Real_v(0.)))));
         }
       }
 
       if (fETheta > kHalfPi + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          Real_v tolAngMin = cone1Radius + 2 * kAngTolerance * 10.;
-          Real_v tolAngMax = cone2Radius + 2 * kAngTolerance * 10.;
+          Real_v tolAngMin = cone1Radius + Real_v(2 * kAngTolerance * 10.);
+          Real_v tolAngMax = cone2Radius + Real_v(2 * kAngTolerance * 10.);
 
-          completelyinside |= (!completelyinside && (((rho >= tolAngMin) && (localPoint.z() > 0.)) ||
-                                                     ((rho >= tolAngMax) && (localPoint.z() < 0.))));
+          completelyinside |= (!completelyinside && (((rho >= tolAngMin) && (localPoint.z() > Real_v(0.))) ||
+                                                     ((rho >= tolAngMax) && (localPoint.z() < Real_v(0.)))));
         }
       }
 
@@ -702,13 +714,13 @@ public:
 
       if (fSTheta > kHalfPi + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          Real_v tolAngMin = cone1Radius - 2 * kAngTolerance * 10.;
-          Real_v tolAngMax = cone2Radius + 2 * kAngTolerance * 10.;
+          Real_v tolAngMin = cone1Radius - Real_v(2 * kAngTolerance * 10.);
+          Real_v tolAngMax = cone2Radius + Real_v(2 * kAngTolerance * 10.);
 
           completelyinside |=
               (!completelyinside &&
-               (((rho <= tolAngMin) && (rho >= tolAngMax) && (localPoint.z() < 0.) && Bool_v(fETheta != kPi)) ||
-                ((rho <= tolAngMin) && (localPoint.z() < 0.) && Bool_v(fETheta == kPi))));
+               (((rho <= tolAngMin) && (rho >= tolAngMax) && (localPoint.z() < Real_v(0.)) && Bool_v(fETheta != kPi)) ||
+                ((rho <= tolAngMin) && (localPoint.z() < Real_v(0.)) && Bool_v(fETheta == kPi))));
         }
       }
     }
@@ -721,20 +733,22 @@ public:
   typename vecCore::Mask_v<Real_v> IsCompletelyOutside(Vector3D<Real_v> const &localPoint) const
   {
 
-    using Bool_v          = vecCore::Mask_v<Real_v>;
-    Real_v diff           = localPoint.Perp2();
-    Real_v rho            = Sqrt(diff);
-    Real_v cone1Radius    = Abs(localPoint.z() * tanSTheta);
-    Real_v cone2Radius    = Abs(localPoint.z() * tanETheta);
-    Bool_v isPointOnZAxis = localPoint.z() != 0. && localPoint.x() == 0. && localPoint.y() == 0.;
+    using Bool_v       = vecCore::Mask_v<Real_v>;
+    Real_v diff        = localPoint.Perp2();
+    Real_v rho         = Sqrt(diff);
+    Real_v cone1Radius = Abs(localPoint.z() * tanSTheta);
+    Real_v cone2Radius = Abs(localPoint.z() * tanETheta);
+    Bool_v isPointOnZAxis =
+        localPoint.z() != Real_v(0.) && localPoint.x() == Real_v(0.) && localPoint.y() == Real_v(0.);
 
-    Bool_v isPointOnXYPlane = localPoint.z() == 0. && (localPoint.x() != 0. || localPoint.y() != 0.);
+    Bool_v isPointOnXYPlane =
+        localPoint.z() == Real_v(0.) && (localPoint.x() != Real_v(0.) || localPoint.y() != Real_v(0.));
 
     // Real_v startTheta(fSTheta), endTheta(fETheta);
 
-    Bool_v completelyoutside = (isPointOnZAxis && ((Bool_v(fSTheta != 0.) && Bool_v(fETheta != kPi)) ||
-                                                   (localPoint.z() > 0. && Bool_v(fSTheta != 0.)) ||
-                                                   (localPoint.z() < 0. && Bool_v(fETheta != kPi))));
+    Bool_v completelyoutside = (isPointOnZAxis && ((Bool_v(fSTheta != Real_v(0.)) && Bool_v(fETheta != kPi)) ||
+                                                   (localPoint.z() > Real_v(0.) && Bool_v(fSTheta != Real_v(0.))) ||
+                                                   (localPoint.z() < Real_v(0.) && Bool_v(fETheta != kPi))));
 
     completelyoutside |=
         (!completelyoutside &&
@@ -747,20 +761,20 @@ public:
       if (fETheta < kHalfPi + halfAngTolerance) {
         if (fSTheta < fETheta) {
 
-          Real_v tolAngMin2 = cone1Radius - 2 * kAngTolerance * 10.;
-          Real_v tolAngMax2 = cone2Radius + 2 * kAngTolerance * 10.;
+          Real_v tolAngMin2 = cone1Radius - Real_v(2 * kAngTolerance * 10.);
+          Real_v tolAngMax2 = cone2Radius + Real_v(2 * kAngTolerance * 10.);
 
           completelyoutside |=
-              (!completelyoutside && ((rho < tolAngMin2) || (rho > tolAngMax2) || (localPoint.z() < 0.)));
+              (!completelyoutside && ((rho < tolAngMin2) || (rho > tolAngMax2) || (localPoint.z() < Real_v(0.))));
         }
       }
 
       if (fETheta > kHalfPi + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          Real_v tolAngMin2 = cone1Radius - 2 * kAngTolerance * 10.;
-          Real_v tolAngMax2 = cone2Radius - 2 * kAngTolerance * 10.;
-          completelyoutside |= (!completelyoutside && (((rho < tolAngMin2) && (localPoint.z() > 0.)) ||
-                                                       ((rho < tolAngMax2) && (localPoint.z() < 0.))));
+          Real_v tolAngMin2 = cone1Radius - Real_v(2 * kAngTolerance * 10.);
+          Real_v tolAngMax2 = cone2Radius - Real_v(2 * kAngTolerance * 10.);
+          completelyoutside |= (!completelyoutside && (((rho < tolAngMin2) && (localPoint.z() > Real_v(0.))) ||
+                                                       ((rho < tolAngMax2) && (localPoint.z() < Real_v(0.)))));
         }
       }
 
@@ -781,10 +795,10 @@ public:
       if (fSTheta > kHalfPi + halfAngTolerance) {
         if (fSTheta < fETheta) {
 
-          Real_v tolAngMin2 = cone1Radius + 2 * kAngTolerance * 10.;
-          Real_v tolAngMax2 = cone2Radius - 2 * kAngTolerance * 10.;
+          Real_v tolAngMin2 = cone1Radius + Real_v(2 * kAngTolerance * 10.);
+          Real_v tolAngMax2 = cone2Radius - Real_v(2 * kAngTolerance * 10.);
           completelyoutside |=
-              (!completelyoutside && ((rho < tolAngMax2) || (rho > tolAngMin2) || (localPoint.z() > 0.)));
+              (!completelyoutside && ((rho < tolAngMax2) || (rho > tolAngMin2) || (localPoint.z() > Real_v(0.))));
         }
       }
     }
@@ -804,7 +818,7 @@ public:
   }
 
 }; // end of class ThetaCone
-}
-} // end of namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_VOLUMES_THETACONE_H_ */

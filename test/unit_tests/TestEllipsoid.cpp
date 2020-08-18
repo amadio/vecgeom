@@ -25,20 +25,20 @@ using namespace vecgeom;
 //
 // Estimate normal to the surface at given z and phi
 //
-Vector3D<double> EstimateNormal(double a, double b, double c, double z, double phi)
+Vector3D<Precision> EstimateNormal(Precision a, Precision b, Precision c, Precision z, Precision phi)
 {
-  double delta = 0.001;
-  double z1    = z - delta;
-  double z2    = z + delta;
-  double phi1  = phi - delta;
-  double phi2  = phi + delta;
-  double rho1  = std::sqrt((1. + z1 / c) * (1. - z1 / c));
-  double rho2  = std::sqrt((1. + z2 / c) * (1. - z2 / c));
+  Precision delta = 0.001;
+  Precision z1    = z - delta;
+  Precision z2    = z + delta;
+  Precision phi1  = phi - delta;
+  Precision phi2  = phi + delta;
+  Precision rho1  = std::sqrt((1. + z1 / c) * (1. - z1 / c));
+  Precision rho2  = std::sqrt((1. + z2 / c) * (1. - z2 / c));
 
-  Vector3D<double> p1(rho1 * std::cos(phi1) * a, rho1 * std::sin(phi1) * b, z1);
-  Vector3D<double> p2(rho1 * std::cos(phi2) * a, rho1 * std::sin(phi2) * b, z1);
-  Vector3D<double> p3(rho2 * std::cos(phi1) * a, rho2 * std::sin(phi1) * b, z2);
-  Vector3D<double> p4(rho2 * std::cos(phi2) * a, rho2 * std::sin(phi2) * b, z2);
+  Vector3D<Precision> p1(rho1 * std::cos(phi1) * a, rho1 * std::sin(phi1) * b, z1);
+  Vector3D<Precision> p2(rho1 * std::cos(phi2) * a, rho1 * std::sin(phi2) * b, z1);
+  Vector3D<Precision> p3(rho2 * std::cos(phi1) * a, rho2 * std::sin(phi1) * b, z2);
+  Vector3D<Precision> p4(rho2 * std::cos(phi2) * a, rho2 * std::sin(phi2) * b, z2);
 
   return ((p4 - p1).Cross(p3 - p2)).Unit();
 }
@@ -47,7 +47,7 @@ Vector3D<double> EstimateNormal(double a, double b, double c, double z, double p
 //
 // Unit test for Ellipsoid
 //
-template <class Ellipsoid_t, class Vec_t = Vector3D<double>>
+template <class Ellipsoid_t, class Vec_t = Vector3D<Precision>>
 bool TestEllipsoid()
 {
   ///////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ bool TestEllipsoid()
   //
   std::cout << "=== Check Set()/Get()" << std::endl;
 
-  double a, b, c, zbottom, ztop;
+  Precision a, b, c, zbottom, ztop;
 
   Ellipsoid_t solid("Test_Ellipsoid", a = 3., b = 4., c = 5., zbottom = -4.5, ztop = 3.5);
   assert(solid.GetDx() == a);
@@ -107,9 +107,9 @@ bool TestEllipsoid()
   // check sphere
   solid.SetSemiAxes(5., 5., 5.);
   solid.SetZCuts(0., 0.);
-  double area      = solid.SurfaceArea();
-  double areaMath  = 4. * vecgeom::kPi * 25.;
-  double areaCheck = solid.GetUnplacedVolume()->EstimateSurfaceArea(Npoints);
+  Precision area      = solid.SurfaceArea();
+  Precision areaMath  = 4. * vecgeom::kPi * 25.;
+  Precision areaCheck = solid.GetUnplacedVolume()->EstimateSurfaceArea(Npoints);
   std::cout << " sphere(5) = " << area << "   exact = " << areaMath << "   mc_estimated = " << areaCheck << " ("
             << Npoints / 1000000. << " million points)" << std::endl;
   assert(std::abs(area - areaMath) < 0.01 * area);
@@ -117,10 +117,10 @@ bool TestEllipsoid()
   // check prolate spheroid
   solid.SetSemiAxes(3., 3., 5.);
   solid.SetZCuts(0., 0.);
-  area      = solid.SurfaceArea();
-  double e  = 4. / 5.;
-  areaMath  = vecgeom::kTwoPi * 3. * (3. + 5. * std::asin(e) / e);
-  areaCheck = solid.GetUnplacedVolume()->EstimateSurfaceArea(Npoints);
+  area        = solid.SurfaceArea();
+  Precision e = 4. / 5.;
+  areaMath    = vecgeom::kTwoPi * 3. * (3. + 5. * std::asin(e) / e);
+  areaCheck   = solid.GetUnplacedVolume()->EstimateSurfaceArea(Npoints);
   std::cout << " spheroid(3,3,5) = " << area << "   exact = " << areaMath << "   mc_estimated = " << areaCheck << " ("
             << Npoints / 1000000. << " million points)" << std::endl;
   assert(std::abs(area - areaMath) < 0.01 * area);
@@ -148,8 +148,8 @@ bool TestEllipsoid()
   std::cout << "=== Check Capacity()" << std::endl;
   solid.SetSemiAxes(a, b, c);
   solid.SetZCuts(zbottom, ztop);
-  double vol      = solid.Capacity();
-  double volCheck = solid.GetUnplacedVolume()->EstimateCapacity(Npoints);
+  Precision vol      = solid.Capacity();
+  Precision volCheck = solid.GetUnplacedVolume()->EstimateCapacity(Npoints);
   std::cout << " volume = " << vol << "   mc_estimated = " << volCheck << " (" << Npoints / 1000000.
             << " million points)" << std::endl;
   assert(std::abs(vol - volCheck) < 0.01 * vol);
@@ -183,19 +183,19 @@ bool TestEllipsoid()
   std::cout << "=== Check Inside()" << std::endl;
   solid.SetSemiAxes(a, b, c);
   solid.SetZCuts(zbottom, ztop);
-  int NZ      = 30;
-  int NPHI    = 30;
-  double DZ   = 2. * c / NZ;
-  double DPHI = kTwoPi / NPHI;
+  int NZ         = 30;
+  int NPHI       = 30;
+  Precision DZ   = 2. * c / NZ;
+  Precision DPHI = kTwoPi / NPHI;
   for (int iz = 0; iz < NZ; ++iz) {
-    double z = -c + iz * DZ;
+    Precision z = -c + iz * DZ;
     for (int iphi = 0; iphi < NPHI; ++iphi) {
-      double eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
-      double phi = iphi * DPHI;
-      double rho = std::sqrt((1. + z / c) * (1. - z / c));
-      double px  = rho * std::cos(phi) * a + eps;
-      double py  = rho * std::sin(phi) * b + eps;
-      double pz  = z + eps;
+      Precision eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
+      Precision phi = iphi * DPHI;
+      Precision rho = std::sqrt((1. + z / c) * (1. - z / c));
+      Precision px  = rho * std::cos(phi) * a + eps;
+      Precision py  = rho * std::sin(phi) * b + eps;
+      Precision pz  = z + eps;
       if (z < zbottom) pz = zbottom;
       if (z > ztop) pz = ztop;
       Vec_t p(px, py, pz);
@@ -236,15 +236,15 @@ bool TestEllipsoid()
   DZ   = (ztop - zbottom) / NZ;
   DPHI = kTwoPi / NPHI;
   for (int iz = 1; iz < NZ - 1; ++iz) {
-    double z = zbottom + iz * DZ;
+    Precision z = zbottom + iz * DZ;
     for (int iphi = 0; iphi < NPHI; ++iphi) {
-      double eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
-      double phi = iphi * DPHI;
-      double rho = std::sqrt((1. + z / c) * (1. - z / c));
-      double px  = rho * std::cos(phi) * a + eps;
-      double py  = rho * std::sin(phi) * b + eps;
-      double pz  = z + eps;
-      valid      = solid.Normal(Vec_t(px, py, pz), normal);
+      Precision eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
+      Precision phi = iphi * DPHI;
+      Precision rho = std::sqrt((1. + z / c) * (1. - z / c));
+      Precision px  = rho * std::cos(phi) * a + eps;
+      Precision py  = rho * std::sin(phi) * b + eps;
+      Precision pz  = z + eps;
+      valid         = solid.Normal(Vec_t(px, py, pz), normal);
       assert(valid);
       assert(ApproxEqual(normal, EstimateNormal(a, b, c, pz, phi)));
     }
@@ -252,26 +252,26 @@ bool TestEllipsoid()
 
   // Check normals at zbottom edge
   for (int iphi = 0; iphi < NPHI; ++iphi) {
-    double eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
-    double phi = iphi * DPHI;
-    double rho = std::sqrt((1. + zbottom / c) * (1. - zbottom / c));
-    double px  = rho * std::cos(phi) * a + eps;
-    double py  = rho * std::sin(phi) * b + eps;
-    double pz  = zbottom + eps;
-    valid      = solid.Normal(Vec_t(px, py, pz), normal);
+    Precision eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
+    Precision phi = iphi * DPHI;
+    Precision rho = std::sqrt((1. + zbottom / c) * (1. - zbottom / c));
+    Precision px  = rho * std::cos(phi) * a + eps;
+    Precision py  = rho * std::sin(phi) * b + eps;
+    Precision pz  = zbottom + eps;
+    valid         = solid.Normal(Vec_t(px, py, pz), normal);
     assert(valid);
     assert(ApproxEqual(normal, (EstimateNormal(a, b, c, pz, phi) + Vec_t(0., 0., -1.)).Unit()));
   }
 
   // Check normals at ztop edge
   for (int iphi = 0; iphi < NPHI; ++iphi) {
-    double eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
-    double phi = iphi * DPHI;
-    double rho = std::sqrt((1. + ztop / c) * (1. - ztop / c));
-    double px  = rho * std::cos(phi) * a + eps;
-    double py  = rho * std::sin(phi) * b + eps;
-    double pz  = ztop + eps;
-    valid      = solid.Normal(Vec_t(px, py, pz), normal);
+    Precision eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
+    Precision phi = iphi * DPHI;
+    Precision rho = std::sqrt((1. + ztop / c) * (1. - ztop / c));
+    Precision px  = rho * std::cos(phi) * a + eps;
+    Precision py  = rho * std::sin(phi) * b + eps;
+    Precision pz  = ztop + eps;
+    valid         = solid.Normal(Vec_t(px, py, pz), normal);
     assert(valid);
     assert(ApproxEqual(normal, (EstimateNormal(a, b, c, pz, phi) + Vec_t(0., 0., 1.)).Unit()));
   }
@@ -315,15 +315,15 @@ bool TestEllipsoid()
   assert(normal == Vec_t(0., 0., 1.));
 
   for (int iz = 1; iz < NZ - 1; ++iz) {
-    double z = zbottom + iz * DZ;
+    Precision z = zbottom + iz * DZ;
     for (int iphi = 0; iphi < NPHI; ++iphi) {
-      double eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
-      double phi = iphi * DPHI;
-      double rho = std::sqrt((1. + z / c) * (1. - z / c));
-      double px  = rho * std::cos(phi) * a + eps;
-      double py  = rho * std::sin(phi) * b + eps;
-      double pz  = z + eps;
-      valid      = solid.Normal(Vec_t(px, py, pz) * 1.2, normal);
+      Precision eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
+      Precision phi = iphi * DPHI;
+      Precision rho = std::sqrt((1. + z / c) * (1. - z / c));
+      Precision px  = rho * std::cos(phi) * a + eps;
+      Precision py  = rho * std::sin(phi) * b + eps;
+      Precision pz  = z + eps;
+      valid         = solid.Normal(Vec_t(px, py, pz) * 1.2, normal);
       assert(!valid);
       assert(ApproxEqual(normal, EstimateNormal(a, b, c, pz, phi)));
       valid = solid.Normal(Vec_t(px, py, pz) * 0.8, normal);
@@ -346,14 +346,14 @@ bool TestEllipsoid()
   DZ   = 2. * c / NZ;
   DPHI = kTwoPi / NPHI;
   for (int iz = 0; iz < NZ; ++iz) {
-    double z = -c + iz * DZ;
+    Precision z = -c + iz * DZ;
     for (int iphi = 0; iphi < NPHI; ++iphi) {
-      double eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
-      double phi = iphi * DPHI;
-      double rho = std::sqrt((1. + z / c) * (1. - z / c));
-      double px  = rho * std::cos(phi) * a + eps;
-      double py  = rho * std::sin(phi) * b + eps;
-      double pz  = z + eps;
+      Precision eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
+      Precision phi = iphi * DPHI;
+      Precision rho = std::sqrt((1. + z / c) * (1. - z / c));
+      Precision px  = rho * std::cos(phi) * a + eps;
+      Precision py  = rho * std::sin(phi) * b + eps;
+      Precision pz  = z + eps;
       if (z < zbottom) pz = zbottom;
       if (z > ztop) pz = ztop;
       Vec_t p(px, py, pz);
@@ -376,7 +376,7 @@ bool TestEllipsoid()
   assert(solid.SafetyToIn(Vec_t(0, 0, +10)) == 10. - ztop);
   assert(solid.SafetyToIn(Vec_t(0, 0, -10)) == 10. + zbottom);
   assert(solid.SafetyToIn(Vec_t(a, b, ztop)) > 0.);
-  assert(ApproxEqual(solid.SafetyToIn(Vec_t(a, b, c)), (std::sqrt(3.) - 1.) * a));
+  assert(ApproxEqual<Precision>(solid.SafetyToIn(Vec_t(a, b, c)), (std::sqrt(3.) - 1.) * a));
 
   ///////////////////////////////////////////////////////////////////////////////
   //
@@ -392,14 +392,14 @@ bool TestEllipsoid()
   DZ   = 2. * c / NZ;
   DPHI = kTwoPi / NPHI;
   for (int iz = 0; iz < NZ; ++iz) {
-    double z = -c + iz * DZ;
+    Precision z = -c + iz * DZ;
     for (int iphi = 0; iphi < NPHI; ++iphi) {
-      double eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
-      double phi = iphi * DPHI;
-      double rho = std::sqrt((1. + z / c) * (1. - z / c));
-      double px  = rho * std::cos(phi) * a + eps;
-      double py  = rho * std::sin(phi) * b + eps;
-      double pz  = z + eps;
+      Precision eps = 0.5 * kHalfTolerance * (2. * RNG::Instance().uniform() - 1.);
+      Precision phi = iphi * DPHI;
+      Precision rho = std::sqrt((1. + z / c) * (1. - z / c));
+      Precision px  = rho * std::cos(phi) * a + eps;
+      Precision py  = rho * std::sin(phi) * b + eps;
+      Precision pz  = z + eps;
       if (z < zbottom) pz = zbottom;
       if (z > ztop) pz = ztop;
       Vec_t p(px, py, pz);
@@ -425,23 +425,23 @@ bool TestEllipsoid()
   std::cout << "=== Check DistanceToIn()" << std::endl;
   solid.SetSemiAxes(a = 3, b = 4, c = 5);
   solid.SetZCuts(zbottom = -4.5, ztop = 3.5);
-  double sctop = std::sqrt((c - ztop) * (2. - c + ztop));
-  double scbot = std::sqrt((c + zbottom) * (2. - c - zbottom));
-  double del   = kTolerance / 3.;
+  Precision sctop = std::sqrt((c - ztop) * (2. - c + ztop));
+  Precision scbot = std::sqrt((c + zbottom) * (2. - c - zbottom));
+  Precision del   = kTolerance / 3.;
 
   // set coordinates for points in grid
   static const int np = 11;
 
-  double xxx[np] = {-a - 1, -a - del, -a, -a + del, -1, 0, 1, a - del, a, a + del, a + 1};
-  double yyy[np] = {-b - 1, -b - del, -b, -b + del, -1, 0, 1, b - del, b, b + del, b + 1};
-  double zzz[np] = {-4.5 - 1, -4.5 - del, -4.5, -4.5 + del, -1, 0, 1, 3.5 - del, 3.5, 3.5 + del, 3.5 + 1};
+  Precision xxx[np] = {-a - 1, -a - del, -a, -a + del, -1, 0, 1, a - del, a, a + del, a + 1};
+  Precision yyy[np] = {-b - 1, -b - del, -b, -b + del, -1, 0, 1, b - del, b, b + del, b + 1};
+  Precision zzz[np] = {-4.5 - 1, -4.5f - del, -4.5, -4.5f + del, -1, 0, 1, 3.5f - del, 3.5, 3.5f + del, 3.5 + 1};
 
   // check directions parallel to +Z
   for (int ix = 0; ix < np; ++ix) {
     for (int iy = 0; iy < np; ++iy) {
       for (int iz = 0; iz < np; ++iz) {
         Vec_t p(xxx[ix], yyy[iy], zzz[iz]);
-        double dist = solid.DistanceToIn(p, Vec_t(0, 0, 1));
+        Precision dist = solid.DistanceToIn(p, Vec_t(0, 0, 1));
         // Check inside points ("wrong" side)
         if (solid.Inside(p) == vecgeom::kInside) assert(dist < 0);
         // Check points on surface
@@ -449,7 +449,7 @@ bool TestEllipsoid()
           if (p.z() > zbottom + 1) {
             assert(dist == kInfLength);
           } else {
-            assert(ApproxEqual(dist, zbottom - p.z()));
+            assert(ApproxEqual<Precision>(dist, zbottom - p.z()));
           }
         }
         // Check outside points
@@ -458,10 +458,10 @@ bool TestEllipsoid()
             assert(dist == kInfLength);
           } else {
             if (p.x() * p.x() / (a * a * scbot * scbot) + p.y() * p.y() / (b * b * scbot * scbot) <= 1.) {
-              assert(ApproxEqual(dist, zbottom - p.z()));
+              assert(ApproxEqual<Precision>(dist, zbottom - p.z()));
             } else {
-              double z = c * std::sqrt(1. - p.x() * p.x() / (a * a) - p.y() * p.y() / (b * b));
-              assert(ApproxEqual(dist, -z - p.z()));
+              Precision z = c * std::sqrt(1. - p.x() * p.x() / (a * a) - p.y() * p.y() / (b * b));
+              assert(ApproxEqual<Precision>(dist, -z - p.z()));
             }
           }
         }
@@ -474,7 +474,7 @@ bool TestEllipsoid()
     for (int iy = 0; iy < np; ++iy) {
       for (int iz = 0; iz < np; ++iz) {
         Vec_t p(xxx[ix], yyy[iy], zzz[iz]);
-        double dist = solid.DistanceToIn(p, Vec_t(0, 0, -1));
+        Precision dist = solid.DistanceToIn(p, Vec_t(0, 0, -1));
         // Check inside points ("wrong" side)
         if (solid.Inside(p) == vecgeom::kInside) assert(dist < 0);
         // Check points on surface
@@ -482,7 +482,7 @@ bool TestEllipsoid()
           if (p.z() < ztop - 1) {
             assert(dist == kInfLength);
           } else {
-            assert(ApproxEqual(dist, p.z() - ztop));
+            assert(ApproxEqual<Precision>(dist, p.z() - ztop));
           }
         }
         // Check outside points
@@ -491,10 +491,10 @@ bool TestEllipsoid()
             assert(dist == kInfLength);
           } else {
             if (p.x() * p.x() / (a * a * sctop * sctop) + p.y() * p.y() / (b * b * sctop * sctop) <= 1.) {
-              assert(ApproxEqual(dist, p.z() - ztop));
+              assert(ApproxEqual<Precision>(dist, p.z() - ztop));
             } else {
-              double z = c * std::sqrt(1. - p.x() * p.x() / (a * a) - p.y() * p.y() / (b * b));
-              assert(ApproxEqual(dist, p.z() - z));
+              Precision z = c * std::sqrt(1. - p.x() * p.x() / (a * a) - p.y() * p.y() / (b * b));
+              assert(ApproxEqual<Precision>(dist, p.z() - z));
             }
           }
         }
@@ -507,7 +507,7 @@ bool TestEllipsoid()
     for (int iy = 0; iy < np; ++iy) {
       for (int iz = 0; iz < np; ++iz) {
         Vec_t p(xxx[ix], yyy[iy], zzz[iz]);
-        double dist = solid.DistanceToIn(p, Vec_t(0, 1, 0));
+        Precision dist = solid.DistanceToIn(p, Vec_t(0, 1, 0));
         if (solid.Inside(p) == vecgeom::kInside) {
           assert(dist < 0);
         } else {
@@ -515,8 +515,8 @@ bool TestEllipsoid()
               (p.x() * p.x() / (a * a) + p.z() * p.z() / (c * c)) >= 1.) {
             assert(dist == kInfLength);
           } else {
-            double y = b * std::sqrt(1. - p.x() * p.x() / (a * a) - p.z() * p.z() / (c * c));
-            assert(ApproxEqual(dist, -y - p.y()));
+            Precision y = b * std::sqrt(1. - p.x() * p.x() / (a * a) - p.z() * p.z() / (c * c));
+            assert(ApproxEqual<Precision>(dist, -y - p.y()));
           }
         }
       }
@@ -528,7 +528,7 @@ bool TestEllipsoid()
     for (int iy = 0; iy < np; ++iy) {
       for (int iz = 0; iz < np; ++iz) {
         Vec_t p(xxx[ix], yyy[iy], zzz[iz]);
-        double dist = solid.DistanceToIn(p, Vec_t(-1, 0, 0));
+        Precision dist = solid.DistanceToIn(p, Vec_t(-1, 0, 0));
         if (solid.Inside(p) == vecgeom::kInside) {
           assert(dist < 0);
         } else {
@@ -536,8 +536,8 @@ bool TestEllipsoid()
               (p.y() * p.y() / (b * b) + p.z() * p.z() / (c * c)) >= 1.) {
             assert(dist == kInfLength);
           } else {
-            double x = a * std::sqrt(1. - p.y() * p.y() / (b * b) - p.z() * p.z() / (c * c));
-            assert(ApproxEqual(dist, p.x() - x));
+            Precision x = a * std::sqrt(1. - p.y() * p.y() / (b * b) - p.z() * p.z() / (c * c));
+            assert(ApproxEqual<Precision>(dist, p.x() - x));
           }
         }
       }
@@ -545,16 +545,16 @@ bool TestEllipsoid()
   }
 
   // check far points
-  double Kfar = 1.e+5;
-  int nz      = 40;
-  int nphi    = 36;
+  Precision Kfar = 1.e+5;
+  int nz         = 40;
+  int nphi       = 36;
   for (int iz = 0; iz < nz + 1; ++iz) {
     for (int iphi = 0; iphi < nphi; ++iphi) {
-      double z   = -1. + iz * (2. / nz);
-      double phi = iphi * (kTwoPi / nphi);
-      double rho = std::sqrt(1. - z * z);
-      double x   = rho * std::cos(phi);
-      double y   = rho * std::sin(phi);
+      Precision z   = -1. + iz * (2. / nz);
+      Precision phi = iphi * (kTwoPi / nphi);
+      Precision rho = std::sqrt(1. - z * z);
+      Precision x   = rho * std::cos(phi);
+      Precision y   = rho * std::sin(phi);
       if (z < zbottom / c) {
         x = a * x * zbottom / (c * z);
         y = b * y * zbottom / (c * z);
@@ -569,8 +569,8 @@ bool TestEllipsoid()
         z *= c;
       }
       Vec_t p(x, y, z);
-      Vec_t v     = -p.Unit();
-      double dist = solid.DistanceToIn(Kfar * p, v);
+      Vec_t v        = -p.Unit();
+      Precision dist = solid.DistanceToIn(Kfar * p, v);
       assert(std::abs(dist - (Kfar - 1.) * p.Mag()) < kHalfTolerance);
     }
   }
@@ -588,7 +588,7 @@ bool TestEllipsoid()
     for (int iy = 0; iy < np; ++iy) {
       for (int iz = 0; iz < np; ++iz) {
         Vec_t p(xxx[ix], yyy[iy], zzz[iz]);
-        double dist = solid.DistanceToOut(p, Vec_t(0, 0, 1));
+        Precision dist = solid.DistanceToOut(p, Vec_t(0, 0, 1));
         // Check if point is outside ("wrong" side)
         if (solid.Inside(p) == vecgeom::kOutside) {
           assert(dist < 0);
@@ -598,7 +598,7 @@ bool TestEllipsoid()
           } else if (solid.Inside(Vec_t(p.x(), p.y(), ztop)) == vecgeom::kSurface) {
             assert(std::abs(dist - (ztop - p.z())) < 0.01 * kHalfTolerance);
           } else {
-            double z = c * std::sqrt(1. - p.x() * p.x() / (a * a) - p.y() * p.y() / (b * b));
+            Precision z = c * std::sqrt(1. - p.x() * p.x() / (a * a) - p.y() * p.y() / (b * b));
             assert(std::abs(dist - (z - p.z())) < 0.01 * kHalfTolerance);
           }
         }
@@ -611,7 +611,7 @@ bool TestEllipsoid()
     for (int iy = 0; iy < np; ++iy) {
       for (int iz = 0; iz < np; ++iz) {
         Vec_t p(xxx[ix], yyy[iy], zzz[iz]);
-        double dist = solid.DistanceToOut(p, Vec_t(0, 0, -1));
+        Precision dist = solid.DistanceToOut(p, Vec_t(0, 0, -1));
         // Check if point is outside ("wrong" side)
         if (solid.Inside(p) == vecgeom::kOutside) {
           assert(dist < 0);
@@ -621,7 +621,7 @@ bool TestEllipsoid()
           } else if (solid.Inside(Vec_t(p.x(), p.y(), zbottom)) == vecgeom::kSurface) {
             assert(std::abs(dist - (p.z() - zbottom)) < 0.01 * kHalfTolerance);
           } else {
-            double z = c * std::sqrt(1. - p.x() * p.x() / (a * a) - p.y() * p.y() / (b * b));
+            Precision z = c * std::sqrt(1. - p.x() * p.x() / (a * a) - p.y() * p.y() / (b * b));
             assert(std::abs(dist - (p.z() + z)) < 0.01 * kHalfTolerance);
           }
         }
@@ -634,7 +634,7 @@ bool TestEllipsoid()
     for (int iy = 0; iy < np; ++iy) {
       for (int iz = 0; iz < np; ++iz) {
         Vec_t p(xxx[ix], yyy[iy], zzz[iz]);
-        double dist = solid.DistanceToOut(p, Vec_t(0, -1, 0));
+        Precision dist = solid.DistanceToOut(p, Vec_t(0, -1, 0));
         // Check if point is outside ("wrong" side)
         if (solid.Inside(p) == vecgeom::kOutside) {
           assert(dist < 0);
@@ -642,7 +642,7 @@ bool TestEllipsoid()
           if ((p.x() * p.x() / (a * a) + p.z() * p.z() / (c * c)) >= 1.) {
             assert(dist == 0.);
           } else {
-            double y = b * std::sqrt(1. - p.x() * p.x() / (a * a) - p.z() * p.z() / (c * c));
+            Precision y = b * std::sqrt(1. - p.x() * p.x() / (a * a) - p.z() * p.z() / (c * c));
             assert(std::abs(dist - (p.y() + y)) < 0.01 * kHalfTolerance);
           }
         }
@@ -655,7 +655,7 @@ bool TestEllipsoid()
     for (int iy = 0; iy < np; ++iy) {
       for (int iz = 0; iz < np; ++iz) {
         Vec_t p(xxx[ix], yyy[iy], zzz[iz]);
-        double dist = solid.DistanceToOut(p, Vec_t(1, 0, 0));
+        Precision dist = solid.DistanceToOut(p, Vec_t(1, 0, 0));
         // Check if point is outside ("wrong" side)
         if (solid.Inside(p) == vecgeom::kOutside) {
           assert(dist < 0);
@@ -663,7 +663,7 @@ bool TestEllipsoid()
           if ((p.y() * p.y() / (b * b) + p.z() * p.z() / (c * c)) >= 1.) {
             assert(dist == 0.);
           } else {
-            double x = a * std::sqrt(1. - p.y() * p.y() / (b * b) - p.z() * p.z() / (c * c));
+            Precision x = a * std::sqrt(1. - p.y() * p.y() / (b * b) - p.z() * p.z() / (c * c));
             assert(std::abs(dist - (x - p.x())) < 0.01 * kHalfTolerance);
           }
         }
@@ -678,12 +678,12 @@ bool TestEllipsoid()
   std::cout << "=== Check SamplePointOnSurface()" << std::endl;
   solid.SetSemiAxes(a = 3, b = 4, c = 5);
   solid.SetZCuts(zbottom = -4.5, ztop = 3.5);
-  area         = solid.SurfaceArea();
-  double hbot  = 1. + zbottom / c;
-  double htop  = 1. - ztop / c;
-  double szneg = kPi * a * b * hbot * (2. - hbot);
-  double szpos = kPi * a * b * htop * (2. - htop);
-  double sside = area - szneg - szpos;
+  area            = solid.SurfaceArea();
+  Precision hbot  = 1. + zbottom / c;
+  Precision htop  = 1. - ztop / c;
+  Precision szneg = kPi * a * b * hbot * (2. - hbot);
+  Precision szpos = kPi * a * b * htop * (2. - htop);
+  Precision sside = area - szneg - szpos;
 
   Stopwatch timer;
   timer.Start();

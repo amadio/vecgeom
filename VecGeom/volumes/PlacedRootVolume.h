@@ -163,8 +163,7 @@ bool PlacedRootVolume::Contains(Vector3D<Precision> const &point, Vector3D<Preci
 
 bool PlacedRootVolume::UnplacedContains(Vector3D<Precision> const &point) const
 {
-  Vector3D<Precision> pointCopy = point; // ROOT expects non const input
-  return GetRootShape()->Contains(&pointCopy[0]);
+  return GetRootShape()->Contains(&Vector3D<double>(point)[0]);
 }
 
 EnumInside PlacedRootVolume::Inside(Vector3D<Precision> const &point) const
@@ -177,8 +176,8 @@ EnumInside PlacedRootVolume::Inside(Vector3D<Precision> const &point) const
 Precision PlacedRootVolume::DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                          const Precision stepMax) const
 {
-  Vector3D<Precision> positionLocal  = GetTransformation()->Transform(position);
-  Vector3D<Precision> directionLocal = GetTransformation()->TransformDirection(direction);
+  Vector3D<double> positionLocal  = GetTransformation()->Transform(position);
+  Vector3D<double> directionLocal = GetTransformation()->TransformDirection(direction);
   return GetRootShape()->DistFromOutside(&positionLocal[0], &directionLocal[0], 3);
 }
 
@@ -186,32 +185,32 @@ VECGEOM_FORCE_INLINE
 Precision PlacedRootVolume::DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                           const Precision stepMax) const
 {
-  return GetRootShape()->DistFromInside(&position[0], &direction[0], 3);
+  return GetRootShape()->DistFromInside(&Vector3D<double>(position)[0], &Vector3D<double>(direction)[0], 3);
 }
 
 VECGEOM_FORCE_INLINE
 Precision PlacedRootVolume::PlacedDistanceToOut(Vector3D<Precision> const &position,
                                                 Vector3D<Precision> const &direction, const Precision stepMax) const
 {
-  Vector3D<Precision> positionLocal  = GetTransformation()->Transform(position);
-  Vector3D<Precision> directionLocal = GetTransformation()->TransformDirection(direction);
+  Vector3D<double> positionLocal  = GetTransformation()->Transform(position);
+  Vector3D<double> directionLocal = GetTransformation()->TransformDirection(direction);
   return GetRootShape()->DistFromInside(&positionLocal[0], &directionLocal[0], 3);
 }
 
 VECGEOM_FORCE_INLINE
 Precision PlacedRootVolume::SafetyToOut(Vector3D<Precision> const &position) const
 {
-  Vector3D<Precision> position_local = GetTransformation()->Transform(position);
+  Vector3D<double> position_local = GetTransformation()->Transform(position);
   return GetRootShape()->Safety(&position_local[0], true);
 }
 
 VECGEOM_FORCE_INLINE
 Precision PlacedRootVolume::SafetyToIn(Vector3D<Precision> const &position) const
 {
-  Vector3D<Precision> position_local = GetTransformation()->Transform(position);
+  Vector3D<double> position_local = GetTransformation()->Transform(position);
   return GetRootShape()->Safety(&position_local[0], false);
 }
-}
-} // End global namespace
+} // namespace cxx
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLACEDROOTVOLUME_H_

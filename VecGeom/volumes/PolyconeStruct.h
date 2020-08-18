@@ -15,8 +15,6 @@
 #include "VecGeom/volumes/PolyconeSection.h"
 #include "VecGeom/base/Array.h"
 
-#define kConeTolerance 1e-7
-
 namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -35,11 +33,11 @@ struct PolyconeStruct {
   unsigned int fNz;
 
   Vector<PolyconeSection> fSections;
-  Vector<double> fZs;
+  Vector<Precision> fZs;
   PolyconeHistorical *fOriginal_parameters;
 
   VECCORE_ATT_HOST_DEVICE
-  bool CheckContinuity(const double rOuter[], const double rInner[], const double zPlane[],
+  bool CheckContinuity(const Precision rOuter[], const Precision rInner[], const Precision zPlane[],
                        Vector<Precision> &newROuter, Vector<Precision> &newRInner, Vector<Precision> &newZPlane)
   {
     Vector<Precision> rOut, rIn;
@@ -80,12 +78,12 @@ struct PolyconeStruct {
     }
 
     /* Creating a new temporary Reduced polycone with desired data elements,
-    *  which makes sure that denominator will never be zero (hence avoiding FPE(division by zero)),
-    *  while calculating slope.
-    *
-    *  This will be the minimum polycone,i.e. no extra section which
-    *  affect its shape
-    */
+     *  which makes sure that denominator will never be zero (hence avoiding FPE(division by zero)),
+     *  while calculating slope.
+     *
+     *  This will be the minimum polycone,i.e. no extra section which
+     *  affect its shape
+     */
 
     for (size_t j = 0; j < rOut.size();) {
 
@@ -143,20 +141,20 @@ struct PolyconeStruct {
   }
 
   VECCORE_ATT_HOST_DEVICE
-  void Init(double phiStart,         // initial phi starting angle
-            double phiTotal,         // total phi angle
-            unsigned int numZPlanes, // number of z planes
-            const double zPlane[],   // position of z planes
-            const double rInner[],   // tangent distance to inner surface
-            const double rOuter[])
+  void Init(Precision phiStart,       // initial phi starting angle
+            Precision phiTotal,       // total phi angle
+            unsigned int numZPlanes,  // number of z planes
+            const Precision zPlane[], // position of z planes
+            const Precision rInner[], // tangent distance to inner surface
+            const Precision rOuter[])
   {
 
     SetAndCheckDPhiAngle(phiTotal);
     SetAndCheckSPhiAngle(phiStart);
-    fNz             = numZPlanes;
-    double *zPlaneR = new double[numZPlanes];
-    double *rInnerR = new double[numZPlanes];
-    double *rOuterR = new double[numZPlanes];
+    fNz                = numZPlanes;
+    Precision *zPlaneR = new Precision[numZPlanes];
+    Precision *rInnerR = new Precision[numZPlanes];
+    Precision *rOuterR = new Precision[numZPlanes];
     for (unsigned int i = 0; i < numZPlanes; i++) {
       zPlaneR[i] = zPlane[i];
       rInnerR[i] = rInner[i];
@@ -187,7 +185,7 @@ struct PolyconeStruct {
 
     // Calculate RMax of Polycone in order to determine convexity of sections
     //
-    double RMaxextent = rOuterR[0];
+    Precision RMaxextent = rOuterR[0];
 
     Vector<Precision> newROuter, newZPlane, newRInner;
     fContinuityOverAll &= CheckContinuity(rOuterR, rInnerR, zPlaneR, newROuter, newRInner, newZPlane);
@@ -214,8 +212,8 @@ struct PolyconeStruct {
       }
     }
 
-    double prevZ = zPlaneR[0], prevRmax = 0, prevRmin = 0;
-    int dirZ                          = 1;
+    Precision prevZ = zPlaneR[0], prevRmax = 0, prevRmin = 0;
+    int dirZ = 1;
     if (zPlaneR[1] < zPlaneR[0]) dirZ = -1;
 
     for (unsigned int i = 0; i < numZPlanes; ++i) {
@@ -232,10 +230,10 @@ struct PolyconeStruct {
         }
       }
 
-      double rMin = rInnerR[i];
+      Precision rMin = rInnerR[i];
 
-      double rMax = rOuterR[i];
-      double z    = zPlaneR[i];
+      Precision rMax = rOuterR[i];
+      Precision z    = zPlaneR[i];
 
       // i has to be at least one to complete a section
       if (i > 0) {
@@ -249,15 +247,15 @@ struct PolyconeStruct {
 #endif
           }
 
-          ConeStruct<double> *solid;
+          ConeStruct<Precision> *solid;
 
-          double dz = (z - prevZ) / 2;
+          Precision dz = (z - prevZ) / 2;
 
-          solid = new ConeStruct<double>(prevRmin, prevRmax, rMin, rMax, dz, phiStart, phiTotal);
+          solid = new ConeStruct<Precision>(prevRmin, prevRmax, rMin, rMax, dz, phiStart, phiTotal);
 
           fZs.push_back(z);
-          int zi       = fZs.size() - 1;
-          double shift = fZs[zi - 1] + 0.5 * (fZs[zi] - fZs[zi - 1]);
+          int zi          = fZs.size() - 1;
+          Precision shift = fZs[zi - 1] + 0.5 * (fZs[zi] - fZs[zi - 1]);
 
           PolyconeSection section;
           section.fShift = shift;
@@ -391,7 +389,7 @@ struct PolyconeStruct {
   VECCORE_ATT_HOST_DEVICE
   PolyconeStruct() {}
 };
-}
-}
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

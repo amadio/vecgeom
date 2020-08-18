@@ -142,9 +142,9 @@ public:
     // analysis loop - not auto-vectorizable
     for (unsigned int i = 0; i < N; ++i) {
       // is it outside of this side plane?
-      completelyOutside = completelyOutside || (dist[i] > MakePlusTolerant<ForInside>(0.0));
+      completelyOutside = completelyOutside || (dist[i] > Real_v(MakePlusTolerant<ForInside>(0.)));
       if (ForInside) {
-        completelyInside = completelyInside && (dist[i] < MakeMinusTolerant<ForInside>(0.0));
+        completelyInside = completelyInside && (dist[i] < Real_v(MakeMinusTolerant<ForInside>(0.)));
       }
       // if (vecCore::EarlyReturnMaxLength(completelyOutside,1) && vecCore::MaskFull(completelyOutside)) return;
     }
@@ -182,15 +182,15 @@ public:
 
     // wrong-side check: if (inside && smin<0) return -1
     for (int i = 0; i < N; ++i) {
-      done = done || (pdist[i] > MakePlusTolerant<true>(0.0) && proj[i] >= 0.0);
-      done = done || (pdist[i] > MakeMinusTolerant<true>(0.0) && proj[i] > 0.0);
+      done = done || (pdist[i] > Real_v(MakePlusTolerant<true>(0.)) && proj[i] >= Real_v(0.));
+      done = done || (pdist[i] > Real_v(MakeMinusTolerant<true>(0.)) && proj[i] > Real_v(0.));
     }
     if (vecCore::EarlyReturnMaxLength(done, 1) && vecCore::MaskFull(done)) return distIn;
 
     // analysis loop
     for (int i = 0; i < N; ++i) {
       // if outside and moving away, return infinity
-      Bool_v posPoint = pdist[i] > MakeMinusTolerant<true>(0.0);
+      Bool_v posPoint = pdist[i] > Real_v(MakeMinusTolerant<true>(0.));
       Bool_v posDir   = proj[i] > 0;
 
       // check if trajectory will intercept plane within current range (smin,smax)
@@ -247,8 +247,8 @@ public:
 
     // std::cout<<"=== point="<< point <<", dir="<< dir <<"\n";
     for (int i = 0; i < N; ++i) {
-      vecCore__MaskedAssignFunc(distOut, pdist[i] > kHalfTolerance, Real_v(-1.0));
-      vecCore__MaskedAssignFunc(distOut, proj[i] > 0.0 && vdist[i] < distOut, vdist[i]);
+      vecCore__MaskedAssignFunc(distOut, pdist[i] > kHalfTolerance, Real_v(-1.));
+      vecCore__MaskedAssignFunc(distOut, proj[i] > Real_v(0.) && vdist[i] < distOut, vdist[i]);
       // std::cout<<"i="<< i <<", pdist="<< pdist[i] <<", proj="<< proj[i] <<", vdist="<< vdist[i] <<" "<< vdist1[i] <<"
       // --> dist="<< distOut <<", "<< distOut1 <<"\n";
     }
@@ -358,8 +358,8 @@ public:
                                 normal + Vector3D<Real_v>(this->fA[i], this->fB[i], this->fC[i]));
 
       // this one is farther than our previous one -- update safety and normal
-      vecCore__MaskedAssignFunc(normal, saf_i > 0.0, Vector3D<Real_v>(this->fA[i], this->fB[i], this->fC[i]));
-      vecCore__MaskedAssignFunc(safety, saf_i > 0.0, dist[i]);
+      vecCore__MaskedAssignFunc(normal, saf_i > Real_v(0.), Vector3D<Real_v>(this->fA[i], this->fB[i], this->fC[i]));
+      vecCore__MaskedAssignFunc(safety, saf_i > Real_v(0.), dist[i]);
       // std::cout<<"dist["<< i <<"]="<< dist[i] <<", saf_i="<< saf_i <<", safety="<< safety <<", normal="<< normal
       // <<"\n";
     }

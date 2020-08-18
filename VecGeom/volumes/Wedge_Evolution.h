@@ -239,10 +239,10 @@ typename vecCore::Mask_v<Real_v> Wedge::IsPointOnSurfaceAndMovingOut(Vector3D<Re
 
   if (MovingOut)
     return IsOnSurfaceGeneric<Real_v, ForStartPhi>(point) &&
-           (dir.Dot(-GetNormal<ForStartPhi>()) > 0.005 * kHalfTolerance);
+           (dir.Dot(-GetNormal<ForStartPhi>()) > Real_v(0.005 * kHalfTolerance));
   else
     return IsOnSurfaceGeneric<Real_v, ForStartPhi>(point) &&
-           (dir.Dot(-GetNormal<ForStartPhi>()) < 0.005 * kHalfTolerance);
+           (dir.Dot(-GetNormal<ForStartPhi>()) < Real_v(0.005 * kHalfTolerance));
 }
 
 template <typename Real_v, bool ForStartPhi>
@@ -322,11 +322,11 @@ void Wedge::GenericKernelForContainsAndInside(Vector3D<Real_v> const &localPoint
   Real_v startCheck = (-x * starty + y * startx);
   Real_v endCheck   = (-endx * y + endy * x);
 
-  completelyoutside = startCheck < 0.;
+  completelyoutside = startCheck < Real_v(0.);
   if (fDPhi < kPi)
-    completelyoutside |= endCheck < 0.;
+    completelyoutside |= endCheck < Real_v(0.);
   else
-    completelyoutside &= endCheck < 0.;
+    completelyoutside &= endCheck < Real_v(0.);
   if (ForInside) {
     // TODO: see if the compiler optimizes across these function calls since
     // a couple of multiplications inside IsOnSurfaceGeneric are already done previously
@@ -346,7 +346,7 @@ typename vecCore::Mask_v<Real_v> Wedge::IsOnSurfaceGeneric(Vector3D<Precision> c
 {
   // on right side of half plane ??
   typedef typename vecCore::Mask_v<Real_v> Bool_v;
-  Bool_v condition1 = alongVector.x() * point.x() + alongVector.y() * point.y() >= 0.;
+  Bool_v condition1 = alongVector.x() * point.x() + alongVector.y() * point.y() >= Real_v(0.);
   if (vecCore::MaskEmpty(condition1)) return Bool_v(false);
   // within the right distance to the plane ??
   Bool_v condition2 = Abs(normalVector.x() * point.x() + normalVector.y() * point.y()) < kTolerance;
@@ -409,15 +409,15 @@ void Wedge::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &
   Real_v comp1 = dir.x() * fNormalVector1.x() + dir.y() * fNormalVector1.y();
   Real_v comp2 = dir.x() * fNormalVector2.x() + dir.y() * fNormalVector2.y();
 
-  Bool_v cmp1 = comp1 > 0.;
+  Bool_v cmp1 = comp1 > Real_v(0.);
   if (!vecCore::MaskEmpty(cmp1)) {
     Real_v tmp = -(point.x() * fNormalVector1.x() + point.y() * fNormalVector1.y()) / comp1;
-    vecCore::MaskedAssign(distWedge1, cmp1 && tmp > 0., tmp);
+    vecCore::MaskedAssign(distWedge1, cmp1 && tmp > Real_v(0.), tmp);
   }
-  Bool_v cmp2 = comp2 > 0.;
+  Bool_v cmp2 = comp2 > Real_v(0.);
   if (!vecCore::MaskEmpty(cmp2)) {
     Real_v tmp = -(point.x() * fNormalVector2.x() + point.y() * fNormalVector2.y()) / comp2;
-    vecCore::MaskedAssign(distWedge2, cmp2 && tmp > 0., tmp);
+    vecCore::MaskedAssign(distWedge2, cmp2 && tmp > Real_v(0.), tmp);
   }
 }
 
@@ -441,20 +441,20 @@ void Wedge::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const 
   distWedge1 = kInfLength;
   distWedge2 = kInfLength;
 
-  Bool_v cmp1 = comp1 < 0.;
+  Bool_v cmp1 = comp1 < Real_v(0.);
   if (!vecCore::MaskEmpty(cmp1)) {
     Real_v tmp = -(point.x() * fNormalVector1.x() + point.y() * fNormalVector1.y()) / comp1;
-    vecCore::MaskedAssign(distWedge1, cmp1 && tmp > 0., tmp);
+    vecCore::MaskedAssign(distWedge1, cmp1 && tmp > Real_v(0.), tmp);
   }
 
-  Bool_v cmp2 = comp2 < 0.;
+  Bool_v cmp2 = comp2 < Real_v(0.);
   if (!vecCore::MaskEmpty(cmp2)) {
     Real_v tmp = -(point.x() * fNormalVector2.x() + point.y() * fNormalVector2.y()) / comp2;
-    vecCore::MaskedAssign(distWedge2, cmp2 && tmp > 0., tmp);
+    vecCore::MaskedAssign(distWedge2, cmp2 && tmp > Real_v(0.), tmp);
   }
 }
-}
-}
-} // end of namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace evolution
+} // namespace vecgeom
 
 #endif /* VECGEOM_VOLUMES_WEDGE_H_ */

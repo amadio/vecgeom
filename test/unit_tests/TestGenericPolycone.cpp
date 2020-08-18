@@ -18,6 +18,7 @@ bool testvecgeom = false;
 
 using vecgeom::kInfLength;
 using vecgeom::kTolerance;
+using vecgeom::Precision;
 
 template <class GenericPolycone_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestGenericPolycone()
@@ -34,11 +35,11 @@ bool TestGenericPolycone()
    *       |/                    \|
    */
 
-  bool verbose    = true;
-  double startPhi = 0., deltaPhi = 2. * M_PI; /// 3.;
+  bool verbose       = true;
+  Precision startPhi = 0., deltaPhi = 2. * M_PI; /// 3.;
   constexpr int numRz = 6;
-  double r[numRz]     = {1., 2., 4., 5., 5., 1.};
-  double z[numRz]     = {1., 2., 2., 1., 3., 3.};
+  Precision r[numRz]  = {1., 2., 4., 5., 5., 1.};
+  Precision z[numRz]  = {1., 2., 2., 1., 3., 3.};
   GenericPolycone_t Simple("GenericPolycone", startPhi, deltaPhi, numRz, r, z);
   Vec_t aMin, aMax;
   Simple.GetUnplacedVolume()->Extent(aMin, aMax);
@@ -80,7 +81,7 @@ bool TestGenericPolycone()
 
   Vec_t outPt1(8., 0., 1.5);
   Vec_t dir(-1., 0., 0.);
-  double Dist = Simple.DistanceToIn(outPt1, dir);
+  Precision Dist = Simple.DistanceToIn(outPt1, dir);
   // std::cout << std::setprecision(20) << "DistanceToIn of (8.,0.,1.5) : " << Dist << std::endl;
   assert(Dist == 3);
   assert(Simple.Inside(outPt1 + dir * Dist) == vecgeom::EInside::kSurface);
@@ -139,12 +140,12 @@ bool TestGenericPolycone()
      * GenericPolycone as specified in jira issue 425
      */
 
-    double sphi         = 0.;
-    double dphi         = vecgeom::kTwoPi;
-    const int numRZ1    = 10;
-    double polycone_r[] = {1, 5, 3, 4, 9, 9, 3, 3, 2, 1};
-    double polycone_z[] = {0, 1, 2, 3, 0, 5, 4, 3, 2, 1};
-    auto poly2          = new GenericPolycone_t("GenericPoly", sphi, dphi, numRZ1, polycone_r, polycone_z);
+    Precision sphi         = 0.;
+    Precision dphi         = vecgeom::kTwoPi;
+    const int numRZ1       = 10;
+    Precision polycone_r[] = {1, 5, 3, 4, 9, 9, 3, 3, 2, 1};
+    Precision polycone_z[] = {0, 1, 2, 3, 0, 5, 4, 3, 2, 1};
+    auto poly2             = new GenericPolycone_t("GenericPoly", sphi, dphi, numRZ1, polycone_r, polycone_z);
 
     // Some mismatched point detected by Benchmarker before fixes of Cones
     Vec_t ptIn(1.342000296513003121390284, 7.419050450955836595312576, 0.8763312698342673456863849);

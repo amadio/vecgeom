@@ -15,12 +15,12 @@ int main(int argc, char *argv[])
   OPTION_INT(nrep, 4);
   OPTION_INT(N, 12);
 
-  double dx = 5;
-  double dy = 5;
-  double dz = 5;
+  Precision dx = 5;
+  Precision dy = 5;
+  Precision dz = 5;
   UnplacedBox worldUnplaced(dx * 4, dy * 4, dz * 4);
 
-  double x[N], y[N];
+  Precision x[N], y[N];
   for (size_t i = 0; i < (size_t)N; ++i) {
     x[i] = dx * std::sin(i * (2. * M_PI) / N);
     y[i] = dy * std::cos(i * (2. * M_PI) / N);

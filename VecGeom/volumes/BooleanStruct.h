@@ -20,8 +20,8 @@ struct BooleanStruct {
   VPlacedVolume const *fLeftVolume;
   VPlacedVolume const *fRightVolume;
   BooleanOperation const fOp;
-  mutable double fCapacity    = -1;
-  mutable double fSurfaceArea = -1;
+  mutable Precision fCapacity    = -1;
+  mutable Precision fSurfaceArea = -1;
 
   VECCORE_ATT_HOST_DEVICE
   BooleanStruct(BooleanOperation op, VPlacedVolume const *left, VPlacedVolume const *right)
@@ -30,8 +30,8 @@ struct BooleanStruct {
   }
 }; // End struct
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif /* VECGEOM_VOLUMES_BOOLEANSTRUCT_H_ */

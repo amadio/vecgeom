@@ -28,7 +28,7 @@ class UnplacedTessellated;
 struct TessellatedImplementation {
 
   using PlacedShape_t    = PlacedTessellated;
-  using UnplacedStruct_t = TessellatedStruct<3, double>;
+  using UnplacedStruct_t = TessellatedStruct<3, Precision>;
   using UnplacedVolume_t = UnplacedTessellated;
 
   VECCORE_ATT_HOST_DEVICE

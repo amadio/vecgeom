@@ -125,19 +125,23 @@ int main(int argc, char *argv[])
     std::cout << "VecGeom SO " << vecgeomplaced->SafetyToOut(point) << "\n";
 
     std::cout << "ROOT Capacity " << testShape->Capacity() << "\n";
-    std::cout << "ROOT CONTAINS " << testShape->Contains(&point[0]) << "\n";
-    std::cout << "ROOT DI " << testShape->DistFromOutside(&point[0], &dir[0]) << "\n";
-    std::cout << "ROOT DO " << testShape->DistFromInside(&point[0], &dir[0]) << "\n";
-    std::cout << "ROOT SI " << testShape->Safety(&point[0], false) << "\n";
-    std::cout << "ROOT SO " << testShape->Safety(&point[0], true) << "\n";
+    std::cout << "ROOT CONTAINS " << testShape->Contains(&Vector3D<double>(point)[0]) << "\n";
+    std::cout << "ROOT DI " << testShape->DistFromOutside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0])
+              << "\n";
+    std::cout << "ROOT DO " << testShape->DistFromInside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0])
+              << "\n";
+    std::cout << "ROOT SI " << testShape->Safety(&Vector3D<double>(point)[0], false) << "\n";
+    std::cout << "ROOT SO " << testShape->Safety(&Vector3D<double>(point)[0], true) << "\n";
 
     TGeoShape const *rootback = vecgeomplaced->ConvertToRoot();
     if (rootback) {
-      std::cout << "ROOTBACKCONV CONTAINS " << rootback->Contains(&point[0]) << "\n";
-      std::cout << "ROOTBACKCONV DI " << rootback->DistFromOutside(&point[0], &dir[0]) << "\n";
-      std::cout << "ROOTBACKCONV DO " << rootback->DistFromInside(&point[0], &dir[0]) << "\n";
-      std::cout << "ROOTBACKCONV SI " << rootback->Safety(&point[0], false) << "\n";
-      std::cout << "ROOTBACKCONV SO " << rootback->Safety(&point[0], true) << "\n";
+      std::cout << "ROOTBACKCONV CONTAINS " << rootback->Contains(&Vector3D<double>(point)[0]) << "\n";
+      std::cout << "ROOTBACKCONV DI "
+                << rootback->DistFromOutside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0]) << "\n";
+      std::cout << "ROOTBACKCONV DO "
+                << rootback->DistFromInside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0]) << "\n";
+      std::cout << "ROOTBACKCONV SI " << rootback->Safety(&Vector3D<double>(point)[0], false) << "\n";
+      std::cout << "ROOTBACKCONV SO " << rootback->Safety(&Vector3D<double>(point)[0], true) << "\n";
     } else {
       std::cerr << "ROOT backconversion failed\n";
     }
@@ -167,7 +171,7 @@ int main(int argc, char *argv[])
     //    }
 
     // modified to show problem in DistanceToIn()
-    step = testShape->DistFromOutside(&point[0], &dir[0]);
+    step = testShape->DistFromOutside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0]);
     Visualizer visualizer;
     visualizer.AddVolume(*vecgeomplaced);
     visualizer.AddPoint(point);

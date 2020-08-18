@@ -31,8 +31,8 @@ Precision UnplacedTessellated::Capacity() const
 
   int size = fTessellated.fFacets.size();
   for (int i = 0; i < size; ++i) {
-    TriangleFacet<double> &facet = *fTessellated.fFacets[i];
-    double area                  = facet.fSurfaceArea;
+    TriangleFacet<Precision> &facet = *fTessellated.fFacets[i];
+    Precision area                  = facet.fSurfaceArea;
     fTessellated.fCubicVolume += area * (facet.fVertices[0].Dot(facet.fNormal));
   }
   fTessellated.fCubicVolume /= 3.;
@@ -45,7 +45,7 @@ Precision UnplacedTessellated::SurfaceArea() const
 
   int size = fTessellated.fFacets.size();
   for (int i = 0; i < size; ++i) {
-    TriangleFacet<double> *facet = fTessellated.fFacets[i];
+    TriangleFacet<Precision> *facet = fTessellated.fFacets[i];
     fTessellated.fSurfaceArea += facet->fSurfaceArea;
   }
   return fTessellated.fSurfaceArea;

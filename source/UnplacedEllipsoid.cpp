@@ -267,7 +267,7 @@ void UnplacedEllipsoid::Print(std::ostream &os) const
 #ifndef VECCORE_CUDA
 SolidMesh *UnplacedEllipsoid::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
   sm->ResetMesh((nSegments + 1) * (nSegments + 1), nSegments * nSegments + 2);
@@ -275,11 +275,11 @@ SolidMesh *UnplacedEllipsoid::CreateMesh3D(Transformation3D const &trans, size_t
   // fill vertex array
   Vec_t *vertices = new Vec_t[(nSegments + 1) * (nSegments + 1)];
 
-  double phi_step = 2 * M_PI / nSegments;
-  double phi      = 0.;
+  Precision phi_step = 2 * M_PI / nSegments;
+  Precision phi      = 0.;
 
-  double theta      = (GetDz() - GetZTopCut()) * kPi / (2 * GetDz());
-  double theta_step = (GetZTopCut() - GetZBottomCut()) / (2 * GetDz()) * kPi / nSegments;
+  Precision theta      = (GetDz() - GetZTopCut()) * kPi / (2 * GetDz());
+  Precision theta_step = (GetZTopCut() - GetZBottomCut()) / (2 * GetDz()) * kPi / nSegments;
 
   size_t idx = 0;
   for (size_t i = 0; i <= nSegments; ++i, theta += theta_step, phi = 0.) {

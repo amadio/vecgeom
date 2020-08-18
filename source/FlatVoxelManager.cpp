@@ -43,7 +43,7 @@ void FlatVoxelManager::InitStructure(LogicalVolume const *lvol)
 FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume const *vol)
 {
 #ifdef EXTREMELOOKUP
-  Vector3D<double> lower, upper;
+  Vector3D<Precision> lower, upper;
   vol->GetUnplacedVolume()->Extent(lower, upper);
   // these numbers have to be chosen dynamically to best match the situation
   int Nx      = 500;
@@ -159,7 +159,7 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
   return structure;
 #else
 
-  Vector3D<double> lower, upper;
+  Vector3D<Precision> lower, upper;
   vol->GetUnplacedVolume()->Extent(lower, upper);
   // these numbers have to be chosen dynamically to best match the situation
 
@@ -365,7 +365,8 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
               }
 
               // we take the larger of boxsafety or candidatesafety as the safety for this object
-              const auto thiscandidatesafetysqr = std::min(0., std::max(candsafetysqr, safetytoboxsqr));
+              const auto thiscandidatesafetysqr =
+                  std::min(Precision(0.), std::max<Precision>(candsafetysqr, safetytoboxsqr));
 
               // if this safety is smaller than the previously known safety
               if (thiscandidatesafetysqr <= finalsafetysqr) {
@@ -418,7 +419,7 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
 
 FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildLocateVoxels(LogicalVolume const *vol)
 {
-  Vector3D<double> lower, upper;
+  Vector3D<Precision> lower, upper;
   vol->GetUnplacedVolume()->Extent(lower, upper);
   // these numbers have to be chosen dynamically to best match the situation
 

@@ -66,7 +66,7 @@ struct HasVaryingY<Trd2> {
 template <typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-bool checkVaryingY(const TrdStruct<double> &trd)
+bool checkVaryingY(const TrdStruct<Precision> &trd)
 {
   if (HasVaryingY<T>::value != kUnknown)
     return HasVaryingY<T>::value == kYes;

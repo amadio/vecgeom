@@ -157,7 +157,8 @@ namespace cxx {
 
 template size_t DevicePtr<cuda::VPlacedVolume const *>::SizeOf();
 template size_t DevicePtr<char>::SizeOf();
-template size_t DevicePtr<Precision>::SizeOf();
+template size_t DevicePtr<float>::SizeOf();
+template size_t DevicePtr<double>::SizeOf();
 // template void DevicePtr<cuda::PlacedBox>::Construct(
 //    DevicePtr<cuda::LogicalVolume> const logical_volume,
 //    DevicePtr<cuda::Transformation3D> const transform,

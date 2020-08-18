@@ -39,8 +39,8 @@ private:
 
   // caching the extent (bounding box)
   // these members are automatically updated whenever a new volume is added to the assembly
-  Vector3D<double> fLowerCorner;
-  Vector3D<double> fUpperCorner;
+  Vector3D<Precision> fLowerCorner;
+  Vector3D<Precision> fUpperCorner;
 
   void SetLogicalVolume(LogicalVolume *lv) { fLogicalVolume = lv; }
   void UpdateExtent() { UnplacedAssembly::Extent(fLowerCorner, fUpperCorner); }

@@ -32,7 +32,7 @@ class UnplacedParallelepiped;
 struct ParallelepipedImplementation {
 
   using PlacedShape_t    = PlacedParallelepiped;
-  using UnplacedStruct_t = ParallelepipedStruct<double>;
+  using UnplacedStruct_t = ParallelepipedStruct<Precision>;
   using UnplacedVolume_t = UnplacedParallelepiped;
 
   VECCORE_ATT_HOST_DEVICE
@@ -155,12 +155,13 @@ struct ParallelepipedImplementation {
 
     // Check if point is leaving shape
     Bool_v leaving(false);
-    leaving |= (safetyVector.x() >= -kHalfTolerance && p.x() * v.x() >= 0.0);
-    leaving |= (safetyVector.y() >= -kHalfTolerance && p.y() * v.y() >= 0.0);
-    leaving |= (safetyVector.z() >= -kHalfTolerance && p.z() * v.z() >= 0.0);
+    leaving |= (safetyVector.x() >= -kHalfTolerance && p.x() * v.x() >= Real_v(0.));
+    leaving |= (safetyVector.y() >= -kHalfTolerance && p.y() * v.y() >= Real_v(0.));
+    leaving |= (safetyVector.z() >= -kHalfTolerance && p.z() * v.z() >= Real_v(0.));
 
     // Compute distances
-    const Vector3D<Real_v> invDir(1.0 / NonZero(v.x()), 1.0 / NonZero(v.y()), 1.0 / NonZero(v.z()));
+    const Vector3D<Real_v> invDir(Real_v(1.) / NonZero(v.x()), Real_v(1.) / NonZero(v.y()),
+                                  Real_v(1.) / NonZero(v.z()));
     const Vector3D<Real_v> signDir(Sign(invDir.x()), Sign(invDir.y()), Sign(invDir.z()));
     const Vector3D<Real_v> temp = signDir * unplaced.fDimensions;
     const Real_v distIn         = ((-temp - p) * invDir).Max();
@@ -225,11 +226,11 @@ struct ParallelepipedImplementation {
 
     Real_v mag2 = normal.Mag2();
     vecCore__MaskedAssignFunc(normal, mag2 > 1., normal.Unit());
-    if (vecCore::MaskFull(mag2 > 0.)) return normal;
+    if (vecCore::MaskFull(mag2 > Real_v(0.))) return normal;
 
     // Point is not on the surface - normally, this should never be.
     // Return normal of the nearest face.
-    vecCore__MaskedAssignFunc(valid, mag2 == 0., false);
+    vecCore__MaskedAssignFunc(valid, mag2 == Real_v(0.), false);
     Real_v safety = safetyVector.Max();
     normal        = signs.x() * unplaced.fNormals[0];
     vecCore__MaskedAssignFunc(normal, safetyVector.y() == safety, signs.y() * unplaced.fNormals[1]);

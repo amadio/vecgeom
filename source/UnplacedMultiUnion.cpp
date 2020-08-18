@@ -30,7 +30,7 @@ Precision UnplacedMultiUnion::SurfaceArea() const
   for (size_t i = 0; i < GetNumberOfSolids(); ++i) {
     size_t nsurf = 0;
     for (size_t ip = 0; ip < nsamples; ++ip) {
-      Vector3D<double> point =
+      Vector3D<Precision> point =
           GetNode(i)->GetTransformation()->InverseTransform(GetNode(i)->GetUnplacedVolume()->SamplePointOnSurface());
       if (Inside(point) == vecgeom::kSurface) nsurf++;
     }
@@ -44,7 +44,7 @@ Vector3D<Precision> UnplacedMultiUnion::SamplePointOnSurface() const
   // Select a random component
   auto counter                = 0;
   VPlacedVolume const *volume = nullptr;
-  Vector3D<double> point;
+  Vector3D<Precision> point;
   size_t id = 0;
   do {
     if (counter == 0) {
@@ -61,7 +61,7 @@ bool UnplacedMultiUnion::Normal(Vector3D<Precision> const &point, Vector3D<Preci
 {
   // Compute normal to solid in a point
   bool valid = false;
-  normal     = MultiUnionImplementation::NormalKernel<double>(fMultiUnion, point, valid);
+  normal     = MultiUnionImplementation::NormalKernel<Precision>(fMultiUnion, point, valid);
   return valid;
 }
 

@@ -29,7 +29,7 @@ class UnplacedSphere;
 struct SphereImplementation {
 
   using PlacedShape_t    = PlacedSphere;
-  using UnplacedStruct_t = SphereStruct<double>;
+  using UnplacedStruct_t = SphereStruct<Precision>;
   using UnplacedVolume_t = UnplacedSphere;
 
   VECCORE_ATT_HOST_DEVICE
@@ -169,22 +169,23 @@ struct SphereImplementation {
     Real_v sd1(kInfLength);
     Real_v sd2(kInfLength);
     Real_v d2 = (pDotV3d * pDotV3d - c);
-    cond      = (d2 < 0. || ((c > 0.0) && (pDotV3d > 0.0)));
+    cond      = (d2 < Real_v(0.) || ((c > Real_v(0.)) && (pDotV3d > Real_v(0.))));
     done |= cond;
     if (vecCore::MaskFull(done)) return; // Returning in case of no intersection with outer shell
 
     // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
-    vecCore__MaskedAssignFunc(sd1, d2 >= 0.0, (-pDotV3d - Sqrt(Abs(d2))));
+    vecCore__MaskedAssignFunc(sd1, d2 >= Real_v(0.), (-pDotV3d - Sqrt(Abs(d2))));
 
     Real_v outerDist(kInfLength);
     Real_v innerDist(kInfLength);
 
     if (sphere.fFullSphere) {
-      vecCore::MaskedAssign(outerDist, !done && (sd1 >= 0.0), sd1);
+      vecCore::MaskedAssign(outerDist, !done && (sd1 >= Real_v(0.)), sd1);
     } else {
       tmpPt = point + sd1 * direction;
-      vecCore::MaskedAssign(outerDist, !done && sphere.fPhiWedge.Contains<Real_v>(tmpPt) &&
-                                           sphere.fThetaCone.Contains<Real_v>(tmpPt) && (sd1 >= 0.),
+      vecCore::MaskedAssign(outerDist,
+                            !done && sphere.fPhiWedge.Contains<Real_v>(tmpPt) &&
+                                sphere.fThetaCone.Contains<Real_v>(tmpPt) && (sd1 >= Real_v(0.)),
                             sd1);
     }
 
@@ -192,15 +193,16 @@ struct SphereImplementation {
       c  = rad2 - sphere.fRmin * sphere.fRmin;
       d2 = pDotV3d * pDotV3d - c;
       // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
-      vecCore__MaskedAssignFunc(sd2, d2 >= 0.0, (-pDotV3d + Sqrt(Abs(d2))));
+      vecCore__MaskedAssignFunc(sd2, d2 >= Real_v(0.), (-pDotV3d + Sqrt(Abs(d2))));
 
       if (sphere.fFullSphere) {
-        vecCore::MaskedAssign(innerDist, !done && (sd2 >= 0.0), sd2);
+        vecCore::MaskedAssign(innerDist, !done && (sd2 >= Real_v(0.)), sd2);
       } else {
         //   std::cout<<" ---- Called by InnerRad ---- " << std::endl;
         tmpPt = point + sd2 * direction;
-        vecCore::MaskedAssign(innerDist, !done && (sd2 >= 0.) && sphere.fPhiWedge.Contains<Real_v>(tmpPt) &&
-                                             sphere.fThetaCone.Contains<Real_v>(tmpPt),
+        vecCore::MaskedAssign(innerDist,
+                              !done && (sd2 >= Real_v(0.)) && sphere.fPhiWedge.Contains<Real_v>(tmpPt) &&
+                                  sphere.fThetaCone.Contains<Real_v>(tmpPt),
                               sd2);
       }
     }
@@ -292,18 +294,19 @@ struct SphereImplementation {
 
     // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
     d2 = (pDotV3d * pDotV3d - c);
-    vecCore__MaskedAssignFunc(sd1, (!done && (d2 >= 0.0)), (-pDotV3d + Sqrt(Abs(d2))));
+    vecCore__MaskedAssignFunc(sd1, (!done && (d2 >= Real_v(0.))), (-pDotV3d + Sqrt(Abs(d2))));
 
     if (sphere.fRmin) {
       c  = rad2 - sphere.fRmin * sphere.fRmin;
       d2 = (pDotV3d * pDotV3d - c);
-      vecCore__MaskedAssignFunc(sd2, (!done && (d2 >= 0.0) && (pDotV3d < 0.0)), (-pDotV3d - Sqrt(Abs(d2))));
+      vecCore__MaskedAssignFunc(sd2, (!done && (d2 >= Real_v(0.)) && (pDotV3d < Real_v(0.))),
+                                (-pDotV3d - Sqrt(Abs(d2))));
     }
 
     snxt = Min(sd1, sd2);
 
-    Bool_v condSemi = (Bool_v(sphere.fSTheta == 0. && sphere.eTheta == kPi / 2.) && direction.z() >= 0.) ||
-                      (Bool_v(sphere.fSTheta == kPi / 2. && sphere.eTheta == kPi) && direction.z() <= 0.);
+    Bool_v condSemi = (Bool_v(sphere.fSTheta == 0. && sphere.eTheta == kPi / 2.) && direction.z() >= Real_v(0.)) ||
+                      (Bool_v(sphere.fSTheta == kPi / 2. && sphere.eTheta == kPi) && direction.z() <= Real_v(0.));
     vecCore::MaskedAssign(distance, !done && condSemi, snxt);
     done |= condSemi;
     if (vecCore::MaskFull(done)) return;
@@ -476,13 +479,13 @@ struct SphereImplementation {
   }
 
   /* This function should be called from NormalKernel, only for the
-  * cases when the point is not on the surface and one want to calculate
-  * the SurfaceNormal.
-  *
-  * Algo : Find the boundary which is closest to the point,
-  * and return the normal to that boundary.
-  *
-  */
+   * cases when the point is not on the surface and one want to calculate
+   * the SurfaceNormal.
+   *
+   * Algo : Find the boundary which is closest to the point,
+   * and return the normal to that boundary.
+   *
+   */
   template <typename Real_v>
   VECCORE_ATT_HOST_DEVICE
   static Vector3D<Real_v> ApproxSurfaceNormalKernel(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point)
@@ -492,21 +495,21 @@ struct SphereImplementation {
     Real_v radius   = point.Mag();
     Real_v distRMax = Abs(radius - sphere.fRmax);
     Real_v distRMin = Abs(sphere.fRmin - radius);
-    vecCore__MaskedAssignFunc(distRMax, distRMax < 0.0, InfinityLength<Real_v>());
-    vecCore__MaskedAssignFunc(distRMin, distRMin < 0.0, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distRMax, distRMax < Real_v(0.), InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distRMin, distRMin < Real_v(0.), InfinityLength<Real_v>());
     Real_v distMin = Min(distRMin, distRMax);
 
     Real_v distPhi1 = point.x() * sphere.fPhiWedge.GetNormal1().x() + point.y() * sphere.fPhiWedge.GetNormal1().y();
     Real_v distPhi2 = point.x() * sphere.fPhiWedge.GetNormal2().x() + point.y() * sphere.fPhiWedge.GetNormal2().y();
-    vecCore__MaskedAssignFunc(distPhi1, distPhi1 < 0.0, InfinityLength<Real_v>());
-    vecCore__MaskedAssignFunc(distPhi2, distPhi2 < 0.0, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distPhi1, distPhi1 < Real_v(0.), InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distPhi2, distPhi2 < Real_v(0.), InfinityLength<Real_v>());
     distMin = Min(distMin, Min(distPhi1, distPhi2));
 
     Real_v rho        = point.Perp();
     Real_v distTheta1 = sphere.fThetaCone.DistanceToLine<Real_v>(sphere.fThetaCone.GetSlope1(), rho, point.z());
     Real_v distTheta2 = sphere.fThetaCone.DistanceToLine<Real_v>(sphere.fThetaCone.GetSlope2(), rho, point.z());
-    vecCore__MaskedAssignFunc(distTheta1, distTheta1 < 0.0, InfinityLength<Real_v>());
-    vecCore__MaskedAssignFunc(distTheta2, distTheta2 < 0.0, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distTheta1, distTheta1 < Real_v(0.), InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distTheta2, distTheta2 < Real_v(0.), InfinityLength<Real_v>());
     distMin = Min(distMin, Min(distTheta1, distTheta2));
 
     vecCore__MaskedAssignFunc(norm, distMin == distRMax, point.Unit());
@@ -612,23 +615,23 @@ struct SphereImplementation {
                                 normal + sphere.fThetaCone.GetNormal2<Real_v>(point));
 
       Vector3D<Real_v> tempNormal(0., 0., -1.);
-      vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
-                                            (sphere.eTheta <= kPi / 2.),
-                                tempNormal);
+      vecCore__MaskedAssignFunc(
+          normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta && (sphere.eTheta <= kPi / 2.),
+          tempNormal);
       Vector3D<Real_v> tempNormal2(0., 0., 1.);
-      vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
-                                            (sphere.fSTheta >= kPi / 2.),
-                                tempNormal2);
+      vecCore__MaskedAssignFunc(
+          normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta && (sphere.fSTheta >= kPi / 2.),
+          tempNormal2);
     }
 
     normal.Normalize();
 
-    valid = (noSurfaces > 0.);
+    valid = (noSurfaces > Real_v(0.));
 
     return normal;
   }
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_sphereIMPLEMENTATION_H_

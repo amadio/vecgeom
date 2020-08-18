@@ -24,7 +24,9 @@ struct BooleanImplementation<kIntersection> {
   using UnplacedStruct_t = BooleanStruct;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType() { /* printf("SpecializedBooleanVolume<%i, %i, %i>", kIntersection, transCodeT, rotCodeT); */}
+  static void PrintType()
+  { /* printf("SpecializedBooleanVolume<%i, %i, %i>", kIntersection, transCodeT, rotCodeT); */
+  }
 
   template <typename Stream>
   static void PrintType(Stream &s)
@@ -116,7 +118,7 @@ struct BooleanImplementation<kIntersection> {
       d2 = unplaced.fRightVolume->PlacedDistanceToOut(hitpoint, dir, stepMax);
 
       // if we are close to a boundary continue
-      if (d1 < 2 * kTolerance) inleft  = false; // Backend::kFalse;
+      if (d1 < 2 * kTolerance) inleft = false;  // Backend::kFalse;
       if (d2 < 2 * kTolerance) inright = false; // Backend::kFalse;
 
       // otherwise exit
@@ -223,7 +225,7 @@ struct BooleanImplementation<kIntersection> {
 
         // TODO: consider introducing PlacedSafetyToOut function
         unplaced.fRightVolume->SafetyToOut(unplaced.fRightVolume->GetTransformation()->Transform(point)));
-    vecCore::MaskedAssign(safety, safety < 0.0, 0.0);
+    vecCore::MaskedAssign(safety, safety < Real_v(0.), Real_v(0.));
   }
 
   template <typename Real_v, typename Bool_v>
@@ -272,8 +274,8 @@ struct BooleanImplementation<kIntersection> {
   }
 }; // End struct BooleanImplementation
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif /* BooleanImplementation_H_ */

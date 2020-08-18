@@ -10,8 +10,6 @@
 #include "VecGeom/base/Global.h"
 #include "VecGeom/volumes/Wedge_Evolution.h"
 
-#define kConeTolerance 1e-7
-
 namespace vecgeom {
 
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(struct, ConeStruct, typename);
@@ -211,7 +209,7 @@ struct ConeStruct {
     distRMin = std::fabs(distRMin);
 
     // keep track of nearest normal, needed in case point is not on a surface
-    double distNearest              = distZ;
+    Precision distNearest           = distZ;
     Vector3D<Precision> normNearest = nZ;
     if (p.z() < 0.) normNearest.Set(0, 0, -1.);
 

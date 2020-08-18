@@ -157,8 +157,8 @@ __attribute__((noinline)) void TimeTGeoSafety(TGeoPolygon const &poly, SOA3D<Pre
   for (size_t i = 0; i < S; ++i) {
     int segmentid;
     const auto p = container[i];
-    // const double x[3] = {p.x(),p.y(),p.z()};
-    totalsafety += poly.Safety(&p[0], segmentid);
+    // const Precision x[3] = {p.x(),p.y(),p.z()};
+    totalsafety += poly.Safety(&Vector3D<double>(p)[0], segmentid);
   }
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
   duration<double> time_span           = duration_cast<duration<double>>(t2 - t1);
@@ -169,7 +169,7 @@ __attribute__((noinline)) void TimeTGeoSafety(TGeoPolygon const &poly, SOA3D<Pre
 int main()
 {
   //  const int N = 100;
-  //  double x[N], y[N];
+  //  Precision x[N], y[N];
 
   ////  for (size_t i = 0; i < N; ++i) {
   ////    x[i] = std::sin(i * (2. * M_PI) / N);
@@ -177,23 +177,18 @@ int main()
   ////  }
 
   ////  box-like (has to be clockwise order)
-  const int N = 4;
-  double x[N], y[N];
-  x[0] = -4;
-  y[0] = -4;
-  x[1] = -4;
-  y[1] = 4;
-  x[2] = 4;
-  y[2] = 4;
-  x[3] = 4;
-  y[3] = -4;
+  constexpr int N = 4;
+  Precision x[N]  = {-4, -4, 4, 4};
+  Precision y[N]  = {-4, 4, 4, -4};
 
 #ifdef VECGEOM_ROOT
+  double xd[N] = {-4, -4, 4, 4};
+  double yd[N] = {-4, 4, 4, -4};
   TGeoBBox box(4, 4, 10);
 #endif
 
-  // double x[6]={0,1,1.5,1.5,1.0,-0.5};
-  // double y[6]={0,0,1,2,2,1};
+  // Precision x[6]={0,1,1.5,1.5,1.0,-0.5};
+  // Precision y[6]={0,0,1,2,2,1};
   vecgeom::PlanarPolygon poly(N, x, y);
 
   std::cerr << "convexity" << poly.IsConvex() << "\n";
@@ -216,12 +211,12 @@ int main()
     std::cerr << "distance " << d << "\n";
   }
 
-  std::cerr << poly.OnSegment<double, double, bool>(0, 1.0, 2.0) << "\n";
-  std::cerr << poly.OnSegment<double, double, bool>(0, x[0], y[0]) << "\n";
+  std::cerr << poly.OnSegment<Precision, Precision, bool>(0, 1.0, 2.0) << "\n";
+  std::cerr << poly.OnSegment<Precision, Precision, bool>(0, x[0], y[0]) << "\n";
 
   //  for (size_t i = 0; i < N; ++i) {
   //   // midpoints should be on Segment
-  //    std::cerr << poly.OnSegment<double,double,bool>(i, 0.5*(x[i]+x[(i-1)%N]), 0.5*(y[i]+y[(i-1)%N])) << "\n";
+  //    std::cerr << poly.OnSegment<Precision,Precision,bool>(i, 0.5*(x[i]+x[(i-1)%N]), 0.5*(y[i]+y[(i-1)%N])) << "\n";
   //  }
 
   Vector3D<Precision> lower(poly.GetMinX() - 1, poly.GetMinY() - 1, -15);
@@ -254,11 +249,11 @@ int main()
 
 #ifdef VECGEOM_ROOT
   TGeoPolygon geopoly(N);
-  geopoly.SetXY(x, y);
+  geopoly.SetXY(xd, yd);
   geopoly.FinishPolygon();
 
   TGeoXtru geoxtru(2);
-  geoxtru.DefinePolygon(N, x, y);
+  geoxtru.DefinePolygon(N, xd, yd);
   geoxtru.DefineSection(0, -10, 0., 0., 1.);
   geoxtru.DefineSection(1, 10, 0., 0., 1.);
   {

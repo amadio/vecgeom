@@ -102,16 +102,16 @@ SolidMesh *UnplacedTrd::CreateMesh3D(Transformation3D const &trans, size_t nSegm
   sm->ResetMesh(8, 6);
 
   //-z
-  double x1 = fTrd.fDX1;
-  double y1 = fTrd.fDY1;
+  Precision x1 = fTrd.fDX1;
+  Precision y1 = fTrd.fDY1;
 
   //+z
-  double x2 = fTrd.fDX2;
-  double y2 = fTrd.fDY2;
+  Precision x2 = fTrd.fDX2;
+  Precision y2 = fTrd.fDY2;
 
-  double z = fTrd.fDZ;
+  Precision z = fTrd.fDZ;
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   const Vec_t vertices[] = {Vec_t(-x1, -y1, -z), Vec_t(-x1, y1, -z), Vec_t(x1, y1, -z), Vec_t(x1, -y1, -z),
                             Vec_t(-x2, -y2, z),  Vec_t(-x2, y2, z),  Vec_t(x2, y2, z),  Vec_t(x2, -y2, z)};
 

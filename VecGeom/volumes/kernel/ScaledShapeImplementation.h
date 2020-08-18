@@ -26,7 +26,7 @@ class UnplacedScaledShape;
 struct ScaledShapeImplementation {
 
   using PlacedShape_t    = PlacedScaledShape;
-  using UnplacedStruct_t = ScaledShapeStruct<double>;
+  using UnplacedStruct_t = ScaledShapeStruct<Precision>;
   using UnplacedVolume_t = UnplacedScaledShape;
 
   VECCORE_ATT_HOST_DEVICE

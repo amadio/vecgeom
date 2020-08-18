@@ -20,7 +20,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 namespace Utils3D {
 
-using Vec_t = Vector3D<double>;
+using Vec_t = Vector3D<Precision>;
 
 template <typename T>
 #ifndef VECCORE_CUDA
@@ -33,19 +33,14 @@ enum EPlaneXing_t { kParallel = 0, kIdentical, kIntersecting };
 
 enum EBodyXing_t { kDisjoint = 0, kTouching, kOverlapping }; // do not change order
 
-
-
-
-
-
 /// @brief A basic plane in Hessian normal form
 struct Plane {
-  Vector3D<double> fNorm; ///< Unit normal vector to plane
-  double fDist = 0.;      ///< Distance to plane (positive if origin on same side as normal)
+  Vector3D<Precision> fNorm; ///< Unit normal vector to plane
+  Precision fDist = 0.;      ///< Distance to plane (positive if origin on same side as normal)
 
   Plane() : fNorm() {}
 
-  Plane(Vector3D<double> const &norm, double dist)
+  Plane(Vector3D<Precision> const &norm, Precision dist)
   {
     fNorm = norm;
     fDist = dist;
@@ -55,71 +50,65 @@ struct Plane {
   void Transform(Transformation3D const &tr);
 };
 
-
-/// Structure to hold line-line intersection results                                          
+/// Structure to hold line-line intersection results
 ///
 /// In the case of fIntersect:
-///                                    ^ lA.fPts[1]                                             
-///                                   /                                                         
-///                               lA /                                                          
-///                                 /                                                           
-///                                /              lB                                            
-///         <---------------------X----------------------->                                     
-///  lB.fPts[0]                  /                          lB.fPts[1]                          
-///                             /                                                               
-///                            /    X = lA.fPts[0] + fA * (lA.fPts[1] - lA.fPts[0])             
-///                           /     X = lB.fPts[0] + fB * (lB.fPts[1] - lB.fPts[0])             
-///               lA.fPts[0] v                                                                  
+///                                    ^ lA.fPts[1]
+///                                   /
+///                               lA /
+///                                 /
+///                                /              lB
+///         <---------------------X----------------------->
+///  lB.fPts[0]                  /                          lB.fPts[1]
+///                             /
+///                            /    X = lA.fPts[0] + fA * (lA.fPts[1] - lA.fPts[0])
+///                           /     X = lB.fPts[0] + fB * (lB.fPts[1] - lB.fPts[0])
+///               lA.fPts[0] v
 ///
 ///
 ///
 /// In the case of fOverlap:
-///                                                                                
-///                     lB.fPts[0]                       lB.fPts[1]                             
+///
+///                     lB.fPts[0]                       lB.fPts[1]
 ///         <------------------<------------>------------->
 ///  lA.fPts[0]                              lA.fPts[1]
-///                                                                                             
-///                                                                                             
-///                lB.fPts[0] = lA.fPts[0] + fA * (lA.fPts[1] - lA.fPts[0])                     
+///
+///
+///                lB.fPts[0] = lA.fPts[0] + fA * (lA.fPts[1] - lA.fPts[0])
 ///                lB.fPts[1] = lA.fPts[0] + fB * (lA.fPts[1] - lA.fPts[0])
 ///
 /// In the case of fNoIntersect and fParallel, fA and fB have no meaning.
 
-struct LineIntersection{
-	enum {fParallel, fOverlap, fIntersect, fNoIntersect} fType; ///< Intersection type
-	double fA; ///< Used in calculating the intersection point (see the structure explanation)
-	double fB; ///< Used in calculating the intersection point (see the structure explanation)
+struct LineIntersection {
+  enum { fParallel, fOverlap, fIntersect, fNoIntersect } fType; ///< Intersection type
+  Precision fA; ///< Used in calculating the intersection point (see the structure explanation)
+  Precision fB; ///< Used in calculating the intersection point (see the structure explanation)
 };
-
 
 /// @brief A line segment
 struct Line {
-  Vector3D<double> fPts[2]; ///< Points defining the line
+  Vector3D<Precision> fPts[2]; ///< Points defining the line
 
   /// Computes line-line intersection.
-  LineIntersection* Intersect(const Line& lB);
+  LineIntersection *Intersect(const Line &lB);
 
   /// Indicates whether a point lies on the line segment defined by fPts
-  bool IsPointOnLine(const Vec_t& p);
-
-
+  bool IsPointOnLine(const Vec_t &p);
 };
-
-
 
 /// @brief A polygon defined by vertices and normal
 /* The list of vertices is a reference to an external array. The used vertex indices have to be defined such
    that consecutive segments cross product is on the same side as the normal. */
 struct Polygon {
-  size_t fN     = 0;      ///< Number of vertices
-  bool fConvex  = false;  ///< Convexity
-  bool fHasNorm = false;  ///< Normal is already supplied
-  bool fValid   = false;  ///< Polygon is not degenerate
-  double fDist  = 0.;     ///< Distance to plane in the Hessian form
-  Vec_t fNorm;            ///< Unit normal vector to plane
-  vector_t<Vec_t> &fVert; ///< Global list of vertices shared with other polygons
-  vector_t<size_t> fInd;  ///< [fN] Indices of vertices
-  vector_t<Vec_t> fSides; ///< [fN] Side vectors
+  size_t fN       = 0;     ///< Number of vertices
+  bool fConvex    = false; ///< Convexity
+  bool fHasNorm   = false; ///< Normal is already supplied
+  bool fValid     = false; ///< Polygon is not degenerate
+  Precision fDist = 0.;    ///< Distance to plane in the Hessian form
+  Vec_t fNorm;             ///< Unit normal vector to plane
+  vector_t<Vec_t> &fVert;  ///< Global list of vertices shared with other polygons
+  vector_t<size_t> fInd;   ///< [fN] Indices of vertices
+  vector_t<Vec_t> fSides;  ///< [fN] Side vectors
 
   /// @brief Constructor taking the number of vertices, a reference to a vector of vertices and the convexity
   VECCORE_ATT_HOST_DEVICE
@@ -157,8 +146,6 @@ struct Polygon {
     return *this;
   }
 
-
-
   /// @brief Setter for a vertex index
   VECGEOM_FORCE_INLINE
   void SetVertex(size_t ind, size_t ivert) { fInd[ind] = ivert; }
@@ -187,8 +174,7 @@ struct Polygon {
 
   /// Decomposes a polygon into triangles.
   /// @param[out] polys The resulting triangles.
-  void TriangulatePolygon(vector_t<Polygon>& polys) const;
-
+  void TriangulatePolygon(vector_t<Polygon> &polys) const;
 
   /// Checks if fVert[i1] is a convex vertex in
   /// the polygon given its next neighbor fVert[i2] and previous neighbor fVert[i0].
@@ -196,28 +182,23 @@ struct Polygon {
 
   /// Checks if a point is inside the triangle formed by fVert[i0]-fVert[i1]-fVert[i2]
   /// Point should already be on the plane.
-  bool isPointInsideTriangle(const Vec_t& point, size_t i0, size_t i1, size_t i2) const;
+  bool isPointInsideTriangle(const Vec_t &point, size_t i0, size_t i1, size_t i2) const;
 
   /// Checks if a point is inside the polygon
   /// Point should already be on the plane.
-  bool IsPointInside(const Vec_t& p) const;
-
+  bool IsPointInside(const Vec_t &p) const;
 
 #ifndef VECCORE_CUDA
   /// Computes the overlapping part of two polygons
-  struct PolygonIntersection* Intersect(const Polygon& clipper);
+  struct PolygonIntersection *Intersect(const Polygon &clipper);
 #endif
 
   /// Retrieves the extent of the polygon
   /// @param[out] x Polygon boundaries in x axis, x[0] holding the smallest x value.
   /// @param[out] y Polygon boundaries in y axis, y[0] holding the smallest y value.
   /// @param[out] z Polygon boundaries in z axis, z[0] holding the smallest z value.
-  void Extent(double x[2], double y[2], double z[2]);
-
-
+  void Extent(Precision x[2], Precision y[2], Precision z[2]);
 };
-
-
 
 /// @brief A simple polyhedron defined by vertices and polygons
 struct Polyhedron {
@@ -263,14 +244,11 @@ struct Polyhedron {
 
   /// Adds given polygon to this polyhedron
   void AddPolygon(Polygon &poly, bool triangulate);
-
-
 };
 
-
 /// Structure to hold the result of Polygon-Polygon intersection.
-///                                                                                   
-///                                                                                             
+///
+///
 ///              +------+         +------+   +-------+
 ///              |      |         |      |   |       |
 ///              |      |         |      |   |    xxxx----+
@@ -279,14 +257,12 @@ struct Polyhedron {
 ///                     |      |  |      |   |    xxxx----+
 ///                     +------+  +------+   +-------+
 ///                 point           line          polygon
-                              
-struct PolygonIntersection{
-	vector_t<Vec_t> fPoints; ///< Resulting points from the intersection
-	vector_t<Line> fLines;  ///< Resulting lines from the intersection
-	vector_t<Polygon> fPolygons; ///< Resulting polygons from the intersection
-	vector_t<Vec_t> fVertices; ///< Resulting vertices in case there are polygons
 
-
+struct PolygonIntersection {
+  vector_t<Vec_t> fPoints;     ///< Resulting points from the intersection
+  vector_t<Line> fLines;       ///< Resulting lines from the intersection
+  vector_t<Polygon> fPolygons; ///< Resulting polygons from the intersection
+  vector_t<Vec_t> fVertices;   ///< Resulting vertices in case there are polygons
 };
 
 #ifndef VECCORE_CUDA
@@ -297,7 +273,7 @@ std::ostream &operator<<(std::ostream &os, Polyhedron const &polyh);
 #endif
 
 /// @brief Function to find the crossing line between two planes.
-EPlaneXing_t PlaneXing(Plane const &pl1, Plane const &pl2, Vector3D<double> &point, Vector3D<double> &direction);
+EPlaneXing_t PlaneXing(Plane const &pl1, Plane const &pl2, Vector3D<Precision> &point, Vector3D<Precision> &direction);
 
 // @brief Function to find if 2 arbitrary polygons cross each other.
 EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line = nullptr);
@@ -308,7 +284,7 @@ EBodyXing_t PolyhedronXing(Polyhedron const &poly1, Polyhedron const &poly2, vec
 /// @brief Function to determine crossing of two arbitrary placed boxes
 /** The function takes the box parameters and their transformations in a common frame.
     A fast check is performed if both transformations are identity. */
-EBodyXing_t BoxCollision(Vector3D<double> const &box1, Transformation3D const &tr1, Vector3D<double> const &box2,
+EBodyXing_t BoxCollision(Vector3D<Precision> const &box1, Transformation3D const &tr1, Vector3D<Precision> const &box2,
                          Transformation3D const &tr2);
 
 /// @brief Function filling a polyhedron as a box

@@ -25,7 +25,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedCutTube : public SIMDUnplacedVolumeImplHelper<CutTubeImplementation>, public AlignedBase {
 
 private:
-  CutTubeStruct<double> fCutTube; //> The cut tube data holder
+  CutTubeStruct<Precision> fCutTube; //> The cut tube data holder
 
 public:
   VECCORE_ATT_HOST_DEVICE
@@ -71,11 +71,11 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  TubeStruct<double> const &GetTubeStruct() const { return fCutTube.fTubeStruct; }
+  TubeStruct<Precision> const &GetTubeStruct() const { return fCutTube.fTubeStruct; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  CutTubeStruct<double> const &GetStruct() const { return fCutTube; }
+  CutTubeStruct<Precision> const &GetStruct() const { return fCutTube; }
 
   VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();

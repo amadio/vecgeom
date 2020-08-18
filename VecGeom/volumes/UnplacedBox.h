@@ -19,7 +19,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedBox : public SIMDUnplacedVolumeImplHelper<BoxImplementation>, public AlignedBase {
 
 private:
-  BoxStruct<double> fBox;
+  BoxStruct<Precision> fBox;
 
 public:
   using Kernel = BoxImplementation;
@@ -37,7 +37,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  BoxStruct<double> const &GetStruct() const { return fBox; }
+  BoxStruct<Precision> const &GetStruct() const { return fBox; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -55,9 +55,9 @@ public:
   VECGEOM_FORCE_INLINE
   Precision z() const { return dimensions().z(); }
 
-  void SetX(double xx) { fBox.fDimensions[0] = xx; }
-  void SetY(double yy) { fBox.fDimensions[1] = yy; }
-  void SetZ(double zz) { fBox.fDimensions[2] = zz; }
+  void SetX(Precision xx) { fBox.fDimensions[0] = xx; }
+  void SetY(Precision yy) { fBox.fDimensions[1] = yy; }
+  void SetZ(Precision zz) { fBox.fDimensions[2] = zz; }
 
   Precision Capacity() const override { return 8.0 * x() * y() * z(); }
 

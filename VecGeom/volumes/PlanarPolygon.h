@@ -54,7 +54,7 @@ public:
 
   // constructor (not taking ownership of the pointers)
   VECCORE_ATT_HOST_DEVICE
-  PlanarPolygon(int nvertices, double *x, double *y)
+  PlanarPolygon(int nvertices, Precision *x, Precision *y)
       : fVertices(), fShiftedXJ({}), fShiftedYJ({}), fLengthSqr({}), fInvLengthSqr({}), fA({}), fB({}), fD({}),
         fIsConvex(false), fMinX(kInfLength), fMinY(kInfLength), fMaxX(-kInfLength), fMaxY(-kInfLength),
         fNVertices(nvertices)
@@ -63,7 +63,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  void Init(int nvertices, double *x, double *y)
+  void Init(int nvertices, Precision *x, Precision *y)
   {
     // allocating more space than nvertices, in order
     // to accomodate an internally vectorized treatment without tails
@@ -389,9 +389,9 @@ public:
   {
     Precision area(0.);
     for (size_t i = 0; i < N; ++i) {
-      const double p1[2] = {x[i], y[i]};
-      const size_t j     = (i + 1) % N;
-      const double p2[2] = {x[j], y[j]};
+      const Precision p1[2] = {x[i], y[i]};
+      const size_t j        = (i + 1) % N;
+      const Precision p2[2] = {x[j], y[j]};
       area += (p1[0] * p2[1] - p1[1] * p2[0]);
     }
     return area;
@@ -407,8 +407,8 @@ public:
     const auto kS = fVertices.size();
     Precision area(0.);
     for (size_t i = 0; i < kS; ++i) {
-      const double p1[2] = {vertx[i], verty[i]};
-      const double p2[2] = {fShiftedXJ[i], fShiftedYJ[i]};
+      const Precision p1[2] = {vertx[i], verty[i]};
+      const Precision p2[2] = {fShiftedXJ[i], fShiftedYJ[i]};
 
       area += (p1[0] * p2[1] - p1[1] * p2[0]);
     }
@@ -427,10 +427,10 @@ private:
     const auto kS = fNVertices;
     int counter(0);
     for (size_t i = 0; i < kS; ++i) {
-      size_t j           = (i + 1) % kS;
-      size_t k           = (i + 2) % kS;
-      const double p1[2] = {vertx[j] - vertx[i], verty[j] - verty[i]};
-      const double p2[2] = {vertx[k] - vertx[j], verty[k] - verty[j]};
+      size_t j              = (i + 1) % kS;
+      size_t k              = (i + 2) % kS;
+      const Precision p1[2] = {vertx[j] - vertx[i], verty[j] - verty[i]};
+      const Precision p2[2] = {vertx[k] - vertx[j], verty[k] - verty[j]};
       counter += (p1[0] * p2[1] - p1[1] * p2[0]) < 0 ? -1 : 1;
     }
     fIsConvex = (size_t)std::abs(counter) == kS;
@@ -583,7 +583,7 @@ inline Precision PlanarPolygon::SafetySqr(Vector3D<Precision> const &point, int 
       vecCore__MaskedAssignFunc(dpy, cond1, py - p2[1]);
     }
     if (!vecCore::MaskEmpty(cond2)) {
-      const auto invlsq = 1. / lsq;
+      const auto invlsq = Real_v(1.) / lsq;
       vecCore__MaskedAssignFunc(dpx, cond2, dpx - u * dx * invlsq);
       vecCore__MaskedAssignFunc(dpy, cond2, dpy - u * dy * invlsq);
     }

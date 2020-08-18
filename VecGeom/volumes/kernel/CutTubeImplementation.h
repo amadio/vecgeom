@@ -31,7 +31,7 @@ struct CutTubeStruct;
 struct CutTubeImplementation {
 
   using PlacedShape_t    = PlacedCutTube;
-  using UnplacedStruct_t = CutTubeStruct<double>;
+  using UnplacedStruct_t = CutTubeStruct<Precision>;
   using UnplacedVolume_t = UnplacedCutTube;
 
   VECCORE_ATT_HOST_DEVICE

@@ -35,7 +35,7 @@ class SUnplacedPolycone;
 template <typename polyconeTypeT>
 struct PolyconeImplementation {
 
-  using UnplacedStruct_t = PolyconeStruct<double>;
+  using UnplacedStruct_t = PolyconeStruct<Precision>;
   using UnplacedVolume_t = SUnplacedPolycone<polyconeTypeT>;
   using PlacedShape_t    = SPlacedPolycone<UnplacedVolume_t>;
 

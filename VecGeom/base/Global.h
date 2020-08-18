@@ -12,6 +12,9 @@
 
 #ifdef VECGEOM_FLOAT_PRECISION
 #define VECCORE_SINGLE_PRECISION
+using Precision = float;
+#else
+using Precision = double;
 #endif
 
 #include <VecCore/VecCore>
@@ -107,13 +110,13 @@ struct UseIfSameType<DataType, DataType> {
 // choosing the Vector and Scalar backends
 // trying to set some sort of default scalar and vector backend
 #if defined(VECGEOM_VC) && !defined(VECCORE_CUDA)
-using VectorBackend = vecCore::backend::VcVector;
+using VectorBackend = vecCore::backend::VcVectorT<Precision>;
 #elif defined(VECGEOM_UMESIMD) && !defined(VECCORE_CUDA)
 using VectorBackend                   = vecCore::backend::UMESimd;
 #else
-using VectorBackend = vecCore::backend::Scalar;
+using VectorBackend = vecCore::backend::ScalarT<Precision>;
 #endif
-using ScalarBackend = vecCore::backend::Scalar;
+using ScalarBackend = vecCore::backend::ScalarT<Precision>;
 
 // anonymous namespace around purely local helper functions
 namespace {

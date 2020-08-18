@@ -90,7 +90,7 @@ struct BooleanImplementation<kUnion> {
     }
 
     if ((positionA == EInside::kSurface) && (positionB == EInside::kSurface)) {
-      Vector3D<double> normalA, normalB, localPoint, localNorm;
+      Vector3D<Precision> normalA, normalB, localPoint, localNorm;
       fPtrSolidA->GetTransformation()->Transform(point, localPoint);
       fPtrSolidA->Normal(localPoint, localNorm);
       fPtrSolidA->GetTransformation()->InverseTransformDirection(localNorm, normalA);

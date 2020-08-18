@@ -19,9 +19,10 @@
 
 #include <cmath>
 
+using vecgeom::Precision;
 bool testvecgeom = false;
 
-template <class Tet_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
+template <class Tet_t, class Vec_t = vecgeom::Vector3D<Precision>>
 bool TestTet()
 {
   // int verbose = 0;
@@ -40,13 +41,13 @@ bool TestTet()
   assert(v2 == p2);
   assert(v3 == p3);
 
-  double sqrt2 = std::sqrt(2.), sqrt3 = std::sqrt(3.);
-  double sx = 2., sy = 2., sz = 2., sxyz = 2. * sqrt3;
-  double area = tet.SurfaceArea();
+  Precision sqrt2 = std::sqrt(2.), sqrt3 = std::sqrt(3.);
+  Precision sx = 2., sy = 2., sz = 2., sxyz = 2. * sqrt3;
+  Precision area = tet.SurfaceArea();
   std::cout << "Area : " << area << std::endl;
   assert(area == sx + sy + sz + sxyz);
 
-  double vol = tet.Capacity();
+  Precision vol = tet.Capacity();
   std::cout << "Volume : " << vol << std::endl;
   assert(vol == 4. / 3.);
 
@@ -59,8 +60,8 @@ bool TestTet()
   // Check Inside()
   //
   std::cout << "=== Check Inside()" << std::endl;
-  double kin  = 0.999;
-  double kout = 1.001;
+  Precision kin  = 0.999;
+  Precision kout = 1.001;
 
   Vec_t pc = (p0 + p1 + p2 + p3) / 4.; // center of tetrahedron
 
@@ -178,38 +179,38 @@ bool TestTet()
   // Check SafetyToIn()
   //
   std::cout << "=== Check SafetyToIn()" << std::endl;
-  assert(ApproxEqual(tet.SafetyToIn(pf0 + Vec_t(0., -1., 0.)), 1.));
-  assert(ApproxEqual(tet.SafetyToIn(pf1 + Vec_t(0., 0., -1.)), 1.));
-  assert(ApproxEqual(tet.SafetyToIn(pf2 + Vec_t(1., 1., 1.) / sqrt3), 1.));
-  assert(ApproxEqual(tet.SafetyToIn(pf3 + Vec_t(-1., 0., 0.)), 1.));
+  assert(ApproxEqual<Precision>(tet.SafetyToIn(pf0 + Vec_t(0., -1., 0.)), 1.));
+  assert(ApproxEqual<Precision>(tet.SafetyToIn(pf1 + Vec_t(0., 0., -1.)), 1.));
+  assert(ApproxEqual<Precision>(tet.SafetyToIn(pf2 + Vec_t(1., 1., 1.) / sqrt3), 1.));
+  assert(ApproxEqual<Precision>(tet.SafetyToIn(pf3 + Vec_t(-1., 0., 0.)), 1.));
 
   assert(tet.SafetyToIn(pf0) == 0.);
   assert(tet.SafetyToIn(pf1) == 0.);
   assert(tet.SafetyToIn(pf2) == 0.);
   assert(tet.SafetyToIn(pf3) == 0.);
 
-  assert(ApproxEqual(tet.SafetyToIn(pf0 + Vec_t(.0, .1, .0)), -0.1));
-  assert(ApproxEqual(tet.SafetyToIn(pf1 + Vec_t(.0, .0, .1)), -0.1));
-  assert(ApproxEqual(tet.SafetyToIn(pf2 + Vec_t(-.1, -.1, -.1) / sqrt3), -0.1));
-  assert(ApproxEqual(tet.SafetyToIn(pf3 + Vec_t(.1, .0, .0)), -0.1));
+  assert(ApproxEqual<Precision>(tet.SafetyToIn(pf0 + Vec_t(.0, .1, .0)), -0.1));
+  assert(ApproxEqual<Precision>(tet.SafetyToIn(pf1 + Vec_t(.0, .0, .1)), -0.1));
+  assert(ApproxEqual<Precision>(tet.SafetyToIn(pf2 + Vec_t(-.1, -.1, -.1) / sqrt3), -0.1));
+  assert(ApproxEqual<Precision>(tet.SafetyToIn(pf3 + Vec_t(.1, .0, .0)), -0.1));
 
   // Check SafetyToOut()
   //
   std::cout << "=== Check SafetyToOut()" << std::endl;
-  assert(ApproxEqual(tet.SafetyToOut(pf0 + Vec_t(0., -1., 0.)), -1.));
-  assert(ApproxEqual(tet.SafetyToOut(pf1 + Vec_t(0., 0., -1.)), -1.));
-  assert(ApproxEqual(tet.SafetyToOut(pf2 + Vec_t(1., 1., 1.) / sqrt3), -1.));
-  assert(ApproxEqual(tet.SafetyToOut(pf3 + Vec_t(-1., 0., 0.)), -1.));
+  assert(ApproxEqual<Precision>(tet.SafetyToOut(pf0 + Vec_t(0., -1., 0.)), -1.));
+  assert(ApproxEqual<Precision>(tet.SafetyToOut(pf1 + Vec_t(0., 0., -1.)), -1.));
+  assert(ApproxEqual<Precision>(tet.SafetyToOut(pf2 + Vec_t(1., 1., 1.) / sqrt3), -1.));
+  assert(ApproxEqual<Precision>(tet.SafetyToOut(pf3 + Vec_t(-1., 0., 0.)), -1.));
 
   assert(tet.SafetyToOut(pf0) == 0.);
   assert(tet.SafetyToOut(pf1) == 0.);
   assert(tet.SafetyToOut(pf2) == 0.);
   assert(tet.SafetyToOut(pf3) == 0.);
 
-  assert(ApproxEqual(tet.SafetyToOut(pf0 + Vec_t(.0, .1, .0)), 0.1));
-  assert(ApproxEqual(tet.SafetyToOut(pf1 + Vec_t(.0, .0, .1)), 0.1));
-  assert(ApproxEqual(tet.SafetyToOut(pf2 + Vec_t(-.1, -.1, -.1) / sqrt3), 0.1));
-  assert(ApproxEqual(tet.SafetyToOut(pf3 + Vec_t(.1, .0, .0)), 0.1));
+  assert(ApproxEqual<Precision>(tet.SafetyToOut(pf0 + Vec_t(.0, .1, .0)), 0.1));
+  assert(ApproxEqual<Precision>(tet.SafetyToOut(pf1 + Vec_t(.0, .0, .1)), 0.1));
+  assert(ApproxEqual<Precision>(tet.SafetyToOut(pf2 + Vec_t(-.1, -.1, -.1) / sqrt3), 0.1));
+  assert(ApproxEqual<Precision>(tet.SafetyToOut(pf3 + Vec_t(.1, .0, .0)), 0.1));
 
   // Check DistanceToIn()
   //
@@ -232,7 +233,7 @@ bool TestTet()
 
   pnt = Vec_t(0.5, 0.5, 0.5);
   assert(tet.DistanceToIn(pnt, dir) == -0.5);
-  assert(ApproxEqual(tet.DistanceToIn(pnt, -dir), -0.5));
+  assert(ApproxEqual<Precision>(tet.DistanceToIn(pnt, -dir), -0.5));
 
   Vec_t pntIn, pntTolIn, pntOut, pntTolOut;
   pnt = Vec_t(0.4, 0.4, 0.0);
@@ -284,19 +285,19 @@ bool TestTet()
   assert(tet.DistanceToOut(pnt, -dir) == -1);
 
   pnt = Vec_t(0.5, 0.5, -0.5 * vecgeom::kHalfTolerance);
-  assert(ApproxEqual(tet.DistanceToOut(pnt, dir), 1.));
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 1.));
   assert(tet.DistanceToOut(pnt, -dir) == -0.5 * vecgeom::kHalfTolerance);
 
   pnt = Vec_t(0.5, 0.5, 0.0);
-  assert(ApproxEqual(tet.DistanceToOut(pnt, dir), 1.));
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 1.));
   assert(tet.DistanceToOut(pnt, -dir) == 0.0);
 
   pnt = Vec_t(0.5, 0.5, 0.5 * vecgeom::kHalfTolerance);
-  assert(ApproxEqual(tet.DistanceToOut(pnt, dir), 1.));
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 1.));
   assert(tet.DistanceToOut(pnt, -dir) == 0.5 * vecgeom::kHalfTolerance);
 
   pnt = Vec_t(0.5, 0.5, 0.5);
-  assert(ApproxEqual(tet.DistanceToOut(pnt, dir), 0.5));
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 0.5));
   assert(tet.DistanceToOut(pnt, -dir) == 0.5);
 
   pnt = Vec_t(0.4, 0.4, 0.0);

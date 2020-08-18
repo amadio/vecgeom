@@ -159,19 +159,25 @@ int main(int argc, char *argv[])
     std::cout << "VecGeom SO " << vecgeomplaced->SafetyToOut(point) << "\n";
 
     std::cout << "ROOT Capacity " << foundvolume->GetShape()->Capacity() << "\n";
-    std::cout << "ROOT CONTAINS " << foundvolume->GetShape()->Contains(&point[0]) << "\n";
-    std::cout << "ROOT DI " << foundvolume->GetShape()->DistFromOutside(&point[0], &dir[0]) << "\n";
-    std::cout << "ROOT DO " << foundvolume->GetShape()->DistFromInside(&point[0], &dir[0]) << "\n";
-    std::cout << "ROOT SI " << foundvolume->GetShape()->Safety(&point[0], false) << "\n";
-    std::cout << "ROOT SO " << foundvolume->GetShape()->Safety(&point[0], true) << "\n";
+    std::cout << "ROOT CONTAINS " << foundvolume->GetShape()->Contains(&Vector3D<double>(point)[0]) << "\n";
+    std::cout << "ROOT DI "
+              << foundvolume->GetShape()->DistFromOutside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0])
+              << "\n";
+    std::cout << "ROOT DO "
+              << foundvolume->GetShape()->DistFromInside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0])
+              << "\n";
+    std::cout << "ROOT SI " << foundvolume->GetShape()->Safety(&Vector3D<double>(point)[0], false) << "\n";
+    std::cout << "ROOT SO " << foundvolume->GetShape()->Safety(&Vector3D<double>(point)[0], true) << "\n";
 
     TGeoShape const *rootback = vecgeomplaced->ConvertToRoot();
     if (rootback) {
-      std::cout << "ROOTBACKCONV CONTAINS " << rootback->Contains(&point[0]) << "\n";
-      std::cout << "ROOTBACKCONV DI " << rootback->DistFromOutside(&point[0], &dir[0]) << "\n";
-      std::cout << "ROOTBACKCONV DO " << rootback->DistFromInside(&point[0], &dir[0]) << "\n";
-      std::cout << "ROOTBACKCONV SI " << rootback->Safety(&point[0], false) << "\n";
-      std::cout << "ROOTBACKCONV SO " << rootback->Safety(&point[0], true) << "\n";
+      std::cout << "ROOTBACKCONV CONTAINS " << rootback->Contains(&Vector3D<double>(point)[0]) << "\n";
+      std::cout << "ROOTBACKCONV DI "
+                << rootback->DistFromOutside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0]) << "\n";
+      std::cout << "ROOTBACKCONV DO "
+                << rootback->DistFromInside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0]) << "\n";
+      std::cout << "ROOTBACKCONV SI " << rootback->Safety(&Vector3D<double>(point)[0], false) << "\n";
+      std::cout << "ROOTBACKCONV SO " << rootback->Safety(&Vector3D<double>(point)[0], true) << "\n";
     } else {
       std::cerr << "ROOT backconversion failed\n";
     }
@@ -198,10 +204,10 @@ int main(int argc, char *argv[])
 #endif
 
     double step = 0;
-    if (foundvolume->GetShape()->Contains(&point[0])) {
-      step = foundvolume->GetShape()->DistFromInside(&point[0], &dir[0]);
+    if (foundvolume->GetShape()->Contains(&Vector3D<double>(point)[0])) {
+      step = foundvolume->GetShape()->DistFromInside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0]);
     } else {
-      step = foundvolume->GetShape()->DistFromOutside(&point[0], &dir[0]);
+      step = foundvolume->GetShape()->DistFromOutside(&Vector3D<double>(point)[0], &Vector3D<double>(dir)[0]);
     }
     Visualizer visualizer;
     visualizer.AddVolume(*vecgeomplaced);

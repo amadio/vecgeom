@@ -29,11 +29,11 @@ int main(int argc, char *argv[])
     // Non-zero alpha, theta, phi
     std::cout << "Testing polyhedron #0\n";
     Precision phiStart = 0., deltaPhi = 120. * kDegToRad;
-    int sides               = 4;
-    constexpr int nPlanes   = 5;
-    double zPlanes[nPlanes] = {-2, -1, 1, 1, 2};
-    double rInner[nPlanes]  = {0, 1, 0.5, 1, 0};
-    double rOuter[nPlanes]  = {1, 2, 2, 2.5, 1};
+    int sides                  = 4;
+    constexpr int nPlanes      = 5;
+    Precision zPlanes[nPlanes] = {-2, -1, 1, 1, 2};
+    Precision rInner[nPlanes]  = {0, 1, 0.5, 1, 0};
+    Precision rOuter[nPlanes]  = {1, 2, 2, 2.5, 1};
     solid = new Polyhedron_t("test_VecGeomPolyhedron", phiStart, deltaPhi, sides, nPlanes, zPlanes, rInner, rOuter);
   } break;
   case 1:

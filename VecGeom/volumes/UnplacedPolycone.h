@@ -27,7 +27,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedPolycone : public VUnplacedVolume {
 
 private:
-  PolyconeStruct<double> fPolycone;
+  PolyconeStruct<Precision> fPolycone;
 
 public:
   // Constructor needed by specialization when Polycone becomes Cone
@@ -102,7 +102,7 @@ public:
   PolyconeHistorical *GetOriginalParameters() const { return fPolycone.GetOriginalParameters(); }
 
   VECCORE_ATT_HOST_DEVICE
-  PolyconeStruct<double> const &GetStruct() const { return fPolycone; }
+  PolyconeStruct<Precision> const &GetStruct() const { return fPolycone; }
   VECCORE_ATT_HOST_DEVICE
   unsigned int GetNz() const { return fPolycone.fNz; }
   VECCORE_ATT_HOST_DEVICE
@@ -226,10 +226,10 @@ void UnplacedPolycone::ReconstructSectionArrays(PushableContainer &z, PushableCo
                                                 PushableContainer &rmax) const
 {
 
-  double prevrmin, prevrmax;
+  Precision prevrmin, prevrmax;
   bool putlowersection = true;
   for (int i = 0; i < GetNSections(); ++i) {
-    ConeStruct<double> const *cone = fPolycone.GetSection(i).fSolid;
+    ConeStruct<Precision> const *cone = fPolycone.GetSection(i).fSolid;
     if (putlowersection) {
       rmin.push_back(cone->fRmin1); // GetRmin1());
       rmax.push_back(cone->fRmax1); // GetRmax1());

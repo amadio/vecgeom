@@ -123,7 +123,7 @@ struct GenericPolyconeStruct {
 #if (0)
   Precision SurfaceArea()
   {
-    // double surfArea = 0.;
+    // Precision surfArea = 0.;
     // TODO : Logic to calculate the Surface Area
 
     return (ConicalSurfaceArea() + SurfaceAreaOfZPlanes());

@@ -150,7 +150,7 @@ public:
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const override
   {
     bool output(false);
-    Vector3D<double> lp;
+    Vector3D<Precision> lp;
     Transformation3D const *tr = this->GetTransformation();
     localPoint                 = tr->Transform<transC, rotC, Precision>(point);
     Specialization::Contains(*this->GetUnplacedStruct(), localPoint, output);
@@ -256,7 +256,7 @@ template <class Specialization, typename Real_v, int transC, int rotC>
 VECGEOM_FORCE_INLINE
 static void SafetyToInLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
                                  Transformation3D const &trans, const size_t offset, const size_t size,
-                                 SOA3D<Precision> const &points, double *const output)
+                                 SOA3D<Precision> const &points, Precision *const output)
 {
 
   for (decltype(points.size()) i(offset); i < size; i += vecCore::VectorSize<Real_v>()) {
@@ -273,7 +273,7 @@ VECGEOM_FORCE_INLINE
 static void DistanceToInLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
                                    Transformation3D const &trans, const size_t offset, const size_t size,
                                    SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                                   Precision const *const stepMax, double *const output)
+                                   Precision const *const stepMax, Precision *const output)
 {
 
   for (decltype(points.size()) i(offset); i < size; i += vecCore::VectorSize<Real_v>()) {

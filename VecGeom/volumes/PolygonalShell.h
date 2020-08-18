@@ -30,13 +30,13 @@ public:
   PolygonalShell() : fPolygon() {}
 
   VECCORE_ATT_HOST_DEVICE
-  PolygonalShell(int nvertices, double *x, double *y, Precision lowerz, Precision upperz)
+  PolygonalShell(int nvertices, Precision *x, Precision *y, Precision lowerz, Precision upperz)
       : fPolygon(nvertices, x, y), fLowerZ(lowerz), fUpperZ(upperz)
   {
   }
 
   VECCORE_ATT_HOST_DEVICE
-  void Init(int nvertices, double *x, double *y, Precision lowerz, Precision upperz)
+  void Init(int nvertices, Precision *x, Precision *y, Precision lowerz, Precision upperz)
   {
     fPolygon.Init(nvertices, x, y);
     fLowerZ = lowerz;
@@ -318,7 +318,7 @@ inline Precision PolygonalShell::DistanceToOutConvex(Vector3D<Precision> const &
     const Precision pdist = -(fPolygon.fA[i] * point.x() + fPolygon.fB[i] * point.y() + fPolygon.fD[i]);
     if (pdist > kTolerance) return -kTolerance;
     if (proj > 0) {
-      const Precision dist  = -pdist / NonZero(proj);
+      const Precision dist = -pdist / NonZero(proj);
       if (tmax > dist) tmax = dist;
     }
   }
@@ -348,10 +348,10 @@ inline Precision PolygonalShell::DistanceToInConvex(Vector3D<Precision> const &p
     const bool side_correct = pdist > -kTolerance;
     if (side_correct) {
       if (moving_away) return kInfLength;
-      const Precision dist  = -pdist / NonZero(proj);
+      const Precision dist = -pdist / NonZero(proj);
       if (dist > tmin) tmin = dist;
     } else if (moving_away) {
-      const Precision dist  = -pdist / NonZero(proj);
+      const Precision dist = -pdist / NonZero(proj);
       if (dist < tmax) tmax = dist;
     }
   }
@@ -361,7 +361,7 @@ inline Precision PolygonalShell::DistanceToInConvex(Vector3D<Precision> const &p
 
 #endif
 
-} // end inline namespace
-} // end vecgeom namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

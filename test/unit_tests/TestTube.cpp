@@ -13,9 +13,7 @@
 
 #include <cmath>
 
-using vecgeom::kInfLength;
-using vecgeom::kPi;
-using vecgeom::Sqrt;
+using namespace vecgeom;
 
 bool testvecgeom = true;
 
@@ -27,7 +25,7 @@ const char *OutputInside(vecgeom::Inside_t side)
   return insideChar;
 }
 
-template <typename Constants, class Tube_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
+template <class Tube_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestTubs()
 {
   std::cout.precision(16);
@@ -35,7 +33,7 @@ bool TestTubs()
   Vec_t pzero(0, 0, 0);
   Vec_t ptS(0, 0, 0);
 
-  double kCarTolerance = vecgeom::kTolerance;
+  Precision kCarTolerance = vecgeom::kTolerance;
   Vec_t pbigx(100, 0, 0), pbigy(0, 100, 0), pbigz(0, 0, 100);
   Vec_t pbigmx(-100, 0, 0), pbigmy(0, -100, 0), pbigmz(0, 0, -100);
 
@@ -50,7 +48,7 @@ bool TestTubs()
   Vec_t vmxmy(-1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
   Vec_t vxmy(1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
 
-  double Dist, vol, volCheck;
+  Precision Dist, vol, volCheck;
   Tube_t t1("Solid Tube #1", 0, 50, 50, 0, 2 * kPi);
   Tube_t t1a("Solid Tube #1", 0, 50, 50, 0, 0.5 * kPi);
   Tube_t t2("Hole Tube #2", 45, 50, 50, 0, 2 * kPi);
@@ -78,7 +76,7 @@ bool TestTubs()
   // Check cubic volume
   vol      = t1.Capacity();
   volCheck = 50 * 2 * kPi * 50 * 50;
-  assert(ApproxEqual(vol, volCheck));
+  assert(ApproxEqual<Precision>(vol, volCheck));
 
   {
     // add a test for a previously fixed bug -- point near phi-surface of a wedged tube
@@ -90,27 +88,27 @@ bool TestTubs()
     Vec_t dir174(0.303163, -0.492481, 0.815815);
 
     dir174 /= dir174.Mag();
-    double din = jira174Tube.DistanceToIn(pos174, dir174);
-    assert(ApproxEqual(din, 0));
-    double dout = jira174Tube.DistanceToOut(pos174, dir174); //, norm174, conv174);
-    assert(ApproxEqual(dout, 19.499));
+    Precision din = jira174Tube.DistanceToIn(pos174, dir174);
+    assert(ApproxEqual<Precision>(din, 0));
+    Precision dout = jira174Tube.DistanceToOut(pos174, dir174); //, norm174, conv174);
+    assert(ApproxEqual<Precision>(dout, 19.499));
 
     Vec_t dir206 = -dir174;
     pos174.y()   = -pos174.y();
     din          = jira174Tube.DistanceToIn(pos174, dir206);
     // std::cout<<"L"<<__LINE__<<": Dist=jira174tube: pos="<<pos174<<", dir="<< dir206 <<", DistToIn="<< din
     // <<std::endl;
-    assert(ApproxEqual(din, Constants::kInfLength));
+    assert(ApproxEqual<Precision>(din, kInfLength));
     dout = jira174Tube.DistanceToOut(pos174, dir206); //, norm174, conv174);
     // std::cout<<"L"<<__LINE__<<": Dist=jira174tube: pos="<<pos174<<", dir="<< dir206 <<", DistToOut="<< dout
     // <<std::endl;
-    assert(ApproxEqual(dout, 0));
+    assert(ApproxEqual<Precision>(dout, 0));
   }
 
   // Check Surface area
   vol      = t2.SurfaceArea();
   volCheck = 2. * kPi * (45 + 50) * (50 - 45 + 2 * 50);
-  assert(ApproxEqual(vol, volCheck));
+  assert(ApproxEqual<Precision>(vol, volCheck));
 
   Tube_t myClad("myClad", 90.0, 110.0, 105.0, 0.0, kPi); // TEST MINE
 
@@ -129,7 +127,7 @@ bool TestTubs()
     Vec_t dir222(-1, 1, 0.001);
     Dist = t5.DistanceToIn(pos222, dir222.Unit());
     // std::cout<<" T5.DistToIn( "<< pos222 <<", "<< dir222 <<") = "<< Dist <<"\n";
-    assert(ApproxEqual(Dist, 134.8528474556));
+    assert(ApproxEqual<Precision>(Dist, 134.8528474556));
   }
 
   // Check Inside
@@ -158,7 +156,7 @@ bool TestTubs()
   Vec_t normal;
   bool valid;
   Vec_t norm;
-  double p2 = 1. / std::sqrt(2.), p3 = 1. / std::sqrt(3.);
+  Precision p2 = 1. / std::sqrt(2.), p3 = 1. / std::sqrt(3.);
   valid = t1.Normal(ponxside, normal);
   assert(ApproxEqual(normal, vx));
 
@@ -179,36 +177,36 @@ bool TestTubs()
 
   // SafetyToOut(P)
   Dist = t1.SafetyToOut(pzero);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
 
   // DistanceToOut(P,V)
   Dist  = t1.DistanceToOut(pzero, vx);
   valid = t1.Normal(pzero + Dist * vx, norm);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vx));
+  assert(ApproxEqual<Precision>(Dist, 50) && ApproxEqual(norm, vx));
 
   Dist  = t1.DistanceToOut(pzero, vmx);
   valid = t1.Normal(pzero + Dist * vmx, norm);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vmx));
+  assert(ApproxEqual<Precision>(Dist, 50) && ApproxEqual(norm, vmx));
 
   Dist  = t1.DistanceToOut(pzero, vy);
   valid = t1.Normal(pzero + Dist * vy, norm);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vy));
+  assert(ApproxEqual<Precision>(Dist, 50) && ApproxEqual(norm, vy));
 
   Dist  = t1.DistanceToOut(pzero, vmy);
   valid = t1.Normal(pzero + Dist * vmy, norm);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vmy));
+  assert(ApproxEqual<Precision>(Dist, 50) && ApproxEqual(norm, vmy));
 
   Dist  = t1.DistanceToOut(pzero, vz);
   valid = t1.Normal(pzero + Dist * vz, norm);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vz));
+  assert(ApproxEqual<Precision>(Dist, 50) && ApproxEqual(norm, vz));
 
   Dist  = t1.DistanceToOut(pzero, vmz);
   valid = t1.Normal(pzero + Dist * vmz, norm);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vmz));
+  assert(ApproxEqual<Precision>(Dist, 50) && ApproxEqual(norm, vmz));
 
   Dist  = t1.DistanceToOut(pzero, vxy);
   valid = t1.Normal(pzero + Dist * vxy, norm);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vxy));
+  assert(ApproxEqual<Precision>(Dist, 50) && ApproxEqual(norm, vxy));
 
   Dist = t2.DistanceToOut(pzero, vxy);
   //  std::cout<<"Dist=t2.DistanceToOut(pzero,vxy) = "<<Dist<<std::endl;
@@ -239,62 +237,62 @@ bool TestTubs()
 
   Dist = t3.DistanceToOut(Vec_t(0, 10, 0), vx);
   // std::cout<<"Dist=t3.DistanceToOut((0,10,0),vx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
 
   Dist = t3.DistanceToOut(Vec_t(0.5, 10, 0), vx);
   // std::cout<<"Dist=t3.DistanceToOut((0.5,10,0),vx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 48.489795));
+  assert(ApproxEqual<Precision>(Dist, 48.489795));
 
   Dist = t3.DistanceToOut(Vec_t(-0.5, 9, 0), vx);
   // std::cout<<"Dist=t3.DistanceToOut((-0.5,9,0),vx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 0.5));
+  assert(ApproxEqual<Precision>(Dist, 0.5));
 
   Dist = t3.DistanceToOut(Vec_t(-5, 9.5, 0), vx);
   // std::cout<<"Dist=t3.DistanceToOut((-5,9.5,0),vx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 5));
+  assert(ApproxEqual<Precision>(Dist, 5));
 
   Dist = t3.DistanceToOut(Vec_t(-5, 9.5, 0), vmy);
   // std::cout<<"Dist=t3.DistanceToOut((-5,9.5,0),vmy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 9.5));
+  assert(ApproxEqual<Precision>(Dist, 9.5));
 
   Dist = t3.DistanceToOut(Vec_t(-5, 9, 0), vxmy);
   // std::cout<<"Dist=t3.DistanceToOut((-5,9,0),vxmy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 7.0710678));
+  assert(ApproxEqual<Precision>(Dist, 7.0710678));
 
   // SafetyToIn(P)
 
   Dist = t1.SafetyToIn(pbigx);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.SafetyToIn(pbigmx);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.SafetyToIn(pbigy);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.SafetyToIn(pbigmy);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.SafetyToIn(pbigz);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.SafetyToIn(pbigmz);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
 
   // DistanceToIn(P,V)
 
   Dist = t1.DistanceToIn(pbigx, vmx);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigmx, vx);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigy, vmy);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigmy, vy);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigz, vmz);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigmz, vz);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Dist = t1a.DistanceToIn(pbigz, vmz);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
 
   Dist = t2.DistanceToIn(Vec_t(45.5, 0, 0), vx);
   //  std::cout<<"Dist=t2.DistanceToIn((45.5,0,0),vx) = "<<Dist<<std::endl;
@@ -313,43 +311,43 @@ bool TestTubs()
 
   Dist = t3.DistanceToIn(Vec_t(49.5, 5, 0), vmx);
   //  std::cout<<"Dist=t2.DistanceToIn((49.5,5,0),vmx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 49.5));
+  assert(ApproxEqual<Precision>(Dist, 49.5));
 
   Dist = t3.DistanceToIn(Vec_t(49.5, -0.5, 0), vmx);
   //  std::cout<<"Dist=t2.DistanceToIn((49.5,-0.5,0),vmx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -20.0, 0), vxy);
   // std::cout<<"Dist=t5.DistanceToIn((30.0,-20.0,0),vxy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 28.284271));
+  assert(ApproxEqual<Precision>(Dist, 28.284271));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -70.0, 0), vxy);
   // std::cout<<"Dist=t5.DistanceToIn((30.0,-70.0,0),vxy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -20.0, 0), vmxmy);
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-20.0,0),vmxmy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 42.426407));
+  assert(ApproxEqual<Precision>(Dist, 42.426407));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -70.0, 0), vmxmy);
   // std::cout<<"Dist=t5.DistanceToIn((30.0,-70.0,0),vmxmy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Dist = t5.DistanceToIn(Vec_t(50.0, -20.0, 0), vy);
   // std::cout<<"Dist=t5.DistanceToIn((50.0,-20.0,0),vy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 20));
+  assert(ApproxEqual<Precision>(Dist, 20));
 
   Dist = t5.DistanceToIn(Vec_t(100.0, -20.0, 0), vy);
   // std::cout<<"Dist=t5.DistanceToIn((100.0,-20.0,0),vy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -50.0, 0), vmx);
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-50.0,0),vmx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 30));
+  assert(ApproxEqual<Precision>(Dist, 30));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -100.0, 0), vmx);
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-100.0,0),vmx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength));
 
   // ********************************
 
@@ -400,28 +398,28 @@ bool TestTubs()
   Dist = tube6.DistanceToOut(Vec_t(-388.20504321896431, -641.71398957741451, 332.85995254027955),
                              Vec_t(-0.47312863350457468, -0.782046391443315, 0.40565100491504164));
   // std::cout<<"Dist=tube6.DistanceToOut(p,v) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 10.940583));
+  assert(ApproxEqual<Precision>(Dist, 10.940583));
 
   // bug #91
   Dist = tube7.DistanceToOut(Vec_t(-2460, 1030, -2500),
                              Vec_t(-0.086580540180167642, 0.070084247882560638, 0.9937766390194761));
-  assert(ApproxEqual(Dist, 4950.348576972614));
+  assert(ApproxEqual<Precision>(Dist, 4950.348576972614));
 
   Dist = tube8.DistanceToOut(Vec_t(6.71645645882942, 2579.415860329989, -1.519530725281157),
                              Vec_t(-0.6305220496340839, -0.07780451841562354, 0.7722618738739774));
-  assert(ApproxEqual(Dist, 1022.64931421));
+  assert(ApproxEqual<Precision>(Dist, 1022.64931421));
 
   Dist = tube9.DistanceToOut(Vec_t(2.267347771505638, 1170.164934028592, 4.820317321984064),
                              Vec_t(-0.1443054266272111, -0.01508874701037938, 0.9894181489944458));
-  assert(ApproxEqual(Dist, 2016.51817758));
+  assert(ApproxEqual<Precision>(Dist, 2016.51817758));
 
   Dist = t1a.DistanceToOut(Vec_t(0., 0., 50.), vx);
   // std::cout<<"Dist=t1a.DistanceToOut((0,0,50),vx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
 
   Dist = t1a.DistanceToOut(Vec_t(0., 5., 50.), vmy);
   // std::cout<<"Mismatch: L"<<__LINE__<<": Dist=t1a.DistanceToOut((0,5,50),vmy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 5));
+  assert(ApproxEqual<Precision>(Dist, 5));
 
   // std::cout<<std::endl ;
 
@@ -504,7 +502,7 @@ bool TestTubs()
   //                                    ,
   //
   //    );
-  //   assert( ApproxEqual(Dist,0.) && " DO not larger than 0 ");
+  //   assert( ApproxEqual<Precision>(Dist,0.) && " DO not larger than 0 ");
 
   Tube_t testTube("testTube", 0., 5., 5., 0., 2 * kPi);
   Vec_t pOutZ(2., 0., 6.);
@@ -561,9 +559,9 @@ bool TestTubs()
 
   //.. Added Some more Normal test for the points on the circular edges of tube
   //   These corresponds to the test cases pointed by Evgueni Tcherniaev in JIRA issue VECGEOM-439
-  double rmin = 100., rmax = 200., dz = 200.;
+  Precision rmin = 100., rmax = 200., dz = 200.;
   Tube_t hollowTube("testHolloTube", rmin, rmax, dz, 0, 2 * kPi);
-  double rad = 0.;
+  Precision rad = 0.;
   for (int j = 0; j < 2; j++) {
     if (j == 0) // inspecting point on inner radius
       rad = rmin;
@@ -590,13 +588,9 @@ bool TestTubs()
   return true;
 }
 
-struct VECGEOMCONSTANTS {
-  static constexpr double kInfLength = vecgeom::kInfLength;
-};
-
 int main(int argc, char *argv[])
 {
-  TestTubs<VECGEOMCONSTANTS, vecgeom::SimpleTube>();
+  TestTubs<vecgeom::SimpleTube>();
   std::cout << "VecGeom tube passed\n";
 
   return 0;

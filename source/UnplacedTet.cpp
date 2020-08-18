@@ -97,7 +97,7 @@ std::string UnplacedTet::GetEntityType() const
 }
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedTet::GetParametersList(int, double *aArray) const
+void UnplacedTet::GetParametersList(int, Precision *aArray) const
 {
   // TODO : Set the aArray elements
 }

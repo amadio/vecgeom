@@ -19,11 +19,14 @@
 #include "TPolyLine3D.h"
 #endif
 
-bool ValidXing(vecgeom::Vector3D<double> const &point, vecgeom::Vector3D<double> const &dir,
-               vecgeom::Vector3D<double> const &n1, double p1, vecgeom::Vector3D<double> const &n2, double p2)
+using vecgeom::Precision;
+
+bool ValidXing(vecgeom::Vector3D<Precision> const &point, vecgeom::Vector3D<Precision> const &dir,
+               vecgeom::Vector3D<Precision> const &n1, Precision p1, vecgeom::Vector3D<Precision> const &n2,
+               Precision p2)
 {
-  bool valid_dir   = ApproxEqual(dir.Dot(n1), 0.) && ApproxEqual(dir.Dot(n2), 0.);
-  bool valid_point = ApproxEqual(point.Dot(n1 - n2) + (p1 - p2), 0.);
+  bool valid_dir   = ApproxEqual<Precision>(dir.Dot(n1), 0.) && ApproxEqual<Precision>(dir.Dot(n2), 0.);
+  bool valid_point = ApproxEqual<Precision>(point.Dot(n1 - n2) + (p1 - p2), 0.);
   return valid_point & valid_dir;
 }
 
@@ -31,7 +34,7 @@ bool ValidXing(vecgeom::Vector3D<double> const &point, vecgeom::Vector3D<double>
 void DrawPolygon(vecgeom::Utils3D::Polygon const &poly, vecgeom::Visualizer &visualizer, size_t color)
 {
   using namespace vecgeom;
-  using Vec_t = Vector3D<double>;
+  using Vec_t = Vector3D<Precision>;
   TPolyLine3D pl(poly.fN + 1);
   pl.SetLineColor(color);
   for (size_t i = 0; i < poly.fN; ++i)
@@ -64,7 +67,7 @@ int main(int argc, char *argv[])
 {
   using namespace vecgeom;
   using namespace vecCore::math;
-  using Vec_t = Vector3D<double>;
+  using Vec_t = Vector3D<Precision>;
 
   using vecgeom::Utils3D::Line;
   using vecgeom::Utils3D::Plane;
@@ -83,7 +86,7 @@ int main(int argc, char *argv[])
   Plane pl1(Vec_t(1., 0., 0.), -10.);
   Transformation3D transf1(10., 0., 0., 0., 0., 180.);
   pl1.Transform(transf1);
-  assert(ApproxEqual(pl1.fNorm[0], -1.) && ApproxEqual(pl1.fDist, 0.));
+  assert(ApproxEqual<Precision>(pl1.fNorm[0], -1.) && ApproxEqual<Precision>(pl1.fDist, 0.));
 
   // Polygon intersection
 
@@ -103,9 +106,9 @@ int main(int argc, char *argv[])
   assert(Utils3D::PolygonXing(poly1, poly2, &line1) == Utils3D::kOverlapping);
 
   ///* Test plane crossings */
-  Vector3D<double> point, direction;
-  Vector3D<double> n1, n2;
-  double p1, p2;
+  Vector3D<Precision> point, direction;
+  Vector3D<Precision> n1, n2;
+  Precision p1, p2;
 
   // identical planes
   n1.Set(0., 0., 1.);

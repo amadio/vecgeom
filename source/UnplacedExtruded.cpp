@@ -40,7 +40,10 @@ TGeoShape const *UnplacedExtruded::ConvertToRoot(char const *label) const
   double *x = new double[nvert];
   double *y = new double[nvert];
   for (size_t i = 0; i < nvert; ++i) {
-    GetVertex(i, x[i], y[i]);
+    Precision xcrt, ycrt;
+    GetVertex(i, xcrt, ycrt);
+    x[i] = xcrt;
+    y[i] = ycrt;
   }
   TGeoXtru *xtru = new TGeoXtru(nsect);
   xtru->DefinePolygon(nvert, x, y);
@@ -48,6 +51,8 @@ TGeoShape const *UnplacedExtruded::ConvertToRoot(char const *label) const
     XtruSection sect = GetSection(i);
     xtru->DefineSection(i, sect.fOrigin.z(), sect.fOrigin.x(), sect.fOrigin.y(), sect.fScale);
   }
+  delete[] x;
+  delete[] y;
   return xtru;
 }
 #endif
@@ -56,7 +61,7 @@ TGeoShape const *UnplacedExtruded::ConvertToRoot(char const *label) const
 G4VSolid const *UnplacedExtruded::ConvertToGeant4(char const *label) const
 {
   std::vector<G4TwoVector> polygon;
-  double x, y;
+  Precision x, y;
   size_t nvert = GetNVertices();
   for (size_t i = 0; i < nvert; ++i) {
     GetVertex(i, x, y);
@@ -93,8 +98,8 @@ UnplacedExtruded *Maker<UnplacedExtruded>::MakeInstance(const size_t nvertices, 
     if (!isSExtru) break;
   }
   if (isSExtru) {
-    double *x = new double[nvertices];
-    double *y = new double[nvertices];
+    Precision *x = new Precision[nvertices];
+    Precision *y = new Precision[nvertices];
     for (size_t i = 0; i < nvertices; ++i) {
       x[i] = vertices[i].x;
       y[i] = vertices[i].y;
@@ -114,7 +119,7 @@ void UnplacedExtruded::Print() const
 {
   std::cout << "UnplacedExtruded: vertices {";
   int nvert = GetNVertices();
-  double x, y;
+  Precision x, y;
   for (int i = 0; i < nvert - 1; ++i) {
     GetVertex(i, x, y);
     std::cout << "(" << x << ", " << y << "), ";
@@ -134,7 +139,7 @@ void UnplacedExtruded::Print(std::ostream &os) const
 {
   os << "UnplacedExtruded: vertices {";
   int nvert = GetNVertices();
-  double x, y;
+  Precision x, y;
   for (int i = 0; i < nvert - 1; ++i) {
     GetVertex(i, x, y);
     os << "(" << x << ", " << y << "), ";
@@ -169,8 +174,8 @@ Precision UnplacedExtruded::Capacity() const
   } else {
     int size = fXtru.fTslHelper.fFacets.size();
     for (int i = 0; i < size; ++i) {
-      TriangleFacet<double> &facet = *fXtru.fTslHelper.fFacets[i];
-      double area                  = facet.fSurfaceArea;
+      TriangleFacet<Precision> &facet = *fXtru.fTslHelper.fFacets[i];
+      Precision area                  = facet.fSurfaceArea;
       fXtru.fCubicVolume += area * (facet.fVertices[0].Dot(facet.fNormal));
     }
     fXtru.fCubicVolume /= 3.;
@@ -187,7 +192,7 @@ Precision UnplacedExtruded::SurfaceArea() const
   } else {
     int size = fXtru.fTslHelper.fFacets.size();
     for (int i = 0; i < size; ++i) {
-      TriangleFacet<double> *facet = fXtru.fTslHelper.fFacets[i];
+      TriangleFacet<Precision> *facet = fXtru.fTslHelper.fFacets[i];
       fXtru.fSurfaceArea += facet->fSurfaceArea;
     }
   }
@@ -238,7 +243,7 @@ bool UnplacedExtruded::Normal(Vector3D<Precision> const &point, Vector3D<Precisi
 SolidMesh *UnplacedExtruded::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
 
   SolidMesh *sm = new SolidMesh();
 

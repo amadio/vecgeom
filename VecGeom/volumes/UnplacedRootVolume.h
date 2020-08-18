@@ -27,7 +27,7 @@ public:
   VECGEOM_FORCE_INLINE
   TGeoShape const *GetRootShape() const { return fRootShape; }
 
-  bool Contains(Vector3D<Precision> const &p) const override { return fRootShape->Contains(&p[0]); }
+  bool Contains(Vector3D<Precision> const &p) const override { return fRootShape->Contains(&Vector3D<double>(p)[0]); }
 
   EnumInside Inside(Vector3D<Precision> const &point) const override
   {
@@ -37,23 +37,23 @@ public:
   Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                          const Precision stepMax) const override
   {
-    return GetRootShape()->DistFromOutside(&position[0], &direction[0], 3);
+    return GetRootShape()->DistFromOutside(&Vector3D<double>(position)[0], &Vector3D<double>(direction)[0], 3);
   }
 
   Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                           const Precision stepMax) const override
   {
-    return GetRootShape()->DistFromInside(&position[0], &direction[0], 3);
+    return GetRootShape()->DistFromInside(&Vector3D<double>(position)[0], &Vector3D<double>(direction)[0], 3);
   }
 
   Precision SafetyToOut(Vector3D<Precision> const &position) const override
   {
-    return GetRootShape()->Safety(&position[0], true);
+    return GetRootShape()->Safety(&Vector3D<double>(position)[0], true);
   }
 
   Precision SafetyToIn(Vector3D<Precision> const &position) const override
   {
-    return GetRootShape()->Safety(&position[0], false);
+    return GetRootShape()->Safety(&Vector3D<double>(position)[0], false);
   }
 
   Precision Capacity() const override { return GetRootShape()->Capacity(); }

@@ -27,7 +27,7 @@ class UnplacedCoaxialCones;
 struct CoaxialConesImplementation {
 
   using PlacedShape_t    = PlacedCoaxialCones;
-  using UnplacedStruct_t = CoaxialConesStruct<double>;
+  using UnplacedStruct_t = CoaxialConesStruct<Precision>;
   using UnplacedVolume_t = UnplacedCoaxialCones;
 
   VECCORE_ATT_HOST_DEVICE

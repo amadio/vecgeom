@@ -43,7 +43,7 @@ class UnplacedParaboloid;
 struct ParaboloidImplementation {
 
   using PlacedShape_t    = PlacedParaboloid;
-  using UnplacedStruct_t = ParaboloidStruct<double>;
+  using UnplacedStruct_t = ParaboloidStruct<Precision>;
   using UnplacedVolume_t = UnplacedParaboloid;
 
   VECCORE_ATT_HOST_DEVICE
@@ -160,12 +160,13 @@ struct ParaboloidImplementation {
     // Move point closer, if required
     Precision Rsph = 1.5 * vecCore::math::Max(paraboloid.fDx, paraboloid.fDz);
     Real_v Rfar2(1024. * Rsph * Rsph); // 1024 = 32 * 32
-    vecCore__MaskedAssignFunc(offset, ((p.Mag2() > Rfar2) && (direction.Dot(p) < 0.)), p.Mag() - 2. * Rsph);
+    vecCore__MaskedAssignFunc(offset, ((p.Mag2() > Rfar2) && (direction.Dot(p) < Real_v(0.))),
+                              p.Mag() - Real_v(2.) * Rsph);
     p += offset * direction;
 
     Real_v absZ   = Abs(p.z());
     Real_v rho2   = p.Perp2(); // p.x()*p.x()+p.y()*p.y();
-    Bool_v checkZ = p.z() * direction.z() >= 0;
+    Bool_v checkZ = p.z() * direction.z() >= Real_v(0.);
 
     // check if the point is distancing in Z
     Bool_v isDistancingInZ = (absZ > paraboloid.fDz && checkZ);
@@ -181,14 +182,15 @@ struct ParaboloidImplementation {
     done |= !done && (insideZ && insideParabolicSurfaceOuterTolerance);
     if (vecCore::MaskFull(done)) return;
 
-    Bool_v isOnZPlaneAndMovingInside = (IsOnZPlane<Real_v, true>(paraboloid, point) && direction.z() < 0.) ||
-                                       (IsOnZPlane<Real_v, false>(paraboloid, point) && direction.z() > 0.);
+    Bool_v isOnZPlaneAndMovingInside = (IsOnZPlane<Real_v, true>(paraboloid, point) && direction.z() < Real_v(0.)) ||
+                                       (IsOnZPlane<Real_v, false>(paraboloid, point) && direction.z() > Real_v(0.));
     vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingInside, Real_v(0.));
     done |= isOnZPlaneAndMovingInside;
     if (vecCore::MaskFull(done)) return;
 
-    Vector3D<Real_v> normal(p.x(), p.y(), Real_v(-paraboloid.fK1 * 0.5));
-    Bool_v isOnParabolicSurfaceAndMovingInside = diff > -kTolerance && diff < kTolerance && direction.Dot(normal) < 0.;
+    Vector3D<Real_v> normal(p.x(), p.y(), Real_v(-paraboloid.fK1 * Real_v(0.5)));
+    Bool_v isOnParabolicSurfaceAndMovingInside =
+        diff > -kTolerance && diff < kTolerance && direction.Dot(normal) < Real_v(0.);
     vecCore__MaskedAssignFunc(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
     done |= isOnParabolicSurfaceAndMovingInside;
     if (vecCore::MaskFull(done)) return;
@@ -226,17 +228,17 @@ struct ParaboloidImplementation {
       Real_v dirRho2 = direction.Perp2();
       Real_v pDotV2D = p.x() * direction.x() + p.y() * direction.y();
       Real_v a       = paraboloid.fA * dirRho2;
-      Real_v b       = 0.5 * direction.z() - paraboloid.fA * pDotV2D;
+      Real_v b       = Real_v(0.5) * direction.z() - paraboloid.fA * pDotV2D;
       Real_v c       = (paraboloid.fB + paraboloid.fA * p.Perp2() - p.z());
       Real_v d2      = b * b - a * c;
-      done |= d2 < 0.;
+      done |= d2 < Real_v(0.);
       if (vecCore::MaskFull(done)) return;
 
       Real_v distParab = InfinityLength<Real_v>();
-      vecCore__MaskedAssignFunc(distParab, !done && (b <= 0.), (b - Sqrt(d2)) / a);
-      vecCore__MaskedAssignFunc(distParab, !done && (b > 0.), (c / (b + Sqrt(d2))));
+      vecCore__MaskedAssignFunc(distParab, !done && (b <= Real_v(0.)), (b - Sqrt(d2)) / a);
+      vecCore__MaskedAssignFunc(distParab, !done && (b > Real_v(0.)), (c / (b + Sqrt(d2))));
       Real_v zHit = p.z() + distParab * direction.z();
-      vecCore::MaskedAssign(distance, Abs(zHit) <= paraboloid.fDz && distParab > 0., distParab + offset);
+      vecCore::MaskedAssign(distance, Abs(zHit) <= paraboloid.fDz && distParab > Real_v(0.), distParab + offset);
     }
   }
 
@@ -267,16 +269,16 @@ struct ParaboloidImplementation {
     if (vecCore::MaskFull(done)) return;
 
     // On Z Plane and moving outside;
-    Bool_v isOnZPlaneAndMovingOutside = (IsOnZPlane<Real_v, true>(paraboloid, point) && direction.z() > 0.) ||
-                                        (IsOnZPlane<Real_v, false>(paraboloid, point) && direction.z() < 0.);
+    Bool_v isOnZPlaneAndMovingOutside = (IsOnZPlane<Real_v, true>(paraboloid, point) && direction.z() > Real_v(0.)) ||
+                                        (IsOnZPlane<Real_v, false>(paraboloid, point) && direction.z() < Real_v(0.));
     vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingOutside, Real_v(0.));
     done |= isOnZPlaneAndMovingOutside;
     if (vecCore::MaskFull(done)) return;
 
     // On Parabolic Surface and moving outside
-    Vector3D<Real_v> normal(point.x(), point.y(), Real_v(-paraboloid.fK1 * 0.5));
+    Vector3D<Real_v> normal(point.x(), point.y(), Real_v(-paraboloid.fK1 * Real_v(0.5)));
     Bool_v isOnParabolicSurfaceAndMovingInside =
-        value > -kTolerance && value < kTolerance && direction.Dot(normal) > 0.;
+        value > -kTolerance && value < kTolerance && direction.Dot(normal) > Real_v(0.);
     vecCore__MaskedAssignFunc(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
     done |= isOnParabolicSurfaceAndMovingInside;
     if (vecCore::MaskFull(done)) return;
@@ -293,13 +295,13 @@ struct ParaboloidImplementation {
     Real_v dirRho2 = direction.Perp2();
     Real_v pDotV2D = point.x() * direction.x() + point.y() * direction.y();
     Real_v a       = Real_v(paraboloid.fA * dirRho2);
-    Real_v b       = Real_v(0.5 * direction.z() - paraboloid.fA * pDotV2D);
+    Real_v b       = Real_v(0.5) * direction.z() - Real_v(paraboloid.fA) * pDotV2D;
     Real_v c       = paraboloid.fB + paraboloid.fA * point.Perp2() - point.z();
     Real_v d2      = b * b - a * c;
 
     Real_v distParab = InfinityLength<Real_v>();
-    vecCore__MaskedAssignFunc(distParab, d2 >= 0. && (b > 0.), (b + Sqrt(d2)) * (1. / a));
-    vecCore__MaskedAssignFunc(distParab, d2 >= 0. && (b <= 0.), (c / (b - Sqrt(d2))));
+    vecCore__MaskedAssignFunc(distParab, d2 >= Real_v(0.) && (b > Real_v(0.)), (b + Sqrt(d2)) * (Real_v(1.) / a));
+    vecCore__MaskedAssignFunc(distParab, d2 >= Real_v(0.) && (b <= Real_v(0.)), (c / (b - Sqrt(d2))));
     distance = Min(distParab, distZ);
   }
 
@@ -349,13 +351,13 @@ struct ParaboloidImplementation {
     Real_v ro2   = point.x() * point.x() + point.y() * point.y();
     Real_v dr    = Sqrt(ro2) - Sqrt(r0sq);
 
-    Bool_v drCloseToZero = (dr < 1.E-8);
+    Bool_v drCloseToZero = (dr < Real_v(1.E-8));
     done |= drCloseToZero;
     if (vecCore::MaskFull(done)) return;
 
     // then go for the tangent
-    Real_v talf = -2. * paraboloid.fA * Sqrt(r0sq);
-    Real_v salf = talf / Sqrt(1. + talf * talf);
+    Real_v talf = Real_v(-2.) * paraboloid.fA * Sqrt(r0sq);
+    Real_v salf = talf / Sqrt(Real_v(1.) + talf * talf);
     safeR       = Abs(dr * salf);
 
     Real_v max_safety = Max(safeR, safeZ);
@@ -409,7 +411,7 @@ struct ParaboloidImplementation {
     Real_v z0   = paraboloid.fA * ro2 + paraboloid.fB;
     Real_v dr   = Sqrt(ro2) - Sqrt(r0sq); // avoid square root of a negative number
 
-    Bool_v drCloseToZero = (dr > -1.E-8);
+    Bool_v drCloseToZero = (dr > Real_v(-1.E-8));
     done |= drCloseToZero;
     if (vecCore::MaskFull(done)) return;
 
@@ -460,14 +462,14 @@ struct ParaboloidImplementation {
 
     // This block is used to calculate the Approximate normal
     Vector3D<Real_v> norm(0., 0., 0.); // used to store approximate normal
-    vecCore__MaskedAssignFunc(norm[2], point.z() > 0., Real_v(1.));
-    vecCore__MaskedAssignFunc(norm[2], point.z() < 0, Real_v(-1.));
+    vecCore__MaskedAssignFunc(norm[2], point.z() > Real_v(0.), Real_v(1.));
+    vecCore__MaskedAssignFunc(norm[2], point.z() < Real_v(0.), Real_v(-1.));
 
     Real_v safz = paraboloid.fDz - Abs(point.z());
     Real_v safr = Abs(r - Sqrt((point.z() - paraboloid.fB) * paraboloid.fInvA));
-    vecCore__MaskedAssignFunc(norm[0], safz >= 0. && safr < safz, normParabolic.x());
-    vecCore__MaskedAssignFunc(norm[1], safz >= 0. && safr < safz, normParabolic.y());
-    vecCore__MaskedAssignFunc(norm[2], safz >= 0. && safr < safz, normParabolic.z());
+    vecCore__MaskedAssignFunc(norm[0], safz >= Real_v(0.) && safr < safz, normParabolic.x());
+    vecCore__MaskedAssignFunc(norm[1], safz >= Real_v(0.) && safr < safz, normParabolic.y());
+    vecCore__MaskedAssignFunc(norm[2], safz >= Real_v(0.) && safr < safz, normParabolic.z());
 
     // If Valid is not set, that means the point is NOT on the surface,
     // So in that case we have to rely on Approximate normal

@@ -35,7 +35,7 @@ template <class Implementation, typename Real_v>
 VECGEOM_FORCE_INLINE
 static void DistanceToOutLoop(typename Implementation::UnplacedStruct_t const *shapestruct, const size_t offset,
                               const size_t size, SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                              double const *step_max, double *output)
+                              Precision const *step_max, Precision *output)
 {
   using vecCore::FromPtr;
   for (decltype(points.size()) i(offset); i < size; i += vecCore::VectorSize<Real_v>()) {
@@ -53,7 +53,7 @@ static void DistanceToOutLoop(typename Implementation::UnplacedStruct_t const *s
 template <class Implementation, typename Real_v>
 VECGEOM_FORCE_INLINE
 static void SafetyToOutLoop(typename Implementation::UnplacedStruct_t const *shapestruct, const size_t offset,
-                            const size_t size, SOA3D<Precision> const &points, double *output)
+                            const size_t size, SOA3D<Precision> const &points, Precision *output)
 {
   using vecCore::FromPtr;
   const decltype(points.size()) len(size);
@@ -84,10 +84,10 @@ public:
   // bring in constructors
   using BaseUnplVol::BaseUnplVol;
   // bring in some members from base (to avoid name hiding)
-  using BaseUnplVol::SafetyToOut;
-  using BaseUnplVol::SafetyToIn;
-  using BaseUnplVol::DistanceToOut;
   using BaseUnplVol::DistanceToIn;
+  using BaseUnplVol::DistanceToOut;
+  using BaseUnplVol::SafetyToIn;
+  using BaseUnplVol::SafetyToOut;
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -107,7 +107,7 @@ public:
 
 // detect -inf responses which are often an indication for a real bug
 #ifndef VECCORE_CUDA
-    assert(!((output < 0.) && std::isinf((double)output)));
+    assert(!((output < 0.) && std::isinf((Precision)output)));
 #endif
     return output;
   }
@@ -177,8 +177,7 @@ public:
   virtual int MemorySize() const override { return sizeof(*this); }
 };
 
-
- /*! \brief Template implementation helper for the case of unplaced volumes/shapes
+/*! \brief Template implementation helper for the case of unplaced volumes/shapes
  * where the vector interface is implemented in terms of SIMD vector instructions.
  */
 template <class Implementation, class BaseUnplVol = VUnplacedVolume>
@@ -275,10 +274,10 @@ public:
 
   // constructors
   using Common_t::Common_t;
-  using Common_t::SafetyToOut;
+  using Common_t::DistanceToIn;
   using Common_t::DistanceToOut;
   using Common_t::SafetyToIn;
-  using Common_t::DistanceToIn;
+  using Common_t::SafetyToOut;
 
   // the explicit SIMD interface
   VECCORE_ATT_HOST_DEVICE

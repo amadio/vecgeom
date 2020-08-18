@@ -31,7 +31,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedTet : public SIMDUnplacedVolumeImplHelper<TetImplementation>, public AlignedBase {
 
 private:
-  TetStruct<double> fTet; ///< The structure with the tetrahedron data members
+  TetStruct<Precision> fTet; ///< The structure with the tetrahedron data members
 
 public:
   /// Default constructor
@@ -61,7 +61,7 @@ public:
 
   /// Getter for the structure storing the tetrahedron data
   VECCORE_ATT_HOST_DEVICE
-  TetStruct<double> const &GetStruct() const { return fTet; }
+  TetStruct<Precision> const &GetStruct() const { return fTet; }
 
   /// Getter for the tetrahedron vertices
   /// @param [out] p0 Point given as 3D vector
@@ -101,7 +101,7 @@ public:
   std::string GetEntityType() const;
 
   VECCORE_ATT_HOST_DEVICE
-  void GetParametersList(int aNumber, double *aArray) const;
+  void GetParametersList(int aNumber, Precision *aArray) const;
 
   std::ostream &StreamInfo(std::ostream &os) const;
 

@@ -31,7 +31,7 @@ class UnplacedTet;
 struct TetImplementation {
 
   using PlacedShape_t    = PlacedTet;
-  using UnplacedStruct_t = TetStruct<double>;
+  using UnplacedStruct_t = TetStruct<Precision>;
   using UnplacedVolume_t = UnplacedTet;
 
   VECCORE_ATT_HOST_DEVICE

@@ -8,6 +8,7 @@
 #cmakedefine VECGEOM_SCALAR
 #cmakedefine VECGEOM_UMESIMD
 #cmakedefine VECGEOM_VC
+#cmakedefine VECGEOM_FLOAT_PRECISION
 
 // Other symbols that are added to VECGEOM_DEFINITIONS, and their activation rule
 
@@ -46,7 +47,6 @@
 
 // Defined when PLANESHELL is OFF
 #cmakedefine VECGEOM_PLANESHELL_DISABLE
-
 
 // Navigation related...
 // When USE_CACHED_TRANSFORMATIONS is ON

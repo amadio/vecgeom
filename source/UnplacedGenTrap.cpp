@@ -161,7 +161,7 @@ VECCORE_ATT_HOST_DEVICE
 bool UnplacedGenTrap::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   bool valid;
-  GenTrapImplementation::NormalKernel<double>(fGenTrap, point, normal, valid);
+  GenTrapImplementation::NormalKernel<Precision>(fGenTrap, point, normal, valid);
   return valid;
 }
 
@@ -240,7 +240,7 @@ SolidMesh *UnplacedGenTrap::CreateMesh3D(Transformation3D const &trans, size_t n
     sm->AddPolygon(4, {2, 6, 7, 3}, true);
     sm->AddPolygon(4, {3, 7, 4, 0}, true);
   } else {
-    typedef Vector3D<double> Vec_t;
+    typedef Vector3D<Precision> Vec_t;
     Vec_t *const vertices = new Vec_t[4 * (nSegments + 1)];
 
     size_t idx = 0;

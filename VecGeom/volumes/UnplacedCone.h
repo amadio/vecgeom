@@ -62,7 +62,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  ConeStruct<double> const &GetStruct() const { return fCone; }
+  ConeStruct<Precision> const &GetStruct() const { return fCone; }
 
   VECCORE_ATT_HOST_DEVICE
   Precision GetInvSecRMax() const { return fCone.fInvSecRMax; }
@@ -227,7 +227,7 @@ public:
 
   Precision SurfaceArea() const override
   {
-    double mmin, mmax, dmin, dmax;
+    Precision mmin, mmax, dmin, dmax;
     mmin = (fCone.fRmin1 + fCone.fRmin2) * 0.5;
     mmax = (fCone.fRmax1 + fCone.fRmax2) * 0.5;
     dmin = (fCone.fRmin2 - fCone.fRmin1);

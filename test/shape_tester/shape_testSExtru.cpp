@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
   OPTION_BOOL(stat, false);
 
   int N = 20;
-  double x[N], y[N];
+  vecgeom::Precision x[N], y[N];
   for (size_t i = 0; i < (size_t)N; ++i) {
     x[i] = 4 * std::sin(i * (2. * M_PI) / N);
     y[i] = 4 * std::cos(i * (2. * M_PI) / N);

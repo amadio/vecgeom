@@ -22,18 +22,18 @@ void UnplacedTorus2::Print(std::ostream &os) const
 #ifndef VECCORE_CUDA
 SolidMesh *UnplacedTorus2::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   bool isFull   = dphi() == 2 * kPi;
   SolidMesh *sm = new SolidMesh();
 
   sm->ResetMesh(2 * (nSegments + 1) * (nSegments + 1), (nSegments * nSegments) + 2);
   Vec_t *vertices = new Vec_t[2 * (nSegments + 1) * (nSegments + 1)];
 
-  double phi_step   = dphi() / nSegments;
-  double theta_step = 2 * M_PI / nSegments;
-  double phi        = sphi();
-  double theta      = 0.;
-  double intermediate1, intermediate2;
+  Precision phi_step   = dphi() / nSegments;
+  Precision theta_step = 2 * M_PI / nSegments;
+  Precision phi        = sphi();
+  Precision theta      = 0.;
+  Precision intermediate1, intermediate2;
 
   for (size_t p = 0, i = 0; i <= nSegments; ++i, theta += theta_step, phi = sphi()) {
     intermediate1 = (rtor() + rmax() * std::cos(theta));
@@ -217,18 +217,18 @@ bool UnplacedTorus2::Normal(Vector3D<Precision> const &point, Vector3D<Precision
   rho2 = point.x() * point.x() + point.y() * point.y();
   rho  = Sqrt(rho2);
   pt2  = rho2 + point.z() * point.z() + fTorus.fRtor * (fTorus.fRtor - 2 * rho);
-  pt2  = Max(pt2, 0.0); // std::fabs(pt2);
+  pt2  = Max(pt2, Precision(0.)); // std::fabs(pt2);
   pt   = Sqrt(pt2);
 
   Precision distRMax = Abs(pt - fTorus.fRmax);
   if (fTorus.fRmin) distRMin = Abs(pt - fTorus.fRmin);
 
-  if (rho > delta && pt != 0.0) {
+  if (rho > delta && pt != Precision(0.)) {
     Precision redFactor = (rho - fTorus.fRtor) / rho;
     nR                  = Vector3D<Precision>(point.x() * redFactor, // p.x()*(1.-fRtor/rho),
                              point.y() * redFactor, // p.y()*(1.-fRtor/rho),
                              point.z());
-    nR *= 1.0 / pt;
+    nR *= Precision(1.) / pt;
   }
 
   if (fTorus.fDphi < kTwoPi) // && rho ) // old limitation against (0,0,z)

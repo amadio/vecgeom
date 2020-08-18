@@ -26,10 +26,10 @@ struct MultiUnionStruct {
   vector_t<VPlacedVolume const *> fVolumes; ///< Component placed volumes
   BVHStructure *fNavHelper = nullptr;       ///< Navigation helper using bounding boxes
 
-  Vector3D<double> fMinExtent;      ///< Minimum extent
-  Vector3D<double> fMaxExtent;      ///< Maximum extent
-  mutable double fCapacity    = -1; ///< Capacity of the multiple union
-  mutable double fSurfaceArea = -1; ///< Surface area of the multiple union
+  Vector3D<Precision> fMinExtent;      ///< Minimum extent
+  Vector3D<Precision> fMaxExtent;      ///< Maximum extent
+  mutable Precision fCapacity    = -1; ///< Capacity of the multiple union
+  mutable Precision fSurfaceArea = -1; ///< Surface area of the multiple union
 #ifndef VECCORE_CUDA
   mutable std::atomic<size_t> fLast; ///< Last located component for opportunistic relocation
 #endif
@@ -59,9 +59,9 @@ struct MultiUnionStruct {
   VECCORE_ATT_HOST_DEVICE
   void AddNode(VPlacedVolume const *volume)
   {
-    using vecCore::math::Min;
     using vecCore::math::Max;
-    Vector3D<double> amin, amax;
+    using vecCore::math::Min;
+    Vector3D<Precision> amin, amax;
     ABBoxManager::ComputeABBox(volume, &amin, &amax);
     fMinExtent.Set(Min(fMinExtent.x(), amin.x()), Min(fMinExtent.y(), amin.y()), Min(fMinExtent.z(), amin.z()));
     fMaxExtent.Set(Max(fMaxExtent.x(), amax.x()), Max(fMaxExtent.y(), amax.y()), Max(fMaxExtent.z(), amax.z()));
@@ -70,8 +70,8 @@ struct MultiUnionStruct {
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  bool ABBoxOverlap(Vector3D<double> const &amin1, Vector3D<double> const &amax1, Vector3D<double> const &amin2,
-                    Vector3D<double> const &amax2)
+  bool ABBoxOverlap(Vector3D<Precision> const &amin1, Vector3D<Precision> const &amax1,
+                    Vector3D<Precision> const &amin2, Vector3D<Precision> const &amax2)
   {
     // Check if two aligned boxes overlap
     if ((amax1 - amin2).Min() < -kTolerance || (amax2 - amin1).Min() < -kTolerance) return false;
@@ -86,7 +86,7 @@ struct MultiUnionStruct {
     using BoxCorner_t       = ABBoxManager::ABBox_s;
     size_t nboxes           = fVolumes.size();
     BoxCorner_t *boxcorners = new BoxCorner_t[2 * nboxes];
-    Vector3D<double> amin, amax;
+    Vector3D<Precision> amin, amax;
     for (size_t i = 0; i < nboxes; ++i)
       ABBoxManager::ComputeABBox(fVolumes[i], &boxcorners[2 * i], &boxcorners[2 * i + 1]);
     Boxes_t boxes = &boxcorners[0];
@@ -123,7 +123,7 @@ struct MultiUnionStruct {
 
 }; // End struct
 
-} // End impl namespace
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_VOLUMES_MULTIUNIONSTRUCT_H_ */

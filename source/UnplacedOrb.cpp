@@ -80,7 +80,7 @@ std::string UnplacedOrb::GetEntityType() const
 }
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedOrb::GetParametersList(int, double *aArray) const
+void UnplacedOrb::GetParametersList(int, Precision *aArray) const
 {
   aArray[0] = GetRadius();
 }
@@ -125,18 +125,18 @@ void UnplacedOrb::Print(std::ostream &os) const
 SolidMesh *UnplacedOrb::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
   Vec_t *vertices = new Vec_t[(nSegments + 1) * (nSegments + 1)];
 
   sm->ResetMesh((nSegments + 1) * (nSegments + 1), nSegments * nSegments);
 
-  double phi_step   = 2 * M_PI / nSegments;
-  double theta_step = M_PI / nSegments;
-  double phi, theta;
+  Precision phi_step   = 2 * M_PI / nSegments;
+  Precision theta_step = M_PI / nSegments;
+  Precision phi, theta;
 
-  double x, y, z, xy;
+  Precision x, y, z, xy;
   for (size_t i = 0; i <= nSegments; ++i) {
     theta = M_PI / 2 - i * theta_step; // starting from pi/2 to -pi/2
     xy    = GetRadius() * std::cos(theta);

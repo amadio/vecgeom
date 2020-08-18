@@ -24,8 +24,8 @@ struct PolyconeSection {
   VECCORE_ATT_HOST_DEVICE
   ~PolyconeSection() {}
 
-  ConeStruct<double> *fSolid;
-  double fShift;
+  ConeStruct<Precision> *fSolid;
+  Precision fShift;
   bool fTubular;
   bool fConvex; // TRUE if all points in section are concave in regards to whole polycone, will be determined
 };

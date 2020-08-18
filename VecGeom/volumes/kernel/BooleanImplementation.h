@@ -43,7 +43,9 @@ struct BooleanImplementation<kSubtraction> {
   using UnplacedStruct_t = BooleanStruct;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType() { /*printf("SpecializedBooleanVolume<%i, %i, %i>", kSubtraction, transCodeT, rotCodeT);*/}
+  static void PrintType()
+  { /*printf("SpecializedBooleanVolume<%i, %i, %i>", kSubtraction, transCodeT, rotCodeT);*/
+  }
 
   template <typename Stream>
   static void PrintType(Stream &s)
@@ -169,7 +171,7 @@ struct BooleanImplementation<kSubtraction> {
       // master outside '-' and outside '+' ;  find distances to both
       //        fLeftMat->MasterToLocal(&master[0], &local[0]);
       d2 = unplaced.fLeftVolume->DistanceToIn(hitpoint, dir, stepMax);
-      d2 = Max(d2, 0.);
+      d2 = Max(d2, Precision(0.));
       if (d2 == kInfLength) {
         distance = kInfLength;
         // std::cerr << "missing A " << d2 << "\n";
@@ -287,9 +289,9 @@ struct BooleanImplementation<kSubtraction> {
 
 }; // End struct BooleanImplementation
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 // include stuff for boolean union
 #include "BooleanUnionImplementation.h"

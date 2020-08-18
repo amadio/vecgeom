@@ -19,22 +19,22 @@ using namespace vecgeom;
 // usage: shape_debugFromROOTFile detector.root logicalvolumename x y z vx vy vz
 // logicalvolumename should not contain trailing pointer information
 
-double runTester(VPlacedVolume const *shape, Vector3D<double> const &point, Vector3D<double> const &dir)
+Precision runTester(VPlacedVolume const *shape, Vector3D<Precision> const &point, Vector3D<Precision> const &dir)
 {
   const char *sInside[3] = {"kInside", "kSurface", "kOutside"};
-  double distance;
+  Precision distance;
   auto inside = shape->Inside(point);
   std::cout << "Inside = " << sInside[inside - 1] << std::endl;
-  distance                                = shape->SafetyToIn(point);
+  distance = shape->SafetyToIn(point);
   if (distance < kHalfTolerance) distance = 0.0;
   std::cout << "SafetyFromOutside = " << distance << std::endl;
-  distance                                = shape->SafetyToOut(point);
+  distance = shape->SafetyToOut(point);
   if (distance < kHalfTolerance) distance = 0.0;
   std::cout << "SafetyFromInside = " << distance << std::endl;
-  distance                                = shape->DistanceToIn(point, dir);
+  distance = shape->DistanceToIn(point, dir);
   if (distance < kHalfTolerance) distance = 0.0;
   std::cout << "DistanceToIn = " << distance << std::endl;
-  distance                                = shape->DistanceToOut(point, dir);
+  distance = shape->DistanceToOut(point, dir);
   if (distance < kHalfTolerance) distance = 0.0;
   std::cout << "DistanceToOut = " << distance << std::endl;
 
@@ -42,7 +42,8 @@ double runTester(VPlacedVolume const *shape, Vector3D<double> const &point, Vect
   return distance;
 }
 
-void DrawArrow(Vector3D<double> const &point, Vector3D<double> const &dir, double size, double dout, short color)
+void DrawArrow(Vector3D<Precision> const &point, Vector3D<Precision> const &dir, Precision size, Precision dout,
+               short color)
 {
   TPolyLine3D *pl = new TPolyLine3D(2);
   pl->SetLineColor(color);
@@ -113,7 +114,7 @@ int main(int argc, char *argv[])
   double ldir[3];
   memcpy(ldir, direction, 3 * sizeof(double));
 
-  bool daughter                        = false;
+  bool daughter = false;
   if (testdaughter != "void") daughter = true;
 
   int found                 = 0;
@@ -156,8 +157,8 @@ int main(int argc, char *argv[])
   }
 
   /*
-    double master[3] = {-70.37002915950117,-193.7782403798211,-382.7815168187679};
-    double masterdir[3] = {0.9910804931325202, 0.06730730580739153, 0.1150181842890534};
+    Precision master[3] = {-70.37002915950117,-193.7782403798211,-382.7815168187679};
+    Precision masterdir[3] = {0.9910804931325202, 0.06730730580739153, 0.1150181842890534};
     TGeoNode *node = gGeoManager->FindNode(master[0], master[1], master[2]);
     if (node && (node->GetVolume() == foundvolume)) {
       std::cout << " == Path is correct\n";
@@ -174,15 +175,15 @@ int main(int argc, char *argv[])
   VPlacedVolume *shape = converted->Place(); // VPlacedVolume
   std::cerr << "\n=========Using VecGeom=========\n\n";
   shape->Print();
-  Vector3D<double> amin, amax;
+  Vector3D<Precision> amin, amax;
   shape->Extent(amin, amax);
-  double size = 0.2 * (amax - amin).Mag();
+  Precision size = 0.2 * (amax - amin).Mag();
 
-  Vector3D<double> lp(lpoint[0], lpoint[1], lpoint[2]);
-  Vector3D<double> ld(ldir[0], ldir[1], ldir[2]);
+  Vector3D<Precision> lp(lpoint[0], lpoint[1], lpoint[2]);
+  Vector3D<Precision> ld(ldir[0], ldir[1], ldir[2]);
   printf("local point: %.16f %.16f %.16f  local dir: %.16f %.16f %.16f\n", lp[0], lp[1], lp[2], ld[0], ld[1], ld[2]);
 
-  double dout       = runTester(shape, lp, ld);
+  Precision dout    = runTester(shape, lp, ld);
   TApplication *app = new TApplication("VecGeom Visualizer", nullptr, nullptr);
   TCanvas *c        = new TCanvas(foundvolume->GetName(), "", 1200, 800);
   gGeoManager->SetTopVisible();

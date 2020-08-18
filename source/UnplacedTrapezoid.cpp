@@ -132,7 +132,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(TrapCorners const corners) : fTrap()
 }
 
 /*VECCORE_ATT_HOST_DEVICE
-UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
+UnplacedTrapezoid::UnplacedTrapezoid(Precision dx, Precision dy, Precision dz, Precision)
     : fTrap(dz, 0., 0., dy, dx, dx, 0., dy, dx, dx, 0.)
 {
 // TODO: this needs a proper logger treatment as per geantv conventions
@@ -143,21 +143,22 @@ UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
 }*/
 
 VECCORE_ATT_HOST_DEVICE
-UnplacedTrapezoid::UnplacedTrapezoid(double dx1, double dx2, double dy, double dz)
+UnplacedTrapezoid::UnplacedTrapezoid(Precision dx1, Precision dx2, Precision dy, Precision dz)
     : fTrap(dz, 0., 0., dy, dx1, dx1, 0., dy, dx2, dx2, 0.)
 {
   MakePlanes();
   fGlobalConvexity = true;
 }
 
-UnplacedTrapezoid::UnplacedTrapezoid(double dx1, double dx2, double dy1, double dy2, double dz)
+UnplacedTrapezoid::UnplacedTrapezoid(Precision dx1, Precision dx2, Precision dy1, Precision dy2, Precision dz)
     : UnplacedTrapezoid(dz, 0., 0., dy1, dx1, dx1, 0., dy2, dx2, dx2, 0.)
 {
   MakePlanes();
   fGlobalConvexity = true;
 }
 
-UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double alpha, double theta, double phi)
+UnplacedTrapezoid::UnplacedTrapezoid(Precision dx, Precision dy, Precision dz, Precision alpha, Precision theta,
+                                     Precision phi)
     : fTrap(dz, theta, phi, dy, dx, dx, alpha, dy, dx, dx, alpha)
 {
   // TODO: validate alpha usage here
@@ -251,7 +252,7 @@ Precision UnplacedTrapezoid::SurfaceArea() const
 */
 Precision UnplacedTrapezoid::SurfaceArea() const
 {
-  const TrapezoidStruct<double> &t = fTrap;
+  const TrapezoidStruct<Precision> &t = fTrap;
   Vec3D ba(t.fDx1 - t.fDx2 + t.fTanAlpha1 * 2 * t.fDy1, 2 * t.fDy1, 0);
   Vec3D bc(2 * t.fDz * t.fTthetaCphi - (t.fDx4 - t.fDx2) + t.fTanAlpha2 * t.fDy2 - t.fTanAlpha1 * t.fDy1,
            2 * t.fDz * t.fTthetaSphi + t.fDy2 - t.fDy1, 2 * t.fDz);
@@ -278,8 +279,10 @@ Precision UnplacedTrapezoid::SurfaceArea() const
 
   Precision surfArea =
       2 * t.fDy1 * (t.fDx1 + t.fDx2) + 2 * t.fDy2 * (t.fDx3 + t.fDx4) +
-      (t.fDx1 + t.fDx3) * std::sqrt(4 * t.fDz * t.fDz + Pow(t.fDy2 - t.fDy1 - 2 * t.fDz * t.fTthetaSphi, 2.0)) +
-      (t.fDx2 + t.fDx4) * std::sqrt(4 * t.fDz * t.fDz + Pow(t.fDy2 - t.fDy1 + 2 * t.fDz * t.fTthetaSphi, 2.0)) +
+      (t.fDx1 + t.fDx3) *
+          std::sqrt(4 * t.fDz * t.fDz + Pow(t.fDy2 - t.fDy1 - 2 * t.fDz * t.fTthetaSphi, Precision(2.0))) +
+      (t.fDx2 + t.fDx4) *
+          std::sqrt(4 * t.fDz * t.fDz + Pow(t.fDy2 - t.fDy1 + 2 * t.fDz * t.fTthetaSphi, Precision(2.0))) +
       0.5 * (babc + dcda + efeh + ghgf);
 
   return surfArea;
@@ -404,7 +407,7 @@ Vec3D UnplacedTrapezoid::GetPointOnPlane(Vec3D const &p0, Vec3D const &p1, Vec3D
 
 /*
 VECCORE_ATT_HOST_DEVICE
-void UnplacedTrapezoid::GetParametersList(int, double *aArray) const
+void UnplacedTrapezoid::GetParametersList(int, Precision *aArray) const
 {
   aArray[0] = GetRadius();
 }
@@ -436,13 +439,13 @@ void UnplacedTrapezoid::Print(std::ostream &os) const
 VECCORE_ATT_HOST_DEVICE
 void UnplacedTrapezoid::FromParametersToCorners(TrapCorners pt) const
 {
-  const TrapezoidStruct<double> &t = fTrap;
+  const TrapezoidStruct<Precision> &t = fTrap;
 
   // hopefully the compiler will optimize the repeated multiplications ... to be checked!
-  double dxdyDy1 = t.fTanAlpha1 * t.fDy1;
-  double dxdyDy2 = t.fTanAlpha2 * t.fDy2;
-  double dxdzDz  = t.fTthetaCphi * t.fDz;
-  double dydzDz  = t.fTthetaSphi * t.fDz;
+  Precision dxdyDy1 = t.fTanAlpha1 * t.fDy1;
+  Precision dxdyDy2 = t.fTanAlpha2 * t.fDy2;
+  Precision dxdzDz  = t.fTthetaCphi * t.fDz;
+  Precision dydzDz  = t.fTthetaSphi * t.fDz;
 
   pt[0] = Vec3D(-dxdzDz - dxdyDy1 - t.fDx1, -dydzDz - t.fDy1, -t.fDz);
   pt[1] = Vec3D(-dxdzDz - dxdyDy1 + t.fDx1, -dydzDz - t.fDy1, -t.fDz);
@@ -457,12 +460,12 @@ void UnplacedTrapezoid::FromParametersToCorners(TrapCorners pt) const
 VECCORE_ATT_HOST_DEVICE
 void UnplacedTrapezoid::fromPlanesToCorners(TrapCorners pt) const
 {
-  const TrapezoidStruct<double> &t = fTrap;
-  using TrapSidePlane              = TrapezoidStruct<double>::TrapSidePlane;
-  TrapSidePlane pl0                = t.GetPlane(0); // -Y
-  TrapSidePlane pl1                = t.GetPlane(1); // +Y
-  TrapSidePlane pl2                = t.GetPlane(2); // -X
-  TrapSidePlane pl3                = t.GetPlane(3); // +X
+  const TrapezoidStruct<Precision> &t = fTrap;
+  using TrapSidePlane                 = TrapezoidStruct<Precision>::TrapSidePlane;
+  TrapSidePlane pl0                   = t.GetPlane(0); // -Y
+  TrapSidePlane pl1                   = t.GetPlane(1); // +Y
+  TrapSidePlane pl2                   = t.GetPlane(2); // -X
+  TrapSidePlane pl3                   = t.GetPlane(3); // +X
 
   pt[0].z() = pt[1].z() = pt[2].z() = pt[3].z() = -t.fDz;
   pt[4].z() = pt[5].z() = pt[6].z() = pt[7].z() = t.fDz;
@@ -552,7 +555,7 @@ SolidMesh *UnplacedTrapezoid::CreateMesh3D(Transformation3D const &trans, size_t
 //        false if ThreeVectors are not coplanar
 //
 #ifdef VECGEOM_PLANESHELL_DISABLE
-using TrapSidePlane = TrapezoidStruct<double>::TrapSidePlane;
+using TrapSidePlane = TrapezoidStruct<Precision>::TrapSidePlane;
 #endif
 
 VECCORE_ATT_HOST_DEVICE

@@ -18,17 +18,17 @@ template <class Torus_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool testTorus()
 {
   int i;
-  double Rtor = 100;
-  double Rmax = Rtor * 0.9;
-  double Rmin = Rtor * 0.1;
-  double x;
-  double z;
+  Precision Rtor = 100;
+  Precision Rmax = Rtor * 0.9;
+  Precision Rmin = Rtor * 0.1;
+  Precision x;
+  Precision z;
 
-  double Dist, dist, vol, volCheck;
+  Precision Dist, dist, vol, volCheck;
   Vec_t normal;
   bool valid;
 
-  double tolerance = 1e-9;
+  Precision tolerance = 1e-9;
 
   Vec_t pzero(0, 0, 0);
 
@@ -95,12 +95,12 @@ bool testTorus()
 
   vol      = t1.Capacity();
   volCheck = vecgeom::kTwoPi * vecgeom::kPi * Rtor * (Rmax * Rmax);
-  assert(ApproxEqual(vol, volCheck));
+  assert(ApproxEqual<Precision>(vol, volCheck));
 
   vol      = t2.Capacity();
   volCheck = vecgeom::kPi / 2. * vecgeom::kPi * Rtor * (Rmax * Rmax - Rmin * Rmin);
 
-  assert(ApproxEqual(vol, volCheck));
+  assert(ApproxEqual<Precision>(vol, volCheck));
 
   // Check Inside
   // std::cout<<t1.Inside(pzero)<<std::endl;
@@ -124,7 +124,7 @@ bool testTorus()
   assert(side == vecgeom::EInside::kSurface);
   // Check Surface Normal
 
-  double p2 = 1. / std::sqrt(2.); // ,p3=1./std::sqrt(3.);
+  Precision p2 = 1. / std::sqrt(2.); // ,p3=1./std::sqrt(3.);
 
   valid = t1.Normal(ponrmax, normal);
   assert(ApproxEqual(normal, vx) && valid);
@@ -153,46 +153,46 @@ bool testTorus()
 
   // SafetyToOut(P)
   Dist = t1.SafetyToOut(ponrmin);
-  assert(ApproxEqual(Dist, 80));
+  assert(ApproxEqual<Precision>(Dist, 80));
   Dist = t1.SafetyToOut(ponrmax);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   // later: why it was introduced, while they are outside (see above)
   Dist = t2.SafetyToOut(Vec_t(20, 0, 0));
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = t2.SafetyToOut(Vec_t(0, 20, 0));
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
 
   // DistanceToOut(P,V)
   Dist = t1.DistanceToOut(ponrmax, vx);
   // std::cout << "t1.DistanceToOut(p,vx...) = " << Dist << " norm=" << normal << std::endl;
   valid = t1.Normal(ponrmax + Dist * vx, normal);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vx));
+  assert(ApproxEqual<Precision>(Dist, 0) && ApproxEqual(normal, vx));
 
   Vec_t ptest = Vec_t(130, 0, 0);
   Dist        = t1.DistanceToOut(ptest, vx);
   // Dist=t1.DistanceToOut(Vec_t(130,0.00001,0.00001),Vec_t(1,0.001,0.001).Unit(),normal,convex);
   // std::cout << "t1.DistanceToOut(ponphi1,vz,...) = " << Dist << " n=" << normal << std::endl;
   valid = t1.Normal(ptest + Dist * vx, normal);
-  assert(ApproxEqual(Dist, 60) && ApproxEqual(normal, vx));
+  assert(ApproxEqual<Precision>(Dist, 60) && ApproxEqual(normal, vx));
 
   Dist  = t1.DistanceToOut(ponrmin, vy);
   valid = t1.Normal(ponrmin + Dist * vy, normal);
-  assert(ApproxEqual(Dist, 80) && ApproxEqual(normal, vy));
+  assert(ApproxEqual<Precision>(Dist, 80) && ApproxEqual(normal, vy));
   Dist  = t1.DistanceToOut(ponrmin, vmy);
   valid = t1.Normal(ponrmin + Dist * vmy, normal);
-  assert(ApproxEqual(Dist, 100));
+  assert(ApproxEqual<Precision>(Dist, 100));
 
   // std::cout << "(vz + Vec_t(0.00001, 0.000001, 0): " << (vz + Vec_t(0.00001, 0.000001, 0)) << '\n';
   // std::cout << "Vec_t(0.00001, 0.000001, 0)).Unit() = " << (vz + Vec_t(0.00001, 0.000001, 0)).Unit() << '\n';
   Dist = t1.DistanceToOut(Vec_t(100, 0, 0), (vz + Vec_t(0.00001, 0.000001, 0)).Unit());
   // std::cout << "t1.DistanceToOut(100,0,0,vz,...) = " << Dist << " n=" << norm << std::endl;
-  assert(ApproxEqual(Dist, 90));
+  assert(ApproxEqual<Precision>(Dist, 90));
   // std::cout << "Dist=t2.DistanceToOut(ponphi12,vy) = " << Dist << ", n=" << norm << ", -vy = " << -vy << std::endl;
   // std::cout << "norm: " << norm << '\n';
   Dist = t2.DistanceToOut(Vec_t(7.07106781186547524400844362, 7.07106781186547524400844362, 0), vmx);
   // std::cout << "Dist = t2.DistanceToOut(Vec_t(7.07106781186547524400844362, 7.07106781186547524400844362, 0), vmx,
   // normal, convex) = " << Dist << std::endl;
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
 
   Vec_t test(0., 0., 1);
   for (int i = 1; i < 5; i++) {
@@ -204,78 +204,78 @@ bool testTorus()
 
   // SafetyToIn(P)
   Dist = t1.SafetyToIn(pbigx);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.SafetyToIn(pbigmx);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.SafetyToIn(pbigy);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.SafetyToIn(pbigmy);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.SafetyToIn(pbigz);
   //    std::cout<<"Dist=t1.SafetyToIn (pbigz) = "<<Dist<<std::endl;
-  //    assert(ApproxEqual(Dist,50));
+  //    assert(ApproxEqual<Precision>(Dist,50));
   Dist = t1.SafetyToIn(pbigmz);
   //    std::cout<<"Dist=t1.SafetyToIn (pbigmz) = "<<Dist<<std::endl;
-  //    assert(ApproxEqual(Dist,50));
+  //    assert(ApproxEqual<Precision>(Dist,50));
 
   // DistanceToIn(P,V)
   // std::cout << "LOGT pbigx: " << pbigx << '\n';
   // std::cout << "LOGT vmx: " << vmx << '\n';
   Dist = t1.DistanceToIn(pbigx, vmx);
   // std::cout << "LOGT Dist = t1.DistanceToIn(pbigx, vmx): " << Dist << '\n';
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigmx, vx);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigy, vmy);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigmy, vy);
-  assert(ApproxEqual(Dist, 50));
+  assert(ApproxEqual<Precision>(Dist, 50));
   Dist = t1.DistanceToIn(pbigz, vmz);
-  assert(ApproxEqual(Dist, vecgeom::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, vecgeom::kInfLength));
   Dist = t1.DistanceToIn(pbigmz, vz);
-  assert(ApproxEqual(Dist, vecgeom::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, vecgeom::kInfLength));
   Dist = t1.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, vecgeom::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, vecgeom::kInfLength));
   Dist = t1.DistanceToIn(ponrmax, vx);
   // std::cout << "Dist=t1.DIN (p,v) = " << Dist << std::endl;
-  // assert(ApproxEqual(Dist,vecgeom::kInfLength));
+  // assert(ApproxEqual<Precision>(Dist,vecgeom::kInfLength));
   Dist = t1.DistanceToIn(ponrmax, vmx);
   // std::cout << "Dist=t1.DIN (p,v) = " << Dist << std::endl;
-  // assert(ApproxEqual(Dist,0));
+  // assert(ApproxEqual<Precision>(Dist,0));
 
   // Vec_t vnew(1,0,0) ;
   // vnew.rotateZ(pi/4-5*1e-9) ;    // old test: check pzero with vxy
   // Dist=t2.DistanceToIn(pzero,vnew);
-  // assert(ApproxEqual(Dist,vecgeom::kInfLength));
+  // assert(ApproxEqual<Precision>(Dist,vecgeom::kInfLength));
   // std::cout << "Dist=t2.DIN (p,v) = " << Dist << std::endl;
   Dist = t2.DistanceToIn(pzero, vy);
-  assert(ApproxEqual(Dist, 10));
+  assert(ApproxEqual<Precision>(Dist, 10));
   Dist = t2.DistanceToIn(ponphi12, vy);
   // std::cout << "Dist = t2.DistanceToIn(ponphi12, vy) = " << Dist << ", ponphi12 = " << ponphi12 << ", vy = " << vy <<
   // std::endl;
-  assert(ApproxEqual(Dist, vecgeom::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, vecgeom::kInfLength));
   Dist = t2.DistanceToIn(ponphi12, vmy);
-  assert(ApproxEqual(Dist, 0));
+  assert(ApproxEqual<Precision>(Dist, 0));
   Dist = t2.DistanceToIn(ponphi1, vy);
-  assert(ApproxEqual(Dist, 13.550819613108856743)); // Not sure about this
+  assert(ApproxEqual<Precision>(Dist, 13.550819613108856743)); // Not sure about this
   // Torus t2 is ends at pi/2 rad, we expect infinity
   Dist = t2.DistanceToIn(ponrmin, vy);
-  assert(ApproxEqual(Dist, vecgeom::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, vecgeom::kInfLength));
   Dist = t2.DistanceToIn(ponrmin, vmy);
-  assert(ApproxEqual(Dist, vecgeom::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, vecgeom::kInfLength));
 
   Dist = t3.DistanceToIn(ponrtor, vy);
-  assert(ApproxEqual(Dist, 40));
+  assert(ApproxEqual<Precision>(Dist, 40));
   Dist = t3.DistanceToIn(ponrtor, vmy);
-  assert(ApproxEqual(Dist, 40));
+  assert(ApproxEqual<Precision>(Dist, 40));
   Dist = t3.DistanceToIn(ponrtor, vz);
-  assert(ApproxEqual(Dist, 40));
+  assert(ApproxEqual<Precision>(Dist, 40));
   Dist = t3.DistanceToIn(ponrtor, vmz);
-  assert(ApproxEqual(Dist, 40));
+  assert(ApproxEqual<Precision>(Dist, 40));
   Dist = t3.DistanceToIn(ponrtor, vx);
-  assert(ApproxEqual(Dist, vecgeom::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, vecgeom::kInfLength));
   Dist = t3.DistanceToIn(ponrtor, vmx);
-  assert(ApproxEqual(Dist, vecgeom::kInfLength));
+  assert(ApproxEqual<Precision>(Dist, vecgeom::kInfLength));
 
   Dist = t6.DistanceToIn(p1t6, vt6);
   // std::cout<<"t6.DistanceToIn(p1t6,vt6) = "<<Dist<<std::endl;
@@ -320,7 +320,7 @@ bool testTorus()
 
   for (i = 0; i < 12; i++) {
     x  = -1200;
-    z  = double(i) / 10;
+    z  = Precision(i) / 10;
     p1 = Vec_t(x, 0, z);
     //     std::cout << p1 << " - " << v1 << std::endl;
 

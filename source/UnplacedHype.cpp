@@ -193,7 +193,7 @@ Vector3D<Precision> UnplacedHype::SamplePointOnSurface() const
 }
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedHype::GetParametersList(int, double *aArray) const
+void UnplacedHype::GetParametersList(int, Precision *aArray) const
 {
   aArray[0] = fHype.fRmin;  // GetRmin();
   aArray[1] = fHype.fStIn;  // GetStIn();
@@ -245,76 +245,71 @@ void UnplacedHype::Print(std::ostream &os) const
 SolidMesh *UnplacedHype::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
+  // sm->ResetMesh(4 * nMeshVertices, nMeshPolygons);
 
+  Precision x, y;
 
-     //sm->ResetMesh(4 * nMeshVertices, nMeshPolygons);
+  Precision z_step   = 2 * GetDz() / nSegments;
+  Precision z        = -GetDz();
+  Precision phi      = 0;
+  Precision phi_step = 2 * M_PI / nSegments;
 
-     double x, y;
+  Precision cos_angle, sin_angle, outerEq, innerEq;
 
-     double z_step           = 2*GetDz() / nSegments;
-     double z                = -GetDz();
-     double phi = 0;
-     double phi_step  = 2 * M_PI / nSegments;
+  Vec_t *vertices = new Vec_t[2 * (nSegments + 1) * (nSegments + 1)];
 
-     double cos_angle, sin_angle, outerEq, innerEq;
+  size_t idx0 = 0;
+  size_t idx1 = (nSegments + 1) * (nSegments + 1);
 
-     Vec_t *vertices = new Vec_t[2 * (nSegments + 1) * (nSegments + 1)];
+  for (size_t i = 0; i <= nSegments; ++i, z += z_step, phi = 0.) {
+    outerEq = std::sqrt(GetRmax2() + (z * z * GetTOut2()));
+    innerEq = std::sqrt(GetRmin2() + (z * z * GetTIn2()));
+    for (size_t j = 0; j <= nSegments; ++j, phi += phi_step) {
+      cos_angle = std::cos(phi);
+      sin_angle = std::sin(phi);
 
-     size_t idx0 = 0;
-     size_t idx1 = (nSegments + 1) * (nSegments + 1);
+      x                = outerEq * cos_angle;
+      y                = outerEq * sin_angle;
+      vertices[idx0++] = Vec_t(x, y, z); // outer
 
-     for (size_t i = 0; i <= nSegments; ++i, z += z_step, phi = 0.) {
-         outerEq          = std::sqrt(GetRmax2() + (z * z * GetTOut2()));
-         innerEq          = std::sqrt(GetRmin2() + (z * z * GetTIn2()));
-       for (size_t j = 0; j <= nSegments; ++j, phi += phi_step) {
-         cos_angle        = std::cos(phi);
-         sin_angle        = std::sin(phi);
+      x                = innerEq * cos_angle;
+      y                = innerEq * sin_angle;
+      vertices[idx1++] = Vec_t(x, y, z); // inner
+    }
+  }
+  sm->SetVertices(vertices, 2 * (nSegments + 1) * (nSegments + 1));
+  delete[] vertices;
+  sm->TransformVertices(trans);
 
-         x                                 = outerEq * cos_angle;
-         y                                 = outerEq * sin_angle;
-         vertices[idx0++]                     = Vec_t(x, y, z); // outer
+  // lower face
+  for (size_t j = 0, k = (nSegments + 1) * (nSegments + 1); j < nSegments; j++, k++) {
+    sm->AddPolygon(4, {j + 1, j, k, k + 1}, true);
+  }
 
-         x                                 = innerEq * cos_angle;
-         y                                 = innerEq * sin_angle;
-         vertices[idx1++]     = Vec_t(x, y, z); //inner
-       }
-     }
-     sm->SetVertices(vertices, 2 * (nSegments + 1) * (nSegments + 1));
-     delete[] vertices;
-     sm->TransformVertices(trans);
+  // upper face
+  for (size_t i = 0, m = (nSegments + 1) * (nSegments), n = m + (nSegments + 1) * (nSegments + 1); i < nSegments;
+       i++, m++, n++) {
+    sm->AddPolygon(4, {n + 1, n, m, m + 1}, true);
+  }
 
+  // outer surface
 
-     // lower face
-      for (size_t j = 0, k = (nSegments + 1) * (nSegments + 1); j < nSegments; j++, k++) {
-        sm->AddPolygon(4, {j + 1, j, k, k + 1}, true);
-      }
+  for (size_t j = 0, k = 0; j < nSegments; j++, k++) {
+    for (size_t i = 0, l = k + (nSegments + 1); i < nSegments; i++, k++, l++) {
+      sm->AddPolygon(4, {l + 1, l, k, k + 1}, true);
+    }
+  }
 
+  // inner surface
 
-      // upper face
-      for (size_t i = 0, m = (nSegments + 1) * (nSegments), n = m + (nSegments + 1) * (nSegments + 1); i < nSegments; i++, m++, n++) {
-        sm->AddPolygon(4, {n + 1, n, m, m + 1}, true);
-      }
-
-
-      // outer surface
-
-      for (size_t j = 0, k = 0; j < nSegments; j++, k++) {
-        for (size_t i = 0, l = k + (nSegments + 1); i < nSegments; i++, k++, l++) {
-          sm->AddPolygon(4, {l + 1, l, k, k + 1}, true);
-        }
-      }
-
-
-      // inner surface
-
-      for (size_t j = 0, k = (nSegments + 1) * (nSegments + 1); j < nSegments; j++, k++) {
-        for (size_t i = 0, l = k + (nSegments + 1); i < nSegments; i++, k++, l++) {
-          sm->AddPolygon(4, {l + 1, k + 1, k, l}, true);
-        }
-      }
+  for (size_t j = 0, k = (nSegments + 1) * (nSegments + 1); j < nSegments; j++, k++) {
+    for (size_t i = 0, l = k + (nSegments + 1); i < nSegments; i++, k++, l++) {
+      sm->AddPolygon(4, {l + 1, k + 1, k, l}, true);
+    }
+  }
 
   return sm;
 }

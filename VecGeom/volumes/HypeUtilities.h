@@ -24,7 +24,7 @@ template <typename T>
 struct HypeStruct;
 
 namespace HypeUtilities {
-using UnplacedStruct_t = HypeStruct<double>;
+using UnplacedStruct_t = HypeStruct<Precision>;
 template <typename Real_v, typename hypeType>
 VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> IsCompletelyOutside(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point)
@@ -85,9 +85,9 @@ typename vecCore::Mask_v<Real_v> IsPointMovingInsideOuterSurface(UnplacedStruct_
 {
   Real_v pz = point.z();
   Real_v vz = direction.z();
-  vecCore__MaskedAssignFunc(vz, pz < 0., -vz);
-  vecCore__MaskedAssignFunc(pz, pz < 0., -pz);
-  return ((point.x() * direction.x() + point.y() * direction.y() - pz * hype.fTOut2 * vz) < 0);
+  vecCore__MaskedAssignFunc(vz, pz < Real_v(0.), -vz);
+  vecCore__MaskedAssignFunc(pz, pz < Real_v(0.), -pz);
+  return ((point.x() * direction.x() + point.y() * direction.y() - pz * hype.fTOut2 * vz) < Real_v(0.));
 }
 
 template <typename Real_v>
@@ -99,11 +99,11 @@ typename vecCore::Mask_v<Real_v> IsPointMovingInsideInnerSurface(UnplacedStruct_
   Real_v pz = point.z();
   Real_v vz = direction.z();
 
-  vecCore__MaskedAssignFunc(vz, pz < 0., -vz);
-  vecCore__MaskedAssignFunc(pz, pz < 0., -pz);
+  vecCore__MaskedAssignFunc(vz, pz < Real_v(0.), -vz);
+  vecCore__MaskedAssignFunc(pz, pz < Real_v(0.), -pz);
 
   // Precision tanInnerStereo2 = hype.GetTIn2();
-  return ((point.x() * direction.x() + point.y() * direction.y() - pz * hype.fTIn2 * vz) > 0);
+  return ((point.x() * direction.x() + point.y() * direction.y() - pz * hype.fTIn2 * vz) > Real_v(0.));
 }
 
 template <typename Real_v, typename hypeType>
@@ -123,7 +123,7 @@ typename vecCore::Mask_v<Real_v> IsPointOnSurfaceAndMovingInside(UnplacedStruct_
   Bool_v in(false);
   zSurf = ((rho2 - hype.fEndOuterRadius2) < kTolerance) && ((hype.fEndInnerRadius2 - rho2) < kTolerance) &&
           (Abs(Abs(point.z()) - hype.fDz) < kTolerance);
-  in |= (zSurf && (point.z() * direction.z() < 0.));
+  in |= (zSurf && (point.z() * direction.z() < Real_v(0.)));
 
   done |= zSurf;
   if (vecCore::MaskFull(done)) return in;
@@ -173,10 +173,10 @@ typename vecCore::Mask_v<Real_v> IsPointMovingOutsideOuterSurface(UnplacedStruct
 
   Real_v pz = point.z();
   Real_v vz = direction.z();
-  vecCore__MaskedAssignFunc(pz, vz < 0., -pz);
-  vecCore__MaskedAssignFunc(vz, vz < 0., -vz);
+  vecCore__MaskedAssignFunc(pz, vz < Real_v(0.), -pz);
+  vecCore__MaskedAssignFunc(vz, vz < Real_v(0.), -vz);
   Vector3D<Real_v> normHere(point.x(), point.y(), -point.z() * hype.fTOut2);
-  out = (normHere.Dot(direction) > 0.);
+  out = (normHere.Dot(direction) > Real_v(0.));
   return out;
 }
 
@@ -189,10 +189,10 @@ typename vecCore::Mask_v<Real_v> IsPointMovingOutsideInnerSurface(UnplacedStruct
 
   Real_v pz = point.z();
   Real_v vz = direction.z();
-  vecCore__MaskedAssignFunc(pz, vz < 0., -pz);
-  vecCore__MaskedAssignFunc(vz, vz < 0., -vz);
+  vecCore__MaskedAssignFunc(pz, vz < Real_v(0.), -pz);
+  vecCore__MaskedAssignFunc(vz, vz < Real_v(0.), -vz);
   Vector3D<Real_v> normHere(-point.x(), -point.y(), point.z() * hype.fTIn2);
-  return (normHere.Dot(direction) > 0.);
+  return (normHere.Dot(direction) > Real_v(0.));
 }
 
 template <typename Real_v>
@@ -207,7 +207,7 @@ typename vecCore::Mask_v<Real_v> IsPointOnOuterSurfaceAndMovingOutside(UnplacedS
   Real_v absZ  = Abs(point.z());
   Real_v radO2 = RadiusHypeSq<Real_v, false>(hype, point.z());
   Bool_v out(false), outerHypeSurf(false);
-  outerHypeSurf = (Abs((radO2) - (rho2)) < hype.outerRadToleranceLevel) && (absZ >= 0.) && (absZ < hype.fDz);
+  outerHypeSurf = (Abs((radO2) - (rho2)) < hype.outerRadToleranceLevel) && (absZ >= Real_v(0.)) && (absZ < hype.fDz);
   out           = outerHypeSurf && IsPointMovingOutsideOuterSurface<Real_v>(hype, point, direction);
   return out;
 }
@@ -226,7 +226,7 @@ typename vecCore::Mask_v<Real_v> IsPointOnInnerSurfaceAndMovingOutside(UnplacedS
   Bool_v out(false), innerHypeSurf(false);
   // if (hype.InnerSurfaceExists()) {
   if (checkInnerSurfaceTreatment<hypeType>(hype)) {
-    innerHypeSurf = (Abs((radI2) - (rho2)) < hype.innerRadToleranceLevel) && (absZ >= 0.) && (absZ < hype.fDz);
+    innerHypeSurf = (Abs((radI2) - (rho2)) < hype.innerRadToleranceLevel) && (absZ >= Real_v(0.)) && (absZ < hype.fDz);
     out           = innerHypeSurf && HypeUtilities::IsPointMovingOutsideInnerSurface<Real_v>(hype, point, direction);
   }
   return out;
@@ -253,7 +253,7 @@ typename vecCore::Mask_v<Real_v> IsPointOnSurfaceAndMovingOutside(UnplacedStruct
   zSurf = ((rho2 - hype.fEndOuterRadius2) < kTolerance) && ((hype.fEndInnerRadius2 - rho2) < kTolerance) &&
           (Abs(Abs(point.z()) - hype.fDz) < kTolerance);
 
-  out |= (zSurf && (point.z() * direction.z() > 0.));
+  out |= (zSurf && (point.z() * direction.z() > Real_v(0.)));
   // done |= zSurf;
   done = out;
   if (vecCore::MaskFull(done)) return out;
@@ -300,12 +300,11 @@ VECCORE_ATT_HOST_DEVICE
 Real_v ApproxDistInside(Real_v pr, Real_v pz, Precision r0, Precision tan2Phi)
 {
   using Bool_v = typename vecCore::Mask_v<Real_v>;
-  Real_v dbl_min(2.2250738585072014e-308);
   Bool_v done(false);
   Real_v ret(0.);
   Real_v tan2Phi_v(tan2Phi);
-  vecCore__MaskedAssignFunc(ret, (tan2Phi_v < dbl_min), r0 - pr);
-  done |= (tan2Phi_v < dbl_min);
+  vecCore__MaskedAssignFunc(ret, (tan2Phi_v < vecCore::NumericLimits<Real_v>::Min()), r0 - pr);
+  done |= (tan2Phi_v < vecCore::NumericLimits<Real_v>::Min());
   if (vecCore::MaskFull(done)) return ret;
 
   Real_v rh  = Sqrt(r0 * r0 + pz * pz * tan2Phi_v);
@@ -330,7 +329,7 @@ public:
   ~HypeHelpers() {}
 
   VECCORE_ATT_HOST_DEVICE
-  static typename vecCore::Mask_v<Real_v> GetPointOfIntersectionWithHyperbolicSurface(HypeStruct<double> const &hype,
+  static typename vecCore::Mask_v<Real_v> GetPointOfIntersectionWithHyperbolicSurface(HypeStruct<Precision> const &hype,
                                                                                       Vector3D<Real_v> const &point,
                                                                                       Vector3D<Real_v> const &direction,
                                                                                       Real_v &dist)
@@ -342,31 +341,31 @@ public:
       Real_v a     = direction.Perp2() - hype.fTIn2 * direction.z() * direction.z();
       Real_v b     = (direction.x() * point.x() + direction.y() * point.y() - hype.fTIn2 * direction.z() * point.z());
       Real_v c     = point.Perp2() - hype.fTIn2 * point.z() * point.z() - hype.fRmin2;
-      Bool_v exist = (b * b - a * c > 0.);
+      Bool_v exist = (b * b - a * c > Real_v(0.));
       if (ForDistToIn) {
-        vecCore__MaskedAssignFunc(dist, exist && b < 0.0, ((-b + Sqrt(b * b - a * c)) / (a)));
-        vecCore__MaskedAssignFunc(dist, exist && b >= 0.0, ((c) / (-b - Sqrt(b * b - a * c))));
+        vecCore__MaskedAssignFunc(dist, exist && b < Real_v(0.), ((-b + Sqrt(b * b - a * c)) / (a)));
+        vecCore__MaskedAssignFunc(dist, exist && b >= Real_v(0.), ((c) / (-b - Sqrt(b * b - a * c))));
 
       } else {
-        vecCore__MaskedAssignFunc(dist, exist && b > 0.0, ((-b - Sqrt(b * b - a * c)) / (a)));
-        vecCore__MaskedAssignFunc(dist, exist && b <= 0.0, ((c) / (-b + Sqrt(b * b - a * c))));
+        vecCore__MaskedAssignFunc(dist, exist && b > Real_v(0.), ((-b - Sqrt(b * b - a * c)) / (a)));
+        vecCore__MaskedAssignFunc(dist, exist && b <= Real_v(0.), ((c) / (-b + Sqrt(b * b - a * c))));
       }
 
     } else {
       Real_v a     = direction.Perp2() - hype.fTOut2 * direction.z() * direction.z();
       Real_v b     = (direction.x() * point.x() + direction.y() * point.y() - hype.fTOut2 * direction.z() * point.z());
       Real_v c     = point.Perp2() - hype.fTOut2 * point.z() * point.z() - hype.fRmax2;
-      Bool_v exist = (b * b - a * c > 0.);
+      Bool_v exist = (b * b - a * c > Real_v(0.));
       if (ForDistToIn) {
-        vecCore__MaskedAssignFunc(dist, exist && b >= 0.0, ((-b - Sqrt(b * b - a * c)) / (a)));
-        vecCore__MaskedAssignFunc(dist, exist && b < 0.0, ((c) / (-b + Sqrt(b * b - a * c))));
+        vecCore__MaskedAssignFunc(dist, exist && b >= Real_v(0.), ((-b - Sqrt(b * b - a * c)) / (a)));
+        vecCore__MaskedAssignFunc(dist, exist && b < Real_v(0.), ((c) / (-b + Sqrt(b * b - a * c))));
       } else {
-        vecCore__MaskedAssignFunc(dist, exist && b < 0.0, ((-b + Sqrt(b * b - a * c)) / (a)));
-        vecCore__MaskedAssignFunc(dist, exist && b >= 0.0, ((c) / (-b - Sqrt(b * b - a * c))));
+        vecCore__MaskedAssignFunc(dist, exist && b < Real_v(0.), ((-b + Sqrt(b * b - a * c)) / (a)));
+        vecCore__MaskedAssignFunc(dist, exist && b >= Real_v(0.), ((c) / (-b - Sqrt(b * b - a * c))));
       }
     }
 
-    vecCore__MaskedAssignFunc(dist, dist < 0.0, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(dist, dist < Real_v(0.), InfinityLength<Real_v>());
 
     Real_v newPtZ = point.z() + dist * direction.z();
 
@@ -381,7 +380,7 @@ public:
   ~HypeHelpers() {}
 
   VECCORE_ATT_HOST_DEVICE
-  static bool GetPointOfIntersectionWithHyperbolicSurface(HypeStruct<double> const &hype,
+  static bool GetPointOfIntersectionWithHyperbolicSurface(HypeStruct<Precision> const &hype,
                                                           Vector3D<Precision> const &point,
                                                           Vector3D<Precision> const &direction, Precision &dist)
   {

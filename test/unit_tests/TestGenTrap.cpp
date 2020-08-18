@@ -44,7 +44,7 @@ bool TestGenTrap()
   // (a*a+a*b+b*b)*h/3
   volCheck1 = (1. / 3) * (6 * 6 + 4 * 6 + 4 * 4) * 10;
   // std::cout << "volume1= " << vol << "   volCheck= " << volCheck1 << std::endl;
-  assert(ApproxEqual(vol, volCheck1) && "vol != volCheck1");
+  assert(ApproxEqual<Precision>(vol, volCheck1) && "vol != volCheck1");
 
   vol       = trap2.Capacity();
   volCheck2 = (1. / 3) * (6 * 6 + 3.9 * 6 + 3.9 * 3.9) * 10;
@@ -57,7 +57,7 @@ bool TestGenTrap()
   surf      = trap1.SurfaceArea();
   surfCheck = 6 * 6 + 4 * 4 + 4 * 0.5 * (6 + 4) * std::sqrt(10 * 10 + 1 * 1);
   // std::cout << "surface1= " << surf << "   surfCheck= " << surfCheck << std::endl;
-  assert(ApproxEqual(surf, surfCheck) && "surf != surfcheck");
+  assert(ApproxEqual<Precision>(surf, surfCheck) && "surf != surfcheck");
 
   surf = trap2.SurfaceArea();
   // std::cout << "surface2= " << surf << std::endl;
@@ -98,20 +98,20 @@ bool TestGenTrap()
   Dist = trap2.SafetyToOut(Vec_t(0., 0., -3));
   assert(Dist <= 2);
   Dist = trap1.SafetyToOut(ponxm);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
   Dist = trap1.SafetyToOut(ponzp);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
 
   // DistanceToOut(P,V)
   Vec_t direction;
   Dist = trap1.DistanceToOut(pzero, Vec_t(-1., 0., 0.));
-  assert(ApproxEqual(Dist, 2.5));
+  assert(ApproxEqual<Precision>(Dist, 2.5));
   Dist = trap1.DistanceToOut(pzero, Vec_t(0., 0., 1.));
-  assert(ApproxEqual(Dist, 5.));
+  assert(ApproxEqual<Precision>(Dist, 5.));
   Dist = trap1.DistanceToOut(ponxm, Vec_t(1., 0., 0.));
-  assert(ApproxEqual(Dist, 5.));
+  assert(ApproxEqual<Precision>(Dist, 5.));
   Dist = trap1.DistanceToOut(ponyp, Vec_t(0., -1., 0.));
-  assert(ApproxEqual(Dist, 5.));
+  assert(ApproxEqual<Precision>(Dist, 5.));
   Dist = trap1.DistanceToOut(pbig, Vec_t(0., -1., 0.));
   assert(Dist < 0.);
   for (int i = 0; i < 8; i++) {
@@ -121,7 +121,7 @@ bool TestGenTrap()
     direction.Normalize();
     Dist = trap2.DistanceToOut(pzero, direction);
     // std::cout << "Dist=" << Dist << "  Distref=" << Distref << std::endl;
-    assert(ApproxEqual(Dist, Distref));
+    assert(ApproxEqual<Precision>(Dist, Distref));
   }
 
   // SafetyToIn(P)
@@ -133,12 +133,12 @@ bool TestGenTrap()
   Dist = trap1.SafetyToIn(pbigz);
   assert(Dist <= 95.);
   Dist = trap1.SafetyToIn(ponzm);
-  assert(ApproxEqual(Dist, 0.));
+  assert(ApproxEqual<Precision>(Dist, 0.));
   Dist = trap2.SafetyToIn(pzero);
   assert(Dist < 0.);
 
   Vec_t testp;
-  double testValue = 0.11;
+  Precision testValue = 0.11;
   // X
   valid = trap1.Normal(ponxp, normal);
   testp = ponxp + testValue * normal;
@@ -180,7 +180,7 @@ bool TestGenTrap()
   valid = trap2.Normal(ponzp, normal);
   testp = ponzp + testValue * normal;
   Dist  = trap2.SafetyToIn(testp);
-  assert(ApproxEqual(Dist, testValue));
+  assert(ApproxEqual<Precision>(Dist, testValue));
 
   testp = ponzp - testValue * normal;
   Dist  = trap2.SafetyToIn(testp);
@@ -189,7 +189,7 @@ bool TestGenTrap()
   valid = trap2.Normal(ponzm, normal);
   testp = ponzm + testValue * normal;
   Dist  = trap2.SafetyToIn(testp);
-  assert(ApproxEqual(Dist, testValue));
+  assert(ApproxEqual<Precision>(Dist, testValue));
 
   testp = ponzm - testValue * normal;
   Dist  = trap2.SafetyToIn(testp);
@@ -201,25 +201,25 @@ bool TestGenTrap()
   testValue = dir.Mag();
   dir.Normalize();
   Dist = trap1.DistanceToIn(pbigmx, dir);
-  assert(ApproxEqual(Dist, testValue));
+  assert(ApproxEqual<Precision>(Dist, testValue));
 
   dir       = ponxp - pbigx;
   testValue = dir.Mag();
   dir.Normalize();
   Dist = trap1.DistanceToIn(pbigx, dir);
-  assert(ApproxEqual(Dist, testValue));
+  assert(ApproxEqual<Precision>(Dist, testValue));
 
   dir       = ponym - pbigmy;
   testValue = dir.Mag();
   dir.Normalize();
   Dist = trap1.DistanceToIn(pbigmy, dir);
-  assert(ApproxEqual(Dist, testValue));
+  assert(ApproxEqual<Precision>(Dist, testValue));
 
   dir       = ponyp - pbigy;
   testValue = dir.Mag();
   dir.Normalize();
   Dist = trap1.DistanceToIn(pbigy, dir);
-  assert(ApproxEqual(Dist, testValue));
+  assert(ApproxEqual<Precision>(Dist, testValue));
 
   // SamplePointOnSurface + DistanceToIn
   // Shoot from outside to points on surface
@@ -232,9 +232,9 @@ bool TestGenTrap()
     Dist = trap2.DistanceToIn(start, dir);
     //      std::cout << "point: " << start << " dir: " << dir << " Dist=" << Dist << "  testValue=" << testValue <<
     //      "\n";
-    assert(ApproxEqual(Dist, testValue));
+    assert(ApproxEqual<Precision>(Dist, testValue));
     Dist = trap2.DistanceToIn(psurf, -dir);
-    assert(ApproxEqual(Dist, kInfLength));
+    assert(ApproxEqual<Precision>(Dist, kInfLength));
   }
 
   // CalculateExtent

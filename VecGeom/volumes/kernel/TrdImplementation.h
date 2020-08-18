@@ -80,8 +80,8 @@ void PlaneTrajectoryIntersection(Real_v const &alongX, Real_v const &alongY, Rea
 template <typename Real_v, bool forY, bool mirroredPoint, bool toInside>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-void FaceTrajectoryIntersection(TrdStruct<double> const &trd, Vector3D<Real_v> const &pos, Vector3D<Real_v> const &dir,
-                                Real_v &dist, vecCore::Mask_v<Real_v> &ok)
+void FaceTrajectoryIntersection(TrdStruct<Precision> const &trd, Vector3D<Real_v> const &pos,
+                                Vector3D<Real_v> const &dir, Real_v &dist, vecCore::Mask_v<Real_v> &ok)
 {
   Real_v alongV, posV, dirV, posK, dirK, fV, fK, halfKplus, v1, ndotv;
   //    fNormals[0].Set(-fCalfX, 0., fFx*fCalfX);
@@ -110,21 +110,21 @@ void FaceTrajectoryIntersection(TrdStruct<double> const &trd, Vector3D<Real_v> c
     halfKplus = trd.fHalfY1plusY2;
   }
   if (mirroredPoint) {
-    posV *= -1.;
-    dirV *= -1.;
+    posV *= Real_v(-1.);
+    dirV *= Real_v(-1.);
   }
 
   ndotv = dirV + fV * dir.z();
   if (toInside)
-    ok = ndotv < 0.;
+    ok = ndotv < Real_v(0.);
   else
-    ok = ndotv > 0.;
+    ok = ndotv > Real_v(0.);
   if (vecCore::MaskEmpty(ok)) return;
   Real_v alongZ = Real_v(2.0) * trd.fDZ;
 
   // distance from trajectory to face
   dist = (alongZ * (posV - v1) - alongV * (pos.z() + trd.fDZ)) / (dir.z() * alongV - dirV * alongZ + kTiny);
-  ok &= dist > MakeMinusTolerant<true>(0.);
+  ok &= dist > Real_v(MakeMinusTolerant<true>(0.));
   if (!vecCore::MaskEmpty(ok)) {
     // need to make sure z hit falls within bounds
     Real_v hitz = pos.z() + dist * dir.z();
@@ -140,7 +140,7 @@ void FaceTrajectoryIntersection(TrdStruct<double> const &trd, Vector3D<Real_v> c
 template <typename Real_v, typename trdTypeT, bool inside>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-void Safety(TrdStruct<double> const &trd, Vector3D<Real_v> const &pos, Real_v &dist)
+void Safety(TrdStruct<Precision> const &trd, Vector3D<Real_v> const &pos, Real_v &dist)
 {
   using namespace TrdTypes;
   using Bool_v = vecCore::Mask_v<Real_v>;
@@ -170,7 +170,7 @@ void Safety(TrdStruct<double> const &trd, Vector3D<Real_v> const &pos, Real_v &d
 template <typename Real_v, typename trdTypeT, bool surfaceT>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-static void UnplacedInside(TrdStruct<double> const &trd, Vector3D<Real_v> const &point,
+static void UnplacedInside(TrdStruct<Precision> const &trd, Vector3D<Real_v> const &point,
                            vecCore::Mask_v<Real_v> &completelyinside, vecCore::Mask_v<Real_v> &completelyoutside)
 {
 
@@ -226,7 +226,7 @@ struct TrdStruct;
 template <typename trdTypeT>
 struct TrdImplementation {
 
-  using UnplacedStruct_t = TrdStruct<double>;
+  using UnplacedStruct_t = TrdStruct<Precision>;
   using UnplacedVolume_t = SUnplacedTrd<trdTypeT>;
   using PlacedShape_t    = SPlacedTrd<UnplacedVolume_t>;
 
@@ -316,22 +316,22 @@ struct TrdImplementation {
     distance = InfinityLength<Real_v>();
 
     // hit Z faces?
-    Bool_v inz   = vecCore::math::Abs(point.z()) < MakeMinusTolerant<true>(trd.fDZ);
+    Bool_v inz   = vecCore::math::Abs(point.z()) < Real_v(MakeMinusTolerant<true>(trd.fDZ));
     Real_v distx = trd.fHalfX1plusX2 - trd.fFx * point.z();
-    Bool_v inx   = (distx - vecCore::math::Abs(point.x())) * trd.fCalfX > MakePlusTolerant<true>(0.);
+    Bool_v inx   = (distx - vecCore::math::Abs(point.x())) * trd.fCalfX > Real_v(MakePlusTolerant<true>(0.));
     Real_v disty;
     Bool_v iny;
     if (checkVaryingY<trdTypeT>(trd)) {
       disty = trd.fHalfY1plusY2 - trd.fFy * point.z();
-      iny   = (disty - vecCore::math::Abs(point.y())) * trd.fCalfY > MakePlusTolerant<true>(0.);
+      iny   = (disty - vecCore::math::Abs(point.y())) * trd.fCalfY > Real_v(MakePlusTolerant<true>(0.));
     } else {
       disty = vecCore::math::Abs(point.y()) - trd.fDY1;
-      iny   = disty < MakeMinusTolerant<true>(0.);
+      iny   = disty < Real_v(MakeMinusTolerant<true>(0.));
     }
     Bool_v inside = inx & iny & inz;
-    vecCore__MaskedAssignFunc(distance, inside, Real_v(-1.0));
+    vecCore__MaskedAssignFunc(distance, inside, Real_v(-1.));
     Bool_v done = inside;
-    Bool_v okz  = point.z() * direction.z() < 0;
+    Bool_v okz  = point.z() * direction.z() < Real_v(0.);
     okz &= !inz;
     if (!vecCore::MaskEmpty(okz)) {
       Real_v distz = (vecCore::math::Abs(point.z()) - trd.fDZ) / vecCore::math::Abs(direction.z());
@@ -409,24 +409,24 @@ struct TrdImplementation {
     distance = Real_v(0.0);
 
     // hit top Z face?
-    Real_v invdir = 1. / vecCore::math::Abs(dir.z() + kTiny);
+    Real_v invdir = Real_v(1.) / vecCore::math::Abs(dir.z() + kTiny);
     Real_v safz   = trd.fDZ - vecCore::math::Abs(point.z());
-    Bool_v out    = safz < MakeMinusTolerant<true>(0.);
+    Bool_v out    = safz < Real_v(MakeMinusTolerant<true>(0.));
     Real_v distx  = trd.fHalfX1plusX2 - trd.fFx * point.z();
-    out |= (distx - vecCore::math::Abs(point.x())) * trd.fCalfX < MakeMinusTolerant<true>(0.);
+    out |= (distx - vecCore::math::Abs(point.x())) * trd.fCalfX < Real_v(MakeMinusTolerant<true>(0.));
     Real_v disty;
     if (checkVaryingY<trdTypeT>(trd)) {
       disty = trd.fHalfY1plusY2 - trd.fFy * point.z();
-      out |= (disty - vecCore::math::Abs(point.y())) * trd.fCalfY < MakeMinusTolerant<true>(0.);
+      out |= (disty - vecCore::math::Abs(point.y())) * trd.fCalfY < Real_v(MakeMinusTolerant<true>(0.));
     } else {
       disty = trd.fDY1 - vecCore::math::Abs(point.y());
-      out |= disty < MakeMinusTolerant<true>(0.);
+      out |= disty < Real_v(MakeMinusTolerant<true>(0.));
     }
     if (/*vecCore::EarlyReturnAllowed() && */ vecCore::MaskFull(out)) {
-      distance = -1.;
+      distance = Real_v(-1.);
       return;
     }
-    Bool_v okzt = dir.z() > 0;
+    Bool_v okzt = dir.z() > Real_v(0.);
     if (!vecCore::MaskEmpty(okzt)) {
       Real_v distz = (trd.fDZ - point.z()) * invdir;
       hitx         = vecCore::math::Abs(point.x() + distz * dir.x());
@@ -440,7 +440,7 @@ struct TrdImplementation {
     }
 
     // hit bottom Z face?
-    Bool_v okzb = dir.z() < 0;
+    Bool_v okzb = dir.z() < Real_v(0.);
     if (!vecCore::MaskEmpty(okzb)) {
       Real_v distz = (point.z() + trd.fDZ) * invdir;
       hitx         = vecCore::math::Abs(point.x() + distz * dir.x());
@@ -486,7 +486,7 @@ struct TrdImplementation {
       vecCore::MaskedAssign(distance, oky, disty);
     } else {
       Real_v plane = trd.fDY1;
-      vecCore__MaskedAssignFunc(plane, dir.y() < 0.0, Real_v(-trd.fDY1));
+      vecCore__MaskedAssignFunc(plane, dir.y() < Real_v(0.), Real_v(-trd.fDY1));
       disty       = (plane - point.y()) / dir.y();
       Real_v zhit = point.z() + disty * dir.z();
       Real_v xhit = point.x() + disty * dir.x();

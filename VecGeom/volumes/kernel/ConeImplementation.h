@@ -19,8 +19,6 @@
 #include "VecGeom/volumes/ConeStruct.h"
 #include <cstdio>
 #include "VecGeom/volumes/ConeUtilities.h"
-#define kConeTolerance 1e-7
-#define kHalfConeTolerance 0.5 * kConeTolerance
 
 namespace vecgeom {
 
@@ -36,7 +34,7 @@ class SUnplacedCone;
 template <typename coneTypeT>
 struct ConeImplementation {
 
-  using UnplacedStruct_t = ConeStruct<double>;
+  using UnplacedStruct_t = ConeStruct<Precision>;
   using UnplacedVolume_t = SUnplacedCone<coneTypeT>;
   using PlacedShape_t    = SPlacedCone<UnplacedVolume_t>;
 
@@ -144,7 +142,7 @@ struct ConeImplementation {
     Float_t outerRadIrTol2 = outerRadIrTol * outerRadIrTol;
     Float_t rsq            = point.Perp2(); // point.x()*point.x() + point.y()*point.y();
 
-    done |= rsq > outerRadIrTol2 && (dir.Dot(GetNormal<Real_v, false>(cone, point)) >= 0.);
+    done |= rsq > outerRadIrTol2 && (dir.Dot(GetNormal<Real_v, false>(cone, point)) >= Real_v(0.));
     if (vecCore::MaskFull(done)) return;
 
     //=== Next, check all dimensions of the cone, whether points are inside -->
@@ -178,9 +176,9 @@ struct ConeImplementation {
 
     Bool_t isOnZPlaneAndMovingInside(false);
 
-    Bool_t isGoingUp          = dir.z() > 0.;
-    isOnZPlaneAndMovingInside = ((isGoingUp && point.z() < 0. && Abs(distz) < kHalfTolerance) ||
-                                 (!isGoingUp && point.z() > 0. && Abs(distz) < kHalfTolerance));
+    Bool_t isGoingUp          = dir.z() > Float_t(0.);
+    isOnZPlaneAndMovingInside = ((isGoingUp && point.z() < Float_t(0.) && Abs(distz) < kHalfTolerance) ||
+                                 (!isGoingUp && point.z() > Float_t(0.) && Abs(distz) < kHalfTolerance));
     vecCore__MaskedAssignFunc(distz, !done && isOnZPlaneAndMovingInside, Float_t(0.));
 
 #ifdef EDGE_POINTS
@@ -284,7 +282,7 @@ struct ConeImplementation {
     vecCore__MaskedAssignFunc(distance, !done, Real_v(-1.0));
 
     // For points inside z-range, return -1
-    Bool_t outside = distz > kHalfConeTolerance || rsq > outerRadOrTol2;
+    Bool_t outside = distz > Real_v(kHalfConeTolerance) || rsq > outerRadOrTol2;
     done |= outside;
     if (vecCore::MaskFull(done)) return;
 
@@ -303,11 +301,11 @@ struct ConeImplementation {
     }
     done |= outside;
     if (vecCore::MaskFull(done)) return;
-    Bool_t isGoingUp   = direction.z() > 0.;
-    Bool_t isGoingDown = direction.z() < 0.;
+    Bool_t isGoingUp   = direction.z() > Real_v(0.);
+    Bool_t isGoingDown = direction.z() < Real_v(0.);
     Bool_t isOnZPlaneAndMovingOutside(false);
-    isOnZPlaneAndMovingOutside = !outside && ((isGoingUp && point.z() > 0. && Abs(distz) < kHalfTolerance) ||
-                                              (!isGoingUp && point.z() < 0. && Abs(distz) < kHalfTolerance));
+    isOnZPlaneAndMovingOutside = !outside && ((isGoingUp && point.z() > Real_v(0.) && Abs(distz) < kHalfTolerance) ||
+                                              (!isGoingUp && point.z() < Real_v(0.) && Abs(distz) < kHalfTolerance));
     vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingOutside, Real_v(0.));
     done |= isOnZPlaneAndMovingOutside;
     if (vecCore::MaskFull(done)) return;
@@ -317,7 +315,7 @@ struct ConeImplementation {
     vecCore__MaskedAssignFunc(distance, !done, Real_v(kInfLength));
 
     Precision fDz  = cone.fDz;
-    Real_v dirZInv = 1. / NonZero(direction.z());
+    Real_v dirZInv = Real_v(1.) / NonZero(direction.z());
     vecCore__MaskedAssignFunc(distance, isGoingUp, (fDz - point.z()) * dirZInv);
     vecCore__MaskedAssignFunc(distance, isGoingDown, (-fDz - point.z()) * dirZInv);
 
@@ -342,7 +340,8 @@ struct ConeImplementation {
       Bool_t isOnEndPhi        = ConeUtilities::IsOnEndPhi<Real_v>(cone, point);
       Vector3D<Real_v> normal1 = cone.fPhiWedge.GetNormal1();
       Vector3D<Real_v> normal2 = cone.fPhiWedge.GetNormal2();
-      Bool_t cond = (isOnStartPhi && direction.Dot(-normal1) > 0.) || (isOnEndPhi && direction.Dot(-normal2) > 0.);
+      Bool_t cond              = (isOnStartPhi && direction.Dot(-normal1) > Real_v(0.)) ||
+                    (isOnEndPhi && direction.Dot(-normal2) > Real_v(0.));
       vecCore__MaskedAssignFunc(distance, !done && cond, Real_v(0.));
       done |= cond;
       if (vecCore::MaskFull(done)) return;
@@ -364,7 +363,7 @@ struct ConeImplementation {
         vecCore::MaskedAssign(distance, ok_phi && dist_phi < distance, dist_phi);
       }
     }
-    vecCore__MaskedAssignFunc(distance, distance < 0. && Abs(distance) < kTolerance, Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, distance < Real_v(0.) && Abs(distance) < kTolerance, Real_v(0.));
   }
 
   template <typename Real_v>
@@ -462,7 +461,7 @@ struct ConeImplementation {
     vecCore__MaskedAssignFunc(safety, !done, Float_t(-1.0));
 
     // For points outside z-range, return -1
-    Bool_t outside = distz > kHalfConeTolerance;
+    Bool_t outside = distz > Real_v(kHalfConeTolerance);
 
     outside |= rsq > outerRadOrTol2;
 
@@ -517,10 +516,10 @@ struct ConeImplementation {
     typedef Real_v Float_t;
     Float_t rho = point.Perp();
     if (ForInnerSurface) {
-      Float_t pRMin = cone.fTanRMin * point.z() + (cone.fRmin1 + cone.fRmin2) * 0.5; // cone.fRminAv;
+      Float_t pRMin = cone.fTanRMin * point.z() + (cone.fRmin1 + cone.fRmin2) * Float_t(0.5); // cone.fRminAv;
       return (rho - pRMin) * cone.fInvSecRMin;
     } else {
-      Float_t pRMax = cone.fTanRMax * point.z() + (cone.fRmax1 + cone.fRmax2) * 0.5; // cone.fRmaxAv;
+      Float_t pRMax = cone.fTanRMax * point.z() + (cone.fRmax1 + cone.fRmax2) * Float_t(0.5); // cone.fRmaxAv;
       return (pRMax - rho) * cone.fInvSecRMax;
     }
   }

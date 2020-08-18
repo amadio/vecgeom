@@ -124,6 +124,13 @@ endif()
 # - Core
 option(BUILTIN_VECCORE "Build VecCore and its dependencies from source" OFF)
 
+# - Precision
+option(SINGLE_PRECISION "Use single precision throughout the package" OFF)
+if (SINGLE_PRECISION)
+  message(STATUS "VecGeom compiles in single precision mode.")
+  set(VECGEOM_FLOAT_PRECISION ON)
+endif()
+
 option(CUDA "Enable compilation for CUDA." OFF)
 cmake_dependent_option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF "CUDA" OFF)
 cmake_dependent_option(CUDA_SEPARABLE_COMPILATION "Compile CUDA objects with separable compilation enabled." ON "CUDA" OFF)

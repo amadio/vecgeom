@@ -27,7 +27,7 @@ __global__ void NavigationKernel(void *gpu_ptr /* a pointer to buffer of current
   using vecgeom::cuda::NavigationState;
   using vecgeom::cuda::NavStatePool;
   auto nav = NewSimpleNavigator<>::Instance(); // pointer to a navigator
-  double step;
+  Precision step;
 
   unsigned tid = ThreadIndex();
   while (tid < n) {

@@ -99,18 +99,18 @@ int TestBooleans()
     double d   = placedholes1->DistanceToIn(Vec3D_t(0., 0., 0.), Vec3D_t(1., 1., 0.).Normalized());
     double d2  = placedholes1->DistanceToIn(Vec3D_t(0., 0., 0.), Vec3D_t(-1., -1., 0.).Normalized());
     double dt1 = lowerhole->DistanceToIn(Vec3D_t(0., 0., 0.), Vec3D_t(1., 1., 0.).Normalized());
-    assert(ApproxEqual(dt1, d));
-    assert(ApproxEqual(d, d2));
-    assert(ApproxEqual(d, QuarterDiagL / 2. - tube.rmax()));
+    assert(ApproxEqual<Precision>(dt1, d));
+    assert(ApproxEqual<Precision>(d, d2));
+    assert(ApproxEqual<Precision>(d, QuarterDiagL / 2. - tube.rmax()));
   }
 
   {
     double d = placedholes1->PlacedDistanceToOut(Vec3D_t(L / 4, L / 4, 0.), Vec3D_t(1., 1., 0.).Normalized());
-    assert(ApproxEqual(d, tube.rmax()));
+    assert(ApproxEqual<Precision>(d, tube.rmax()));
   }
   {
     double d = placedholes1->PlacedDistanceToOut(Vec3D_t(-L / 4, -L / 4, 0.), Vec3D_t(1., 1., 0.).Normalized());
-    assert(ApproxEqual(d, tube.rmax()));
+    assert(ApproxEqual<Precision>(d, tube.rmax()));
   }
 
   // Test the combined boolean
@@ -142,35 +142,35 @@ int TestBooleans()
   // Test the combined boolean DistanceToOut
   {
     double d = placedcombinedboolean->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(1., 0., 0.));
-    assert(ApproxEqual(d, 10.));
+    assert(ApproxEqual<Precision>(d, 10.));
   }
   {
     double d = placedcombinedboolean->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(-1., -0., -0.));
-    assert(ApproxEqual(d, 10.));
+    assert(ApproxEqual<Precision>(d, 10.));
   }
   {
     double d = placedcombinedboolean->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(-0., -1., -0.));
-    assert(ApproxEqual(d, 10.));
+    assert(ApproxEqual<Precision>(d, 10.));
   }
   {
     double d = placedcombinedboolean->DistanceToOut(Vec3D_t(0., -0., 0.), Vec3D_t(-0., 0., -1.));
-    assert(ApproxEqual(d, 10.));
+    assert(ApproxEqual<Precision>(d, 10.));
   }
   {
     double d = placedcombinedboolean->DistanceToOut(Vec3D_t(-L / 4, 0., 0.), Vec3D_t(0., -1., 0));
-    assert(ApproxEqual(d, (L / 2. - 2. * tube.rmax()) / 2.));
+    assert(ApproxEqual<Precision>(d, (L / 2. - 2. * tube.rmax()) / 2.));
   }
   {
     double d = placedcombinedboolean->DistanceToOut(Vec3D_t(-L / 4, 0., 0.), Vec3D_t(0., 1., 0));
-    assert(ApproxEqual(d, 10.));
+    assert(ApproxEqual<Precision>(d, 10.));
   }
   {
     double d = placedcombinedboolean->DistanceToOut(Vec3D_t(-3. * L / 4, 0., 0.), Vec3D_t(0., -1., 0));
-    assert(ApproxEqual(d, L / 2. + (L / 2. - 2. * tube.rmax()) / 2.));
+    assert(ApproxEqual<Precision>(d, L / 2. + (L / 2. - 2. * tube.rmax()) / 2.));
   }
   {
     double d = placedcombinedboolean->DistanceToOut(Vec3D_t(-L / 2, -L / 2., 0.), Vec3D_t(1., 1., 0).Normalized());
-    assert(ApproxEqual(d, QuarterDiagL / 2. - tube.rmax()));
+    assert(ApproxEqual<Precision>(d, QuarterDiagL / 2. - tube.rmax()));
   }
   {
     double d = placedcombinedboolean->DistanceToOut(Vec3D_t(L, L, 0.), Vec3D_t(-1., -1., 0).Normalized());
@@ -184,27 +184,27 @@ int TestBooleans()
       // assert(d <= 0.);
   } {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(-20., 0., 0.), Vec3D_t(1., -0., -0.));
-    assert(ApproxEqual(d, 10.));
+    assert(ApproxEqual<Precision>(d, 10.));
   }
   {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(0., -20., 0.), Vec3D_t(0., 1., -0.));
-    assert(ApproxEqual(d, 10.));
+    assert(ApproxEqual<Precision>(d, 10.));
   }
   {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(20., 20., 20.), Vec3D_t(-1., -1., -1.).Normalized());
-    assert(ApproxEqual(d, 10. * std::sqrt(3.)));
+    assert(ApproxEqual<Precision>(d, 10. * std::sqrt(3.)));
   }
   {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(-L / 4., -L / 4., 0.), Vec3D_t(-1., -0., -0.));
-    assert(ApproxEqual(d, tube.rmax()));
+    assert(ApproxEqual<Precision>(d, tube.rmax()));
   }
   {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(-L / 4. - tube.rmax(), -L / 4., 0.), Vec3D_t(1., -0., -0.));
-    assert(ApproxEqual(d, 2. * tube.rmax()));
+    assert(ApproxEqual<Precision>(d, 2. * tube.rmax()));
   }
   {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(-L / 4., -L / 4., 0.), Vec3D_t(0, -1., -0.));
-    assert(ApproxEqual(d, tube.rmax()));
+    assert(ApproxEqual<Precision>(d, tube.rmax()));
   }
   {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(-L / 4., -L / 4., 0.), Vec3D_t(0, -0., -1.));
@@ -238,24 +238,24 @@ int TestBooleans()
 
   {
     double d = placedtubesslabunion->PlacedDistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(1., 1., 0.).Normalized());
-    assert(ApproxEqual(d, L / 4 * std::sqrt(2) + tube.rmax()));
+    assert(ApproxEqual<Precision>(d, L / 4 * std::sqrt(2) + tube.rmax()));
   }
   {
     double d = placedtubesslabunion->PlacedDistanceToOut(Vec3D_t(-L / 4, -L / 4, 0.), Vec3D_t(1., 1., 0.).Normalized());
-    assert(ApproxEqual(d, L / 2 * std::sqrt(2) + tube.rmax()));
+    assert(ApproxEqual<Precision>(d, L / 2 * std::sqrt(2) + tube.rmax()));
   }
   {
     double d = placedtubesslabunion->PlacedDistanceToOut(Vec3D_t(L / 4, L / 4, 0.), Vec3D_t(1., 1., 0.).Normalized());
-    assert(ApproxEqual(d, tube.rmax()));
+    assert(ApproxEqual<Precision>(d, tube.rmax()));
   }
   {
     double d =
         placedtubesslabunion->PlacedDistanceToOut(Vec3D_t(-L / 4, -L / 4, 0.), Vec3D_t(-1., -1., 0.).Normalized());
-    assert(ApproxEqual(d, tube.rmax()));
+    assert(ApproxEqual<Precision>(d, tube.rmax()));
   }
   {
     double d = placedtubesslabunion->PlacedDistanceToOut(Vec3D_t(L / 4, L / 4, 0.), Vec3D_t(-1., -1., 0.).Normalized());
-    assert(ApproxEqual(d, L / 2 * std::sqrt(2) + tube.rmax()));
+    assert(ApproxEqual<Precision>(d, L / 2 * std::sqrt(2) + tube.rmax()));
   }
 
   return 0;

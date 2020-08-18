@@ -36,7 +36,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 */
 class UnplacedTessellated : public LoopUnplacedVolumeImplHelper<TessellatedImplementation>, public AlignedBase {
 protected:
-  mutable TessellatedStruct<3, double> fTessellated; ///< Structure with Tessellated parameters
+  mutable TessellatedStruct<3, Precision> fTessellated; ///< Structure with Tessellated parameters
 
 public:
   /// Default constructor for the unplaced tessellated shape class.
@@ -46,7 +46,7 @@ public:
   /// Getter for the TessellatedStruct object containing the actual data (facets, vertices, clusters of facets)
   /** @return The tessellatedStruct object */
   VECCORE_ATT_HOST_DEVICE
-  TessellatedStruct<3, double> const &GetStruct() const { return fTessellated; }
+  TessellatedStruct<3, Precision> const &GetStruct() const { return fTessellated; }
 
   /// Method for adding a new triangular facet, delegated to TessellatedStruct
   /** @param vt0      First vertex
@@ -57,8 +57,8 @@ public:
         to the first: vt0, vt0+vt1, vt0+vt2, in anti-clockwise order when looking from the outsider.
   */
   VECCORE_ATT_HOST_DEVICE
-  bool AddTriangularFacet(Vector3D<double> const &vt0, Vector3D<double> const &vt1, Vector3D<double> const &vt2,
-                          bool absolute = true)
+  bool AddTriangularFacet(Vector3D<Precision> const &vt0, Vector3D<Precision> const &vt1,
+                          Vector3D<Precision> const &vt2, bool absolute = true)
   {
     return fTessellated.AddTriangularFacet(vt0, vt1, vt2, absolute);
   }
@@ -74,8 +74,8 @@ public:
         outsider.
   */
   VECCORE_ATT_HOST_DEVICE
-  bool AddQuadrilateralFacet(Vector3D<double> const &vt0, Vector3D<double> const &vt1, Vector3D<double> const &vt2,
-                             Vector3D<double> const &vt3, bool absolute = true)
+  bool AddQuadrilateralFacet(Vector3D<Precision> const &vt0, Vector3D<Precision> const &vt1,
+                             Vector3D<Precision> const &vt2, Vector3D<Precision> const &vt3, bool absolute = true)
   {
     return fTessellated.AddQuadrilateralFacet(vt0, vt1, vt2, vt3, absolute);
   }
@@ -91,7 +91,7 @@ public:
   */
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  TriangleFacet<double> *GetFacet(int ifacet) const { return fTessellated.fFacets[ifacet]; }
+  TriangleFacet<Precision> *GetFacet(int ifacet) const { return fTessellated.fFacets[ifacet]; }
 
   /// Closing method to be called mandatory by the user once all facets are defined.
   VECCORE_ATT_HOST_DEVICE
@@ -142,7 +142,7 @@ public:
 #ifdef HYBRID_NAVIGATOR_PORTED_TO_CUDA
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedTessellated>::SizeOf(); }
 #else
-  virtual size_t DeviceSizeOf() const override { return 0; } 
+  virtual size_t DeviceSizeOf() const override { return 0; }
 #endif
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;

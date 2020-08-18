@@ -41,23 +41,23 @@ unsigned int SolveCubic(T a, T b, T c, T *x)
     delta = Sqrt(delta);
     t     = (-3 * q * sq3 + delta) * inv6sq3;
     u     = (3 * q * sq3 + delta) * inv6sq3;
-    x[0]  = CopySign(1., t) * Cbrt(Abs(t)) - CopySign(1., u) * Cbrt(Abs(u)) - a * ott;
+    x[0]  = CopySign(T(1.), t) * Cbrt(Abs(t)) - CopySign(T(1.), u) * Cbrt(Abs(u)) - a * ott;
   } else {
     delta = Sqrt(-delta);
     t     = -0.5 * q;
     u     = delta * inv6sq3;
-    x[0]  = 2. * Pow(t * t + u * u, 0.5 * ott) * cos(ott * ATan2(u, t));
+    x[0]  = 2. * Pow(t * t + u * u, T(0.5) * ott) * cos(ott * ATan2(u, t));
     x[0] -= a * ott;
   }
 
   t     = x[0] * x[0] + a * x[0] + b;
   u     = a + x[0];
-  delta = u * u - 4. * t;
+  delta = u * u - T(4.) * t;
   if (delta >= 0) {
     ireal = 3;
     delta = Sqrt(delta);
-    x[1]  = 0.5 * (-u - delta);
-    x[2]  = 0.5 * (-u + delta);
+    x[1]  = T(0.5) * (-u - delta);
+    x[2]  = T(0.5) * (-u + delta);
   }
 
   return ireal;
@@ -112,7 +112,7 @@ int SolveQuartic(T a, T b, T c, T d, T *x)
   // special case when f is zero
   if (Abs(f) < 1E-6) {
     delta = e * e - 4. * g;
-    if (delta < 0) return 0;
+    if (delta < 0.) return 0;
     delta = Sqrt(delta);
     h     = 0.5 * (-e - delta);
     if (h >= 0) {
@@ -137,7 +137,7 @@ int SolveQuartic(T a, T b, T c, T d, T *x)
     unsigned int ncubicroots = SolveCubic<T>(0, e, f, xx);
     // this loop is not nice
     for (unsigned int i = 0; i < ncubicroots; i++)
-      x[ireal++]        = xx[i] - 0.25 * a;
+      x[ireal++] = xx[i] - 0.25 * a;
     Sort4(x); // could be Sort3
     return ireal;
   }
@@ -182,7 +182,7 @@ class SIMDUnplacedTorus2;
 
 struct TorusImplementation2 {
   using PlacedShape_t    = PlacedTorus2;
-  using UnplacedStruct_t = TorusStruct2<double>;
+  using UnplacedStruct_t = TorusStruct2<Precision>;
   using UnplacedVolume_t = UnplacedTorus2;
 
   template <class Real_v>
@@ -223,7 +223,7 @@ struct TorusImplementation2 {
       done |= rsq > outerExclRadius * outerExclRadius;
       Precision innerExclRadius = torus.rtor() - torus.rmax() - kHalfTolerance;
       done |= rsq < innerExclRadius * innerExclRadius;
-      vecCore__MaskedAssignFunc(distance, done, -1.0);
+      vecCore__MaskedAssignFunc(distance, done, Real_v(-1.));
       if (vecCore::MaskFull(done)) return;
     }
 
@@ -234,9 +234,9 @@ struct TorusImplementation2 {
     // done |= inside;
     Inside_v locus;
     TorusImplementation2::InsideKernel<Real_v, Inside_v>(torus, point, locus);
-    vecCore__MaskedAssignFunc(distance, locus == EInside::kOutside, -1.0);
+    vecCore__MaskedAssignFunc(distance, locus == EInside::kOutside, Real_v(-1.));
     done |= locus == EInside::kOutside;
-    vecCore__MaskedAssignFunc(distance, done, -1.0);
+    vecCore__MaskedAssignFunc(distance, done, Real_v(-1.));
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     Real_v dout = ToBoundary<Real_v, false>(torus, point, dir, torus.rmax(), true);
@@ -282,7 +282,7 @@ struct TorusImplementation2 {
         {
           Real_v diri2 = intersectionPoint.x() * torus.GetWedge().GetAlong2().x() +
                          intersectionPoint.y() * torus.GetWedge().GetAlong2().y();
-          Bool_v rightside = (diri2 >= 0);
+          Bool_v rightside = (diri2 >= Real_v(0));
           vecCore__MaskedAssignFunc(distance, rightside && (distPhi2 < distance) && smallerphi && insideDisk, distPhi2);
         }
       }

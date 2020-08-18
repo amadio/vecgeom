@@ -91,7 +91,7 @@ public:
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
-  virtual double SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }
+  virtual Precision SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }
 #endif
 
 }; // end class

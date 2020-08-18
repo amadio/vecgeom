@@ -258,25 +258,25 @@ public:
   /*!
    *  Returns the (exact or estimated) cubic volume/capacity of the shape.
    */
-  virtual double Capacity() const = 0;
+  virtual Precision Capacity() const = 0;
 
   /*!
    *  Calculates an estimate of the cubic volume of the shape via a sampling technique.
    *  @param nStat number of sample points to be used
    */
-  double EstimateCapacity(int nStat = 100000) const;
+  Precision EstimateCapacity(int nStat = 100000) const;
 
   // ----------------- Surface Area ----------------------------------------------------------------
   /*!
    *  Returns the (exact or estimated) surface area of the shape.
    */
-  virtual double SurfaceArea() const = 0;
+  virtual Precision SurfaceArea() const = 0;
 
   /*!
    *  Calculates an estimate of the surface area of the shape via a sampling technique.
    *  @param nStat number of sample points to be used
    */
-  double EstimateSurfaceArea(int nStat = 100000) const;
+  Precision EstimateSurfaceArea(int nStat = 100000) const;
 
   /*!
    * Standard output operator for a textual representation.

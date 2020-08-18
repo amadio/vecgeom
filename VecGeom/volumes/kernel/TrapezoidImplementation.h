@@ -35,10 +35,10 @@ class UnplacedTrapezoid;
 struct TrapezoidImplementation {
 
   using PlacedShape_t    = PlacedTrapezoid;
-  using UnplacedStruct_t = TrapezoidStruct<double>;
+  using UnplacedStruct_t = TrapezoidStruct<Precision>;
   using UnplacedVolume_t = UnplacedTrapezoid;
 #ifdef VECGEOM_PLANESHELL_DISABLE
-  using TrapSidePlane = TrapezoidStruct<double>::TrapSidePlane;
+  using TrapSidePlane = TrapezoidStruct<Precision>::TrapSidePlane;
 #endif
 
   VECCORE_ATT_HOST_DEVICE
@@ -150,9 +150,9 @@ struct TrapezoidImplementation {
 
     for (unsigned int i = 0; i < 4; ++i) {
       // is it outside of this side plane?
-      completelyOutside = completelyOutside || dist[i] > MakePlusTolerant<ForInside>(0.);
+      completelyOutside = completelyOutside || dist[i] > Real_v(MakePlusTolerant<ForInside>(0.));
       if (ForInside) {
-        completelyInside = completelyInside && dist[i] < MakeMinusTolerant<ForInside>(0.);
+        completelyInside = completelyInside && dist[i] < Real_v(MakeMinusTolerant<ForInside>(0.));
       }
       // if (vecCore::EarlyReturnMaxLength(completelyOutside,1) && vecCore::MaskFull(completelyOutside)) return;
     }
@@ -194,7 +194,7 @@ struct TrapezoidImplementation {
 
     // done = done || (dir.z()>0.0 && max < MakePlusTolerant<true>(0.));  // check if moving away towards +z
     // done = done || (dir.z()<0.0 && max > MakeMinusTolerant<true>(0.)); // check if moving away towards -z
-    Bool_v done(signZdir * max < MakePlusTolerant<true>(0.0)); // if outside + moving away towards +/-z
+    Bool_v done(signZdir * max < Real_v(MakePlusTolerant<true>(0.0))); // if outside + moving away towards +/-z
 
     // if all particles moving away, we're done
     if (vecCore::EarlyReturnMaxLength(done, 1) && vecCore::MaskFull(done)) return;
@@ -206,9 +206,9 @@ struct TrapezoidImplementation {
     Real_v smax   = max * invdir;
     Real_v smin   = -(signZdir * unplaced.fDz + point.z()) * invdir;
 
-//
-// Step 2: find distances for intersections with side planes.
-//
+    //
+    // Step 2: find distances for intersections with side planes.
+    //
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     // If disttoplanes is such that smin < dist < smax, then distance=disttoplanes
@@ -240,9 +240,9 @@ struct TrapezoidImplementation {
     // check special cases
     for (int i = 0; i < 4; ++i) {
       // points fully outside a plane and moving away or parallel to that plane
-      done = done || (pdist[i] > MakePlusTolerant<true>(0.0) && comp[i] >= 0.0);
+      done = done || (pdist[i] > Real_v(MakePlusTolerant<true>(0.)) && comp[i] >= Real_v(0.));
       // points at a plane surface and exiting
-      done = done || (pdist[i] > MakeMinusTolerant<true>(0.0) && comp[i] > 0.0);
+      done = done || (pdist[i] > Real_v(MakeMinusTolerant<true>(0.)) && comp[i] > Real_v(0.));
     }
     // if all particles moving away, we're done
     if (vecCore::EarlyReturnMaxLength(done, 1) && vecCore::MaskFull(done)) return;
@@ -250,7 +250,7 @@ struct TrapezoidImplementation {
     // this part does not auto-vectorize
     for (unsigned int i = 0; i < 4; ++i) {
       // if outside and moving away, return infinity
-      Bool_v posPoint = pdist[i] > MakeMinusTolerant<true>(0.);
+      Bool_v posPoint = pdist[i] > Real_v(MakeMinusTolerant<true>(0.));
       Bool_v posDir   = comp[i] > 0;
 
       // check if trajectory will intercept plane within current range (smin,smax), otherwise track misses shape
@@ -263,7 +263,7 @@ struct TrapezoidImplementation {
     }
 
     vecCore::MaskedAssign(distance, !done && smin <= smax, smin);
-    vecCore__MaskedAssignFunc(distance, distance < MakeMinusTolerant<true>(0.0), Real_v(-1.0));
+    vecCore__MaskedAssignFunc(distance, distance < Real_v(MakeMinusTolerant<true>(0.0)), Real_v(-1.));
 #endif
   }
 
@@ -289,9 +289,9 @@ struct TrapezoidImplementation {
     Real_v distz = (Sign(dir.z()) * unplaced.fDz - point.z()) / NonZero(dir.z());
     vecCore__MaskedAssignFunc(distance, !done && dir.z() != Real_v(0.), distz);
 
-//
-// Step 2: find distances for intersections with side planes.
-//
+    //
+    // Step 2: find distances for intersections with side planes.
+    //
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     Real_v disttoplanes = unplaced.GetPlanes()->DistanceToOut(point, dir);
@@ -372,10 +372,10 @@ struct TrapezoidImplementation {
     // If point is outside (wrong-side) --> safety to negative value
     safety = unplaced.fDz - Abs(point.z());
 
-// If all test points are outside, we're done
-// if (vecCore::EarlyReturnMaxLength(safety,1)) {
-//   if (vecCore::MaskFull(safety < kHalfTolerance)) return;
-// }
+    // If all test points are outside, we're done
+    // if (vecCore::EarlyReturnMaxLength(safety,1)) {
+    //   if (vecCore::MaskFull(safety < kHalfTolerance)) return;
+    // }
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     // Get safety over side planes
@@ -407,7 +407,7 @@ struct TrapezoidImplementation {
                                        typename vecCore::Mask_v<Real_v> &valid)
   {
 
-    constexpr double delta = 1000. * kTolerance;
+    constexpr Precision delta = 1000. * kTolerance;
     Vector3D<Real_v> normal(0.);
     Real_v safety = -InfinityLength<Real_v>();
 
@@ -460,7 +460,7 @@ struct TrapezoidImplementation {
   }
 };
 
-} // end of inline namespace
-} // end of global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_TRAPEZOIDIMPLEMENTATION_H_

@@ -121,9 +121,9 @@ TGeoShape const *UnplacedPolycone::ConvertToRoot(char const *label) const
 {
   //	  UnplacedPolycone const *unplaced = GetUnplacedVolume();
 
-  std::vector<double> rmin;
-  std::vector<double> rmax;
-  std::vector<double> z;
+  std::vector<Precision> rmin;
+  std::vector<Precision> rmax;
+  std::vector<Precision> z;
   // unplaced->ReconstructSectionArrays(z, rmin, rmax);
   ReconstructSectionArrays(z, rmin, rmax);
 
@@ -143,9 +143,9 @@ G4VSolid const *UnplacedPolycone::ConvertToGeant4(char const *label) const
 {
   // UnplacedPolycone const *unplaced = GetUnplacedVolume();
 
-  std::vector<double> rmin;
-  std::vector<double> rmax;
-  std::vector<double> z;
+  std::vector<Precision> rmin;
+  std::vector<Precision> rmax;
+  std::vector<Precision> z;
   // unplaced->
   ReconstructSectionArrays(z, rmin, rmax);
 
@@ -159,12 +159,12 @@ G4VSolid const *UnplacedPolycone::ConvertToGeant4(char const *label) const
 
 void UnplacedPolycone::Reset()
 {
-  double phiStart = fPolycone.fOriginal_parameters->fHStart_angle;
-  double *Z, *R1, *R2;
+  Precision phiStart = fPolycone.fOriginal_parameters->fHStart_angle;
+  Precision *Z, *R1, *R2;
   int num = fPolycone.fOriginal_parameters->fHNum_z_planes; // fOriginalParameters-> NumZPlanes;
-  Z       = new double[num];
-  R1      = new double[num];
-  R2      = new double[num];
+  Z       = new Precision[num];
+  R1      = new Precision[num];
+  R2      = new Precision[num];
   for (int i = 0; i < num; i++) {
     Z[i]  = fPolycone.fOriginal_parameters->fHZ_values[i]; // fOriginalParameters->fZValues[i];
     R1[i] = fPolycone.fOriginal_parameters->fHRmin[i];     // fOriginalParameters->Rmin[i];
@@ -260,15 +260,15 @@ void UnplacedPolycone::Print(std::ostream &os) const
 SolidMesh *UnplacedPolycone::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   SolidMesh *sm = new SolidMesh();
 
   size_t nPlanes = GetNz();
 
   // copy each plane to revert values to their originals
-  double *z    = new double[nPlanes];
-  double *rmin = new double[nPlanes];
-  double *rmax = new double[nPlanes];
+  Precision *z    = new Precision[nPlanes];
+  Precision *rmin = new Precision[nPlanes];
+  Precision *rmax = new Precision[nPlanes];
 
   for (size_t i = 0; i < nPlanes; i++) {
     z[i]    = GetZAtPlane(i);
@@ -278,16 +278,14 @@ SolidMesh *UnplacedPolycone::CreateMesh3D(Transformation3D const &trans, size_t 
                   : GetRmaxAtPlane(i); // rmin==rmax results in rmax+=1e-7, revert
   }
 
-
-
   sm->ResetMesh(2 * nPlanes * (nSegments + 1), 2 * (nPlanes - 1) * nSegments + 2 * nSegments + 2 * (nPlanes - 1));
 
   // fill vertex array
-  Vec_t *vertices = new Vec_t[2 * nPlanes * (nSegments + 1)];
-  double phi      = GetStartPhi();
-  double phi_step = GetDeltaPhi() / nSegments;
-  size_t idx      = 0;
-  size_t idx2     = nPlanes * (nSegments + 1);
+  Vec_t *vertices    = new Vec_t[2 * nPlanes * (nSegments + 1)];
+  Precision phi      = GetStartPhi();
+  Precision phi_step = GetDeltaPhi() / nSegments;
+  size_t idx         = 0;
+  size_t idx2        = nPlanes * (nSegments + 1);
   for (size_t i = 0; i < nPlanes; i++, phi = GetStartPhi()) {
     for (size_t j = 0; j <= nSegments; j++, phi += phi_step) {
       vertices[idx++]  = Vec_t(rmin[i] * std::cos(phi), rmin[i] * std::sin(phi), z[i]);
@@ -333,7 +331,6 @@ SolidMesh *UnplacedPolycone::CreateMesh3D(Transformation3D const &trans, size_t 
     }
   }
 
-
   return sm;
 }
 #endif
@@ -367,7 +364,7 @@ std::ostream &UnplacedPolycone::StreamInfo(std::ostream &os) const
   size_t nsections = fPolycone.fSections.size();
   os << "\n    # cone sections: " << nsections << "\n";
   for (size_t i = 0; i < nsections; ++i) {
-    ConeStruct<double> *subcone = fPolycone.fSections[i].fSolid;
+    ConeStruct<Precision> *subcone = fPolycone.fSections[i].fSolid;
     os << "     cone #" << i << " Rmin1=" << subcone->fRmin1 << " Rmax1=" << subcone->fRmax1
        << " Rmin2=" << subcone->fRmin2 << " Rmax2=" << subcone->fRmax2 << " HalfZ=" << subcone->fDz
        << " from z=" << fPolycone.fZs[i] << " to z=" << fPolycone.fZs[i + 1] << "mm\n";
@@ -824,8 +821,8 @@ void UnplacedPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aM
   }
 
   // Using Cone to get Extent in X and Y Direction
-  double minz = aMin.z();
-  double maxz = aMax.z();
+  Precision minz = aMin.z();
+  Precision maxz = aMax.z();
   SUnplacedCone<ConeTypes::UniversalCone> tempCone(minR, maxR, minR, maxR, 1, fSPhi, fDPhi);
   tempCone.BaseType_t::Extent(aMin, aMax);
   aMin.z() = minz;
@@ -853,7 +850,7 @@ bool UnplacedPolycone::CheckContinuityInRmax(const Vector<Precision> &rOuter)
   return continuous;
 }
 
-bool UnplacedPolycone::CheckContinuity(const double rOuter[], const double rInner[], const double zPlane[],
+bool UnplacedPolycone::CheckContinuity(const Precision rOuter[], const Precision rInner[], const Precision zPlane[],
                                        Vector<Precision> &newROuter, Vector<Precision> &newRInner,
                                        Vector<Precision> &newZPlane)
 {

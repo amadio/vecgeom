@@ -33,23 +33,23 @@
 using namespace vecgeom;
 using Real_v = vecgeom::VectorBackend::Real_v;
 
-void RandomDirection(Vector3D<double> &direction)
+void RandomDirection(Vector3D<Precision> &direction)
 {
-  double phi    = RNG::Instance().uniform(0., 2. * kPi);
-  double theta  = std::acos(1. - 2. * RNG::Instance().uniform(0, 1));
-  direction.x() = std::sin(theta) * std::cos(phi);
-  direction.y() = std::sin(theta) * std::sin(phi);
-  direction.z() = std::cos(theta);
+  Precision phi   = RNG::Instance().uniform(0., 2. * kPi);
+  Precision theta = std::acos(1. - 2. * RNG::Instance().uniform(0, 1));
+  direction.x()   = std::sin(theta) * std::cos(phi);
+  direction.y()   = std::sin(theta) * std::sin(phi);
+  direction.z()   = std::cos(theta);
 }
 
-void RandomPointInBBox(Vector3D<double> &point, TessellatedStruct<3, double> const &tsl)
+void RandomPointInBBox(Vector3D<Precision> &point, TessellatedStruct<3, Precision> const &tsl)
 {
-  Vector3D<double> rnd(RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1));
+  Vector3D<Precision> rnd(RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1));
   point = tsl.fMinExtent + rnd * (tsl.fMaxExtent - tsl.fMinExtent);
 }
 
 #ifdef VECGEOM_ROOT
-void AddFacetToVisualizer(TriangleFacet<double> const *facet, Visualizer &visualizer)
+void AddFacetToVisualizer(TriangleFacet<Precision> const *facet, Visualizer &visualizer)
 {
   TPolyLine3D pl(3);
   pl.SetLineColor(kBlue);
@@ -58,15 +58,16 @@ void AddFacetToVisualizer(TriangleFacet<double> const *facet, Visualizer &visual
   visualizer.AddLine(pl);
 }
 
-void DrawCluster(TessellatedStruct<3, double> const &tsl, size_t icluster, Visualizer &visualizer, bool boxonly = false)
+void DrawCluster(TessellatedStruct<3, Precision> const &tsl, size_t icluster, Visualizer &visualizer,
+                 bool boxonly = false)
 {
   // Draw only segments of the facets which are not shared within the cluster
   TPolyLine3D pl(2);
   pl.SetLineColor(kBlue);
   if (boxonly) {
-    Vector3D<double> minext = tsl.fClusters[icluster]->fMinExtent;
-    Vector3D<double> maxext = tsl.fClusters[icluster]->fMaxExtent;
-    Vector3D<double> dext   = maxext - minext;
+    Vector3D<Precision> minext = tsl.fClusters[icluster]->fMinExtent;
+    Vector3D<Precision> maxext = tsl.fClusters[icluster]->fMaxExtent;
+    Vector3D<Precision> dext   = maxext - minext;
     pl.SetPoint(0, minext.x(), minext.y(), minext.z());
     pl.SetPoint(1, minext.x() + dext.x(), minext.y(), minext.z());
     visualizer.AddLine(pl);
@@ -111,7 +112,7 @@ void DrawCluster(TessellatedStruct<3, double> const &tsl, size_t icluster, Visua
   size_t nfacets = 0;
   size_t ifacet  = 0;
   size_t iother  = 0;
-  TriangleFacet<double> *facets[kVecSize];
+  TriangleFacet<Precision> *facets[kVecSize];
   while (ifacet < kVecSize) {
     bool add = true;
     for (size_t i = 0; i < nfacets; ++i) {
@@ -171,15 +172,15 @@ int main(int argc, char *argv[])
 #ifdef VECGEOM_ROOT
   OPTION_INT(vis, 0);
   OPTION_INT(scalability, 0);
-  int ngrid1         = 10;
-  int i              = 0;
-  const double sqrt2 = vecCore::math::Sqrt(2.);
+  int ngrid1            = 10;
+  int i                 = 0;
+  const Precision sqrt2 = vecCore::math::Sqrt(2.);
 #endif
-  constexpr double r = 10.;
-  Vector3D<double> start(0, 0, 0);
-  Vector3D<double> point;
+  constexpr Precision r = 10.;
+  Vector3D<Precision> start(0, 0, 0);
+  Vector3D<Precision> point;
 
-  Vector3D<double> *dirs = new Vector3D<double>[npoints];
+  Vector3D<Precision> *dirs = new Vector3D<Precision>[npoints];
   for (int i = 0; i < npoints; ++i)
     RandomDirection(dirs[i]);
 
@@ -208,9 +209,9 @@ int main(int argc, char *argv[])
     }
   }
 #endif
-  SimpleTessellated *stsl1  = new SimpleTessellated("test_VecGeomTessellated");
-  UnplacedTessellated *utsl = (UnplacedTessellated *)stsl1->GetUnplacedVolume();
-  TessellatedStruct<3, double> const &tsl = utsl->GetStruct();
+  SimpleTessellated *stsl1                   = new SimpleTessellated("test_VecGeomTessellated");
+  UnplacedTessellated *utsl                  = (UnplacedTessellated *)stsl1->GetUnplacedVolume();
+  TessellatedStruct<3, Precision> const &tsl = utsl->GetStruct();
   TessellatedOrb(r, ngrid, *utsl);
   utsl->Close();
   std::cout << "=== Tessellated solid statistics: nfacets = " << tsl.fFacets.size()
@@ -244,8 +245,8 @@ int main(int argc, char *argv[])
   if (vis) {
     Visualizer visualizer;
     // Visualize bounding box
-    Vector3D<double> deltas = 0.5 * (tsl.fMaxExtent - tsl.fMinExtent);
-    Vector3D<double> origin = 0.5 * (tsl.fMaxExtent + tsl.fMinExtent);
+    Vector3D<Precision> deltas = 0.5 * (tsl.fMaxExtent - tsl.fMinExtent);
+    Vector3D<Precision> origin = 0.5 * (tsl.fMaxExtent + tsl.fMinExtent);
     SimpleBox box("bbox", deltas.x(), deltas.y(), deltas.z());
     visualizer.AddVolume(box, Transformation3D(origin.x(), origin.y(), origin.z()));
 
@@ -268,7 +269,7 @@ int main(int argc, char *argv[])
       if (0) {
         // Visualize a specific point/direction
         point.Set(-8, 8, 0);
-        Vector3D<double> direction(-0.74608321159322855, -0.28587882094198169, -0.60135941093123035);
+        Vector3D<Precision> direction(-0.74608321159322855, -0.28587882094198169, -0.60135941093123035);
         pm.SetNextPoint(point[0], point[1], point[2]);
         TPolyLine3D pl(2);
         pl.SetLineColor(kRed);
@@ -280,7 +281,7 @@ int main(int argc, char *argv[])
         break;
       }
       bool contains;
-      TessellatedImplementation::Contains<double, bool>(tsl, point, contains);
+      TessellatedImplementation::Contains<Precision, bool>(tsl, point, contains);
       if (contains) pm.SetNextPoint(point[0], point[1], point[2]);
     }
 
@@ -288,7 +289,7 @@ int main(int argc, char *argv[])
 
     /*
         for (int i = 0; i < npoints; ++i) {
-          tsl.DistanceToSolid<false>(start, dirs[i], InfinityLength<double>(), distance, ifacet);
+          tsl.DistanceToSolid<false>(start, dirs[i], InfinityLength<Precision>(), distance, ifacet);
           point = start + distance * dirs[i];
           pm.SetNextPoint(point[0], point[1], point[2]);
         }

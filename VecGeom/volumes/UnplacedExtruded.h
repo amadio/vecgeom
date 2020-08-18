@@ -77,7 +77,7 @@ public:
   /** @brief Get the polygone vertex i */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void GetVertex(int i, double &x, double &y) const { fXtru.GetVertex(i, x, y); }
+  void GetVertex(int i, Precision &x, Precision &y) const { fXtru.GetVertex(i, x, y); }
 
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;

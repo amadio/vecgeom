@@ -97,7 +97,7 @@ struct CoaxialConesStruct {
   Precision ConicalSurfaceArea()
   {
     Precision conicalSurfaceArea = 0.;
-    double mmin, mmax, dmin, dmax;
+    Precision mmin, mmax, dmin, dmax;
 
     for (unsigned int i = 0; i < fConeStructVector.size(); i++) {
 

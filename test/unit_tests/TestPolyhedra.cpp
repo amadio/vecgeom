@@ -20,7 +20,7 @@ template <class Polyhedra_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>
 bool TestPolyhedra()
 {
 
-  double RMINVec[8];
+  Precision RMINVec[8];
   RMINVec[0] = 30;
   RMINVec[1] = 30;
   RMINVec[2] = 0;
@@ -30,7 +30,7 @@ bool TestPolyhedra()
   RMINVec[6] = 40;
   RMINVec[7] = 40;
 
-  double RMAXVec[8];
+  Precision RMAXVec[8];
   RMAXVec[0] = 70;
   RMAXVec[1] = 70;
   RMAXVec[2] = 70;
@@ -40,7 +40,7 @@ bool TestPolyhedra()
   RMAXVec[6] = 80;
   RMAXVec[7] = 60;
 
-  double Z_Values[8];
+  Precision Z_Values[8];
   Z_Values[0] = -30;
   Z_Values[1] = -20;
   Z_Values[2] = -10;
@@ -50,51 +50,51 @@ bool TestPolyhedra()
   Z_Values[6] = 30;
   Z_Values[7] = 40;
 
-  double sphi         = 0.0;
-  double dphi         = kPi / 4.;
-  double halfdphi     = 0.5 * dphi / 5.;
+  Precision sphi      = 0.0;
+  Precision dphi      = kPi / 4.;
+  Precision halfdphi  = 0.5 * dphi / 5.;
   Polyhedra_t *MyPGon = new Polyhedra_t("MyPGon", sphi, dphi, 5, 8, Z_Values, RMINVec, RMAXVec);
 
-  double RMINVec0[2];
+  Precision RMINVec0[2];
   RMINVec0[0] = 1;
   RMINVec0[1] = 1;
 
-  double RMAXVec0[2];
+  Precision RMAXVec0[2];
   RMAXVec0[0] = 2;
   RMAXVec0[1] = 2;
 
-  double Z_Values0[2];
+  Precision Z_Values0[2];
   Z_Values0[0] = -1;
   Z_Values0[1] = 1;
 
-  double sphi0 = 0.0;
-  double dphi0 = kPi;
+  Precision sphi0 = 0.0;
+  Precision dphi0 = kPi;
 
   Polyhedra_t *MyPGon0 = new Polyhedra_t("MyPGon0", sphi0, dphi0, 2, 2, Z_Values0, RMINVec0, RMAXVec0);
 
-  double RMINVec1[3];
+  Precision RMINVec1[3];
   RMINVec1[0] = 0;
   RMINVec1[1] = 0;
   RMINVec1[2] = 0;
 
-  double RMAXVec1[3];
+  Precision RMAXVec1[3];
   RMAXVec1[0] = 2;
   RMAXVec1[1] = 1;
   RMAXVec1[2] = 2;
 
-  double Z_Values1[3];
+  Precision Z_Values1[3];
   Z_Values1[0] = -1;
   Z_Values1[1] = 0;
   Z_Values1[2] = 1;
 
-  double sphi1 = 0.;
-  double dphi1 = 2 * kPi;
+  Precision sphi1 = 0.;
+  Precision dphi1 = 2 * kPi;
 
   Polyhedra_t *MyPGon1 = new Polyhedra_t("MyPGon1", sphi1, dphi1, 4, 3, Z_Values1, RMINVec1, RMAXVec1);
 
   const int Nrz = 4, Nside = 6;
-  double zz[Nrz] = {10, -10, -10, 10};
-  double rr[Nrz] = {15, 15, 0, 0};
+  Precision zz[Nrz] = {10, -10, -10, 10};
+  Precision rr[Nrz] = {15, 15, 0, 0};
 
   vecgeom::SimplePolyhedron *MyPGon2 =
       new vecgeom::SimplePolyhedron("Hexagonal prism", sphi1, dphi1, Nside, Nrz, rr, zz);
@@ -103,7 +103,7 @@ bool TestPolyhedra()
   // std::cout << *MyPGon2 << std::endl;
 
   // Check Cubic volume
-  // double vol;
+  // Precision vol;
   // vol = MyPGon->Capacity();
   std::cout.precision(20);
   std::cout << "Complex Polyhedron Capacity =" << MyPGon->Capacity() << std::endl;
@@ -175,7 +175,7 @@ bool TestPolyhedra()
   assert(MyPGon2->Inside(p8) == vecgeom::EInside::kSurface);
 
   // Check DistanceToIn
-  double tolerance = 1e-9;
+  Precision tolerance = vecgeom::kTolerance;
   assert(std::fabs((MyPGon->DistanceToIn(p1, dirx))) < tolerance);
   assert(std::fabs((MyPGon->DistanceToIn(p1, -diry))) < tolerance);
   // Point on top endcap moving horizontally: either enter at 0 or not enter at all
@@ -231,7 +231,7 @@ bool TestPolyhedra()
   std::cout << "\n\n==================================================";
   Vec_t start(0, 0, -30);
   Vec_t dir(1. / std::sqrt(2.), 1. / std::sqrt(2.), 0);
-  double d;
+  Precision d;
   int z;
 
   std::cout << "\nPdep is (0, 0, z)";
@@ -265,7 +265,7 @@ bool TestPolyhedra()
   std::cout << "\n\n==================================================";
   Vec_t start2(0, -100, -30);
   Vec_t dir2(0, 1, 0);
-  double d2;
+  Precision d2;
 
   std::cout << "\nPdep is (0, -100, z)";
   std::cout << "\nDir is (0, 1, 0)\n";
@@ -283,7 +283,7 @@ bool TestPolyhedra()
   std::cout << "\n\n==================================================";
   Vec_t start3(0, 0, -50);
   Vec_t dir3(0, 0, 1);
-  double d3;
+  Precision d3;
 
   std::cout << "\nPdep is (0, y, -50)";
   std::cout << "\nDir is (0, 0, 1)\n";
@@ -306,11 +306,11 @@ bool TestPolyhedra()
     // Vec_t start4( 0, 0, z-0.00001);
     // Vec_t start4( 0, 0, z);
     start4.Set(0, 0, z);
-    // G4double phi=pi/180.*rad;
-    //  G4double phi=0.0000000001*pi/180.*rad;
-    double phi = -kPi / 180. * kPi / 180.;
+    // G4Precision phi=pi/180.*rad;
+    //  G4Precision phi=0.0000000001*pi/180.*rad;
+    Precision phi = -kPi / 180. * kPi / 180.;
     Vec_t dir4(std::cos(phi), std::sin(phi), 0);
-    double d4;
+    Precision d4;
 
     std::cout << "\nPdep is (0<<R<<50, phi, z)";
     std::cout << "\nDir is (std::cos(phi), std::sin(phi), 0)\n";
@@ -356,7 +356,7 @@ bool TestPolyhedra()
     // Vec_t start5( 0., 1, z);
     start5.Set(0, 1, z);
     Vec_t dir5(0, -1, 0);
-    double d5;
+    Precision d5;
 
     std::cout << "\nPdep is (0<<X<<50, 1, z)";
     std::cout << "\nDir is (0, -1, 0)\n";

@@ -352,7 +352,7 @@ struct AcceleratedDistanceToIn<Precision> {
       // If a hit is found, the algorithm can return, since only one side can
       // be hit for a convex set of quadrilaterals
       distanceTest(!valid) = InfinityLength<Precision>();
-      distance             = Max(distanceTest.min(), 0.);
+      distance             = Max(distanceTest.min(), Precision(0.));
       i                    = n;
       return;
     // Continue label of outer loop
@@ -402,7 +402,7 @@ Real_v Quadrilaterals::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real
     Real_v directionProjection = direction.Dot(normal);
     valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) > 0;
     if (vecCore::MaskEmpty(valid)) continue;
-    distance /= -(directionProjection + CopySign(1E-20, directionProjection));
+    distance /= -(directionProjection + CopySign(Real_v(1E-20), directionProjection));
     Vector3D<Real_v> intersection = point + direction * distance;
     for (int j = 0; j < 4; ++j) {
       valid &= intersection.Dot(fSideVectors[j].GetNormal(i)) + fSideVectors[j].GetDistances()[i] >= -kTolerance;
@@ -414,7 +414,7 @@ Real_v Quadrilaterals::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real
     if (vecCore::MaskFull(bestDistance < InfinityLength<Real_v>())) break;
   }
 
-  return Max(0., bestDistance);
+  return Max(Real_v(0.), bestDistance);
 }
 
 namespace {
@@ -479,7 +479,7 @@ void AcceleratedDistanceToOut<Precision>(int &i, const int n, Planes const &plan
     distanceTest(!valid) = InfinityLength<Precision>();
     distance             = distanceTest.min();
   }
-  distance = Max(0., distance);
+  distance = Max(Precision(0.), distance);
   return;
 }
 #endif
@@ -539,7 +539,7 @@ Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Rea
     vecCore::MaskedAssign(bestDistance, valid, distanceTest);
   }
 
-  if (bestDistance > -kTolerance) bestDistance = Max(bestDistance, 0.);
+  if (bestDistance > -kTolerance) bestDistance = Max(bestDistance, Precision(0.));
   return bestDistance;
 }
 

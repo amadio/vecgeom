@@ -78,8 +78,8 @@ __attribute__((noinline)) void DeleteROOTVoxels()
 }
 
 void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
-                  double axis1_start, double axis1_end, double axis2_start, double axis2_end, int data_size_x,
-                  int data_size_y, double pixel_axis, int *image)
+                  Precision axis1_start, Precision axis1_end, Precision axis2_start, Precision axis2_end,
+                  int data_size_x, int data_size_y, Precision pixel_axis, int *image)
 {
 
   int counter = 0;
@@ -91,8 +91,8 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
   nav->SetCurrentPoint(p.x(), p.y(), p.z());
   nav->SetCurrentDirection(dir.x(), dir.y(), dir.z());
 
-  double distancetravelled = 0.;
-  int crossedvolumecount   = 0;
+  Precision distancetravelled = 0.;
+  int crossedvolumecount      = 0;
 
   if (VERBOSE) {
     std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
@@ -137,8 +137,8 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
 } // end XRayWithROOT
 
 void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
-                     double axis1_start, double axis1_end, double axis2_start, double axis2_end, int data_size_x,
-                     int data_size_y, double pixel_axis, int *image)
+                     Precision axis1_start, Precision axis1_end, Precision axis2_start, Precision axis2_end,
+                     int data_size_x, int data_size_y, Precision pixel_axis, int *image)
 {
 
   Stopwatch internaltimer;
@@ -159,8 +159,8 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
   gGeoManager->GetCurrentNavigator()->FindNode(p.x(), p.y(), p.z());
 #endif
 
-  double distancetravelled = 0.;
-  int crossedvolumecount   = 0;
+  Precision distancetravelled = 0.;
+  int crossedvolumecount      = 0;
 
   if (VERBOSE) {
     std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
@@ -168,11 +168,11 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
   }
 
   while (!curnavstate->IsOutside()) {
-    double step = 0;
+    Precision step = 0;
     newnavstate->Clear();
 
-    auto nav = curnavstate->Top()->GetLogicalVolume()->GetNavigator();
-    double safety = nav->GetSafetyEstimator()->ComputeSafety(p, *curnavstate);
+    auto nav         = curnavstate->Top()->GetLogicalVolume()->GetNavigator();
+    Precision safety = nav->GetSafetyEstimator()->ComputeSafety(p, *curnavstate);
     nav->FindNextBoundaryAndStep(p, dir, *curnavstate, *newnavstate, 1e20, step);
 
     distancetravelled += step;
@@ -214,9 +214,9 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
 
 // stressing the vector interface of navigator
 // TODO: This needs adjustment to new VNavigator interface
-//void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
-//                            double axis1_start, double axis1_end, double axis2_start, double axis2_end, int data_size_x,
-//                            int data_size_y, double pixel_axis, int *image)
+// void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
+//                            Precision axis1_start, Precision axis1_end, Precision axis2_start, Precision axis2_end,
+//                            int data_size_x, int data_size_y, Precision pixel_axis, int *image)
 //{
 //  int counter = 0;
 //
@@ -238,9 +238,9 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
 //  for (unsigned int j = 0; j < N; ++j)
 //    dirs.set(j, dir.x(), dir.y(), dir.z());
 //
-//  double *steps          = new double[N];
-//  double *psteps         = new double[N];
-//  double *safeties       = new double[N];
+//  Precision *steps          = new Precision[N];
+//  Precision *psteps         = new Precision[N];
+//  Precision *safeties       = new Precision[N];
 //  int *nextnodeworkspace = new int[N]; // some workspace for the navigator; not important here
 //  // initialize physical steps to infinity
 //  for (unsigned int j = 0; j < N; ++j)
@@ -255,7 +255,7 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
 //    GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), points[j], *curnavstates[j], true);
 //  }
 //
-//  double distancetravelled = 0.;
+//  Precision distancetravelled = 0.;
 //  int crossedvolumecount   = 0;
 //  if (VERBOSE) {
 //    std::cout << " StartPoint(" << points[0].x() << ", " << points[1].y() << ", " << points[2].z() << ")";
@@ -582,14 +582,15 @@ int main(int argc, char *argv[])
 
     std::cout << " VecGeom Elapsed time : " << timer.Elapsed() << std::endl;
 
-//    // use the vector interface
-//    timer.Start();
-//    XRayWithVecGeom_VecNav(axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz),
-//                           dir, axis1_start, axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis,
-//                           volume_result);
-//    timer.Stop();
-//    std::cout << std::endl;
-//    std::cout << " VecGeom Vector Interface Elapsed time : " << timer.Elapsed() << std::endl;
+    //    // use the vector interface
+    //    timer.Start();
+    //    XRayWithVecGeom_VecNav(axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy,
+    //    dz),
+    //                           dir, axis1_start, axis1_end, axis2_start, axis2_end, data_size_x, data_size_y,
+    //                           pixel_axis, volume_result);
+    //    timer.Stop();
+    //    std::cout << std::endl;
+    //    std::cout << " VecGeom Vector Interface Elapsed time : " << timer.Elapsed() << std::endl;
 
     delete[] volume_result;
   }

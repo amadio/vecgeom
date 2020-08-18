@@ -28,23 +28,23 @@
 using namespace vecgeom;
 using Real_v = vecgeom::VectorBackend::Real_v;
 
-void RandomDirection(Vector3D<double> &direction)
+void RandomDirection(Vector3D<Precision> &direction)
 {
-  double phi    = RNG::Instance().uniform(0., 2. * kPi);
-  double theta  = std::acos(1. - 2. * RNG::Instance().uniform(0, 1));
-  direction.x() = std::sin(theta) * std::cos(phi);
-  direction.y() = std::sin(theta) * std::sin(phi);
-  direction.z() = std::cos(theta);
+  Precision phi   = RNG::Instance().uniform(0., 2. * kPi);
+  Precision theta = std::acos(1. - 2. * RNG::Instance().uniform(0, 1));
+  direction.x()   = std::sin(theta) * std::cos(phi);
+  direction.y()   = std::sin(theta) * std::sin(phi);
+  direction.z()   = std::cos(theta);
 }
 
-void RandomPointInBBox(Vector3D<double> &point, Vector3D<double> &amin, Vector3D<double> &amax)
+void RandomPointInBBox(Vector3D<Precision> &point, Vector3D<Precision> &amin, Vector3D<Precision> &amax)
 {
-  Vector3D<double> rnd(RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1));
+  Vector3D<Precision> rnd(RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1));
   point = amin + rnd * (amax - amin);
 }
 
 #ifdef VECGEOM_ROOT
-void AddFacetToVisualizer(TriangleFacet<double> const *facet, Visualizer &visualizer)
+void AddFacetToVisualizer(TriangleFacet<Precision> const *facet, Visualizer &visualizer)
 {
   TPolyLine3D pl(3);
   pl.SetLineColor(kBlue);
@@ -53,15 +53,15 @@ void AddFacetToVisualizer(TriangleFacet<double> const *facet, Visualizer &visual
   visualizer.AddLine(pl);
 }
 
-void DrawCluster(TessellatedStruct<3, double> const &tsl, int icluster, Visualizer &visualizer, bool boxonly = false)
+void DrawCluster(TessellatedStruct<3, Precision> const &tsl, int icluster, Visualizer &visualizer, bool boxonly = false)
 {
   // Draw only segments of the facets which are not shared within the cluster
   TPolyLine3D pl(2);
   pl.SetLineColor(kBlue);
   if (boxonly) {
-    Vector3D<double> minext = tsl.fClusters[icluster]->fMinExtent;
-    Vector3D<double> maxext = tsl.fClusters[icluster]->fMaxExtent;
-    Vector3D<double> dext   = maxext - minext;
+    Vector3D<Precision> minext = tsl.fClusters[icluster]->fMinExtent;
+    Vector3D<Precision> maxext = tsl.fClusters[icluster]->fMaxExtent;
+    Vector3D<Precision> dext   = maxext - minext;
     pl.SetPoint(0, minext.x(), minext.y(), minext.z());
     pl.SetPoint(1, minext.x() + dext.x(), minext.y(), minext.z());
     visualizer.AddLine(pl);
@@ -106,7 +106,7 @@ void DrawCluster(TessellatedStruct<3, double> const &tsl, int icluster, Visualiz
   size_t nfacets = 0;
   size_t ifacet  = 0;
   size_t iother  = 0;
-  TriangleFacet<double> *facets[kVecSize];
+  TriangleFacet<Precision> *facets[kVecSize];
   while (ifacet < kVecSize) {
     bool add = true;
     for (unsigned i = 0; i < nfacets; ++i) {
@@ -168,27 +168,27 @@ int main(int argc, char *argv[])
 #ifdef VECGEOM_ROOT
   OPTION_INT(vis, 0);
 #endif
-  constexpr double rmin = 10.;
-  constexpr double rmax = 20.;
+  constexpr Precision rmin = 10.;
+  constexpr Precision rmax = 20.;
 
   vecgeom::XtruVertex2 *vertices = new vecgeom::XtruVertex2[nvert];
   vecgeom::XtruSection *sections = new vecgeom::XtruSection[nvert];
 
-  double phi = 2. * kPi / nvert;
-  double r;
+  Precision phi = 2. * kPi / nvert;
+  Precision r;
 
-  Vector3D<double> start(0, 0, 0);
-  Vector3D<double> point;
+  Vector3D<Precision> start(0, 0, 0);
+  Vector3D<Precision> point;
 
-  Vector3D<double> *dirs = new Vector3D<double>[npoints];
+  Vector3D<Precision> *dirs = new Vector3D<Precision>[npoints];
   for (int i = 0; i < npoints; ++i)
     RandomDirection(dirs[i]);
 
   for (int i = 0; i < nvert; ++i) {
-    r                           = rmax;
+    r = rmax;
     if (i % 2 > 0 && !convex) r = rmin;
-    vertices[i].x               = r * vecCore::math::Cos(i * phi);
-    vertices[i].y               = r * vecCore::math::Sin(i * phi);
+    vertices[i].x = r * vecCore::math::Cos(i * phi);
+    vertices[i].y = r * vecCore::math::Sin(i * phi);
   }
   for (int i = 0; i < nsect; ++i) {
     sections[i].fOrigin.Set(0, 0, -20. + i * 40. / (nsect - 1));
@@ -203,10 +203,10 @@ int main(int argc, char *argv[])
   if (vis) {
     Visualizer visualizer;
     // Visualize bounding box
-    Vector3D<double> amin, amax;
+    Vector3D<Precision> amin, amax;
     xtru.Extent(amin, amax);
-    Vector3D<double> deltas = 0.5 * (amax - amin);
-    Vector3D<double> origin = 0.5 * (amax + amin);
+    Vector3D<Precision> deltas = 0.5 * (amax - amin);
+    Vector3D<Precision> origin = 0.5 * (amax + amin);
     SimpleBox box("bbox", deltas.x(), deltas.y(), deltas.z());
     visualizer.AddVolume(box, Transformation3D(origin.x(), origin.y(), origin.z()));
 

@@ -397,13 +397,13 @@ public:
 
   /// Generate and store a random direction used for Contains and Inside navigation queries.
   /** @param[out] direction Random direction generated */
-  void RandomDirection(Vector3D<double> &direction)
+  void RandomDirection(Vector3D<Precision> &direction)
   {
-    double phi    = RNG::Instance().uniform(0., 2. * kPi);
-    double theta  = std::acos(1. - 2. * RNG::Instance().uniform(0, 1));
-    direction.x() = std::sin(theta) * std::cos(phi);
-    direction.y() = std::sin(theta) * std::sin(phi);
-    direction.z() = std::cos(theta);
+    Precision phi   = RNG::Instance().uniform(0., 2. * kPi);
+    Precision theta = std::acos(1. - 2. * RNG::Instance().uniform(0, 1));
+    direction.x()   = std::sin(theta) * std::cos(phi);
+    direction.y()   = std::sin(theta) * std::sin(phi);
+    direction.z()   = std::cos(theta);
   }
 
   /// Loop over facets and group them in clusters in the order of definition.

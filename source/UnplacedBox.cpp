@@ -47,9 +47,9 @@ Vector3D<Precision> UnplacedBox::SamplePointOnSurface() const
 {
   Vector3D<Precision> p(dimensions());
 
-  double S[3] = {p[1] * p[2], p[0] * p[2], p[0] * p[1]};
+  Precision S[3] = {p[1] * p[2], p[0] * p[2], p[0] * p[1]};
 
-  double rand = (S[0] + S[1] + S[2]) * RNG::Instance().uniform(-1.0, 1.0);
+  Precision rand = (S[0] + S[1] + S[2]) * RNG::Instance().uniform(-1.0, 1.0);
 
   int axis = 0, direction = rand < 0.0 ? -1 : 1;
 

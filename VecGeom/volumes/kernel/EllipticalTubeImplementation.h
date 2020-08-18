@@ -31,7 +31,7 @@ class UnplacedEllipticalTube;
 struct EllipticalTubeImplementation {
 
   using PlacedShape_t    = PlacedEllipticalTube;
-  using UnplacedStruct_t = EllipticalTubeStruct<double>;
+  using UnplacedStruct_t = EllipticalTubeStruct<Precision>;
   using UnplacedVolume_t = UnplacedEllipticalTube;
 
   VECCORE_ATT_HOST_DEVICE
@@ -128,8 +128,8 @@ struct EllipticalTubeImplementation {
 
     // Move point closer, if required
     Real_v Rfar2(1024. * ellipticaltube.fRsph * ellipticaltube.fRsph); // 1024 = 32 * 32
-    vecCore__MaskedAssignFunc(pcur, ((pcur.Mag2() > Rfar2) && (direction.Dot(point) < 0.)),
-                              pcur + (offset = pcur.Mag() - 2. * ellipticaltube.fRsph) * direction);
+    vecCore__MaskedAssignFunc(pcur, ((pcur.Mag2() > Rfar2) && (direction.Dot(point) < Real_v(0.))),
+                              pcur + (offset = pcur.Mag() - Real_v(2.) * ellipticaltube.fRsph) * direction);
 
     // Scale elliptical tube to cylinder
     Real_v px = pcur.x() * ellipticaltube.fSx;
@@ -155,9 +155,9 @@ struct EllipticalTubeImplementation {
     // Check if point leaving shape
     Real_v distZ       = vecCore::math::Abs(pz) - ellipticaltube.fDz;
     Real_v distR       = ellipticaltube.fQ1 * rr - ellipticaltube.fQ2;
-    Bool_v parallelToZ = (A < kEpsilon || vecCore::math::Abs(vz) >= 1.);
-    Bool_v leaving =
-        (distZ >= -kHalfTolerance && pz * vz >= 0.) || (distR >= -kHalfTolerance && (B >= 0. || parallelToZ));
+    Bool_v parallelToZ = (A < kEpsilon || vecCore::math::Abs(vz) >= Real_v(1.));
+    Bool_v leaving     = (distZ >= -kHalfTolerance && pz * vz >= Real_v(0.)) ||
+                     (distR >= -kHalfTolerance && (B >= Real_v(0.) || parallelToZ));
 
     // Two special cases where D <= 0:
     //   1) trajectory parallel to Z axis (A = 0, B = 0, C - any, D = 0)
@@ -209,7 +209,8 @@ struct EllipticalTubeImplementation {
 
     // Find intersection with Z planes
     Real_v tzmax = kMaximum;
-    vecCore__MaskedAssignFunc(tzmax, vz != 0., (vecCore::math::CopySign(Real_v(ellipticaltube.fDz), vz) - pz) / vz);
+    vecCore__MaskedAssignFunc(tzmax, vz != Real_v(0.),
+                              (vecCore::math::CopySign(Real_v(ellipticaltube.fDz), vz) - pz) / vz);
 
     // Find intersection with lateral surface, solve equation: A t^2 + 2B t + C = 0
     Real_v A = vx * vx + vy * vy;
@@ -220,14 +221,16 @@ struct EllipticalTubeImplementation {
     // Two cases where D <= 0:
     //   1) trajectory parallel to Z axis (A = 0, B = 0, C - any, D = 0)
     //   2) touch (D = 0) or no intersection (D < 0) with lateral surface
-    Bool_v parallelToZ = (A < kEpsilon || vecCore::math::Abs(vz) >= 1.);
+    Bool_v parallelToZ = (A < kEpsilon || vecCore::math::Abs(vz) >= Real_v(1.));
     vecCore__MaskedAssignFunc(distance, (!outside && parallelToZ), tzmax); // 1)
-    Bool_v done = (outside || parallelToZ || D <= 0.);                     // 2)
+    Bool_v done = (outside || parallelToZ || D <= Real_v(0.));             // 2)
     // Bool_v done = (outside || parallelToZ || D < A * A * ellipticaltube.fScratch); // alternative 2)
 
     // Set distance
-    vecCore__MaskedAssignFunc(distance, !done && B >= 0., vecCore::math::Min(tzmax, -C / (vecCore::math::Sqrt(D) + B)));
-    vecCore__MaskedAssignFunc(distance, !done && B < 0., vecCore::math::Min(tzmax, (vecCore::math::Sqrt(D) - B) / A));
+    vecCore__MaskedAssignFunc(distance, !done && B >= Real_v(0.),
+                              vecCore::math::Min(tzmax, -C / (vecCore::math::Sqrt(D) + B)));
+    vecCore__MaskedAssignFunc(distance, !done && B < Real_v(0.),
+                              vecCore::math::Min(tzmax, (vecCore::math::Sqrt(D) - B) / A));
   }
 
   template <typename Real_v>
@@ -285,7 +288,7 @@ struct EllipticalTubeImplementation {
     vecCore__MaskedAssignFunc(normal[2], vecCore::math::Abs(distZ) <= kHalfTolerance, vecCore::math::Sign(point[2]));
     vecCore__MaskedAssignFunc(normal, normal.Mag2() > 1., normal.Unit());
 
-    vecCore::Mask_v<Real_v> done = normal.Mag2() > 0.;
+    vecCore::Mask_v<Real_v> done = normal.Mag2() > Real_v(0.);
     if (vecCore::MaskFull(done)) return normal;
 
     // Point is not on the surface - normally, this should never be
@@ -294,7 +297,7 @@ struct EllipticalTubeImplementation {
     vecCore__MaskedAssignFunc(normal[2], !done, vecCore::math::Sign(point[2]));
     vecCore__MaskedAssignFunc(distR, !done, vecCore::math::Sqrt(x * x + y * y) - ellipticaltube.fR);
     vecCore__MaskedAssignFunc(
-        normal, !done && distR > distZ && (x * x + y * y) > 0.,
+        normal, !done && distR > distZ && (x * x + y * y) > Real_v(0.),
         Vector3D<Real_v>(point.x() * ellipticaltube.fDDy, point.y() * ellipticaltube.fDDx, 0.).Unit());
     return normal;
   }

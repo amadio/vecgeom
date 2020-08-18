@@ -21,10 +21,10 @@ int main(int argc, char *argv[])
   OPTION_DOUBLE(phistart, 0.);
   OPTION_DOUBLE(phidelta, kTwoPi);
 
-  int Nz        = 4;
-  double rmin[] = {0.1, 0., 0., 0.2};
-  double rmax[] = {1., 2., 2., 1.5};
-  double z[]    = {-1, -0.5, 0.5, 10};
+  int Nz           = 4;
+  Precision rmin[] = {0.1, 0., 0., 0.2};
+  Precision rmax[] = {1., 2., 2., 1.5};
+  Precision z[]    = {-1, -0.5, 0.5, 10};
 
   UnplacedBox worldUnplaced(5, 5, 15);
   auto pconUnplaced = GeoManager::MakeInstance<UnplacedPolycone>(phistart, phidelta, Nz, z, rmin, rmax);

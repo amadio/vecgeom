@@ -526,7 +526,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *Middleware::processMultiUn
   vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> rotation;
   auto const name = Helper::GetAttribute("name", aDOMNode->getAttributes());
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
-    auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+    auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
     if (!aDOMElement) {
       // Skip whitespace/text element
       if (debug) {
@@ -777,6 +777,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processCone(
 const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processPolycone(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
+  using vecgeom::Precision;
   if (debug) {
     std::cout << "Middleware::processPolycone: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
@@ -785,9 +786,9 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processPolyc
   auto const angleMultiplier  = GetAngleMultiplier(aDOMNode);
   DECLAREANDGETANGLEVAR(startphi)
   DECLAREANDGETANGLEVAR(deltaphi) // FIXME the default value is not 0
-  std::vector<double> rmins;
-  std::vector<double> rmaxs;
-  std::vector<double> zs;
+  std::vector<Precision> rmins;
+  std::vector<Precision> rmaxs;
+  std::vector<Precision> zs;
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
     if (debug) {
       std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
@@ -811,6 +812,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processPolyc
 const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processPolyhedron(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
+  using vecgeom::Precision;
   if (debug) {
     std::cout << "Middleware::processPolycone: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
@@ -820,9 +822,9 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processPolyh
   DECLAREANDGETANGLEVAR(startphi)
   DECLAREANDGETANGLEVAR(deltaphi) // FIXME the default value is not 0
   DECLAREANDGETINTVAR(numsides)
-  std::vector<double> rmins;
-  std::vector<double> rmaxs;
-  std::vector<double> zs;
+  std::vector<Precision> rmins;
+  std::vector<Precision> rmaxs;
+  std::vector<Precision> zs;
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
     if (debug) {
       std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
@@ -1043,13 +1045,14 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processTet(
 vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processExtruded(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
+  using vecgeom::Precision;
   if (debug) {
     std::cout << "Middleware::processExtruded: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const lengthMultiplier = GetLengthMultiplier(aDOMNode);
-  std::vector<double> xs;
-  std::vector<double> ys;
-  std::vector<double> zs; // only first two are used, scaling factor and offset are not supported
+  std::vector<Precision> xs;
+  std::vector<Precision> ys;
+  std::vector<Precision> zs; // only first two are used, scaling factor and offset are not supported
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
     if (debug) {
       std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
@@ -1158,7 +1161,7 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
   auto const volumeName                                       = GetAttribute("name", attributes);
 
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
-    auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+    auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
     if (!aDOMElement) {
       // Skip whitespace/text element
       if (debug) {
@@ -1245,7 +1248,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *const Middleware::processPhysica
       rotation                = rotationMap[rotationName];
     } else {
       if (debug) {
-	std::cerr << "Middleware::processPhysicalVolume: tag not understood: " << theChildNodeName << std::endl;
+        std::cerr << "Middleware::processPhysicalVolume: tag not understood: " << theChildNodeName << std::endl;
       }
     }
   }

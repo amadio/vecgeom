@@ -19,7 +19,7 @@ void SolidMesh::ApplyTransformation(const Transformation3D &trans)
 
 void SolidMesh::TransformVertices(const Transformation3D &trans)
 {
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   // Transform vertices
   for (size_t i = 0; i < fMesh.fVert.size(); ++i) {
     Vec_t temp;

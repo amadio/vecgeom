@@ -31,20 +31,20 @@ Vector3D<Precision> UnplacedBooleanVolume<kUnion>::SamplePointOnSurface() const
   int counter = 0;
   Vector3D<Precision> p;
 
-  double arearatio(0.5);
-  double leftarea, rightarea;
+  Precision arearatio(0.5);
+  Precision leftarea, rightarea;
 
   // calculating surface area can be expensive
   // until there is a caching mechanism in place, we will cache these values here
   // in a static map
   // the caching mechanism will be put into place with the completion of the move to UnplacedVolume interfaces
-  static std::map<size_t, double> idtoareamap;
+  static std::map<size_t, Precision> idtoareamap;
   auto leftid = GetLeft()->GetLogicalVolume()->id();
   if (idtoareamap.find(leftid) != idtoareamap.end()) {
     leftarea = idtoareamap[leftid];
   } else { // insert
     leftarea = const_cast<VPlacedVolume *>(GetLeft())->SurfaceArea();
-    idtoareamap.insert(std::pair<size_t, double>(leftid, leftarea));
+    idtoareamap.insert(std::pair<size_t, Precision>(leftid, leftarea));
   }
 
   auto rightid = GetRight()->GetLogicalVolume()->id();
@@ -52,7 +52,7 @@ Vector3D<Precision> UnplacedBooleanVolume<kUnion>::SamplePointOnSurface() const
     rightarea = idtoareamap[rightid];
   } else { // insert
     rightarea = const_cast<VPlacedVolume *>(GetRight())->SurfaceArea();
-    idtoareamap.insert(std::pair<size_t, double>(rightid, rightarea));
+    idtoareamap.insert(std::pair<size_t, Precision>(rightid, rightarea));
   }
 
   if (leftarea > 0. && rightarea > 0.) {
@@ -79,20 +79,20 @@ Vector3D<Precision> UnplacedBooleanVolume<kIntersection>::SamplePointOnSurface()
   int counter = 0;
   Vector3D<Precision> p;
 
-  double arearatio(0.5);
-  double leftarea, rightarea;
+  Precision arearatio(0.5);
+  Precision leftarea, rightarea;
 
   // calculating surface area can be expensive
   // until there is a caching mechanism in place, we will cache these values here
   // in a static map
   // the caching mechanism will be put into place with the completion of the move to UnplacedVolume interfaces
-  static std::map<size_t, double> idtoareamap;
+  static std::map<size_t, Precision> idtoareamap;
   auto leftid = GetLeft()->GetLogicalVolume()->id();
   if (idtoareamap.find(leftid) != idtoareamap.end()) {
     leftarea = idtoareamap[leftid];
   } else { // insert
     leftarea = const_cast<VPlacedVolume *>(GetLeft())->SurfaceArea();
-    idtoareamap.insert(std::pair<size_t, double>(leftid, leftarea));
+    idtoareamap.insert(std::pair<size_t, Precision>(leftid, leftarea));
   }
 
   auto rightid = GetRight()->GetLogicalVolume()->id();
@@ -100,7 +100,7 @@ Vector3D<Precision> UnplacedBooleanVolume<kIntersection>::SamplePointOnSurface()
     rightarea = idtoareamap[rightid];
   } else { // insert
     rightarea = const_cast<VPlacedVolume *>(GetRight())->SurfaceArea();
-    idtoareamap.insert(std::pair<size_t, double>(rightid, rightarea));
+    idtoareamap.insert(std::pair<size_t, Precision>(rightid, rightarea));
   }
 
   if (leftarea > 0. && rightarea > 0.) {
@@ -127,20 +127,20 @@ Vector3D<Precision> UnplacedBooleanVolume<kSubtraction>::SamplePointOnSurface() 
   int counter = 0;
   Vector3D<Precision> p;
 
-  double arearatio(0.5);
-  double leftarea, rightarea;
+  Precision arearatio(0.5);
+  Precision leftarea, rightarea;
 
   // calculating surface area can be expensive
   // until there is a caching mechanism in place, we will cache these values here
   // in a static map
   // the caching mechanism will be put into place with the completion of the move to UnplacedVolume interfaces
-  static std::map<size_t, double> idtoareamap;
+  static std::map<size_t, Precision> idtoareamap;
   auto leftid = GetLeft()->GetLogicalVolume()->id();
   if (idtoareamap.find(leftid) != idtoareamap.end()) {
     leftarea = idtoareamap[leftid];
   } else { // insert
     leftarea = const_cast<VPlacedVolume *>(GetLeft())->SurfaceArea();
-    idtoareamap.insert(std::pair<size_t, double>(leftid, leftarea));
+    idtoareamap.insert(std::pair<size_t, Precision>(leftid, leftarea));
   }
 
   auto rightid = GetRight()->GetLogicalVolume()->id();
@@ -148,7 +148,7 @@ Vector3D<Precision> UnplacedBooleanVolume<kSubtraction>::SamplePointOnSurface() 
     rightarea = idtoareamap[rightid];
   } else { // insert
     rightarea = const_cast<VPlacedVolume *>(GetRight())->SurfaceArea();
-    idtoareamap.insert(std::pair<size_t, double>(rightid, rightarea));
+    idtoareamap.insert(std::pair<size_t, Precision>(rightid, rightarea));
   }
 
   if (leftarea > 0. && rightarea > 0.) {

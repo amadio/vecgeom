@@ -142,16 +142,16 @@ void UnplacedEllipticalTube::Print(std::ostream &os) const
 SolidMesh *UnplacedEllipticalTube::CreateMesh3D(Transformation3D const &trans, size_t nSegments) const
 {
 
-  double a = GetDx();
-  double b = GetDy();
-  double c = GetDz();
+  Precision a = GetDx();
+  Precision b = GetDy();
+  Precision c = GetDz();
 
   SolidMesh *sm = new SolidMesh();
   sm->ResetMesh(2 * (nSegments + 1), nSegments + 2);
 
-  typedef Vector3D<double> Vec_t;
+  typedef Vector3D<Precision> Vec_t;
   Vec_t *const vertices = new Vec_t[2 * (nSegments + 1)];
-  double acos, bsin;
+  Precision acos, bsin;
   for (size_t i = 0; i <= nSegments; i++) {
     acos                        = a * std::cos(i * 2 * M_PI / nSegments);
     bsin                        = b * std::sin(i * 2 * M_PI / nSegments);

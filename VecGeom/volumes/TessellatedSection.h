@@ -64,7 +64,7 @@ protected:
     if (fSameZ) {
       Vector3D<T> const &normal = facet->GetNormal();
       assert(normal.Perp() < kTolerance);
-      if (fUpNorm == 0.) fUpNorm = vecCore::math::CopySign(1., normal.z());
+      if (fUpNorm == 0.) fUpNorm = vecCore::math::CopySign(T(1.), normal.z());
       assert(fUpNorm * normal.z() > 0);
     }
     fFacets.push_back(facet);

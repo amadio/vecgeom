@@ -612,7 +612,8 @@ int ShapeTester<ImplT>::TestSafetyFromInsideSolids()
 }
 
 template <typename ImplT>
-void ShapeTester<ImplT>::PropagatedNormalU(const Vec_t &point, const Vec_t &direction, double distance, Vec_t &normal)
+void ShapeTester<ImplT>::PropagatedNormalU(const Vec_t &point, const Vec_t &direction, Precision distance,
+                                           Vec_t &normal)
 {
   // Compute surface point and correspondinf surface normal after computing
   // the distance to the solid
@@ -1204,7 +1205,7 @@ int ShapeTester<ImplT>::TestOutsidePoint()
 // Surface Checker
 //
 template <typename ImplT>
-int ShapeTester<ImplT>::TestAccuracyDistanceToIn(double dist)
+int ShapeTester<ImplT>::TestAccuracyDistanceToIn(Precision dist)
 {
   // Test accuracy of DistanceToIn method against required one
   int errCode = 0;
@@ -2286,11 +2287,11 @@ int ShapeTester<ImplT>::CountErrors() const
 }
 
 template <>
-double ShapeTester<VPlacedVolume>::CallDistanceToOut(const VPlacedVolume *vol, const Vec_t &point, const Vec_t &dir,
-                                                     Vec_t &normal, bool convex) const
+Precision ShapeTester<VPlacedVolume>::CallDistanceToOut(const VPlacedVolume *vol, const Vec_t &point, const Vec_t &dir,
+                                                        Vec_t &normal, bool convex) const
 {
-  double dist               = vol->DistanceToOut(point, dir);
-  Vector3D<double> hitpoint = point + dist * dir;
+  Precision dist               = vol->DistanceToOut(point, dir);
+  Vector3D<Precision> hitpoint = point + dist * dir;
   vol->Normal(hitpoint, normal);
   convex = vol->GetUnplacedVolume()->IsConvex();
   return dist;

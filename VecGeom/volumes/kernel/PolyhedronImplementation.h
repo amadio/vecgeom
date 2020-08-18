@@ -29,7 +29,7 @@ template <Polyhedron::EInnerRadii innerRadiiT, Polyhedron::EPhiCutout phiCutoutT
 struct PolyhedronImplementation {
 
   using PlacedShape_t    = PlacedPolyhedron;
-  using UnplacedStruct_t = PolyhedronStruct<double>;
+  using UnplacedStruct_t = PolyhedronStruct<Precision>;
   using UnplacedVolume_t = UnplacedPolyhedron;
 
   VECCORE_ATT_HOST_DEVICE

@@ -29,7 +29,7 @@ ShapeDebugger::ShapeDebugger(VPlacedVolume const *volume)
 void ShapeDebugger::SetMaxMismatches(int max)
 {
   if (max < 0) max = 0;
-  fMaxMismatches   = max;
+  fMaxMismatches = max;
 }
 
 void ShapeDebugger::ShowCorrectResults(bool show)
@@ -65,10 +65,10 @@ void ShapeDebugger::CompareContainsToROOT(Vector3D<Precision> const &bounds, int
   std::vector<std::pair<Precision, double>> mismatchResults;
   int vecgeomCount = 0, rootCount = 0, mismatches = 0;
   for (int i = 0; i < nSamples; ++i) {
-    Vector3D<Precision> sample     = volumeUtilities::SamplePoint(bounds);
-    bool vecgeomResult             = fVolume->Contains(sample);
-    Vector3D<Precision> localPoint = fVolume->GetTransformation()->Transform(sample);
-    bool rootResult                = rootShape->Contains(&localPoint[0]);
+    Vector3D<Precision> sample  = volumeUtilities::SamplePoint(bounds);
+    bool vecgeomResult          = fVolume->Contains(sample);
+    Vector3D<double> localPoint = fVolume->GetTransformation()->Transform(sample);
+    bool rootResult             = rootShape->Contains(&localPoint[0]);
     vecgeomCount += vecgeomResult;
     rootCount += rootResult;
     if (vecgeomResult != rootResult) {
@@ -146,15 +146,15 @@ void ShapeDebugger::CompareDistanceToInToROOT(Vector3D<Precision> const &bounds,
     Vector3D<Precision> point, direction;
     do {
       point = volumeUtilities::SamplePoint(bounds);
-    } while (rootShape->Contains(&point[0]));
-    direction                          = volumeUtilities::SampleDirection();
-    Precision vecgeomResult            = fVolume->DistanceToIn(point, direction);
-    Vector3D<Precision> localPoint     = fVolume->GetTransformation()->Transform(point);
-    Vector3D<Precision> localDirection = fVolume->GetTransformation()->TransformDirection(direction);
-    double rootResult                  = rootShape->DistFromOutside(&localPoint[0], &localDirection[0]);
-    bool vecgeomMiss                   = vecgeomResult == kInfLength;
-    bool rootMiss                      = rootResult == 1e30;
-    bool same                          = (vecgeomMiss && rootMiss) || Abs(rootResult - vecgeomResult) < kTolerance;
+    } while (rootShape->Contains(&Vector3D<double>(point)[0]));
+    direction                       = volumeUtilities::SampleDirection();
+    Precision vecgeomResult         = fVolume->DistanceToIn(point, direction);
+    Vector3D<double> localPoint     = fVolume->GetTransformation()->Transform(point);
+    Vector3D<double> localDirection = fVolume->GetTransformation()->TransformDirection(direction);
+    double rootResult               = rootShape->DistFromOutside(&localPoint[0], &localDirection[0]);
+    bool vecgeomMiss                = vecgeomResult == kInfLength;
+    bool rootMiss                   = rootResult == 1e30;
+    bool same                       = (vecgeomMiss && rootMiss) || Abs(rootResult - vecgeomResult) < kTolerance;
     vecgeomCount += !vecgeomMiss;
     rootCount += !rootMiss;
     if (!same) {
@@ -254,10 +254,10 @@ void ShapeDebugger::CompareDistanceToOutToROOT(Vector3D<Precision> const &bounds
     Vector3D<Precision> point, direction;
     do {
       point = volumeUtilities::SamplePoint(bounds);
-    } while (!rootShape->Contains(&point[0]));
+    } while (!rootShape->Contains(&Vector3D<double>(point)[0]));
     direction               = volumeUtilities::SampleDirection();
     Precision vecgeomResult = fVolume->DistanceToOut(point, direction);
-    double rootResult       = rootShape->DistFromInside(&point[0], &direction[0]);
+    double rootResult       = rootShape->DistFromInside(&Vector3D<double>(point)[0], &Vector3D<double>(direction)[0]);
     bool vecgeomMiss        = vecgeomResult == kInfLength;
     bool same               = !vecgeomMiss && Abs(rootResult - vecgeomResult) < kTolerance;
     if (!same) {
@@ -349,16 +349,18 @@ void ShapeDebugger::CompareSafetyToROOT(Vector3D<Precision> const &bounds, int n
   int mismatches = 0;
   for (int i = 0; i < nSamples; ++i) {
     Vector3D<Precision> point;
+    Vector3D<double> pointd;
     do {
-      point = volumeUtilities::SamplePoint(bounds);
-    } while (pointInsideT != rootShape->Contains(&point[0]));
+      point  = volumeUtilities::SamplePoint(bounds);
+      pointd = point;
+    } while (pointInsideT != rootShape->Contains(&pointd[0]));
     Precision safety, rootSafety;
     if (pointInsideT) {
       safety     = fVolume->SafetyToOut(point);
-      rootSafety = rootShape->Safety(&point[0], true);
+      rootSafety = rootShape->Safety(&Vector3D<double>(point)[0], true);
     } else {
       safety     = fVolume->SafetyToIn(point);
-      rootSafety = rootShape->Safety(&point[0], false);
+      rootSafety = rootShape->Safety(&Vector3D<double>(point)[0], false);
     }
     bool mismatch = Abs(safety - rootSafety) > kTolerance;
     if (mismatch) {
@@ -393,5 +395,5 @@ void ShapeDebugger::CompareSafetyToROOT(Vector3D<Precision> const &bounds, int n
 }
 
 #endif
-}
+} // namespace cxx
 } // End namespace vecgeom
