@@ -113,6 +113,7 @@ bool RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::s
     std::cerr << "The geometry cannot be converted to ROOT geometry\n";
     return false;
   }
+  TGeoManager::SetVerboseLevel(0);
   ::gGeoManager->SetTopVolume(world->GetVolume());
   ::gGeoManager->CloseGeometry();
   ::gGeoManager->CheckOverlaps();
