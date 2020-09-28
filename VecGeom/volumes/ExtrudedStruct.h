@@ -86,6 +86,8 @@ public:
     sections[1].fOrigin.Set(0., 0., zmax);
 
     Initialize(nvertices, vertices, 2, sections);
+    delete[] vertices;
+    delete[] sections;
   }
 
   VECGEOM_FORCE_INLINE
@@ -134,6 +136,8 @@ public:
         y[i] = sections[0].fOrigin.y() + sections[0].fScale * vertices[i].y;
       }
       fSxtruHelper.Init(nvertices, x, y, sections[0].fOrigin[2], sections[1].fOrigin[2]);
+      delete[] x;
+      delete[] y;
     }
     // Create the tessellated structure in all cases
     CreateTessellated(nvertices, vertices, nsections, sections);
