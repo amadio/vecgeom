@@ -35,7 +35,7 @@ public:
 
   inline pointer allocate(size_type n) { return (pointer) vecCore::AlignedAlloc(N, n * sizeof(value_type)); }
 
-  inline void deallocate(pointer p, size_type) { _mm_free(p); }
+  inline void deallocate(pointer p, size_type) { vecCore::AlignedFree(p); }
 
   inline void construct(pointer p, const value_type &wert) { new (p) value_type(wert); }
 

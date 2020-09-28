@@ -2297,7 +2297,9 @@ Type *Benchmarker::AllocateAligned() const
 template <typename Type>
 void Benchmarker::FreeAligned(Type *const distance)
 {
-  if (distance) _mm_free(distance);
+  if (distance) {
+    vecCore::AlignedFree(distance);
+  }
 }
 
 #ifdef VECGEOM_CUDA_INTERFACE

@@ -315,7 +315,7 @@ Precision benchmarkGeant4Navigation(int nPoints, int nReps, SOA3D<Precision> con
 
   // cleanup
   delete[] g4history;
-  //  _mm_free(maxSteps);
+  // vecCore::AlignedFree(maxSteps);
 
   return (Precision)timer.Stop();
 }

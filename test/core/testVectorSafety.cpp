@@ -152,10 +152,10 @@ void testVectorNavigator(VPlacedVolume const *world)
   }
 
   // cleanup
-  _mm_free(steps);
-  _mm_free(pSteps);
-  _mm_free(safeties);
-  _mm_free(calcSafeties);
+  vecCore::AlignedFree(steps);
+  vecCore::AlignedFree(pSteps);
+  vecCore::AlignedFree(safeties);
+  vecCore::AlignedFree(calcSafeties);
 }
 
 int main()
