@@ -196,7 +196,12 @@ struct SExtruImplementation {
 
     // no one is in --> return precise safety to box
     if (vecCore::MaskEmpty(isInExtent)) {
-      safety = std::sqrt(ABBoxImplementation::ABBoxSafetySqr(aMin, aMax, point));
+      const auto ssqr = ABBoxImplementation::ABBoxSafetySqr(aMin, aMax, point);
+      if (ssqr <= 0.) {
+        safety = 0.;
+        return;
+      }
+      safety = std::sqrt(ssqr);
       return;
     }
 
