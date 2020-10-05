@@ -118,6 +118,7 @@ public:
   }
 
   // The equivalent of the copy constructor
+  VECCORE_ATT_HOST_DEVICE
   static Cont *MakeCopy(const Cont &other)
   {
     // Make a copy of the variable size array and its container.
@@ -130,7 +131,22 @@ public:
     return copy;
   }
 
+  VECCORE_ATT_HOST_DEVICE
+  static Cont *MakeCopy(size_t new_size, const Cont &other)
+  {
+    // Make a copy of a the variable size array and its container with
+    // a new_size of the content.
+
+    size_t needed = SizeOf(new_size);
+    char *ptr     = new char[needed];
+    if (!ptr) return 0;
+    Cont *copy                         = new (ptr) Cont(new_size, other);
+    copy->GetVariableData().fSelfAlloc = true;
+    return copy;
+  }
+
   // The equivalent of the copy constructor
+  VECCORE_ATT_HOST_DEVICE
   static Cont *MakeCopyAt(const Cont &other, void *addr)
   {
     // Make a copy of a the variable size array and its container at the location (if indicated)
@@ -143,17 +159,18 @@ public:
     }
   }
 
-  static Cont *MakeCopy(size_t new_size, const Cont &other)
+  // The equivalent of the copy constructor
+  VECCORE_ATT_HOST_DEVICE
+  static Cont *MakeCopyAt(size_t new_size, const Cont &other, void *addr)
   {
-    // Make a copy of a the variable size array and its container with
-    // a new_size of the content.
-
-    size_t needed = SizeOf(new_size);
-    char *ptr     = new char[needed];
-    if (!ptr) return 0;
-    Cont *copy                         = new (ptr) Cont(new_size, other);
-    copy->GetVariableData().fSelfAlloc = true;
-    return copy;
+    // Make a copy of a the variable size array and its container at the location (if indicated)
+    if (addr) {
+      Cont *copy                         = new (addr) Cont(new_size, other);
+      copy->GetVariableData().fSelfAlloc = false;
+      return copy;
+    } else {
+      return MakeCopy(new_size, other);
+    }
   }
 
   // The equivalent of the destructor
