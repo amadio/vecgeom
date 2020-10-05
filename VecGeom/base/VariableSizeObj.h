@@ -167,7 +167,14 @@ public:
 
   // Equivalent of sizeof function (not taking into account padding for alignment)
   VECCORE_ATT_HOST_DEVICE
-  static constexpr size_t SizeOf(size_t nvalues) { return (sizeof(Cont) + sizeof(V) * (nvalues - 1)); }
+  static constexpr size_t SizeOf(size_t nvalues)
+  {
+    return (sizeof(Cont) + Cont::SizeOfExtra(nvalues) + sizeof(V) * (nvalues - 1));
+  }
+
+  // Size of the allocated derived type data members that are also variable size
+  VECCORE_ATT_HOST_DEVICE
+  static constexpr size_t SizeOfExtra(size_t nvalues) { return 0; }
 
   // equivalent of sizeof function taking into account padding for alignment
   // this function should be used when making arrays of VariableSizeObjects
