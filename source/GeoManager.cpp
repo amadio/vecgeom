@@ -230,11 +230,11 @@ void GeoManager::CloseGeometry()
     return sbytes;
   };
   MakeNavIndexTable(fCacheDepth);
-  std::cout << "\n============================================================================\n"
-            << "  Geometry closed in navigation index mode. The table size is "
-            << pretty_bytes(NavIndexTable::Instance()->GetTableSize()) << "\n  Transformation caching depth is "
-            << fCacheDepth << "\n"
-            << "============================================================================\n\n";
+  // std::cout << "\n============================================================================\n"
+  //           << "  Geometry closed in navigation index mode. The table size is "
+  //           << pretty_bytes(NavIndexTable::Instance()->GetTableSize()) << "\n  Transformation caching depth is "
+  //           << fCacheDepth << "\n"
+  //           << "============================================================================\n\n";
 #endif
 }
 

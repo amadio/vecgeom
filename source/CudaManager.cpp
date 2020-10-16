@@ -250,7 +250,7 @@ bool CudaManager::AllocateNavIndexOnCoproc()
   auto table_size = NavIndexTable::Instance()->GetTableSize();
   auto table      = NavIndexTable::Instance()->GetTable();
 
-  // if (verbose_ > 2)
+  if (verbose_ > 2)
   std::cout << "Allocating navigation index table...\n";
 
   GpuAddress gpu_address;
@@ -266,7 +266,7 @@ bool CudaManager::AllocateNavIndexOnCoproc()
   // Copy the table
   CopyToGpu((char *)table, gpu_address.GetPtr(), table_size);
 
-  // if (verbose_ > 2)
+  if (verbose_ > 2)
   std::cout << " OK\n";
   return true;
 }
@@ -379,8 +379,10 @@ void CudaManager::AllocateGeometry()
               << ", dau_gpu_c_array=" << gpu_memory_map.size() << "\n";
   }
 
-  fprintf(stderr, "NUMBER OF PLACED VOLUMES %ld\n", placed_volumes_.size());
-  fprintf(stderr, "NUMBER OF UNPLACED VOLUMES %ld\n", unplaced_volumes_.size());
+  if (verbose_ > 0) {
+    fprintf(stderr, "NUMBER OF PLACED VOLUMES %ld\n", placed_volumes_.size());
+    fprintf(stderr, "NUMBER OF UNPLACED VOLUMES %ld\n", unplaced_volumes_.size());
+  }
 }
 
 void CudaManager::ScanGeometry(VPlacedVolume const *const volume)
