@@ -60,8 +60,6 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
           currentpoint = transformedpoint;
         }
       } else { // otherwise do a default implementation
-#ifndef VECCORE_CUDA
-        // throw std::runtime_error("impossible code in GlobalLocator reached");
         // GL: this code adapted from LocateGlobalPointExclVolume(...) function below
         godeeper = true;
         for (size_t i = 0; i < daughters->size() && godeeper; ++i) {
@@ -77,10 +75,6 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
           }
         }
         godeeper = false;
-#else
-        // throw std::runtime_error("GlobalLocator functionality not yet implemented for GPUs");
-        godeeper = false;
-#endif
       }
     }
   }
