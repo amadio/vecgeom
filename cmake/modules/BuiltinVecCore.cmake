@@ -11,7 +11,7 @@ function (build_external_project target globpattern ) #FOLLOWING ARGUMENTS are t
   #generate false dependency project
   set(CMAKE_LIST_CONTENT "
       cmake_minimum_required(VERSION 2.8)
-
+      project(BuiltinVecCore)
       include(ExternalProject)
       ExternalProject_add(${target}
               ${ARGN}
