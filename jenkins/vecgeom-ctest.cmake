@@ -24,7 +24,7 @@ else()
   set(CTEST_BUILD_NAME "$ENV{OPTION}-${arch}-$ENV{LABEL}-$ENV{COMPILER}-$ENV{BUILDTYPE}")
 endif()
 
-if(DEFINED ENV{gitlabMergedByUser} AND DEFINED ENV{gitlabMergeRequestIid})
+if(NOT "$ENV{gitlabMergedByUser}$ENV{gitlabMergeRequestIid}" STREQUAL "")
   set(CTEST_BUILD_NAME "$ENV{gitlabMergedByUser}#$ENV{gitlabMergeRequestIid}-${CTEST_BUILD_NAME}")
 endif()
 

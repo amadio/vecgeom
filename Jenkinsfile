@@ -18,6 +18,8 @@ pipeline {
     string(name: 'DOCKER_LABEL', defaultValue: 'docker-host-noafs', description: 'Label for the the nodes able to launch docker images')
     string(name: 'SourceBranch', defaultValue: 'master', description: 'Source branch in repository')
     string(name: 'TargetBranch', defaultValue: 'master', description: 'Target branch in repository')
+    string(name: 'gitlabMergedByUser')
+    string(name: 'gitlabMergeRequestIid')
   }
 
   environment {
@@ -49,7 +51,9 @@ pipeline {
           args  """-v /cvmfs:/cvmfs 
                    -v /ccache:/ccache 
                    -v /ec:/ec
-                   -e SHELL -e gitlabMergedByUser -e gitlabMergeRequestIid
+                   -e SHELL 
+                   -e gitlabMergedByUser 
+                   -e gitlabMergeRequestIid
                    --net=host
                    --hostname ${LABEL}-docker
                 """
