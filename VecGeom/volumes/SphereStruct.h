@@ -79,10 +79,10 @@ struct SphereStruct {
     sinETheta = std::sin(eTheta);
     cosETheta = vecCore::math::Cos(eTheta);
 
-    tanSTheta     = std::tan(fSTheta);
+    tanSTheta     = sinSTheta / cosSTheta;
     fabsTanSTheta = std::fabs(tanSTheta);
     tanSTheta2    = tanSTheta * tanSTheta;
-    tanETheta     = std::tan(eTheta);
+    tanETheta     = sinETheta / cosETheta;
     fabsTanETheta = std::fabs(tanETheta);
     tanETheta2    = tanETheta * tanETheta;
   }
@@ -358,7 +358,7 @@ struct SphereStruct {
   }
   //#endif
 };
-}
-} // end of vecgeom namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VOLUMES_SPHERESTRUCT_H_ */
