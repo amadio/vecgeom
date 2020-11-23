@@ -19,10 +19,11 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 // shared kernel for many locators
 // treats the actual final check (depending on which interface to serve)
 template <bool IsAssemblyAware, bool ModifyState>
-__attribute__((always_inline)) inline static bool CheckCandidateVol(VPlacedVolume const *nextvolume,
-                                                                    Vector3D<Precision> const &localpoint,
-                                                                    NavigationState *state, VPlacedVolume const *&pvol,
-                                                                    Vector3D<Precision> &daughterlocalpoint)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE
+  static bool CheckCandidateVol(VPlacedVolume const *nextvolume,
+				Vector3D<Precision> const &localpoint,
+				NavigationState *state, VPlacedVolume const *&pvol,
+				Vector3D<Precision> &daughterlocalpoint)
 {
   if (IsAssemblyAware && ModifyState) {
     if (nextvolume->GetUnplacedVolume()->IsAssembly()) {
@@ -54,7 +55,8 @@ __attribute__((always_inline)) inline static bool CheckCandidateVol(VPlacedVolum
 // shared kernel for many locators
 // treats the actual final check (depending on which interface to serve)
 template <bool IsAssemblyAware, bool ModifyState>
-__attribute__((always_inline)) inline static bool CheckCandidateVolWithDirection(
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE
+  static bool CheckCandidateVolWithDirection(
     VPlacedVolume const *nextvolume, Vector3D<Precision> const &localpoint, Vector3D<Precision> const &localdirection,
     NavigationState *state, VPlacedVolume const *&pvol, Vector3D<Precision> &daughterlocalpoint)
 {
@@ -109,17 +111,21 @@ __attribute__((always_inline)) inline static bool CheckCandidateVolWithDirection
 template <bool IsAssemblyAware = false>
 class TSimpleLevelLocator : public VLevelLocator {
 
-private:
+public:
+  VECGEOM_FORCE_INLINE  VECCORE_ATT_HOST_DEVICE
   TSimpleLevelLocator() {}
 
+private:
   // the actual implementation kernel
   // the template "ifs" should be optimized away
   // arguments are pointers to allow for nullptr
   template <bool ExclV, bool ModifyState>
-  __attribute__((always_inline)) bool LevelLocateKernel(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
-                                                        Vector3D<Precision> const &localpoint, NavigationState *state,
-                                                        VPlacedVolume const *&pvol,
-                                                        Vector3D<Precision> &daughterlocalpoint) const
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  bool LevelLocateKernel(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
+			 Vector3D<Precision> const &localpoint, NavigationState *state,
+			 VPlacedVolume const *&pvol,
+			 Vector3D<Precision> &daughterlocalpoint) const
   {
     auto daughters = lvol->GetDaughtersp();
     for (size_t i = 0; i < daughters->size(); ++i) {
@@ -138,12 +144,13 @@ private:
   // the template "ifs" should be optimized away
   // arguments are pointers to allow for nullptr
   template <bool ExclV, bool ModifyState>
-  __attribute__((always_inline)) bool LevelLocateKernelWithDirection(LogicalVolume const *lvol,
-                                                                     VPlacedVolume const *exclvol,
-                                                                     Vector3D<Precision> const &localpoint,
-                                                                     Vector3D<Precision> const &localdir,
-                                                                     NavigationState *state, VPlacedVolume const *&pvol,
-                                                                     Vector3D<Precision> &daughterlocalpoint) const
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE
+  bool LevelLocateKernelWithDirection(LogicalVolume const *lvol,
+				      VPlacedVolume const *exclvol,
+				      Vector3D<Precision> const &localpoint,
+				      Vector3D<Precision> const &localdir,
+				      NavigationState *state, VPlacedVolume const *&pvol,
+				      Vector3D<Precision> &daughterlocalpoint) const
   {
     auto daughters = lvol->GetDaughtersp();
     for (size_t i = 0; i < daughters->size(); ++i) {
@@ -175,7 +182,7 @@ public:
     return LevelLocateKernel<false, true>(lvol, nullptr, localpoint, &state, pvol, daughterlocalpoint);
   }
 
-  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE
   virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
                                   Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                                   Vector3D<Precision> &daughterlocalpoint) const override
@@ -183,7 +190,7 @@ public:
     return LevelLocateKernel<true, false>(lvol, exclvol, localpoint, nullptr, pvol, daughterlocalpoint);
   }
 
-  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE
   virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
                                   Vector3D<Precision> const &localpoint, Vector3D<Precision> const &localdirection,
                                   VPlacedVolume const *&pvol, Vector3D<Precision> &daughterlocalpoint) const override
@@ -195,11 +202,14 @@ public:
   static std::string GetClassName() { return "SimpleLevelLocator"; }
   virtual std::string GetName() const override { return GetClassName(); }
 
+#ifndef VECCORE_CUDA
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE
   static VLevelLocator const *GetInstance()
   {
     static TSimpleLevelLocator instance;
     return &instance;
   }
+#endif
 
 }; // end class declaration
 

@@ -214,22 +214,22 @@ void GeoManager::CloseGeometry()
 
 #ifdef VECGEOM_USE_NAVINDEX
   if (fCacheDepth == 0 || fCacheDepth > fMaxDepth) fCacheDepth = fMaxDepth;
-  auto pretty_bytes = [](unsigned int bytes) {
-    char buf[50];
-    const char *suffixes[7] = {"Bytes", "KB", "MB", "GB", "TB", "PB", "EB"};
-    uint s                  = 0; // which suffix to use
-    double count            = bytes;
-    while (count >= 1024 && s++ < 7)
-      count /= 1024;
-
-    if (count - std::floor(count) == 0.0)
-      sprintf(buf, "%d %s", (int)count, suffixes[s]);
-    else
-      sprintf(buf, "%.1f %s", count, suffixes[s]);
-    std::string sbytes = buf;
-    return sbytes;
-  };
   MakeNavIndexTable(fCacheDepth);
+  // auto pretty_bytes = [](unsigned int bytes) {
+  //   char buf[50];
+  //   const char *suffixes[7] = {"Bytes", "KB", "MB", "GB", "TB", "PB", "EB"};
+  //   uint s                  = 0; // which suffix to use
+  //   double count            = bytes;
+  //   while (count >= 1024 && s++ < 7)
+  //     count /= 1024;
+
+  //   if (count - std::floor(count) == 0.0)
+  //     sprintf(buf, "%d %s", (int)count, suffixes[s]);
+  //   else
+  //     sprintf(buf, "%.1f %s", count, suffixes[s]);
+  //   std::string sbytes = buf;
+  //   return sbytes;
+  // };
   // std::cout << "\n============================================================================\n"
   //           << "  Geometry closed in navigation index mode. The table size is "
   //           << pretty_bytes(NavIndexTable::Instance()->GetTableSize()) << "\n  Transformation caching depth is "

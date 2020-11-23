@@ -267,6 +267,7 @@ public:
   // if this function returns true it modifies the navigation state to point to the first non-assembly volume
   // the point is contained in
   // this function is not part of the generic UnplacedVolume interface but we could consider doing so
+  VECCORE_ATT_HOST_DEVICE
   bool Contains(Vector3D<Precision> const &p, Vector3D<Precision> &lp, NavigationState &state) const
   {
     state.Push(this);
