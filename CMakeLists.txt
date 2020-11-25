@@ -184,11 +184,16 @@ if(USE_INDEXEDNAVSTATES)
 endif()
 
 option(USE_NAVINDEX "Use navigation index table and states" OFF)
+if(CUDA)
+  ### CUDA=ON requires NAVINDEX
+  message(STATUS CUDA=ON implies USE_NAVINDEX=ON)
+  set(USE_NAVINDEX ON)
+endif()
 if(USE_NAVINDEX)
   set(VECGEOM_USE_NAVINDEX ON)
 endif()
 
-option(GDML "Enable GDML persistency. Requres Xerces-C" OFF)
+option(GDML "Enable GDML persistency. Requires Xerces-C" OFF)
 if(GDML)
   set(VECGEOM_GDML ON)
 endif()
