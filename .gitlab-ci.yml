@@ -38,7 +38,7 @@ with_ROOT:
    image: cern/cc7-base
    stage: build
    script:
-     - ls /cvmfs/alice-nightlies.cern.ch/
+     - ls /cvmfs/alice.cern.ch/
      - mkdir build && cd build
        # need C++17 since ROOT was built with C++17
      - cmake .. -DVc_DIR=${VC_ROOT}/lib/cmake -DROOT=ON -DGDML=OFF -DBACKEND=Vc -DCMAKE_CXX_STANDARD=17
@@ -48,9 +48,9 @@ with_ROOT:
      - echo $SHELL
      - yum install environment-modules -y
      - yum install -y unzip autoconf automake make gcc
-     - eval "$(/cvmfs/alice-nightlies.cern.ch/bin/alienv printenv CMake::v3.13.1-3)"
-     - eval "$(/cvmfs/alice-nightlies.cern.ch/bin/alienv printenv ROOT::v6-18-04-8)"
-     - eval "$(/cvmfs/alice-nightlies.cern.ch/bin/alienv printenv Vc::1.4.1-6)"
+     - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv CMake::v3.18.2-1)"
+     - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv ROOT::v6-18-04-8)"
+     - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv Vc::1.4.1-6)"
 
 # build for USING_NAVINDEX=ON (using the cvmfs ALICE software stack: TODO: convert to project/sft...)
 with_NAVINDEX:
@@ -59,7 +59,7 @@ with_NAVINDEX:
    image: cern/cc7-base
    stage: build
    script:
-     - ls /cvmfs/alice-nightlies.cern.ch/
+     - ls /cvmfs/alice.cern.ch/
      - mkdir build && cd build
        # need C++17 since ROOT was built with C++17
      - cmake .. -DVc_DIR=${VC_ROOT}/lib/cmake -DUSE_NAVINDEX=ON -DROOT=ON -DGDML=OFF -DBACKEND=Vc -DCMAKE_CXX_STANDARD=17
@@ -69,6 +69,6 @@ with_NAVINDEX:
      - echo $SHELL
      - yum install environment-modules -y
      - yum install -y unzip autoconf automake make gcc
-     - eval "$(/cvmfs/alice-nightlies.cern.ch/bin/alienv printenv CMake::v3.13.1-3)"
-     - eval "$(/cvmfs/alice-nightlies.cern.ch/bin/alienv printenv ROOT::v6-18-04-8)"
-     - eval "$(/cvmfs/alice-nightlies.cern.ch/bin/alienv printenv Vc::1.4.1-6)"
+     - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv CMake::v3.18.2-1)"
+     - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv ROOT::v6-18-04-8)"
+     - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv Vc::1.4.1-6)"
