@@ -237,10 +237,10 @@ public:
   VECGEOM_FORCE_INLINE
   void Set(const Precision *trans, const Precision *rot, bool has_trans, bool has_rot)
   {
-    for (auto &x : fTranslation)
-            x = *trans++;
-    for (auto &r : fRotation)
-            r = *rot++;
+    constexpr size_t kN3 = 3 * sizeof(Precision);
+    constexpr size_t kN9 = 9 * sizeof(Precision);
+    memcpy(fTranslation, trans, kN3);
+    memcpy(fRotation, rot, kN9);
     fHasTranslation = has_trans;
     fHasRotation    = has_rot;
     fIdentity       = !fHasTranslation && !fHasRotation;
