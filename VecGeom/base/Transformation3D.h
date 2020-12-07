@@ -237,10 +237,18 @@ public:
   VECGEOM_FORCE_INLINE
   void Set(const Precision *trans, const Precision *rot, bool has_trans, bool has_rot)
   {
-    constexpr size_t kN3 = 3 * sizeof(Precision);
-    constexpr size_t kN9 = 9 * sizeof(Precision);
-    memcpy(fTranslation, trans, kN3);
-    memcpy(fRotation, rot, kN9);
+    // Memory copy translation and rotation components.
+    // Avoid memcpy that gives warning: non-null argument 2 expected
+    // Avoid copy by de-referencing trans/rot which may not have alignof(Precision)
+    auto trans_src  = reinterpret_cast<const char *>(trans);
+    auto trans_dest = reinterpret_cast<char *>(fTranslation);
+    auto rot_src    = reinterpret_cast<const char *>(rot);
+    auto rot_dest   = reinterpret_cast<char *>(fRotation);
+    for (size_t i = 0; i < 3 * sizeof(Precision); ++i)
+      trans_dest[i] = trans_src[i];
+    for (size_t i = 0; i < 9 * sizeof(Precision); ++i)
+      rot_dest[i] = rot_src[i];
+
     fHasTranslation = has_trans;
     fHasRotation    = has_rot;
     fIdentity       = !fHasTranslation && !fHasRotation;
