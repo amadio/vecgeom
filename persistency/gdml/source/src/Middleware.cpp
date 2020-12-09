@@ -264,7 +264,7 @@ bool Middleware::processScale(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
 bool Middleware::processRotation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processPosition: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+    std::cout << "Middleware::processRotation: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const rotationName      = GetAttribute("name", attributes);
@@ -1196,12 +1196,28 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *const Middleware::processPhysica
       } else {
         if (debug) std::cout << "Middleware::processPhysicalVolume: found volume " << logicalVolumeName << std::endl;
       }
+    } else if (theChildNodeName == "position") {
+      auto const positionName = GetAttribute("name", aDOMElement->getAttributes());
+      if (processPosition(aDOMElement)) {
+        position = positionMap[positionName];
+      } else {
+        std::cout << "Middleware::processPhysicalVolume: could not process position " << positionName << std::endl;
+      }
+    } else if (theChildNodeName == "rotation") {
+      auto const rotationName = GetAttribute("name", aDOMElement->getAttributes());
+      if (processRotation(aDOMElement)) {
+        position = rotationMap[rotationName];
+      } else {
+        std::cout << "Middleware::processPhysicalVolume: could not process rotation " << rotationName << std::endl;
+      }
     } else if (theChildNodeName == "positionref") {
       auto const positionName = GetAttribute("ref", aDOMElement->getAttributes());
       position                = positionMap[positionName];
     } else if (theChildNodeName == "rotationref") {
       auto const rotationName = GetAttribute("ref", aDOMElement->getAttributes());
       rotation                = rotationMap[rotationName];
+    } else {
+      std::cout << "Middleware::processPhysicalVolume: tag not understood: " << theChildNodeName << std::endl;
     }
   }
   if (!logicalVolume) return nullptr;
