@@ -1217,7 +1217,9 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *const Middleware::processPhysica
       auto const rotationName = GetAttribute("ref", aDOMElement->getAttributes());
       rotation                = rotationMap[rotationName];
     } else {
-      std::cout << "Middleware::processPhysicalVolume: tag not understood: " << theChildNodeName << std::endl;
+      if (debug) {
+	std::cerr << "Middleware::processPhysicalVolume: tag not understood: " << theChildNodeName << std::endl;
+      }
     }
   }
   if (!logicalVolume) return nullptr;
