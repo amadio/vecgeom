@@ -57,48 +57,44 @@ endfunction()
 
 # actual function for managing the download
 function(DOWNLOAD_IF_NOT_INSTALLED FILE_URL LOCALFILE TARGETPATH MD5HASH )
-  find_file(FOUNDFILE ${LOCALFILE} ${TARGETPATH} )
-  if(FOUNDFILE STREQUAL "FOUNDFILE-NOTFOUND")
-    message(STATUS "need download of ${LOCALFILE} since not found")
-    set(NEEDTODOWNLOAD 1)
-  else()
-    message(STATUS "found existing file ${LOCALFILE}")
-    CHECKMD5( ${FOUNDFILE} ${MD5HASH} MD5CORRECT )
-    if(${MD5CORRECT} STREQUAL "1")
-      set(NEEDTODOWNLOAD 0)
-    else( )
-      message(STATUS "hash ${MD5HASH} not correct for file ${FOUNDFILE} ${MD5CORRECT}" )
-      set(NEEDTODOWNLOAD 1)
+  set(FILENAME "${TARGETPATH}/${LOCALFILE}")
+  if(EXISTS "${FILENAME}")
+    checkmd5("${FILENAME}" ${MD5HASH} MD5CORRECT)
+    if(MD5CORRECT)
+      # Data is downloaded and has correct hash
+      return()
+    else()
+      message(STATUS "Hash not correct for data file ${FILENAME}: "
+        "expected ${MD5HASH} from ${FILE_URL}" )
     endif()
   endif()
 
-  if(${NEEDTODOWNLOAD} STREQUAL 1)
-    message(STATUS " downloading ... ")
-    set(DOWNLOADLOCATION "${TARGETPATH}/${LOCALFILE}")
-    FILE_DOWNLOAD( ${FILE_URL} ${DOWNLOADLOCATION} )
+  if(NOT DATA_DOWNLOAD)
+    message(WARNING "The test data expected at ${LOCALFILE} is missing "
+      "or incorrect, but DATA_DOWNLOAD is disabled so we cannot download it")
+    return()
   endif()
-  # in principle have to check now if download succeeded and has right MD5
-  # TOBEDONE
 
-  # this is annoying but we have to clear FOUNDFILE SINCE THIS IS TREATED LIKE A STATIC VARIABLE
-  unset(FOUNDFILE CACHE)
+  file_download(${FILE_URL} ${FILENAME})
+  checkmd5("${FILENAME}" ${MD5HASH} MD5CORRECT)
+  if(NOT MD5CORRECT)
+    message(WARNING "Hash not correct for data file ${FILENAME}: "
+      "expected ${MD5HASH} from ${FILE_URL}: "
+      "please update ${CMAKE_CURRENT_LIST_FILE}")
+  endif()
 endfunction()
 ################################################################################
 
 ################################################################################
 # Download data if required
-if(DATA_DOWNLOAD)
-  message(STATUS "Downloading data files")
-
-  download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/cms2015.root"
-    "cms2015.root"
-    "${PROJECT_SOURCE_DIR}/test/cmstestdata/"
-    "fb3ede867532b372c5e6f7138d00c07e")
-  download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/ExN03.root"
-    "ExN03.root"
-    "${CMAKE_CURRENT_BINARY_DIR}"
-    "b6b0cfdd5035117171bfe1b7f1f40c3f")
-endif()
+download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/cms2015.root"
+  "cms2015.root"
+  "${PROJECT_SOURCE_DIR}/test/cmstestdata/"
+  "fb3ede867532b372c5e6f7138d00c07e")
+download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/ExN03.root"
+  "ExN03.root"
+  "${CMAKE_CURRENT_BINARY_DIR}"
+  "b6b0cfdd5035117171bfe1b7f1f40c3f")
 
 ################################################################################
 # Define executables

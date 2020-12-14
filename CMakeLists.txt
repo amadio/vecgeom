@@ -218,10 +218,8 @@ if(CTEST)
   include(CTest)
 endif()
 
-option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
-if(CTEST)
-  set(DATA_DOWNLOAD ON)
-endif()
+# Default to download when testing is enabled
+option(DATA_DOWNLOAD "Enable downloading of data for tests" ${CTEST})
 
 option(COVERAGE_TESTING "Enable coverage testing flags." OFF)
 option(VALIDATION "Enable validation tests from CMS geometry." OFF)
