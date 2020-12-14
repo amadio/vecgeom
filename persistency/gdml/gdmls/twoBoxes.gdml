@@ -33,6 +33,7 @@
       <solidref ref="world"/>
       <physvol>
         <volumeref ref="Detector"/>
+        <!-- This comment should be ignored -->
       </physvol>
     </volume>
   </structure>

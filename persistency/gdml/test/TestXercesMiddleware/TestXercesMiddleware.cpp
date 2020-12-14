@@ -34,7 +34,10 @@ int main(int argC, char *argV[])
     usage();
   }
   auto const filename = std::string((argC > 1) ? argV[1] : "TestXercesMiddleware.gdml");
-  auto aBackend       = vgdml::Backend(true);
+  // To speed up testing and ensure the middleware and backend work without
+  // schema validation, skip it for the middleware test.
+  constexpr bool validate_xml_schema = false;
+  auto aBackend       = vgdml::Backend(validate_xml_schema);
   auto const aDOMDoc  = aBackend.Load(filename);
   aBackend.Save(aDOMDoc, "TestXercesMiddleware.out.gdml");
   auto aMiddleware      = vgdml::Middleware();
