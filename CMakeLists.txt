@@ -1,5 +1,8 @@
 # - Setup the project
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.8...3.19)
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+endif()
 
 include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
@@ -236,11 +239,6 @@ endif()
 ################################################################################
 # Minimum version of VecCore we need.
 set(VecCore_VERSION "0.5.2")
-
-# Specifically to handle "CUDA_ROOT" in cmake >= 3.12
-if(POLICY CMP0074)
-  cmake_policy(SET CMP0074 NEW)
-endif()
 
 # Let's see if we can find VecCore
 if(NOT BUILTIN_VECCORE)
