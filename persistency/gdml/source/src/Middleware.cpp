@@ -124,6 +124,11 @@ std::array<double, 9> makeRotationMatrixFromCartesianAngles(double x, double y, 
   return {{xx, xy, xz, yx, yy, yz, zx, zy, zz}};
 }
 
+bool isWhitespaceOrComment(const XERCES_CPP_NAMESPACE_QUALIFIER DOMElement &element)
+{
+  return element.getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::TEXT_NODE ||
+         element.getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::COMMENT_NODE;
+}
 } // namespace
 
 namespace vgdml {
@@ -1181,11 +1186,15 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *const Middleware::processPhysica
   vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> position;
   vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> rotation;
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
-    auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
-    auto const theChildNodeName = Helper::Transcode(it->getNodeName());
+    auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
     if (debug) {
       std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
     }
+    if (isWhitespaceOrComment(*aDOMElement)) {
+      // Skip comments and whitespace
+      continue;
+    }
+    auto const theChildNodeName = Helper::Transcode(it->getNodeName());
     if (theChildNodeName == "volumeref") {
       auto const logicalVolumeName = GetAttribute("ref", aDOMElement->getAttributes());
       logicalVolume =
