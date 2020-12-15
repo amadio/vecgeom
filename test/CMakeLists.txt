@@ -87,14 +87,18 @@ endfunction()
 
 ################################################################################
 # Download data if required
-download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/cms2015.root"
-  "cms2015.root"
-  "${PROJECT_SOURCE_DIR}/test/cmstestdata/"
-  "fb3ede867532b372c5e6f7138d00c07e")
-download_if_not_installed("http://mnovak.web.cern.ch/mnovak/data/ExN03.root"
-  "ExN03.root"
-  "${CMAKE_CURRENT_BINARY_DIR}"
-  "b6b0cfdd5035117171bfe1b7f1f40c3f")
+if(DATA_DOWNLOAD)
+  message(STATUS "Downloading data files")
+
+  download_if_not_installed("https://cernbox.cern.ch/index.php/s/pn2UkCtloi7i0xy/download"
+    "cms2015.root"
+    "${PROJECT_SOURCE_DIR}/test/cmstestdata/"
+    "fb3ede867532b372c5e6f7138d00c07e")
+  download_if_not_installed("https://cernbox.cern.ch/index.php/s/dTChF8iKEUQHMxo/download"
+    "ExN03.root"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "b6b0cfdd5035117171bfe1b7f1f40c3f")
+endif()
 
 ################################################################################
 # Define executables
