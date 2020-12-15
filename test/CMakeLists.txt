@@ -29,11 +29,7 @@ endfunction()
 
 # define a function downloading from a URL into a local file LOCALFILE
 function(FILE_DOWNLOAD FILE_URL LOCALFILE )
-  if(APPLE)
-    execute_process(COMMAND curl -o ${LOCALFILE} ${FILE_URL})
-  else()
-    execute_process(COMMAND wget -q ${FILE_URL} -O ${LOCALFILE})
-  endif()
+  file(DOWNLOAD ${FILE_URL} ${LOCALFILE} SHOW_PROGRESS)
 endfunction()
 
 # define a function checking md5 hashes
