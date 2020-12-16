@@ -25,7 +25,9 @@ code_checks:
      - cmake3 .. -DROOT=OFF -DGDML=OFF -DSTATIC_ANALYSIS=ON -DLLVM_DIR=${LLVM_BASE}/lib/cmake/llvm -DClang_DIR=${LLVM_BASE}/lib/cmake/clang -DCMAKE_C_COMPILER=${LLVM_BASE}/bin/clang -DCMAKE_CXX_COMPILER=${LLVM_BASE}/bin/clang++ -DBACKEND=Scalar 
      - make VERBOSE=ON && make test
    before_script:
-     - source /opt/rh/devtoolset-6/enable
+     - yum -y install centos-release-scl
+     - yum -y install devtoolset-7 cmake3
+     - source /opt/rh/devtoolset-7/enable
    variables:
      LLVM_BASE: /opt/llvm3.9_shared/
      
