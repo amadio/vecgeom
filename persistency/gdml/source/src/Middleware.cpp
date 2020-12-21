@@ -53,7 +53,7 @@
 #define DECLAREHALF(x) auto const half##x = x / 2.;
 
 namespace {
-#ifdef GDMLDEBUG
+#if 1//def GDMLDEBUG
 constexpr bool debug = true;
 #else
 constexpr bool debug = false;
@@ -122,12 +122,6 @@ std::array<double, 9> makeRotationMatrixFromCartesianAngles(double x, double y, 
   auto const zy = c3 * s1 + c1 * s2 * s3;
   auto const zz = c1 * c2;
   return {{xx, xy, xz, yx, yy, yz, zx, zy, zz}};
-}
-
-bool isWhitespaceOrComment(const XERCES_CPP_NAMESPACE_QUALIFIER DOMElement &element)
-{
-  return element.getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::TEXT_NODE ||
-         element.getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::COMMENT_NODE;
 }
 } // namespace
 
@@ -422,7 +416,14 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoole
   vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> rotation;
 
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
-    auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+    auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+    if (!aDOMElement) {
+      // Skip whitespace/text element
+      if (debug) {
+        std::cerr << "Skipping null DOM element: " << Helper::GetNodeInformation(it) << std::endl;
+      }
+      continue;
+    }
     auto const theChildNodeName = Helper::Transcode(it->getNodeName());
     if (debug) {
       std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
@@ -526,6 +527,13 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *Middleware::processMultiUn
   auto const name = Helper::GetAttribute("name", aDOMNode->getAttributes());
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
     auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+    if (!aDOMElement) {
+      // Skip whitespace/text element
+      if (debug) {
+        std::cerr << "Skipping null DOM element: " << Helper::GetNodeInformation(it) << std::endl;
+      }
+      continue;
+    }
     auto const theChildNodeName = Helper::Transcode(it->getNodeName());
     if (debug) {
       std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
@@ -1151,6 +1159,13 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
 
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
     auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+    if (!aDOMElement) {
+      // Skip whitespace/text element
+      if (debug) {
+        std::cerr << "Skipping null DOM element: " << Helper::GetNodeInformation(it) << std::endl;
+      }
+      continue;
+    }
     auto const theChildNodeName = Helper::Transcode(it->getNodeName());
     if (debug) {
       std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
@@ -1187,12 +1202,15 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *const Middleware::processPhysica
   vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> rotation;
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
     auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
-    if (debug) {
-      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
-    }
-    if (isWhitespaceOrComment(*aDOMElement)) {
-      // Skip comments and whitespace
+    if (!aDOMElement) {
+      // Skip whitespace/text element
+      if (debug) {
+        std::cerr << "Skipping null DOM element: " << Helper::GetNodeInformation(it) << std::endl;
+      }
       continue;
+    }
+    if (debug) {
+      std::cerr << "Child: " << Helper::GetNodeInformation(it) << std::endl;
     }
     auto const theChildNodeName = Helper::Transcode(it->getNodeName());
     if (theChildNodeName == "volumeref") {
