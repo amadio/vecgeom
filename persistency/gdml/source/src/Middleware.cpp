@@ -53,7 +53,7 @@
 #define DECLAREHALF(x) auto const half##x = x / 2.;
 
 namespace {
-#if 1//def GDMLDEBUG
+#ifdef GDMLDEBUG
 constexpr bool debug = true;
 #else
 constexpr bool debug = false;
