@@ -20,7 +20,7 @@ endmacro()
 
 function(add_to_ctest EXECUTABLES)
   foreach(EXECUTABLE ${EXECUTABLES})
-    if(CTEST)
+    if(BUILD_TESTING)
       get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
       add_test(${TARGET_NAME} ${TARGET_NAME})
     endif()
@@ -114,7 +114,7 @@ endif()
 
 ################################################################################
 # - Core Tests
-if(CTEST)
+if(BUILD_TESTING)
   set(TEST_EXECUTABLES_CORE
     core/TestVoxelHashMap.cpp
     core/SafetyEstimatorTest.cpp
@@ -270,7 +270,7 @@ if(NOT VECGEOM_ENABLE_CUDA)
     unit_tests/TestMesh.cpp)
 endif()
 
-if(CTEST OR VALIDATION)
+if(BUILD_TESTING OR VALIDATION)
   build_executables("${TEST_EXECUTABLES_SHAPES}")
   # add unit tests
   add_test(NAME TestBox COMMAND TestBox)

@@ -47,9 +47,9 @@ The table below shows some options you may want to customise:
 |------|:-----:|-----------|
 |BACKEND|scalar|Vector backend API to be used|
 |BENCHMARK|OFF|Enable performance comparisons|
+|BUILD_TESTING|ON|Enable build of tests and integration with CTest|
 |BUILTIN_VECCORE|OFF|Build VecCore and its dependencies from source|
 |COVERAGE_TESTING|OFF|Enable coverage testing flags|
-|CTEST|ON|Enable CTest when building|
 |CUDA|OFF|Enable compilation for CUDA|
 |CUDA_ARCH|30|Default CUDA device architecture|
 |CUDA_USE_STATIC_CUDA_RUNTIME|OFF|Use the static version of the CUDA runtime library if available|

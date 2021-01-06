@@ -11,7 +11,7 @@
 # CTEST_SITE              // Name of the host computer
 # ExtraCMakeOptions       // Addional options
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.8)
 
 ################################################################################
 # Build name settings
@@ -78,16 +78,16 @@ set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CTEST_BUILD_FLAGS "-j${N}")
 ################################################################################
 # Fixed set of CMake options
-set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX} 
-                   -DBUILDTYPE=${CTEST_BUILD_CONFIGURATION} 
-                   -DCTEST=ON
+set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX}
+                   -DBUILDTYPE=${CTEST_BUILD_CONFIGURATION}
+                   -DBUILD_TESTING=ON
                    -DBENCHMARK=ON
                    -DROOT=ON
                    -DCUDA_VOLUME_SPECIALIZATION=OFF
                    $ENV{ExtraCMakeOptions})
 
 ################################################################################
-# Options depending on compiler/label/etc. 
+# Options depending on compiler/label/etc.
 if("$ENV{LABEL}" MATCHES cuda)
   list(APPEND config_options -DCUDA=ON)
   list(APPEND config_options -DCUDA_VOLUME_SPECIALIZATION=OFF)
@@ -103,9 +103,9 @@ list(APPEND config_options -DCMAKE_CXX_STANDARD=17)
 if("$ENV{OPTION}" STREQUAL "SPEC")
   list(APPEND config_options -DNO_SPECIALIZATION=OFF)
 elseif("$ENV{OPTION}" STREQUAL "GDML")
-  list(APPEND config_options -DGDML=ON) 
+  list(APPEND config_options -DGDML=ON)
 elseif("$ENV{OPTION}" STREQUAL "AVX")
-  list(APPEND config_options -DVECGEOM_VECTOR=avx) 
+  list(APPEND config_options -DVECGEOM_VECTOR=avx)
 elseif("$ENV{OPTION}" STREQUAL "SSE3")
   list(APPEND config_options -DVECGEOM_VECTOR=sse3)
 endif()
@@ -170,7 +170,7 @@ ctest_configure(BUILD   ${CTEST_BINARY_DIRECTORY}
                 APPEND)
 ctest_submit(PARTS Update Configure Notes)
 
-ctest_build(BUILD ${CTEST_BINARY_DIRECTORY} 
+ctest_build(BUILD ${CTEST_BINARY_DIRECTORY}
             TARGET install
             APPEND)
 ctest_submit(PARTS Build)

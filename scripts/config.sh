@@ -9,7 +9,7 @@ DESTDIR=${DESTDIR:-${PWD}}
 
 BENCHMARK="ON"
 VALIDATION="OFF"
-CTEST="ON"
+BUILD_TESTING="ON"
 GEANT4="ON"
 ROOT="ON"
 NO_SPECIALIZATION="ON"
@@ -45,8 +45,8 @@ case ${option} in
 	CUDA="-DCUDA=ON -DNO_SPECIALIZATION=ON -DCUDA_VOLUME_SPECIALIZATION=OFF"
 	;;
 
-	test|ctest)     CTEST="ON"  ;;
-	notest|noctest) CTEST="OFF" ;;
+	test|ctest)     BUILD_TESTING="ON"  ;;
+	notest|noctest) BUILD_TESTING="OFF" ;;
 
 	bench|benchmark)     BENCHMARK="ON"  ;;
 	nobench|nobenchmark) BENCHMARK="OFF" ;;
@@ -71,7 +71,7 @@ echo "Using CMake command:"
 echo "cmake ${SRCDIR} -DCMAKE_INSTALL_PREFIX=${DESTDIR}          "
 echo "    -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ${BACKEND} ${CUDA}    "
 echo "    -DROOT=${ROOT} -DGEANT4=${GEANT4}                      "
-echo "    -DBENCHMARK=${BENCHMARK} -DCTEST=${CTEST}              "
+echo "    -DBENCHMARK=${BENCHMARK} -DBUILD_TESTING=${BUILD_TESTING}"
 echo "    -DVALIDATION=${VALIDATION} -DNO_SPECIALIZATION=${NO_SPECIALIZATION}"
 echo
 echo -------------------------------------------------------------
@@ -79,5 +79,5 @@ echo -------------------------------------------------------------
 cmake ${SRCDIR} -DCMAKE_INSTALL_PREFIX=${DESTDIR}          \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ${BACKEND} ${CUDA}    \
     -DROOT=${ROOT} -DGEANT4=${GEANT4}                      \
-    -DBENCHMARK=${BENCHMARK} -DCTEST=${CTEST}              \
+    -DBENCHMARK=${BENCHMARK} -DBUILD_TESTING=${BUILD_TESTING}              \
     -DVALIDATION=${VALIDATION} -DNO_SPECIALIZATION=${NO_SPECIALIZATION}

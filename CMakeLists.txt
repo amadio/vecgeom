@@ -215,14 +215,12 @@ endif()
 option(FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
 
 # - Testing
-option(CTEST "Enable CTest when building." ON)
-if(CTEST)
-  message(STATUS "Testing with CTest enabled.")
-  include(CTest)
-endif()
+#option(CTEST "Enable CTest when building." ON)
+include(CTest)
 
+# These probably all become dependent options
 # Default to download when testing is enabled
-option(DATA_DOWNLOAD "Enable downloading of data for tests" ${CTEST})
+option(DATA_DOWNLOAD "Enable downloading of data for tests" ${BUILD_TESTING})
 
 option(COVERAGE_TESTING "Enable coverage testing flags." OFF)
 option(VALIDATION "Enable validation tests from CMS geometry." OFF)
@@ -801,7 +799,9 @@ endif()
 
 ################################################################################
 # TESTING
-add_subdirectory(test)
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
 
 ################################################################################
 # Installation

@@ -41,7 +41,7 @@ For the impatient, here is a basic list of suggested instructions:
     cmake  -DCMAKE_BUILD_TYPE=Release \
     -DBACKEND=Vc -DVc=ON -DVECGEOM_VECTOR=avx \
     -DROOT=ON -DGEANT4=ON -DBENCHMARK=ON \
-    -DCTEST=ON -DVALIDATION=OFF -DNO_SPECIALIZATION=ON
+    -DBUILD_TESTING=ON -DVALIDATION=OFF -DNO_SPECIALIZATION=ON
 
   make -j8 [myShapeBenchmark]
 
@@ -90,7 +90,7 @@ from downstream processing, but keep performance-relevant information
 from the machine used for the measurements.
 
 The first string on the line clearly identifies a specific combination
-of shape+algorithm+implementation.  The remaining four fields in each 
+of shape+algorithm+implementation.  The remaining four fields in each
 line represent processing time, standard deviation (both in seconds),
 number of measurements used for the averaging, and statistical
 quality, estimated as the ratio st.dev/mean (the smaller, the better).

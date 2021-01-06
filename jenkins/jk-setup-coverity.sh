@@ -44,13 +44,10 @@ then
 
   export CMAKE_INSTALL_PREFIX=$WORKSPACE/VecGeom/installation
   export BACKEND=$BACKEND
-  export CTEST_BUILD_OPTIONS="-DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
-#  export BACKEND=Vc
-#  export CTEST_BUILD_OPTIONS="-DROOT=ON -DVc=ON -DCTEST=ON -DBENCHMARK=ON -DUSOLIDS=OFF ${ExtraCMakeOptions}"
-
+  export CTEST_BUILD_OPTIONS="-DROOT=ON -DBUILD_TESTING=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
 fi
 
 echo ${THIS}/setup.py -o ${LABEL} -c ${COMPILER} -b ${BUILDTYPE} -v ${EXTERNALS}
 eval `${THIS}/setup.py -o ${LABEL} -c ${COMPILER} -b ${BUILDTYPE} -v ${EXTERNALS}`
 
-cmake ../ $CTEST_BUILD_OPTION && make -j 24 
+cmake ../ $CTEST_BUILD_OPTION && make -j 24
