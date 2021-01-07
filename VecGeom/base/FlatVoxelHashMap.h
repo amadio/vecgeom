@@ -347,6 +347,16 @@ public:
     return nullptr;
   }
 
+  /// clear the container
+  void clear()
+  {
+    fVoxelMap.clear();
+    fProperties.clear();
+  }
+
+  /// get number of filled voxels
+  size_t size() const { return fVoxelMap.size(); }
+
 private:
   // the dimensions
   int fNx = 0;
