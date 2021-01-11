@@ -200,37 +200,39 @@ endif()
 option(FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
 
 ################################################################################
-# - Testing
-#option(CTEST "Enable CTest when building." ON)
+# - Testing, unit, coverage, benchmarking, validation etc
 include(CTest)
 
-# These probably all become dependent options
-# Default to download when testing is enabled
-option(DATA_DOWNLOAD "Enable downloading of data for tests" ${BUILD_TESTING})
-option(COVERAGE_TESTING "Enable coverage testing flags." OFF)
-option(VALIDATION "Enable validation tests from CMS geometry." OFF)
-option(STATIC_ANALYSIS "enable static analysis on VecGeom" OFF)
+cmake_dependent_option(DATA_DOWNLOAD "Enable downloading of data for tests" ON "BUILD_TESTING" OFF)
+cmake_dependent_option(COVERAGE_TESTING "Enable coverage testing flags" OFF "BUILD_TESTING" OFF)
+
+# TODO: Check use of this option, not totally clear on use
+cmake_dependent_option(VALIDATION "Enable validation tests from CMS geometry" OFF "BUILD_TESTING" OFF)
+
+# Static tests build/use clang-tidy, so require compile commands for VecGeom to be exported
+cmake_dependent_option(STATIC_ANALYSIS "Enable static analysis/testing on VecGeom" OFF "BUILD_TESTING" OFF)
 if(STATIC_ANALYSIS)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
-option(VTUNE "Enable the use of profiler Vtune" OFF)
+# Following options result in changes to VecGeom API/ABI, but are strictly only for testing (AFAK)
+cmake_dependent_option(VTUNE "Enable the use of profiler Vtune" OFF "BUILD_TESTING" OFF)
 if(VTUNE)
   set(VECGEOM_VTUNE ON)
 endif()
 
 # These are also testing only
-option(ROOT "Include ROOT." OFF)
+cmake_dependent_option(ROOT "Enable testing using ROOT" OFF "BUILD_TESTING" OFF)
 if(ROOT)
   set(VECGEOM_ROOT ON)
 endif()
 
-option(GEANT4 "Include Geant4." OFF)
+cmake_dependent_option(GEANT4 "Enable testing using Geant4" OFF "BUILD_TESTING" OFF)
 if(GEANT4)
   set(VECGEOM_GEANT4 ON)
 endif()
 
-option(BENCHMARK "Enable performance comparisons." OFF)
+cmake_dependent_option(BENCHMARK "Enable benchmark/performance tests" OFF "BUILD_TESTING" OFF)
 if(BENCHMARK)
   set(VECGEOM_BENCHMARK ON)
 endif()
