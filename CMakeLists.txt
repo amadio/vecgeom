@@ -203,7 +203,7 @@ option(FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
 # - Testing, unit, coverage, benchmarking, validation etc
 include(CTest)
 
-cmake_dependent_option(DATA_DOWNLOAD "Enable downloading of data for tests" ON "BUILD_TESTING" OFF)
+# TODO: not completely set up. Will build VG+tests with correct flags/links, but no report gen.
 cmake_dependent_option(COVERAGE_TESTING "Enable coverage testing flags" OFF "BUILD_TESTING" OFF)
 
 # TODO: Check use of this option, not totally clear on use

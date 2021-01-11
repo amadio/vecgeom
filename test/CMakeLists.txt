@@ -20,81 +20,47 @@ endmacro()
 
 function(add_to_ctest EXECUTABLES)
   foreach(EXECUTABLE ${EXECUTABLES})
-    if(BUILD_TESTING)
-      get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
-      add_test(${TARGET_NAME} ${TARGET_NAME})
-    endif()
+    get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
+    add_test(${TARGET_NAME} ${TARGET_NAME})
   endforeach()
-endfunction()
-
-# define a function downloading from a URL into a local file LOCALFILE
-function(FILE_DOWNLOAD FILE_URL LOCALFILE )
-  file(DOWNLOAD ${FILE_URL} ${LOCALFILE} SHOW_PROGRESS)
-endfunction()
-
-# define a function checking md5 hashes
-# result is stored in MD5MATCHES ( 1 == true, 0 == false )
-function(CHECKMD5 FILETOCHECK EXPECTEDMD5HASH MD5MATCHES)
-  if(APPLE)
-    execute_process(COMMAND md5 ${FILETOCHECK} OUTPUT_VARIABLE MD5SUM)
-    string(LENGTH ${MD5SUM} MD5LENGTH)
-    MATH(EXPR START "${MD5LENGTH} - 33")
-    string(SUBSTRING ${MD5SUM} ${START} 32 MD5SUM)
-  else()
-    execute_process(COMMAND md5sum ${FILETOCHECK} OUTPUT_VARIABLE MD5SUM)
-    string(SUBSTRING ${MD5SUM} 0 32 MD5SUM)
-  endif()
-  if(MD5SUM STREQUAL EXPECTEDMD5HASH)
-    set(${MD5MATCHES} 1 PARENT_SCOPE)
-  else()
-    set(${MD5MATCHES} 0 PARENT_SCOPE)
-  endif()
 endfunction()
 
 # actual function for managing the download
 function(DOWNLOAD_IF_NOT_INSTALLED FILE_URL LOCALFILE TARGETPATH MD5HASH )
   set(FILENAME "${TARGETPATH}/${LOCALFILE}")
   if(EXISTS "${FILENAME}")
-    checkmd5("${FILENAME}" ${MD5HASH} MD5CORRECT)
-    if(MD5CORRECT)
-      # Data is downloaded and has correct hash
+    file(MD5 "${FILENAME}" MD5ACTUAL)
+    if(MD5ACTUAL STREQUAL MD5HASH)
       return()
     else()
-      message(STATUS "Hash not correct for data file ${FILENAME}: "
-        "expected ${MD5HASH} from ${FILE_URL}" )
+      message(WARNING "Hash not correct for data file ${FILENAME}:\n"
+        "expected: ${MD5HASH}\n"
+        "actual  : ${MD5ACTUAL}\n"
+        "Trying to re-download")
     endif()
   endif()
 
-  if(NOT DATA_DOWNLOAD)
-    message(WARNING "The test data expected at ${LOCALFILE} is missing "
-      "or incorrect, but DATA_DOWNLOAD is disabled so we cannot download it")
-    return()
-  endif()
-
-  file_download(${FILE_URL} ${FILENAME})
-  checkmd5("${FILENAME}" ${MD5HASH} MD5CORRECT)
-  if(NOT MD5CORRECT)
-    message(WARNING "Hash not correct for data file ${FILENAME}: "
-      "expected ${MD5HASH} from ${FILE_URL}: "
-      "please update ${CMAKE_CURRENT_LIST_FILE}")
-  endif()
+  message(STATUS "Downloading ${LOCALFILE}")
+  file(DOWNLOAD ${FILE_URL} ${FILENAME} SHOW_PROGRESS EXPECTED_HASH MD5=${MD5HASH})
 endfunction()
 ################################################################################
 
 ################################################################################
 # Download data if required
-if(DATA_DOWNLOAD)
-  message(STATUS "Downloading data files")
+# TODO: determine which options/tests require presence of these files
+# TODO: put them in a single place so we can add resources in packaging systems if required
+#       i.e. packaging systems generally want to run tests, but not download resources at
+#        configure/build time.
+message(STATUS "Checking data files required for tests")
 
-  download_if_not_installed("https://cernbox.cern.ch/index.php/s/pn2UkCtloi7i0xy/download"
-    "cms2015.root"
-    "${PROJECT_SOURCE_DIR}/test/cmstestdata/"
-    "fb3ede867532b372c5e6f7138d00c07e")
-  download_if_not_installed("https://cernbox.cern.ch/index.php/s/dTChF8iKEUQHMxo/download"
-    "ExN03.root"
-    "${CMAKE_CURRENT_BINARY_DIR}"
-    "b6b0cfdd5035117171bfe1b7f1f40c3f")
-endif()
+download_if_not_installed("https://cernbox.cern.ch/index.php/s/pn2UkCtloi7i0xy/download"
+  "cms2015.root"
+  "${PROJECT_SOURCE_DIR}/test/cmstestdata/"
+  "fb3ede867532b372c5e6f7138d00c07e")
+download_if_not_installed("https://cernbox.cern.ch/index.php/s/dTChF8iKEUQHMxo/download"
+  "ExN03.root"
+  "${CMAKE_CURRENT_BINARY_DIR}"
+  "b6b0cfdd5035117171bfe1b7f1f40c3f")
 
 ################################################################################
 # Define executables
@@ -114,50 +80,48 @@ endif()
 
 ################################################################################
 # - Core Tests
-if(BUILD_TESTING)
-  set(TEST_EXECUTABLES_CORE
-    core/TestVoxelHashMap.cpp
-    core/SafetyEstimatorTest.cpp
-    core/ContainerTest.cpp
-    core/create_geometry.cpp
-    core/BitSetTest.cpp
-    core/PlanesTest.cpp
-    core/QuadrilateralTest.cpp
-    # core/SOATest.cpp
-    core/Transformation3DTest.cpp
-    # core/boolminustest.cpp
-    # core/boolminustest2.cpp
-    core/PhiWedgeTest.cpp
-    core/ThetaConeTest.cpp
-    core/TestConvexity.cpp
-    core/BooleanConvexityTest.cpp
-    unit_tests/TestEstimateSurfaceArea.cpp
-    unit_tests/TestVecGeomPolycone.cpp
-    core/TestSExtru.cpp
-    # to be enabled when running cleanly
-    unit_tests/TestBooleans.cpp
-    core/AssemblyTest.cpp
-    core/TestMakeInstance.cpp
-    #  services/CompNavStatePools.cpp
-    core/TestMaskedAssign.cpp
-    core/TestVector.cpp
-    core/TestMap.cpp
-    core/TestHybridBVH.cpp
-    core/TestEarlyReturns.cpp
-    core/CreateTessels.cpp
-    core/CreateExtruded.cpp)
+set(TEST_EXECUTABLES_CORE
+  core/TestVoxelHashMap.cpp
+  core/SafetyEstimatorTest.cpp
+  core/ContainerTest.cpp
+  core/create_geometry.cpp
+  core/BitSetTest.cpp
+  core/PlanesTest.cpp
+  core/QuadrilateralTest.cpp
+  # core/SOATest.cpp
+  core/Transformation3DTest.cpp
+  # core/boolminustest.cpp
+  # core/boolminustest2.cpp
+  core/PhiWedgeTest.cpp
+  core/ThetaConeTest.cpp
+  core/TestConvexity.cpp
+  core/BooleanConvexityTest.cpp
+  unit_tests/TestEstimateSurfaceArea.cpp
+  unit_tests/TestVecGeomPolycone.cpp
+  core/TestSExtru.cpp
+  # to be enabled when running cleanly
+  unit_tests/TestBooleans.cpp
+  core/AssemblyTest.cpp
+  core/TestMakeInstance.cpp
+  #  services/CompNavStatePools.cpp
+  core/TestMaskedAssign.cpp
+  core/TestVector.cpp
+  core/TestMap.cpp
+  core/TestHybridBVH.cpp
+  core/TestEarlyReturns.cpp
+  core/CreateTessels.cpp
+  core/CreateExtruded.cpp)
 
-  if(USE_INDEXEDNAVSTATES)
-    list(APPEND TEST_EXECUTABLES_CORE core/TestNavigationState.cpp)
-  endif()
-
-  if(NOT VECGEOM_ENABLE_CUDA)
-    list(APPEND TEST_EXECUTABLES_CORE core/testVectorSafety.cpp)
-  endif()
-
-  build_executables("${TEST_EXECUTABLES_CORE}")
-  add_to_ctest("${TEST_EXECUTABLES_CORE}")
+if(USE_INDEXEDNAVSTATES)
+  list(APPEND TEST_EXECUTABLES_CORE core/TestNavigationState.cpp)
 endif()
+
+if(NOT VECGEOM_ENABLE_CUDA)
+  list(APPEND TEST_EXECUTABLES_CORE core/testVectorSafety.cpp)
+endif()
+
+build_executables("${TEST_EXECUTABLES_CORE}")
+add_to_ctest("${TEST_EXECUTABLES_CORE}")
 
 ################################################################################
 # - ROOT Tests
@@ -270,23 +234,21 @@ if(NOT VECGEOM_ENABLE_CUDA)
     unit_tests/TestMesh.cpp)
 endif()
 
-if(BUILD_TESTING OR VALIDATION)
-  build_executables("${TEST_EXECUTABLES_SHAPES}")
-  # add unit tests
-  add_test(NAME TestBox COMMAND TestBox)
-  add_test(NAME TestTrap COMMAND TestTrap)
-  add_test(NAME TestTube COMMAND TestTube)
-  add_test(NAME TestCone COMMAND TestCons)
-  add_test(NAME TestTrd COMMAND TestTrd)
-  add_test(NAME TestOrb COMMAND TestOrb)
-  add_test(NAME TestPolycone COMMAND TestPolycone)
-  add_test(NAME TestPolyhedra COMMAND TestPolyhedra)
-  add_test(NAME TestParallelepiped COMMAND TestParallelepiped)
-  add_test(NAME TestHype COMMAND TestHype)
-  add_test(NAME TestGenTrap COMMAND TestGenTrap)
-  if(NOT VECGEOM_ENABLE_CUDA)
-    add_test(NAME TestTessellated COMMAND TestTessellated)
-  endif()
+build_executables("${TEST_EXECUTABLES_SHAPES}")
+# add unit tests
+add_test(NAME TestBox COMMAND TestBox)
+add_test(NAME TestTrap COMMAND TestTrap)
+add_test(NAME TestTube COMMAND TestTube)
+add_test(NAME TestCone COMMAND TestCons)
+add_test(NAME TestTrd COMMAND TestTrd)
+add_test(NAME TestOrb COMMAND TestOrb)
+add_test(NAME TestPolycone COMMAND TestPolycone)
+add_test(NAME TestPolyhedra COMMAND TestPolyhedra)
+add_test(NAME TestParallelepiped COMMAND TestParallelepiped)
+add_test(NAME TestHype COMMAND TestHype)
+add_test(NAME TestGenTrap COMMAND TestGenTrap)
+if(NOT VECGEOM_ENABLE_CUDA)
+  add_test(NAME TestTessellated COMMAND TestTessellated)
 endif()
 
 ################################################################################
