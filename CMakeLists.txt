@@ -141,21 +141,6 @@ if(CUDA)
   set(VecCore_COMPONENTS ${VecCore_COMPONENTS} "CUDA")
 endif()
 
-option(ROOT "Include ROOT." OFF)
-if(ROOT)
-  set(VECGEOM_ROOT ON)
-endif()
-
-option(GEANT4 "Include Geant4." OFF)
-if(GEANT4)
-  set(VECGEOM_GEANT4 ON)
-endif()
-
-option(BENCHMARK "Enable performance comparisons." OFF)
-if(BENCHMARK)
-  set(VECGEOM_BENCHMARK ON)
-endif()
-
 option(NO_SPECIALIZATION "Disable specialization of volumes." ON)
 if(NO_SPECIALIZATION)
   set(VECGEOM_NO_SPECIALIZATION ON)
@@ -214,6 +199,7 @@ endif()
 
 option(FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
 
+################################################################################
 # - Testing
 #option(CTEST "Enable CTest when building." ON)
 include(CTest)
@@ -221,7 +207,6 @@ include(CTest)
 # These probably all become dependent options
 # Default to download when testing is enabled
 option(DATA_DOWNLOAD "Enable downloading of data for tests" ${BUILD_TESTING})
-
 option(COVERAGE_TESTING "Enable coverage testing flags." OFF)
 option(VALIDATION "Enable validation tests from CMS geometry." OFF)
 option(STATIC_ANALYSIS "enable static analysis on VecGeom" OFF)
@@ -233,6 +218,23 @@ option(VTUNE "Enable the use of profiler Vtune" OFF)
 if(VTUNE)
   set(VECGEOM_VTUNE ON)
 endif()
+
+# These are also testing only
+option(ROOT "Include ROOT." OFF)
+if(ROOT)
+  set(VECGEOM_ROOT ON)
+endif()
+
+option(GEANT4 "Include Geant4." OFF)
+if(GEANT4)
+  set(VECGEOM_GEANT4 ON)
+endif()
+
+option(BENCHMARK "Enable performance comparisons." OFF)
+if(BENCHMARK)
+  set(VECGEOM_BENCHMARK ON)
+endif()
+
 
 ################################################################################
 # Minimum version of VecCore we need.
