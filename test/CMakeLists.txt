@@ -47,21 +47,17 @@ endfunction()
 
 ################################################################################
 # Download data if required
-# TODO: determine which options/tests require presence of these files
-# TODO: put them in a single place so we can add resources in packaging systems if required
-#       i.e. packaging systems generally want to run tests, but not download resources at
-#        configure/build time.
 message(STATUS "Checking data files required for tests")
-
-download_if_not_installed("https://cernbox.cern.ch/index.php/s/pn2UkCtloi7i0xy/download"
-  "cms2015.root"
-  "${PROJECT_SOURCE_DIR}/test/cmstestdata/"
-  "fb3ede867532b372c5e6f7138d00c07e")
-download_if_not_installed("https://cernbox.cern.ch/index.php/s/dTChF8iKEUQHMxo/download"
-  "ExN03.root"
-  "${CMAKE_CURRENT_BINARY_DIR}"
-  "b6b0cfdd5035117171bfe1b7f1f40c3f")
-
+if(VECGEOM_ROOT)
+  download_if_not_installed("https://cernbox.cern.ch/index.php/s/pn2UkCtloi7i0xy/download"
+    "cms2015.root"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "fb3ede867532b372c5e6f7138d00c07e")
+  download_if_not_installed("https://cernbox.cern.ch/index.php/s/dTChF8iKEUQHMxo/download"
+    "ExN03.root"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "b6b0cfdd5035117171bfe1b7f1f40c3f")
+endif()
 ################################################################################
 # Define executables
 ################################################################################
@@ -306,7 +302,7 @@ endif()
 
 if(VALIDATION AND VECGEOM_ROOT)
   macro(add_cmsshapevalidation_test TESTNAME SHAPEFILE)
-    add_test(NAME ${TESTNAME} COMMAND bash -c "${PROJECT_SOURCE_DIR}/test/scripts/RunRandomValidation ${PROJECT_BINARY_DIR}/BenchmarkShapeFromROOTFile  ${PROJECT_SOURCE_DIR}/test/cmstestdata/cms2015.root  ${PROJECT_SOURCE_DIR}/test/cmstestdata/${SHAPEFILE}" )
+    add_test(NAME ${TESTNAME} COMMAND bash -c "${PROJECT_SOURCE_DIR}/test/scripts/RunRandomValidation ${PROJECT_BINARY_DIR}/BenchmarkShapeFromROOTFile  ${CMAKE_CURRENT_BINARY_DIR}/cms2015.root  ${PROJECT_SOURCE_DIR}/test/cmstestdata/${SHAPEFILE}" )
   endmacro()
 
   # Adding various shapes tests for nightlies
