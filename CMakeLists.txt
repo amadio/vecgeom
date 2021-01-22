@@ -725,6 +725,7 @@ add_library(vecgeom
   ${PROJECT_BINARY_DIR}/VecGeom/base/Config.h
   ${VECGEOM_COMMON_SRCS}
   ${VECGEOM_CPPONLY_SRCS})
+target_compile_features(vecgeom PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 target_include_directories(vecgeom PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
