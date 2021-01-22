@@ -15,6 +15,7 @@ project(VecGeom VERSION 1.1.14)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(MacroUtilities)
 include(CMakeDependentOption)
+include(IntelCompileFeatures)
 
 # - Though we check for some absolute paths, ensure there are no others
 set(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION ON)
@@ -309,16 +310,6 @@ if(GNU)
   endif()
 
 elseif(Intel)
-  # CMake fails to add -std option for icc, so add it manually
-  if("${CMAKE_VERSION}" VERSION_LESS "3.6")
-    if(CMAKE_CXX_STANDARD STREQUAL 11)
-      list(APPEND CMAKE_CXX_FLAGS -std=c++11)
-    elseif(CMAKE_CXX_STANDARD STREQUAL 14)
-      list(APPEND CMAKE_CXX_FLAGS -std=c++14)
-    else()
-      message(FATAL_ERROR "Unsupported C++ standard requested")
-    endif()
-  endif()
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -diag-disable 3438")
 
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fmax-errors=${VECGEOM_ERROR_LIMIT}")
