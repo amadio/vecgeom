@@ -19,5 +19,5 @@ For further information:
 
    * [Installation instructions](INSTALL.md)
    * User's guide - tbd
-   * [Doxygen reference guide](https://epsft-jenkins.cern.ch/job/VecGeom-Doxygen/doxygen)
+   * [Doxygen reference guide](https://lcgapp-services.cern.ch/spi-jenkins/job/VecGeom-Doxygen/doxygen/)
    * [Issue tracking system](http://sft.its.cern.ch/jira/projects/VECGEOM)
