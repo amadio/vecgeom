@@ -21,14 +21,13 @@ unsigned int VPlacedVolume::g_id_count = 0;
 
 #ifndef VECCORE_CUDA
 VPlacedVolume::VPlacedVolume(char const *const label, LogicalVolume const *const logical_volume,
-                             Transformation3D const *const transformation, PlacedBox const *const bounding_box)
+                             Transformation3D const *const transformation)
     : id_(), label_(NULL), logical_volume_(logical_volume),
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
-      fTransformation(*transformation),
+      fTransformation(*transformation)
 #else
-      fTransformation(transformation),
+      fTransformation(transformation)
 #endif
-      bounding_box_(bounding_box)
 {
   id_ = g_id_count++;
   GeoManager::Instance().RegisterPlacedVolume(this);
@@ -36,8 +35,7 @@ VPlacedVolume::VPlacedVolume(char const *const label, LogicalVolume const *const
 }
 
 VECCORE_ATT_HOST_DEVICE
-VPlacedVolume::VPlacedVolume(VPlacedVolume const &other)
-    : id_(), label_(NULL), logical_volume_(), fTransformation(), bounding_box_()
+VPlacedVolume::VPlacedVolume(VPlacedVolume const &other) : id_(), label_(NULL), logical_volume_(), fTransformation()
 {
   assert(0 && "COPY CONSTRUCTOR FOR PlacedVolumes NOT IMPLEMENTED");
 }
@@ -58,7 +56,6 @@ VPlacedVolume *VPlacedVolume::operator=(VPlacedVolume const &other)
   //        label_ = other.label_;
   //        logical_volume_ = other.logical_volume_;
   //        transformation_ = other.transformation_;
-  //        bounding_box_ = other.bounding_box_;
   //    }
   //    return this;
 }

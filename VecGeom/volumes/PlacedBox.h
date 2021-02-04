@@ -31,20 +31,19 @@ public:
   // constructor inheritance;
   using Base::Base;
   PlacedBox(char const *const label, LogicalVolume const *const logicalVolume,
-            Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+            Transformation3D const *const transformation)
+      : Base(label, logicalVolume, transformation)
   {
   }
 
-  PlacedBox(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-            vecgeom::PlacedBox const *const boundingBox)
-      : PlacedBox("", logicalVolume, transformation, boundingBox)
+  PlacedBox(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedBox("", logicalVolume, transformation)
   {
   }
 #else
   VECCORE_ATT_DEVICE PlacedBox(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                               PlacedBox const *const boundingBox, const int id, const int copy_no, const int child_id)
-      : Base(logicalVolume, transformation, boundingBox, id, copy_no, child_id)
+                               const int id, const int copy_no, const int child_id)
+      : Base(logicalVolume, transformation, id, copy_no, child_id)
   {
   }
 #endif

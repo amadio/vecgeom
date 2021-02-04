@@ -34,30 +34,26 @@ public:
   /// @param label Name of logical volume.
   /// @param logical_volume The logical volume to be positioned.
   /// @param transformation The positioning transformation.
-  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
   PlacedParallelepiped(char const *const label, LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logical_volume, transformation, boundingBox)
+                       Transformation3D const *const transformation)
+      : Base(label, logical_volume, transformation)
   {
   }
 
   /// Constructor
   /// @param logical_volume The logical volume to be positioned.
   /// @param transformation The positioning transformation.
-  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
-  PlacedParallelepiped(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-                       vecgeom::PlacedBox const *const boundingBox)
-      : PlacedParallelepiped("", logical_volume, transformation, boundingBox)
+  PlacedParallelepiped(LogicalVolume const *const logical_volume, Transformation3D const *const transformation)
+      : PlacedParallelepiped("", logical_volume, transformation)
   {
   }
 
 #else
   /// CUDA version of constructor
   VECCORE_ATT_DEVICE PlacedParallelepiped(LogicalVolume const *const logical_volume,
-                                          Transformation3D const *const transformation,
-                                          PlacedBox const *const boundingBox, const int id, const int copy_no,
+                                          Transformation3D const *const transformation, const int id, const int copy_no,
                                           const int child_id)
-      : Base(logical_volume, transformation, boundingBox, id, copy_no, child_id)
+      : Base(logical_volume, transformation, id, copy_no, child_id)
   {
   }
 

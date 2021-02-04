@@ -8,6 +8,7 @@
 #include "ArgParser.h"
 #include "VecGeom/base/Stopwatch.h"
 #include <iostream>
+#include "VecGeom/volumes/Box.h"
 #include "VecGeom/volumes/Extruded.h"
 #include "VecGeom/volumes/SExtru.h"
 #include "VecGeom/management/GeoManager.h"

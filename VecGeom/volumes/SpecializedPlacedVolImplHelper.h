@@ -2,7 +2,6 @@
 
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/SOA3D.h"
-#include "VecGeom/volumes/PlacedBox.h"
 
 #include <algorithm>
 
@@ -40,37 +39,14 @@ class CommonSpecializedVolImplHelper : public Specialization::PlacedShape_t {
 public:
 #ifndef VECCORE_CUDA
   CommonSpecializedVolImplHelper(char const *const label, LogicalVolume const *const logical_volume,
-                                 Transformation3D const *const transformation,
-                                 vecgeom::PlacedBox const *const boundingBox)
-      : PlacedShape_t(label, logical_volume, transformation, boundingBox)
-  {
-  }
-
-  CommonSpecializedVolImplHelper(char const *const label, LogicalVolume const *const logical_volume,
                                  Transformation3D const *const transformation)
-      : CommonSpecializedVolImplHelper(label, logical_volume, transformation,
-                                       details::UseIfSameType<PlacedShape_t, vecgeom::PlacedBox>::Get(this))
-  {
-  }
-
-  CommonSpecializedVolImplHelper(char const *const label, LogicalVolume *const logical_volume,
-                                 Transformation3D const *const transformation,
-                                 vecgeom::PlacedBox const *const boundingBox)
-      : PlacedShape_t(label, logical_volume, transformation, boundingBox)
+      : PlacedShape_t(label, logical_volume, transformation)
   {
   }
 
   CommonSpecializedVolImplHelper(char const *const label, LogicalVolume *const logical_volume,
                                  Transformation3D const *const transformation)
-      : CommonSpecializedVolImplHelper(label, logical_volume, transformation,
-                                       details::UseIfSameType<PlacedShape_t, vecgeom::PlacedBox>::Get(this))
-  {
-  }
-
-  CommonSpecializedVolImplHelper(LogicalVolume const *const logical_volume,
-                                 Transformation3D const *const transformation,
-                                 vecgeom::PlacedBox const *const boundingBox)
-      : CommonSpecializedVolImplHelper("", logical_volume, transformation, boundingBox)
+      : PlacedShape_t(label, logical_volume, transformation)
   {
   }
 
@@ -91,18 +67,9 @@ public:
 
 #else // Compiling for CUDA
   VECCORE_ATT_DEVICE CommonSpecializedVolImplHelper(LogicalVolume const *const logical_volume,
-                                                    Transformation3D const *const transformation,
-                                                    PlacedBox const *const boundingBox, const unsigned int id,
-                                                    const int copy_no, const int child_id)
-      : PlacedShape_t(logical_volume, transformation, boundingBox, id, copy_no, child_id)
-  {
-  }
-
-  VECCORE_ATT_DEVICE CommonSpecializedVolImplHelper(LogicalVolume const *const logical_volume,
                                                     Transformation3D const *const transformation, const unsigned int id,
                                                     const int copy_no, const int child_id)
-      : PlacedShape_t(logical_volume, transformation, details::UseIfSameType<PlacedShape_t, PlacedBox>::Get(this), id,
-                      copy_no, child_id)
+      : PlacedShape_t(logical_volume, transformation, id, copy_no, child_id)
   {
   }
 #endif
@@ -398,8 +365,7 @@ public:
                                            DevicePtr<cuda::VPlacedVolume> const in_gpu_ptr) const override
   {
     DevicePtr<CudaType_t<ThisClass_t>> gpu_ptr(in_gpu_ptr);
-    gpu_ptr.Construct(logical_volume, transform, DevicePtr<cuda::PlacedBox>(), this->id(), this->GetCopyNo(),
-                      this->GetChildId());
+    gpu_ptr.Construct(logical_volume, transform, this->id(), this->GetCopyNo(), this->GetChildId());
     CudaAssertError();
     // Need to go via the void* because the regular c++ compilation
     // does not actually see the declaration for the cuda version
@@ -513,8 +479,7 @@ public:
                                            DevicePtr<cuda::VPlacedVolume> const in_gpu_ptr) const override
   {
     DevicePtr<CudaType_t<ThisClass_t>> gpu_ptr(in_gpu_ptr);
-    gpu_ptr.Construct(logical_volume, transform, DevicePtr<cuda::PlacedBox>(), this->id(), this->GetCopyNo(),
-                      this->GetChildId());
+    gpu_ptr.Construct(logical_volume, transform, this->id(), this->GetCopyNo(), this->GetChildId());
     CudaAssertError();
     // Need to go via the void* because the regular c++ compilation
     // does not actually see the declaration for the cuda version

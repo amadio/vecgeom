@@ -2,6 +2,7 @@
 
 #include "test/benchmark/ArgParser.h"
 #include "ShapeTester.h"
+#include "VecGeom/volumes/Box.h"
 #include "VecGeom/volumes/MultiUnion.h"
 #include "VecGeom/volumes/LogicalVolume.h"
 #include <iostream>

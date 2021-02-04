@@ -11,6 +11,7 @@
 #include "VecGeom/base/FpeEnable.h"
 
 #include "VecGeom/base/Vector3D.h"
+#include "VecGeom/volumes/Box.h"
 #include "VecGeom/volumes/Trd.h"
 #include "ApproxEqual.h"
 #include <cmath>

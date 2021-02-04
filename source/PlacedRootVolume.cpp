@@ -10,7 +10,7 @@ namespace vecgeom {
 PlacedRootVolume::PlacedRootVolume(char const *const label, TGeoShape const *const rootShape,
                                    LogicalVolume const *const logicalVolume,
                                    Transformation3D const *const transformation)
-    : VPlacedVolume(label, logicalVolume, transformation, NULL)
+    : VPlacedVolume(label, logicalVolume, transformation)
 {
 }
 

@@ -26,20 +26,19 @@ public:
   // constructor inheritance;
   using Base::Base;
   PlacedMultiUnion(char const *const label, LogicalVolume const *const logicalVolume,
-                   Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+                   Transformation3D const *const transformation)
+      : Base(label, logicalVolume, transformation)
   {
   }
 
-  PlacedMultiUnion(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                   vecgeom::PlacedBox const *const boundingBox)
-      : PlacedMultiUnion("", logicalVolume, transformation, boundingBox)
+  PlacedMultiUnion(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedMultiUnion("", logicalVolume, transformation)
   {
   }
 #else
   __device__ PlacedMultiUnion(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                              PlacedBox const *const boundingBox, const int id)
-      : Base(logicalVolume, transformation, boundingBox, id)
+                              const int id)
+      : Base(logicalVolume, transformation, id)
   {
   }
 #endif

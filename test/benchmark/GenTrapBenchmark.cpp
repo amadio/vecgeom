@@ -6,6 +6,7 @@
  *      Modified: mihaela.gheata@cern.ch
  */
 #include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
 #include "VecGeom/volumes/GenTrap.h"
 #include "VecGeom/benchmarking/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"

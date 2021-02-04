@@ -379,8 +379,8 @@ template <>
 template <>
 void DevicePtr<
     cuda::LoopSpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>>::
-    Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>,
-              DevicePtr<vecgeom::cuda::PlacedBox>, unsigned int, int, int) const
+    Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, unsigned int, int,
+              int) const
 {
   return;
 }

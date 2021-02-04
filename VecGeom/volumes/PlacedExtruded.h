@@ -25,20 +25,19 @@ public:
   // constructor inheritance;
   using Base::Base;
   PlacedExtruded(char const *const label, LogicalVolume const *const logicalVolume,
-                 Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+                 Transformation3D const *const transformation)
+      : Base(label, logicalVolume, transformation)
   {
   }
 
-  PlacedExtruded(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                 vecgeom::PlacedBox const *const boundingBox)
-      : PlacedExtruded("", logicalVolume, transformation, boundingBox)
+  PlacedExtruded(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedExtruded("", logicalVolume, transformation)
   {
   }
 #else
   __device__ PlacedExtruded(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                            PlacedBox const *const boundingBox, const int id)
-      : Base(logicalVolume, transformation, boundingBox, id)
+                            const int id)
+      : Base(logicalVolume, transformation, id)
   {
   }
 #endif

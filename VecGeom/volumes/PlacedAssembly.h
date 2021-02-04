@@ -26,14 +26,14 @@ public:
   VECCORE_ATT_HOST_DEVICE
   PlacedAssembly(char const *const label, LogicalVolume const *const logicalVolume,
                  Transformation3D const *const transformation)
-      : VPlacedVolume(label, logicalVolume, transformation, nullptr)
+      : VPlacedVolume(label, logicalVolume, transformation)
   {
   } // the constructor
 #else
   VECCORE_ATT_DEVICE PlacedAssembly(char const *const label, LogicalVolume const *const logical_volume,
-                                    Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                                    const int id, const int copy_no, const int child_id)
-      : VPlacedVolume(logical_volume, transformation, nullptr, id, copy_no, child_id)
+                                    Transformation3D const *const transformation, const int id, const int copy_no,
+                                    const int child_id)
+      : VPlacedVolume(logical_volume, transformation, id, copy_no, child_id)
   {
   }
 #endif

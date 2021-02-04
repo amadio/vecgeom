@@ -434,11 +434,10 @@ VPlacedVolume *UnplacedSphere::Create(LogicalVolume const *const logical_volume,
                                       const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement)
-        SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, NULL, id, copy_no, child_id);
+    new (placement) SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, NULL, id, copy_no, child_id);
+  return new SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE VPlacedVolume *UnplacedSphere::CreateSpecializedVolume(

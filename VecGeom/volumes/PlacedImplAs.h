@@ -20,21 +20,19 @@ public:
   // constructor inheritance;
   using Base::Base;
   PlacedImplAs(char const *const label, LogicalVolume const *const logicalVolume,
-               Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingB)
-      : Base(label, logicalVolume, transformation, boundingB)
+               Transformation3D const *const transformation)
+      : Base(label, logicalVolume, transformation)
   {
   }
 
-  PlacedImplAs(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-               vecgeom::PlacedBox const *const boundingB)
-      : PlacedImplAs("", logicalVolume, transformation, boundingB)
+  PlacedImplAs(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedImplAs("", logicalVolume, transformation)
   {
   }
 #else
   VECCORE_ATT_DEVICE PlacedImplAs(LogicalVolume const *const logicalVolume,
-                                  Transformation3D const *const transformation, PlacedBox const *const boundingB,
-                                  const int id)
-      : Base(logicalVolume, transformation, boundingB, id)
+                                  Transformation3D const *const transformation, const int id)
+      : Base(logicalVolume, transformation, id)
   {
   }
 #endif
@@ -68,7 +66,7 @@ public:
 #endif // VECCORE_CUDA
 };
 
-} // end inline namespace
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

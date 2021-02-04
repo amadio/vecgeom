@@ -29,21 +29,20 @@ public:
   // constructor inheritance;
   using Base::Base;
   PlacedCutTube(char const *const label, LogicalVolume const *const logicalVolume,
-                Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+                Transformation3D const *const transformation)
+      : Base(label, logicalVolume, transformation)
   {
   }
 
-  PlacedCutTube(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                vecgeom::PlacedBox const *const boundingBox)
-      : PlacedCutTube("", logicalVolume, transformation, boundingBox)
+  PlacedCutTube(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedCutTube("", logicalVolume, transformation)
   {
   }
 #else
   VECCORE_ATT_DEVICE PlacedCutTube(LogicalVolume const *const logicalVolume,
-                                   Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                                   const int id, const int copy_no, const int child_id)
-      : Base(logicalVolume, transformation, boundingBox, id, copy_no, child_id)
+                                   Transformation3D const *const transformation, const int id, const int copy_no,
+                                   const int child_id)
+      : Base(logicalVolume, transformation, id, copy_no, child_id)
   {
   }
 #endif

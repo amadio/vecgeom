@@ -32,23 +32,22 @@ public:
 #ifndef VECCORE_CUDA
 
   PlacedSphere(char const *const label, LogicalVolume const *const logical_volume,
-               Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : Base(label, logical_volume, transformation, boundingBox)
+               Transformation3D const *const transformation)
+      : Base(label, logical_volume, transformation)
   {
   }
 
-  PlacedSphere(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-               PlacedBox const *const boundingBox)
-      : PlacedSphere("", logical_volume, transformation, boundingBox)
+  PlacedSphere(LogicalVolume const *const logical_volume, Transformation3D const *const transformation)
+      : PlacedSphere("", logical_volume, transformation)
   {
   }
 
 #else
 
   VECCORE_ATT_DEVICE PlacedSphere(LogicalVolume const *const logical_volume,
-                                  Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                                  const int id, const int copy_no, const int child_id)
-      : Base(logical_volume, transformation, boundingBox, id, copy_no, child_id)
+                                  Transformation3D const *const transformation, const int id, const int copy_no,
+                                  const int child_id)
+      : Base(logical_volume, transformation, id, copy_no, child_id)
   {
   }
 

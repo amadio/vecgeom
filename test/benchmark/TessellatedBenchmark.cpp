@@ -9,6 +9,7 @@
 #include "VecGeom/base/Stopwatch.h"
 #include <iostream>
 #include "VecGeom/volumes/Tessellated.h"
+#include "VecGeom/volumes/Box.h"
 #include "test/core/TessellatedOrb.h"
 
 #ifdef VECGEOM_EMBREE

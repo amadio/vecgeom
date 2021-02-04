@@ -36,27 +36,24 @@ public:
   /// @param label Name of logical volume
   /// @param logicalVolume The logical volume to be positioned
   /// @param transformation The positioning transformation
-  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
   PlacedTessellated(char const *const label, LogicalVolume const *const logicalVolume,
-                    Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+                    Transformation3D const *const transformation)
+      : Base(label, logicalVolume, transformation)
   {
   }
 
   /// Constructor
   /// @param logicalVolume The logical volume to be positioned
   /// @param transformation The positioning transformation.
-  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
-  PlacedTessellated(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                    vecgeom::PlacedBox const *const boundingBox)
-      : PlacedTessellated("", logicalVolume, transformation, boundingBox)
+  PlacedTessellated(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedTessellated("", logicalVolume, transformation)
   {
   }
 #else
   /// CUDA version of constructor
   __device__ PlacedTessellated(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                               PlacedBox const *const boundingBox, const int id)
-      : Base(logicalVolume, transformation, boundingBox, id)
+                               const int id)
+      : Base(logicalVolume, transformation, id)
   {
   }
 #endif

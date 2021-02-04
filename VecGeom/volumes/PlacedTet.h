@@ -37,27 +37,24 @@ public:
   /// @param label Name of logical volume
   /// @param logicalVolume The logical volume to be positioned
   /// @param transformation The positioning transformation
-  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
   PlacedTet(char const *const label, LogicalVolume const *const logicalVolume,
-            Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+            Transformation3D const *const transformation)
+      : Base(label, logicalVolume, transformation)
   {
   }
 
   /// Constructor
   /// @param logicalVolume The logical volume to be positioned
   /// @param transformation The positioning transformation.
-  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
-  PlacedTet(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-            vecgeom::PlacedBox const *const boundingBox)
-      : PlacedTet("", logicalVolume, transformation, boundingBox)
+  PlacedTet(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedTet("", logicalVolume, transformation)
   {
   }
 #else
   /// CUDA version of constructor
   VECCORE_ATT_DEVICE PlacedTet(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                               PlacedBox const *const boundingTet, const int id, const int copy_no, const int child_id)
-      : Base(logicalVolume, transformation, boundingTet, id, copy_no, child_id)
+                               const int id, const int copy_no, const int child_id)
+      : Base(logicalVolume, transformation, id, copy_no, child_id)
   {
   }
 #endif

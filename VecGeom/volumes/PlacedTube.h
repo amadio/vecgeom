@@ -27,20 +27,19 @@ public:
 
 #ifndef VECCORE_CUDA
   PlacedTube(char const *const label, LogicalVolume const *const logical_volume,
-             Transformation3D const *const transformation, ::vecgeom::PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logical_volume, transformation, boundingBox)
+             Transformation3D const *const transformation)
+      : VPlacedVolume(label, logical_volume, transformation)
   {
   }
 
-  PlacedTube(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-             ::vecgeom::PlacedBox const *const boundingBox)
-      : PlacedTube("", logical_volume, transformation, boundingBox)
+  PlacedTube(LogicalVolume const *const logical_volume, Transformation3D const *const transformation)
+      : PlacedTube("", logical_volume, transformation)
   {
   }
 #else
   VECCORE_ATT_DEVICE PlacedTube(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-                                PlacedBox const *const boundingBox, const int id, const int copy_no, const int child_id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id, copy_no, child_id)
+                                const int id, const int copy_no, const int child_id)
+      : VPlacedVolume(logical_volume, transformation, id, copy_no, child_id)
   {
   }
 #endif

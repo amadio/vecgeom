@@ -5,6 +5,7 @@
 // 160722 G. Lima    Revision + moving to new backend structure
 
 #include "VecGeom/volumes/UnplacedTrapezoid.h"
+#include "VecGeom/volumes/UnplacedBox.h"
 #include "VecGeom/volumes/UnplacedTrd.h"
 #include "VecGeom/volumes/UnplacedParallelepiped.h"
 #include "VecGeom/management/GeoManager.h"

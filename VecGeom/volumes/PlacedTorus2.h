@@ -24,21 +24,20 @@ public:
 
 #ifndef VECCORE_CUDA
   PlacedTorus2(char const *const label, LogicalVolume const *const logical_volume,
-               Transformation3D const *const transformation, ::vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logical_volume, transformation, boundingBox)
+               Transformation3D const *const transformation)
+      : Base(label, logical_volume, transformation)
   {
   }
 
-  PlacedTorus2(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-               ::vecgeom::PlacedBox const *const boundingBox)
-      : PlacedTorus2("", logical_volume, transformation, boundingBox)
+  PlacedTorus2(LogicalVolume const *const logical_volume, Transformation3D const *const transformation)
+      : PlacedTorus2("", logical_volume, transformation)
   {
   }
 #else
   VECCORE_ATT_DEVICE
-  PlacedTorus2(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-               PlacedBox const *const boundingBox, const int id, const int copy_no, const int child_id)
-      : Base(logical_volume, transformation, boundingBox, id, copy_no, child_id)
+  PlacedTorus2(LogicalVolume const *const logical_volume, Transformation3D const *const transformation, const int id,
+               const int copy_no, const int child_id)
+      : Base(logical_volume, transformation, id, copy_no, child_id)
   {
   }
 #endif

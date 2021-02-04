@@ -30,21 +30,20 @@ class PlacedPolycone : public VPlacedVolume {
 public:
 #ifndef VECCORE_CUDA
   PlacedPolycone(char const *const label, LogicalVolume const *const logicalVolume,
-                 Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
+                 Transformation3D const *const transformation)
+      : VPlacedVolume(label, logicalVolume, transformation)
   {
   }
 
-  PlacedPolycone(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                 vecgeom::PlacedBox const *const boundingBox)
-      : PlacedPolycone("", logicalVolume, transformation, boundingBox)
+  PlacedPolycone(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedPolycone("", logicalVolume, transformation)
   {
   }
 #else
   VECCORE_ATT_DEVICE PlacedPolycone(LogicalVolume const *const logicalVolume,
-                                    Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                                    const int id, const int copy_no, const int child_id)
-      : VPlacedVolume(logicalVolume, transformation, boundingBox, id, copy_no, child_id)
+                                    Transformation3D const *const transformation, const int id, const int copy_no,
+                                    const int child_id)
+      : VPlacedVolume(logicalVolume, transformation, id, copy_no, child_id)
   {
   }
 #endif

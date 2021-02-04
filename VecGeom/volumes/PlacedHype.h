@@ -28,20 +28,19 @@ public:
 #ifndef VECCORE_CUDA
 
   PlacedHype(char const *const label, LogicalVolume const *const logicalVolume,
-             Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
+             Transformation3D const *const transformation)
+      : VPlacedVolume(label, logicalVolume, transformation)
   {
   }
 
-  PlacedHype(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-             vecgeom::PlacedBox const *const boundingBox)
-      : PlacedHype("", logicalVolume, transformation, boundingBox)
+  PlacedHype(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedHype("", logicalVolume, transformation)
   {
   }
 #else
   VECCORE_ATT_DEVICE PlacedHype(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                                PlacedBox const *const boundingBox, const int id, const int copy_no, const int child_id)
-      : VPlacedVolume(logicalVolume, transformation, boundingBox, id, copy_no, child_id)
+                                const int id, const int copy_no, const int child_id)
+      : VPlacedVolume(logicalVolume, transformation, id, copy_no, child_id)
   {
   }
 #endif

@@ -107,9 +107,9 @@ VPlacedVolume *UnplacedAssembly::SpecializedVolume(LogicalVolume const *const vo
                                                    VPlacedVolume *const placement) const
 {
   if (placement) {
-    return new (placement) PlacedAssembly("", volume, transformation, nullptr, id, copy_no, child_id);
+    return new (placement) PlacedAssembly("", volume, transformation, id, copy_no, child_id);
   }
-  return new PlacedAssembly("", volume, transformation, nullptr, id, copy_no, child_id);
+  return new PlacedAssembly("", volume, transformation, id, copy_no, child_id);
 }
 #endif
 

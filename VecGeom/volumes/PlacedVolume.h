@@ -72,7 +72,6 @@ protected:
 #else
   Transformation3D const *fTransformation; ///< The positioning transformation
 #endif
-  PlacedBox const *bounding_box_; ///< Pointer to bounding box (to be deprecated)
 
 #ifndef VECCORE_CUDA
 
@@ -80,34 +79,31 @@ protected:
    * \param label Name of logical volume.
    * \param logical_vol The logical volume to be positioned.
    * \param transform The positioning transformation.
-   * \param boundingbox Pointer to bounding box (may be null); To be deprecated
    */
   VPlacedVolume(char const *const label, LogicalVolume const *const logical_vol,
-                Transformation3D const *const transform, PlacedBox const *const boundingbox);
+                Transformation3D const *const transform);
 
   /** Constructor
    * \param logical_vol The logical volume to be positioned.
    * \param transform The positioning transformation.
-   * \param boundingbox Pointer to bounding box (may be null); To be deprecated
    */
-  VPlacedVolume(LogicalVolume const *const logical_vol, Transformation3D const *const transform,
-                PlacedBox const *const boundingbox)
-      : VPlacedVolume("", logical_vol, transform, boundingbox)
+  VPlacedVolume(LogicalVolume const *const logical_vol, Transformation3D const *const transform)
+      : VPlacedVolume("", logical_vol, transform)
   {
   }
 
 #else
   /// CUDA version of constructor
   VECCORE_ATT_DEVICE VPlacedVolume(LogicalVolume const *const logical_vol, Transformation3D const *const transformation,
-                                   PlacedBox const *const boundingbox, unsigned int id, int copy_no, int ichild)
+                                   unsigned int id, int copy_no, int ichild)
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
-      : logical_volume_(logical_vol), fTransformation(*transformation), bounding_box_(boundingbox), id_(id),
-        copy_no_(copy_no), ichild_(ichild), label_(NULL)
+      : logical_volume_(logical_vol), fTransformation(*transformation), id_(id), copy_no_(copy_no), ichild_(ichild),
+        label_(NULL)
   {
   }
 #else
-      : logical_volume_(logical_vol), fTransformation(transformation), bounding_box_(boundingbox), id_(id),
-        copy_no_(copy_no), ichild_(ichild), label_(NULL)
+      : logical_volume_(logical_vol), fTransformation(transformation), id_(id), copy_no_(copy_no), ichild_(ichild),
+        label_(NULL)
   {
   }
 #endif
@@ -148,11 +144,6 @@ public:
 
   /// Returns name/label.
   std::string const &GetLabel() const { return *label_; }
-
-  /// Returns pointer to boundinx box.
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  PlacedBox const *bounding_box() const { return bounding_box_; }
 
   /// Returns underlying logical volume.
   VECCORE_ATT_HOST_DEVICE
@@ -510,7 +501,6 @@ public:
   template size_t DevicePtr<cuda::PlacedVol>::SizeOf();                                                    \
   template void DevicePtr<cuda::PlacedVol>::Construct(DevicePtr<cuda::LogicalVolume> const logical_volume, \
                                                       DevicePtr<cuda::Transformation3D> const transform,   \
-                                                      DevicePtr<cuda::PlacedBox> const boundingBox,        \
                                                       const unsigned int id, const int copy_no,            \
                                                       const int child_id) const;                           \
   }
@@ -520,7 +510,6 @@ public:
   template size_t DevicePtr<cuda::PlacedVol, Extra>::SizeOf();                                                    \
   template void DevicePtr<cuda::PlacedVol, Extra>::Construct(DevicePtr<cuda::LogicalVolume> const logical_volume, \
                                                              DevicePtr<cuda::Transformation3D> const transform,   \
-                                                             DevicePtr<cuda::PlacedBox> const boundingBox,        \
                                                              const unsigned int id, const int copy_no,            \
                                                              const int child_id) const;                           \
   }
@@ -588,8 +577,7 @@ public:
   template size_t DevicePtr<cuda::PlacedVol, Extra, cuda::Type>::SizeOf();                                    \
   template void DevicePtr<cuda::PlacedVol, Extra, cuda::Type>::Construct(                                     \
       DevicePtr<cuda::LogicalVolume> const logical_volume, DevicePtr<cuda::Transformation3D> const transform, \
-      DevicePtr<cuda::PlacedBox> const boundingBox, const unsigned int id, const int copy_no,                 \
-      const int child_id) const;                                                                              \
+      const unsigned int id, const int copy_no, const int child_id) const;                                    \
   }
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
@@ -631,8 +619,7 @@ public:
   template size_t DevicePtr<cuda::PlacedVol, trans, radii, phi>::SizeOf();                                    \
   template void DevicePtr<cuda::PlacedVol, trans, radii, phi>::Construct(                                     \
       DevicePtr<cuda::LogicalVolume> const logical_volume, DevicePtr<cuda::Transformation3D> const transform, \
-      DevicePtr<cuda::PlacedBox> const boundingBox, const unsigned int id, const int copy_no,                 \
-      const int child_id) const;                                                                              \
+      const unsigned int id, const int copy_no, const int child_id) const;                                    \
   }
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
@@ -687,7 +674,6 @@ public:
   template size_t DevicePtr<cuda::PlacedVol, trans, rot>::SizeOf();                                                    \
   template void DevicePtr<cuda::PlacedVol, trans, rot>::Construct(DevicePtr<cuda::LogicalVolume> const logical_volume, \
                                                                   DevicePtr<cuda::Transformation3D> const transform,   \
-                                                                  DevicePtr<cuda::PlacedBox> const boundingBox,        \
                                                                   const unsigned int id, const int copy_no,            \
                                                                   const int child_id) const;                           \
   }

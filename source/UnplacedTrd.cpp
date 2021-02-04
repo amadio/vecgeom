@@ -5,6 +5,7 @@
 /// @file source/UnplacedTrd.cpp
 /// @author Georgios Bitzes
 
+#include "VecGeom/volumes/UnplacedBox.h"
 #include "VecGeom/volumes/UnplacedTrd.h"
 #include "VecGeom/volumes/SpecializedTrd.h"
 #include "VecGeom/volumes/utilities/GenerationUtilities.h"

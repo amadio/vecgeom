@@ -36,29 +36,25 @@ public:
   /// @param label Name of logical volume
   /// @param logicalVolume The logical volume to be positioned
   /// @param transformation The positioning transformation
-  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
   PlacedEllipticalTube(char const *const label, LogicalVolume const *const logicalVolume,
-                       Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+                       Transformation3D const *const transformation)
+      : Base(label, logicalVolume, transformation)
   {
   }
 
   /// Constructor
   /// @param logicalVolume The logical volume to be positioned
   /// @param transformation The positioning transformation.
-  /// @param boundingBox Pointer to bounding box (may be null); To be deprecated
-  PlacedEllipticalTube(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                       vecgeom::PlacedBox const *const boundingBox)
-      : PlacedEllipticalTube("", logicalVolume, transformation, boundingBox)
+  PlacedEllipticalTube(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation)
+      : PlacedEllipticalTube("", logicalVolume, transformation)
   {
   }
 #else
   /// CUDA version of constructor
   VECCORE_ATT_DEVICE PlacedEllipticalTube(LogicalVolume const *const logicalVolume,
-                                          Transformation3D const *const transformation,
-                                          PlacedBox const *const boundingBox, const int id, const int copy_no,
+                                          Transformation3D const *const transformation, const int id, const int copy_no,
                                           const int child_id)
-      : Base(logicalVolume, transformation, boundingBox, id, copy_no, child_id)
+      : Base(logicalVolume, transformation, id, copy_no, child_id)
   {
   }
 #endif

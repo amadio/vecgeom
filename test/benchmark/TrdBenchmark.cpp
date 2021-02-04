@@ -6,6 +6,7 @@
 /// @file test/benchmark/TrdParallelepiped.cpp
 
 #include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/Box.h"
 #include "VecGeom/volumes/Trd.h"
 #include "VecGeom/benchmarking/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
