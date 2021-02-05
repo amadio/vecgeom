@@ -252,14 +252,18 @@ public:
   // VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const override { return fSphere.fSurfaceArea; }
 
-#ifndef VECCORE_CUDA
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
+
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     bool valid;
     normal = SphereImplementation::Normal<Precision>(fSphere, point, valid);
     return valid;
   }
+
+#ifndef VECCORE_CUDA
 
   Vector3D<Precision> SamplePointOnSurface() const override;
 

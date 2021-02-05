@@ -65,7 +65,7 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
 }
 #endif
 
-#ifndef VECCORE_CUDA
+//#ifndef VECCORE_CUDA
 #if (1)
 // Sophisticated Implementation taking into account the PHI and THETA cut also.
 void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
@@ -159,7 +159,7 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
 }
 #endif
 
-#endif // !VECCORE_CUDA
+//#endif // !VECCORE_CUDA
 
 void UnplacedSphere::GetParametersList(int, Precision *aArray) const
 {
