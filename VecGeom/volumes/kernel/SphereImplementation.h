@@ -490,27 +490,34 @@ struct SphereImplementation {
   VECCORE_ATT_HOST_DEVICE
   static Vector3D<Real_v> ApproxSurfaceNormalKernel(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point)
   {
-
+    using vecCore::math::Min;
     Vector3D<Real_v> norm(0., 0., 0.);
-    Real_v radius   = point.Mag();
-    Real_v distRMax = Abs(radius - sphere.fRmax);
-    Real_v distRMin = Abs(sphere.fRmin - radius);
-    vecCore__MaskedAssignFunc(distRMax, distRMax < Real_v(0.), InfinityLength<Real_v>());
-    vecCore__MaskedAssignFunc(distRMin, distRMin < Real_v(0.), InfinityLength<Real_v>());
-    Real_v distMin = Min(distRMin, distRMax);
+    Real_v radius     = point.Mag();
+    Real_v distRMax   = Abs(radius - sphere.fRmax);
+    Real_v distRMin   = InfinityLength<Real_v>();
+    Real_v distPhi1   = InfinityLength<Real_v>();
+    Real_v distPhi2   = InfinityLength<Real_v>();
+    Real_v distTheta1 = InfinityLength<Real_v>();
+    Real_v distTheta2 = InfinityLength<Real_v>();
+    Real_v distMin    = distRMax;
 
-    Real_v distPhi1 = point.x() * sphere.fPhiWedge.GetNormal1().x() + point.y() * sphere.fPhiWedge.GetNormal1().y();
-    Real_v distPhi2 = point.x() * sphere.fPhiWedge.GetNormal2().x() + point.y() * sphere.fPhiWedge.GetNormal2().y();
-    vecCore__MaskedAssignFunc(distPhi1, distPhi1 < Real_v(0.), InfinityLength<Real_v>());
-    vecCore__MaskedAssignFunc(distPhi2, distPhi2 < Real_v(0.), InfinityLength<Real_v>());
-    distMin = Min(distMin, Min(distPhi1, distPhi2));
+    if (sphere.fRmin > 0.) {
+      distRMin = Abs(sphere.fRmin - radius);
+      distMin  = Min(distRMin, distRMax);
+    }
 
-    Real_v rho        = point.Perp();
-    Real_v distTheta1 = sphere.fThetaCone.DistanceToLine<Real_v>(sphere.fThetaCone.GetSlope1(), rho, point.z());
-    Real_v distTheta2 = sphere.fThetaCone.DistanceToLine<Real_v>(sphere.fThetaCone.GetSlope2(), rho, point.z());
-    vecCore__MaskedAssignFunc(distTheta1, distTheta1 < Real_v(0.), InfinityLength<Real_v>());
-    vecCore__MaskedAssignFunc(distTheta2, distTheta2 < Real_v(0.), InfinityLength<Real_v>());
-    distMin = Min(distMin, Min(distTheta1, distTheta2));
+    if (!sphere.fFullPhiSphere) {
+      distPhi1 = Abs(point.x() * sphere.fPhiWedge.GetNormal1().x() + point.y() * sphere.fPhiWedge.GetNormal1().y());
+      distPhi2 = Abs(point.x() * sphere.fPhiWedge.GetNormal2().x() + point.y() * sphere.fPhiWedge.GetNormal2().y());
+      distMin  = Min(distMin, distPhi1, distPhi2);
+    }
+
+    if (!sphere.fFullThetaSphere) {
+      Real_v rho = point.Perp();
+      distTheta1 = sphere.fThetaCone.DistanceToLine<Real_v>(sphere.fThetaCone.GetSlope1(), rho, point.z());
+      distTheta2 = sphere.fThetaCone.DistanceToLine<Real_v>(sphere.fThetaCone.GetSlope2(), rho, point.z());
+      distMin    = Min(distMin, distTheta1, distTheta2);
+    }
 
     vecCore__MaskedAssignFunc(norm, distMin == distRMax, point.Unit());
     vecCore__MaskedAssignFunc(norm, distMin == distRMin, -point.Unit());
