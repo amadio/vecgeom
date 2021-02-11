@@ -150,6 +150,8 @@ bool Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocu
   auto *rootDocElement = aDOMDocument->getDocumentElement();
   if (!rootDocElement) return false;
   auto *rootDocNode = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *>(rootDocElement);
+  const double mm   = vecgeom::GeoManager::GetMillimeterUnit();
+  std::cout << "(II) Middleware::Load: VecGeom millimeter value is " << mm << "\n";
   return processNode(rootDocNode);
 }
 
@@ -654,16 +656,19 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processOrb(
 
 double Middleware::GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
+  const double mm              = vecgeom::GeoManager::GetMillimeterUnit();
   auto const *const attributes = aDOMNode->getAttributes();
   auto const nodeName          = Helper::Transcode(aDOMNode->getNodeName());
   auto const unitTag           = (nodeName == "position") ? "unit" : "lunit";
   auto const unit              = GetAttribute(unitTag, attributes);
+  // if no unit attribute is specified, the default is mm
   auto const lengthMultiplier =
       (unit == "mm")
-          ? 1e-1
+          ? mm
           : (unit == "m")
-                ? 1e2
-                : (unit == "km") ? 1e5 : (unit == "um") ? 1e-4 : (unit == "nm") ? 1e-7 : 1.; // TODO more units
+                ? 1e3 * mm
+                : (unit == "km") ? 1e6 * mm
+                                 : (unit == "um") ? 1e-3 * mm : (unit == "nm") ? 1e-6 * mm : mm; // TODO more units
   return lengthMultiplier;
 }
 

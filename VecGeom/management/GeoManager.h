@@ -64,7 +64,8 @@ private:
 
 public:
   static VPlacedVolume *gCompactPlacedVolBuffer;
-  static NavIndex_t *gNavIndex;
+  static NavIndex_t *gNavIndex;     // address of navigation index table
+  static Precision gMillimeterUnit; // internal representation value for 1 milimmeter length (default is 0.1)
 
   /// Returns the singleton instance
   static GeoManager &Instance()
@@ -72,6 +73,12 @@ public:
     static GeoManager instance;
     return instance;
   }
+
+  /// Returns the default length value stored as 1 mm
+  static Precision GetMillimeterUnit() { return gMillimeterUnit; }
+
+  /// Changes the default length value stored as 1 mm
+  static void SetMillimeterUnit(Precision value) { gMillimeterUnit = value; }
 
   /**
    * Mark the current detector geometry as finished and initialize

@@ -26,6 +26,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VPlacedVolume *GeoManager::gCompactPlacedVolBuffer = nullptr;
 NavIndex_t *GeoManager::gNavIndex                  = nullptr;
+Precision GeoManager::gMillimeterUnit              = 0.1; // i.e default unit for length is centimeter
 
 void GeoManager::RegisterLogicalVolume(LogicalVolume *const logical_volume)
 {
