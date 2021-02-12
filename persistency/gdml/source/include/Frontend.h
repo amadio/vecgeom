@@ -13,7 +13,7 @@
 namespace vgdml {
 
 namespace Frontend {
-bool Load(std::string const &aFilename, bool validate = true);
+bool Load(std::string const &aFilename, bool validate = true, double mm_unit = 0.1);
 } // namespace Frontend
 
 } // namespace vgdml

@@ -150,8 +150,6 @@ bool Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocu
   auto *rootDocElement = aDOMDocument->getDocumentElement();
   if (!rootDocElement) return false;
   auto *rootDocNode = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *>(rootDocElement);
-  const double mm   = vecgeom::GeoManager::GetMillimeterUnit();
-  std::cout << "(II) Middleware::Load: VecGeom millimeter value is " << mm << "\n";
   return processNode(rootDocNode);
 }
 
