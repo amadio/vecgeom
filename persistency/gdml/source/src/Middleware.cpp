@@ -665,8 +665,10 @@ double Middleware::GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
           ? mm
           : (unit == "m")
                 ? 1e3 * mm
-                : (unit == "km") ? 1e6 * mm
-                                 : (unit == "um") ? 1e-3 * mm : (unit == "nm") ? 1e-6 * mm : mm; // TODO more units
+                : (unit == "km")
+                      ? 1e6 * mm
+                      : (unit == "um") ? 1e-3 * mm
+                                       : (unit == "nm") ? 1e-6 * mm : (unit == "cm") ? 10 * mm : mm; // TODO more units
   return lengthMultiplier;
 }
 
