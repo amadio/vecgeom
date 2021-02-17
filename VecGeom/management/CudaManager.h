@@ -55,9 +55,9 @@ class Vector;
 class CudaManager {
 
 private:
-  bool synchronized;
+  bool synchronized_;
   int verbose_;
-  int total_volumes;
+  int total_volumes_;
 
   using Daughter_t        = VPlacedVolume const *;
   using CudaDaughter_t    = cuda::VPlacedVolume const *;
@@ -89,13 +89,13 @@ private:
    * \sa AllocateGeometry()
    * \sa CleanGpu()
    */
-  MemoryMap memory_map;
-  GpuMemoryMap gpu_memory_map;
+  MemoryMap memory_map_;
+  GpuMemoryMap gpu_memory_map_;
   /**
    * inverse memory_map for fast GPU pointer to CPU conversion
    *
    */
-  PlacedVolumeMemoryMap fGPUtoCPUmapForPlacedVolumes;
+  PlacedVolumeMemoryMap fGPUtoCPUmapForPlacedVolumes_;
 
   std::list<GpuAddress> allocated_memory_;
 
@@ -218,7 +218,7 @@ private:
 inline VPlacedVolume const *CudaManager::LookupPlacedCPUPtr(const void *address)
 {
   const VPlacedVolume *cpu_ptr =
-      (const VPlacedVolume *)fGPUtoCPUmapForPlacedVolumes[GpuAddress(const_cast<void *>(address))];
+      (const VPlacedVolume *)fGPUtoCPUmapForPlacedVolumes_[GpuAddress(const_cast<void *>(address))];
   assert(cpu_ptr != NULL);
   return cpu_ptr;
 }

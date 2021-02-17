@@ -29,12 +29,12 @@ extern __global__ void InitDeviceNavIndexPtr(void *gpu_ptr, int maxdepth);
 
 inline namespace cxx {
 
-CudaManager::CudaManager() : world_gpu_(), fGPUtoCPUmapForPlacedVolumes()
+CudaManager::CudaManager() : world_gpu_(), fGPUtoCPUmapForPlacedVolumes_()
 {
-  synchronized  = true;
-  world_        = NULL;
-  verbose_      = 0;
-  total_volumes = 0;
+  synchronized_  = true;
+  world_         = NULL;
+  verbose_       = 0;
+  total_volumes_ = 0;
 
   auto res = cudaDeviceSetLimit(cudaLimitStackSize, 8192);
   CudaAssertError(res);
@@ -64,7 +64,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
 #endif
 
   // Will return null if no geometry is loaded
-  if (synchronized) return vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume>(world_gpu_);
+  if (synchronized_) return vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume>(world_gpu_);
 
   CleanGpu();
 
@@ -155,7 +155,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
   timer.Stop();
   if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
 
-  synchronized = true;
+  synchronized_ = true;
 
   world_gpu_ = LookupPlaced(world_);
 
@@ -182,7 +182,7 @@ void CudaManager::LoadGeometry(VPlacedVolume const *const volume)
   ScanGeometry(volume);
 
   // Already set by CleanGpu(), but keep it here for good measure
-  synchronized = false;
+  synchronized_ = false;
 }
 
 void CudaManager::LoadGeometry()
@@ -193,7 +193,7 @@ void CudaManager::LoadGeometry()
 void CudaManager::CleanGpu()
 {
 
-  if (memory_map.size() == 0 && world_gpu_ == NULL) return;
+  if (memory_map_.size() == 0 && world_gpu_ == NULL) return;
 
   if (verbose_ > 1) std::cout << "Cleaning GPU...";
 
@@ -201,11 +201,11 @@ void CudaManager::CleanGpu()
     i->Deallocate();
   }
   allocated_memory_.clear();
-  memory_map.clear();
-  gpu_memory_map.clear();
+  memory_map_.clear();
+  gpu_memory_map_.clear();
 
   world_gpu_   = vecgeom::DevicePtr<vecgeom::cuda::VPlacedVolume>();
-  synchronized = false;
+  synchronized_ = false;
 
   if (verbose_ > 1) std::cout << " OK\n";
 }
@@ -231,13 +231,13 @@ bool CudaManager::AllocateCollectionOnCoproc(const char *verbose_title, const Co
 
   // record a GPU memory location for each object in the collection to be copied
   for (auto i : data) {
-    memory_map[ToCpuAddress(i)] = gpu_address;
-    if (isforplacedvol) fGPUtoCPUmapForPlacedVolumes[gpu_address] = i;
+    memory_map_[ToCpuAddress(i)] = gpu_address;
+    if (isforplacedvol) fGPUtoCPUmapForPlacedVolumes_[gpu_address] = i;
     gpu_address += i->DeviceSizeOf();
   }
 
   if (verbose_ > 2) {
-    std::cout << " OK: #elems in alloc_mem=" << allocated_memory_.size() << ", mem_map=" << memory_map.size() << "\n";
+    std::cout << " OK: #elems in alloc_mem=" << allocated_memory_.size() << ", mem_map=" << memory_map_.size() << "\n";
   }
 
   return true;
@@ -307,8 +307,8 @@ bool CudaManager::AllocatePlacedVolumesOnCoproc()
   // getting the same order on the GPU/device automatically
   for (unsigned int i = 0; i < size; ++i) {
     VPlacedVolume const *ptr                  = &GeoManager::gCompactPlacedVolBuffer[i];
-    memory_map[ToCpuAddress(ptr)]             = gpu_address;
-    fGPUtoCPUmapForPlacedVolumes[gpu_address] = ptr;
+    memory_map_[ToCpuAddress(ptr)]             = gpu_address;
+    fGPUtoCPUmapForPlacedVolumes_[gpu_address] = ptr;
     gpu_address += ptr->DeviceSizeOf();
   }
 
@@ -331,7 +331,7 @@ void CudaManager::AllocateGeometry()
 
     for (std::set<LogicalVolume const *>::const_iterator i = logical_volumes_.begin(); i != logical_volumes_.end();
          ++i) {
-      memory_map[ToCpuAddress(*i)] = DevicePtr<char>(gpu_array);
+      memory_map_[ToCpuAddress(*i)] = DevicePtr<char>(gpu_array);
 
       ++gpu_array;
     }
@@ -359,13 +359,13 @@ void CudaManager::AllocateGeometry()
     allocated_memory_.push_back(GpuAddress(daughter_gpu_array));
 
     DevicePtr<CudaDaughter_t> daughter_gpu_c_array;
-    daughter_gpu_c_array.Allocate(total_volumes);
+    daughter_gpu_c_array.Allocate(total_volumes_);
     allocated_memory_.push_back(GpuAddress(daughter_gpu_c_array));
 
     for (std::set<Vector<Daughter> *>::const_iterator i = daughters_.begin(); i != daughters_.end(); ++i) {
 
-      memory_map[ToCpuAddress(*i)]                   = GpuAddress(daughter_gpu_array);
-      gpu_memory_map[GpuAddress(daughter_gpu_array)] = GpuAddress(daughter_gpu_c_array);
+      memory_map_[ToCpuAddress(*i)]                   = GpuAddress(daughter_gpu_array);
+      gpu_memory_map_[GpuAddress(daughter_gpu_array)] = GpuAddress(daughter_gpu_c_array);
 
       ++daughter_gpu_array;
       daughter_gpu_c_array += (*i)->size();
@@ -375,8 +375,8 @@ void CudaManager::AllocateGeometry()
   }
 
   if (verbose_ > 2) {
-    std::cout << " geometry OK: #elems in alloc_mem=" << allocated_memory_.size() << ", mem_map=" << memory_map.size()
-              << ", dau_gpu_c_array=" << gpu_memory_map.size() << "\n";
+    std::cout << " geometry OK: #elems in alloc_mem=" << allocated_memory_.size() << ", mem_map=" << memory_map_.size()
+              << ", dau_gpu_c_array=" << gpu_memory_map_.size() << "\n";
   }
 
   if (verbose_ > 0) {
@@ -425,14 +425,14 @@ void CudaManager::ScanGeometry(VPlacedVolume const *const volume)
     ScanGeometry(*i);
   }
 
-  total_volumes++;
+  total_volumes_++;
 }
 
 template <typename Type>
 typename CudaManager::GpuAddress CudaManager::Lookup(Type const *const key)
 {
   const CpuAddress cpu_address = ToCpuAddress(key);
-  GpuAddress output            = memory_map[cpu_address];
+  GpuAddress output            = memory_map_[cpu_address];
   assert(output != nullptr);
   return output;
 }
@@ -441,7 +441,7 @@ template <typename Type>
 typename CudaManager::GpuAddress CudaManager::Lookup(DevicePtr<Type> key)
 {
   GpuAddress gpu_address(key);
-  GpuAddress output = gpu_memory_map[gpu_address];
+  GpuAddress output = gpu_memory_map_[gpu_address];
   assert(output != nullptr);
   return output;
 }
