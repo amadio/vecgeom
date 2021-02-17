@@ -210,6 +210,21 @@ void CudaManager::CleanGpu()
   if (verbose_ > 1) std::cout << " OK\n";
 }
 
+void CudaManager::Clear()
+{
+  CleanGpu();
+
+  world_         = nullptr;
+  synchronized_  = false;
+  total_volumes_ = 0;
+
+  logical_volumes_.clear();
+  unplaced_volumes_.clear();
+  placed_volumes_.clear();
+  transformations_.clear();
+  daughters_.clear();
+}
+
 // allocates space to transfer a collection/container to the GPU
 // a typical collection is a set/vector of placed volume pointers etc.
 template <typename Coll>

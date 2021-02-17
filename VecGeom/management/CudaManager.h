@@ -133,6 +133,11 @@ public:
   void CleanGpu();
 
   /**
+   * Forget the geometry (to prepare for a new call to LoadGeomtry)
+   */
+   void Clear();
+
+  /**
    * Launch a CUDA kernel that recursively outputs the geometry loaded onto the
    * device.
    */
