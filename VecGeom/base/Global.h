@@ -79,11 +79,8 @@ enum EnumInside {
 
 using Inside_t = int;
 
-#if defined(__MIC__)
-VECGEOM_GLOBAL int kAlignmentBoundary = 64;
-#else
 VECGEOM_GLOBAL int kAlignmentBoundary = 32;
-#endif
+
 namespace EInside {
 VECGEOM_GLOBAL vecgeom::Inside_t kInside  = 1;
 VECGEOM_GLOBAL vecgeom::Inside_t kSurface = 2;

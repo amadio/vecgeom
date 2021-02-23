@@ -6,11 +6,7 @@ if (NOT VTUNE_DIR)
   set(VTUNE_DIR /opt/intel/vtune_amplifier_xe/)
 endif()
 
-if (MIC)
-  set(VTUNE_LIB_DIR ${VTUNE_DIR}/bin64/k1om/)
-else()
-  set(VTUNE_LIB_DIR ${VTUNE_DIR}/lib64)
-endif()
+set(VTUNE_LIB_DIR ${VTUNE_DIR}/lib64)
 
 find_library(VTUNE_LIBRARIES ittnotify PATHS "${VTUNE_LIB_DIR}" NO_DEFAULT_PATH)
 

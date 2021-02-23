@@ -7,11 +7,11 @@ better maintainable piece of software within the EU-AIDA program. As such it is 
 **Main features** are:
    * Build a hierarchic detector geometry out of simple primitives and use it on the CPU or GPU(CUDA)
    * Calculate distances and other geometrical information
-   * Collision detection and navigation in complex scenes 
+   * Collision detection and navigation in complex scenes
    * SIMD support in various flavours:
        1. True vector interfaces to primitives with SIMD acceleration when benefical
        2. SIMD acceleration of navigation through the use of special voxelization or bounding box hierarchies
-   * Runtime specialization of objects to improve execution speed via a factory mechanism and use of C++ templates     
+   * Runtime specialization of objects to improve execution speed via a factory mechanism and use of C++ templates
    * VecGeom also compiles under CUDA
    * Few generic kernels serve many instanteations of various simple or vectored interfaces or the CUDA version.
 
