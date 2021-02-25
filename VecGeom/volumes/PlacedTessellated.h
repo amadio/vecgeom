@@ -69,23 +69,7 @@ public:
     return static_cast<UnplacedTessellated const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  /// Computation of the extent.
-  VECCORE_ATT_HOST_DEVICE
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
 #ifndef VECCORE_CUDA
-  /// Computation of the capacity.
-  virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
-
-  VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
-
   /** @brief Memory size in bytes */
   VECGEOM_FORCE_INLINE
   virtual int MemorySize() const override { return sizeof(*this); }

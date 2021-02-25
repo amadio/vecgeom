@@ -250,21 +250,6 @@ public:
   Precision GetDTheta() const { return GetUnplacedVolume()->GetDTheta(); }
 
 #ifndef VECCORE_CUDA
-  VECGEOM_FORCE_INLINE
-  virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
-
-  VECGEOM_FORCE_INLINE
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    return GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
-
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT

@@ -62,24 +62,12 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
-  VECCORE_ATT_HOST_DEVICE
   void PrintType() const override{};
 
   void PrintType(std::ostream &) const override{};
 
   // CUDA specific
   virtual int MemorySize() const override { return sizeof(*this); }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
 
   // Comparison specific
 

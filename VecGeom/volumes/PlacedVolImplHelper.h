@@ -49,21 +49,13 @@ public:
 
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-    // careful here: we need to transform result
+    VPlacedVolume::Extent(aMin, aMax);
   }
 
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
-    // bool valid;
-    // BoxImplementation_Evolution<translation::kIdentity, rotation::kIdentity>::NormalKernel<>(
-    //        *GetUnplacedVolume(),
-    //        point,
-    //        normal, valid);
-    // return valid;
-    // careful here: we need to transform result
-    return GetUnplacedVolume()->Normal(point, normal);
+    return VPlacedVolume::Normal(point, normal);
   }
 #endif
 

@@ -56,21 +56,6 @@ public:
     return static_cast<UnplacedScaledShape const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-#if !defined(VECCORE_CUDA)
-  virtual Precision Capacity() override { return GetUnplacedVolume()->Volume(); }
-
-  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
-#endif
-
   VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override;
 

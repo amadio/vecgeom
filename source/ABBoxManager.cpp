@@ -37,7 +37,7 @@ void ABBoxManager::ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<A
   //		  by the calling function.
 
   Vector3D<Precision> tmpLower, tmpUpper;
-  pvol->Extent(tmpLower, tmpUpper);
+  pvol->GetUnplacedVolume()->Extent(tmpLower, tmpUpper);
   Vector3D<Precision> delta = tmpUpper - tmpLower;
   // chose the largest dimension for splitting
   int dim = 0;                                        // 0 for x, 1 for y,  2 for z //default considering X is largest
@@ -112,7 +112,7 @@ void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lowerc, ABBo
   // transform those corners and keep track of minimum and maximum extent
   // TODO: could make this code shorter with a more complex Vector3D class
   Vector3D<Precision> lower, upper;
-  pvol->Extent(lower, upper);
+  pvol->GetUnplacedVolume()->Extent(lower, upper);
   Vector3D<Precision> delta = upper - lower;
   Precision minx, miny, minz, maxx, maxy, maxz;
   minx                           = kInfLength;

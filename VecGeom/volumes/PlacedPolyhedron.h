@@ -118,15 +118,6 @@ public:
   VECGEOM_FORCE_INLINE
   Precision GetPhiDelta() const { return GetUnplacedVolume()->GetPhiDelta(); }
 
-#ifndef VECCORE_CUDA
-  virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
-
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-#endif
-
   VECCORE_ATT_HOST_DEVICE
   int PhiSegmentIndex(Vector3D<Precision> const &point) const;
 
@@ -140,12 +131,6 @@ public:
   // CUDA specific
 
   virtual int MemorySize() const override { return sizeof(*this); }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
 
 // Comparison specific
 #ifndef VECCORE_CUDA

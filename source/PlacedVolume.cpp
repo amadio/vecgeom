@@ -115,24 +115,69 @@ std::ostream &operator<<(std::ostream &os, VPlacedVolume const &vol)
 
 Precision VPlacedVolume::Capacity()
 {
-  throw std::runtime_error("Capacity not implemented");
-  return 0.;
-}
-
-VECCORE_ATT_HOST_DEVICE
-bool VPlacedVolume::Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const
-{
 #ifndef VECCORE_CUDA
-  throw std::runtime_error("Normal not implemented for this volume.");
+  return GetUnplacedVolume()->Capacity();
+#else
+  return 0;
 #endif
-  return false;
 }
 
 VECCORE_ATT_HOST_DEVICE
-void VPlacedVolume::Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const
+bool VPlacedVolume::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
 #ifndef VECCORE_CUDA
-  throw std::runtime_error("Extent() not implemented for this shape type.");
+  // transform point to local space 
+  const Transformation3D *tr = GetTransformation();
+  Vector3D<Precision> lp = tr->Transform(point);
+  // get normal
+  Vector3D<Precision> ln;
+  bool valid = GetUnplacedVolume()->Normal(lp, ln);
+  // transform normal to master space
+  GetTransformation()->InverseTransformDirection(ln, normal);
+  return valid;
+#else
+  return false;
+#endif
+}
+
+VECCORE_ATT_HOST_DEVICE
+void VPlacedVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+#ifndef VECCORE_CUDA
+  Vector3D<Precision> pmin, pmax;
+  GetUnplacedVolume()->Extent(pmin, pmax);
+  // transform bounding box to master space and recalculate it
+  const Transformation3D *tr = GetTransformation();
+  if (tr->HasRotation()) {
+    Vector3D<Precision> bbox[8];
+    tr->InverseTransform(Vector3D<Precision>(pmin.x(), pmin.y(), pmin.z()), bbox[0]);
+    tr->InverseTransform(Vector3D<Precision>(pmax.x(), pmin.y(), pmin.z()), bbox[1]);
+    tr->InverseTransform(Vector3D<Precision>(pmin.x(), pmax.y(), pmin.z()), bbox[2]);
+    tr->InverseTransform(Vector3D<Precision>(pmax.x(), pmax.y(), pmin.z()), bbox[3]);
+    tr->InverseTransform(Vector3D<Precision>(pmin.x(), pmin.y(), pmax.z()), bbox[4]);
+    tr->InverseTransform(Vector3D<Precision>(pmax.x(), pmin.y(), pmax.z()), bbox[5]);
+    tr->InverseTransform(Vector3D<Precision>(pmin.x(), pmax.y(), pmax.z()), bbox[6]);
+    tr->InverseTransform(Vector3D<Precision>(pmax.x(), pmax.y(), pmax.z()), bbox[7]);
+    Precision xmin = bbox[0].x();
+    Precision ymin = bbox[0].y();
+    Precision zmin = bbox[0].z();
+    Precision xmax = bbox[0].x();
+    Precision ymax = bbox[0].y();
+    Precision zmax = bbox[0].z();
+    for (int i = 1; i < 8; ++i) {
+      xmin = vecCore::math::Min(xmin, bbox[i].x());
+      ymin = vecCore::math::Min(ymin, bbox[i].y());
+      zmin = vecCore::math::Min(zmin, bbox[i].z());
+      xmax = vecCore::math::Max(xmax, bbox[i].x());
+      ymax = vecCore::math::Max(ymax, bbox[i].y());
+      zmax = vecCore::math::Max(zmax, bbox[i].z());
+    }
+    aMin.Set(xmin, ymin, zmin);
+    aMax.Set(xmax, ymax, zmax);
+  } else {
+    tr->InverseTransform(pmin, aMin);
+    tr->InverseTransform(pmax, aMax);
+  }
 #endif
 }
 

@@ -163,21 +163,7 @@ public:
     return GetUnplacedVolume()->PointOnHyperbolicSurface<ForInnerSurface>(p);
   }
 
-  VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(p, normal);
-  }
-
-  Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
-
   Precision SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }
-
-  VECCORE_ATT_HOST_DEVICE
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    return GetUnplacedVolume()->Extent(aMin, aMax);
-  }
 
   //  VECCORE_ATT_HOST_DEVICE
   //  VECGEOM_FORCE_INLINE

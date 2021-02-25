@@ -77,19 +77,6 @@ public:
 #endif // VECGEOM_BENCHMARK
 
 #if !defined(VECCORE_CUDA)
-  virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
-
-  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
-
   virtual Precision SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }
 #endif
 

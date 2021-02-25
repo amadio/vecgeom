@@ -63,12 +63,6 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->UnplacedAssembly::Extent(aMin, aMax);
-  }
-
-  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &p) const override
   {
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())
@@ -224,8 +218,6 @@ public:
 #endif
     return Real_v(-1.);
   }
-
-  Precision Capacity() override { return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->Capacity(); }
 
   Precision SurfaceArea() const override
   {

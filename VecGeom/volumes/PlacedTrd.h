@@ -136,21 +136,7 @@ public:
     const_cast<UnplacedTrd *>(GetUnplacedVolume())->SetAllParameters(x1, x2, y1, y2, z);
   }
 
-  VECCORE_ATT_HOST_DEVICE
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
 #ifndef VECCORE_CUDA
-  virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
-
-  VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
-
   /// Returns memory size in bytes
   VECGEOM_FORCE_INLINE
   virtual int MemorySize() const override { return sizeof(*this); }

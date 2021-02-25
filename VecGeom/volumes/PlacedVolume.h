@@ -432,13 +432,11 @@ public:
   /// Simple forward to capacity on VUnplacedVolume
   virtual Precision Capacity();
 
-  /// Simple forward to Extent on VUnplacedVolume. Returns coordinates in the frame of the unplaced volume
-  /// which needs to be revised!!
+  /// Get Extent of VUnplacedVolume, then apply transformation and recalculate
   VECCORE_ATT_HOST_DEVICE
   virtual void Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const;
 
-  /// Simple forward to Normal on VUnplacedVolume. Returns coordinates in the frame of the unplaced volume
-  /// and expects a point in the same frame as input. Needs to be revised!!
+  /// Get Normal of VUnplacedVolume, then apply transformation
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const;
 

@@ -84,23 +84,6 @@ public:
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> TopNormal() const { return GetUnplacedVolume()->TopNormal(); }
 
-#if !defined(VECCORE_CUDA)
-  /** @brief Interface method for computing capacity */
-  virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
-  /** @brief Computes the extent on X/Y/Z of the trapezoid */
-  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
-  /** @brief Shortcut for computing the normal */
-  VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
-#endif
-
   // CUDA specific
   /** @brief Memory size in bytes */
   VECGEOM_FORCE_INLINE

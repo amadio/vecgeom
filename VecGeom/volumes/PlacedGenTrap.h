@@ -85,24 +85,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision GetDZ() const { return GetUnplacedVolume()->GetDZ(); }
 
-#if !defined(VECCORE_CUDA)
-  /** @brief Interface method for computing capacity */
-  virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
-
-  /** @brief Computes the extent on X/Y/Z of the trapezoid */
-  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
-  /** @brief Shortcut for computing the normal */
-  VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
-#endif
-
   /** @brief Print type name */
   VECCORE_ATT_HOST_DEVICE
   void PrintType() const override;

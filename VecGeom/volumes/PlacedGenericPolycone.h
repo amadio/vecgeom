@@ -74,12 +74,6 @@ public:
   virtual void PrintType() const override;
   virtual void PrintType(std::ostream &os) const override;
 
-  VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
-
 // Comparison specific
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;

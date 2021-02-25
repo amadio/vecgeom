@@ -93,22 +93,6 @@ public:
   void SetZHalfLength(Precision xin) { const_cast<UnplacedCone *>(GetUnplacedVolume())->SetDz(xin); }
   void SetStartPhiAngle(Precision xin, bool) { const_cast<UnplacedCone *>(GetUnplacedVolume())->SetSPhi(xin); }
   void SetDeltaPhiAngle(Precision xin) { const_cast<UnplacedCone *>(GetUnplacedVolume())->SetDPhi(xin); }
-
-#if !defined(VECCORE_CUDA)
-  virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
-
-  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
-  {
-    return GetUnplacedVolume()->Normal(point, normal);
-  }
-#endif
-
 }; // end class
 
 // a placed cone knowing abouts its volume/structural specialization

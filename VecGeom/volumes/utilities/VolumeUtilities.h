@@ -347,7 +347,7 @@ void FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
         }
 
         point = offset + SamplePoint(dim);
-      } while (!volume.UnplacedContains(point));
+      } while (!volume.Contains(point));
       points.set(i, point);
 
       contained = false;
@@ -422,7 +422,7 @@ void FillUncontainedPoints(VPlacedVolume const &volume, RandomEngine &rngengine,
         }
 
         point = offset + SamplePoint(dim, rngengine);
-      } while (!volume.UnplacedContains(point));
+      } while (!volume.Contains(point));
       points.set(i, point);
 
       contained = false;
@@ -484,7 +484,7 @@ bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
         return false;
       }
       point = offset + SamplePoint(dim);
-    } while (!volume.UnplacedContains(point));
+    } while (!volume.Contains(point));
     points.set(i, point);
   }
   return true;
