@@ -328,7 +328,7 @@ void FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
   points.resize(points.capacity());
 
   Vector3D<Precision> lower, upper, offset;
-  volume.Extent(lower, upper);
+  volume.GetUnplacedVolume()->Extent(lower, upper);
   offset                        = 0.5 * (upper + lower);
   const Vector3D<Precision> dim = 0.5 * (upper - lower);
 
@@ -347,7 +347,7 @@ void FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
         }
 
         point = offset + SamplePoint(dim);
-      } while (!volume.Contains(point));
+      } while (!volume.UnplacedContains(point));
       points.set(i, point);
 
       contained = false;
@@ -403,7 +403,7 @@ void FillUncontainedPoints(VPlacedVolume const &volume, RandomEngine &rngengine,
   points.resize(points.capacity());
 
   Vector3D<Precision> lower, upper, offset;
-  volume.Extent(lower, upper);
+  volume.GetUnplacedVolume()->Extent(lower, upper);
   offset                        = 0.5 * (upper + lower);
   const Vector3D<Precision> dim = 0.5 * (upper - lower);
 
@@ -422,7 +422,7 @@ void FillUncontainedPoints(VPlacedVolume const &volume, RandomEngine &rngengine,
         }
 
         point = offset + SamplePoint(dim, rngengine);
-      } while (!volume.Contains(point));
+      } while (!volume.UnplacedContains(point));
       points.set(i, point);
 
       contained = false;
@@ -467,7 +467,7 @@ bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
   int tries = 0;
 
   Vector3D<Precision> lower, upper, offset;
-  volume.Extent(lower, upper);
+  volume.GetUnplacedVolume()->Extent(lower, upper);
   offset                        = 0.5 * (upper + lower);
   const Vector3D<Precision> dim = 0.5 * (upper - lower);
 
@@ -484,7 +484,7 @@ bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
         return false;
       }
       point = offset + SamplePoint(dim);
-    } while (!volume.Contains(point));
+    } while (!volume.UnplacedContains(point));
     points.set(i, point);
   }
   return true;
