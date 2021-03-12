@@ -303,9 +303,6 @@ if(GNU)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fdiagnostics-color=auto")
   endif()
 
-  # gcc needs -ldl to be added explicitly
-  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${CMAKE_DL_LIBS})
-
 elseif(Intel)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fmax-errors=${VECGEOM_ERROR_LIMIT} -diag-disable 3438")
 
@@ -332,7 +329,6 @@ elseif(Clang OR AppleClang)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -stdlib=libc++")
   endif()
 
-  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${CMAKE_DL_LIBS})
 endif()
 
 # - Additional flags for coverage testing support
@@ -730,9 +726,9 @@ target_include_directories(vecgeom PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_link_libraries(vecgeom PUBLIC
-  ${VECGEOM_LIBRARIES}
-  ${VECGEOM_LIBRARIES_EXTERNAL})
+target_link_libraries(vecgeom
+  PUBLIC ${VECGEOM_LIBRARIES} ${VECGEOM_LIBRARIES_EXTERNAL}
+  PRIVATE ${CMAKE_DL_LIBS})
 
 if(VGM)
   add_dependencies(vecgeom VGM)

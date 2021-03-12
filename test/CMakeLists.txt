@@ -6,7 +6,9 @@ macro(build_executables EXECUTABLES)
   foreach(EXECUTABLE ${EXECUTABLES})
     get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
     add_executable(${TARGET_NAME} ${EXECUTABLE})
-    target_link_libraries(${TARGET_NAME} ${VECGEOM_LIBRARIES} ${USERKERNELLIB})
+    # Link to CMAKE_DL_LIBS needed for globalbenchmarks/NavigationKernelBenchmarker.cpp
+    # - No cost to link to others.
+    target_link_libraries(${TARGET_NAME} ${VECGEOM_LIBRARIES} ${USERKERNELLIB} ${CMAKE_DL_LIBS})
   endforeach()
 endmacro()
 
