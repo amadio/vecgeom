@@ -61,6 +61,9 @@ if(CCACHE_FOUND)
 endif()
 
 # - Basic library settings
+# Build statics with Position Independent Code
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # Review this as this is strictly incorrect for macOS (likely ROOT-ism)
 if(APPLE)
   set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
@@ -279,7 +282,7 @@ set(VECGEOM_ERROR_LIMIT 20 CACHE STRING "Limit number of errors output by compil
 mark_as_advanced(VECGEOM_ERROR_LIMIT)
 
 if(GNU)
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall")
 
   if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7")
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -faligned-new")
@@ -316,7 +319,7 @@ elseif(Intel)
       message(FATAL_ERROR "Unsupported C++ standard requested")
     endif()
   endif()
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC -diag-disable 3438")
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -diag-disable 3438")
 
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fmax-errors=${VECGEOM_ERROR_LIMIT}")
 
@@ -327,7 +330,7 @@ elseif(Intel)
   endif()
 
 elseif(Clang OR AppleClang)
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall")
 
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ferror-limit=${VECGEOM_ERROR_LIMIT}")
 
