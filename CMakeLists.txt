@@ -275,6 +275,9 @@ set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} VecCore::VecCore)
 # - Compiler Flags/Settings for each build type
 # We do this here as flags are dependent on chosen ISA
 # Flags will also be forwarded by CUDA when compiling C++.
+set(VECGEOM_ERROR_LIMIT 20 CACHE STRING "Limit number of errors output by compiler")
+mark_as_advanced(VECGEOM_ERROR_LIMIT)
+
 if(GNU)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
 
@@ -283,7 +286,6 @@ if(GNU)
     set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -faligned-new")
   endif()
 
-  set(VECGEOM_ERROR_LIMIT 20 CACHE STRING "Limit number of errors output by diagnostics.")
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fmax-errors=${VECGEOM_ERROR_LIMIT}")
 
   # Enable pretty diagnostics coloring if gcc 4.9+ is being used
@@ -316,6 +318,8 @@ elseif(Intel)
   endif()
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC -diag-disable 3438")
 
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fmax-errors=${VECGEOM_ERROR_LIMIT}")
+
   if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -g -O0")
   else()
@@ -324,6 +328,8 @@ elseif(Intel)
 
 elseif(Clang OR AppleClang)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
+
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ferror-limit=${VECGEOM_ERROR_LIMIT}")
 
   if(APPLE)
     # prefer LLVM's standard C++ library on Mac OS X
