@@ -283,22 +283,7 @@ set(VECGEOM_ERROR_LIMIT 20 CACHE STRING "Limit number of errors output by compil
 mark_as_advanced(VECGEOM_ERROR_LIMIT)
 
 if(GNU)
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall")
-
-  if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7")
-    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -faligned-new")
-    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -faligned-new")
-  endif()
-
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fmax-errors=${VECGEOM_ERROR_LIMIT}")
-
-  # Enable pretty diagnostics coloring if gcc 4.9+ is being used
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8.9999)
-    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fdiagnostics-color=auto")
-  endif()
-
-  # gcc needs -ldl to be added explicitly
-  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${CMAKE_DL_LIBS})
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fmax-errors=${VECGEOM_ERROR_LIMIT}")
 
   if(CMAKE_BUILD_TYPE MATCHES Debug)
      set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ggdb -O0")
@@ -309,10 +294,21 @@ if(GNU)
     endif()
   endif()
 
-elseif(Intel)
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -diag-disable 3438")
+  if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7")
+    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -faligned-new")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -faligned-new")
+  endif()
 
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fmax-errors=${VECGEOM_ERROR_LIMIT}")
+  # Enable pretty diagnostics coloring if gcc 4.9+ is being used
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8.9999)
+    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fdiagnostics-color=auto")
+  endif()
+
+  # gcc needs -ldl to be added explicitly
+  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${CMAKE_DL_LIBS})
+
+elseif(Intel)
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fmax-errors=${VECGEOM_ERROR_LIMIT} -diag-disable 3438")
 
   if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ggdb -O0")
@@ -321,14 +317,7 @@ elseif(Intel)
   endif()
 
 elseif(Clang OR AppleClang)
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall")
-
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ferror-limit=${VECGEOM_ERROR_LIMIT}")
-
-  if(APPLE)
-    # prefer LLVM's standard C++ library on Mac OS X
-    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -stdlib=libc++")
-  endif()
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -ferror-limit=${VECGEOM_ERROR_LIMIT}")
 
   if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS}  -ggdb -O0")
@@ -337,6 +326,11 @@ elseif(Clang OR AppleClang)
     if(FAST_MATH)
       set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ffast-math")
     endif()
+  endif()
+
+  if(APPLE)
+    # prefer LLVM's standard C++ library on Mac OS X
+    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -stdlib=libc++")
   endif()
 
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${CMAKE_DL_LIBS})
