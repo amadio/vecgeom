@@ -323,6 +323,12 @@ elseif(Clang OR AppleClang)
     endif()
   endif()
 
+  # Whilst we don't test clang < 4, it is used to build the custom static
+  # analysis tools, and this causes it to barf...
+  if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL "4")
+   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -faligned-new")
+  endif()
+
   if(APPLE)
     # prefer LLVM's standard C++ library on Mac OS X
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -stdlib=libc++")
