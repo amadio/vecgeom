@@ -34,7 +34,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 /// where dx, dy and dz are lengths of the semi-axes. The shape is centered at the origin
 /// and and optionally may have cuts in z.
 ///
-class UnplacedEllipsoid : public SIMDUnplacedVolumeImplHelper<EllipsoidImplementation>, public AlignedBase {
+class UnplacedEllipsoid : public UnplacedVolumeImplHelper<EllipsoidImplementation>, public AlignedBase {
 
 private:
   EllipsoidStruct<Precision> fEllipsoid;

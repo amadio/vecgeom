@@ -21,7 +21,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedGenTrap = SIMDSpecializedVolImplHelper<GenTrapImplementation, transCodeT, rotCodeT>;
+using SpecializedGenTrap = SpecializedVolImplHelper<GenTrapImplementation, transCodeT, rotCodeT>;
 
 using SimpleGenTrap = SpecializedGenTrap<translation::kGeneric, rotation::kGeneric>;
 }

@@ -17,7 +17,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 template <TranslationCode transCodeT, RotationCode rotCodeT, Polyhedron::EInnerRadii innerRadiiT,
           Polyhedron::EPhiCutout phiCutoutT>
 using SpecializedPolyhedron =
-    LoopSpecializedVolImplHelper<PolyhedronImplementation<innerRadiiT, phiCutoutT>, transCodeT, rotCodeT>;
+    SpecializedVolImplHelper<PolyhedronImplementation<innerRadiiT, phiCutoutT>, transCodeT, rotCodeT>;
 
 using SimplePolyhedron = SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric,
                                                Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric>;

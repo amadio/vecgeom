@@ -22,7 +22,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedParallelepiped = SIMDSpecializedVolImplHelper<ParallelepipedImplementation, transCodeT, rotCodeT>;
+using SpecializedParallelepiped = SpecializedVolImplHelper<ParallelepipedImplementation, transCodeT, rotCodeT>;
 
 using SimpleParallelepiped = SpecializedParallelepiped<translation::kGeneric, rotation::kGeneric>;
 } // namespace VECGEOM_IMPL_NAMESPACE

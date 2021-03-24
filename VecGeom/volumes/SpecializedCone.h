@@ -17,7 +17,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, typename coneTypeT>
-using SpecializedCone = SIMDSpecializedVolImplHelper<ConeImplementation<coneTypeT>, transCodeT, rotCodeT>;
+using SpecializedCone = SpecializedVolImplHelper<ConeImplementation<coneTypeT>, transCodeT, rotCodeT>;
 
 using SimpleCone = SpecializedCone<translation::kGeneric, rotation::kGeneric, ConeTypes::UniversalCone>;
 

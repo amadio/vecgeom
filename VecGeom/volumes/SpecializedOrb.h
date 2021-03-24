@@ -22,7 +22,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedOrb = SIMDSpecializedVolImplHelper<OrbImplementation, transCodeT, rotCodeT>;
+using SpecializedOrb = SpecializedVolImplHelper<OrbImplementation, transCodeT, rotCodeT>;
 
 using SimpleOrb = SpecializedOrb<translation::kGeneric, rotation::kGeneric>;
 } // namespace VECGEOM_IMPL_NAMESPACE

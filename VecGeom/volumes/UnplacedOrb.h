@@ -25,7 +25,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedOrb);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedOrb : public SIMDUnplacedVolumeImplHelper<OrbImplementation>, public AlignedBase {
+class UnplacedOrb : public UnplacedVolumeImplHelper<OrbImplementation>, public AlignedBase {
 
 private:
   OrbStruct<Precision> fOrb; ///< Structure holding the data for Orb

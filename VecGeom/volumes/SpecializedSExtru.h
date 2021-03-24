@@ -11,7 +11,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedSExtru = LoopSpecializedVolImplHelper<SExtruImplementation, transCodeT, rotCodeT>;
+using SpecializedSExtru = SpecializedVolImplHelper<SExtruImplementation, transCodeT, rotCodeT>;
 
 using SimpleSExtru = SpecializedSExtru<translation::kGeneric, rotation::kGeneric>;
 }

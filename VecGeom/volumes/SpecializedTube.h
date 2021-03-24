@@ -11,7 +11,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, typename tubeTypeT>
-using SpecializedTube = SIMDSpecializedVolImplHelper<TubeImplementation<tubeTypeT>, transCodeT, rotCodeT>;
+using SpecializedTube = SpecializedVolImplHelper<TubeImplementation<tubeTypeT>, transCodeT, rotCodeT>;
 
 using SimpleTube = SpecializedTube<translation::kGeneric, rotation::kGeneric, TubeTypes::UniversalTube>;
 

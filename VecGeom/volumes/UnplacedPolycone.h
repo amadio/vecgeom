@@ -258,10 +258,10 @@ void UnplacedPolycone::ReconstructSectionArrays(PushableContainer &z, PushableCo
 }
 
 template <typename PolyconeType = ConeTypes::UniversalCone>
-class SUnplacedPolycone : public LoopUnplacedVolumeImplHelper<PolyconeImplementation<PolyconeType>, UnplacedPolycone>,
+class SUnplacedPolycone : public UnplacedVolumeImplHelper<PolyconeImplementation<PolyconeType>, UnplacedPolycone>,
                           public AlignedBase {
 public:
-  using BaseType_t = LoopUnplacedVolumeImplHelper<PolyconeImplementation<PolyconeType>, UnplacedPolycone>;
+  using BaseType_t = UnplacedVolumeImplHelper<PolyconeImplementation<PolyconeType>, UnplacedPolycone>;
   using BaseType_t::BaseType_t;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>

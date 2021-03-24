@@ -40,7 +40,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 ///
 /// The semi-major axes at the z=0 plane are equal to a*h and b*h
 ///
-class UnplacedEllipticalCone : public SIMDUnplacedVolumeImplHelper<EllipticalConeImplementation>, public AlignedBase {
+class UnplacedEllipticalCone : public UnplacedVolumeImplHelper<EllipticalConeImplementation>, public AlignedBase {
 
 private:
   EllipticalConeStruct<Precision> fEllipticalCone; ///< Structure holding the data for Elliptical Cone

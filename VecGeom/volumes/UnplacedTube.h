@@ -163,11 +163,11 @@ struct Maker<UnplacedTube> {
 // this class finishes the implementation
 
 template <typename TubeType = TubeTypes::UniversalTube>
-class SUnplacedTube : public SIMDUnplacedVolumeImplHelper<TubeImplementation<TubeType>, UnplacedTube>,
+class SUnplacedTube : public UnplacedVolumeImplHelper<TubeImplementation<TubeType>, UnplacedTube>,
                       public AlignedBase {
 public:
   using Kernel     = TubeImplementation<TubeType>;
-  using BaseType_t = SIMDUnplacedVolumeImplHelper<TubeImplementation<TubeType>, UnplacedTube>;
+  using BaseType_t = UnplacedVolumeImplHelper<TubeImplementation<TubeType>, UnplacedTube>;
   using BaseType_t::BaseType_t;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>

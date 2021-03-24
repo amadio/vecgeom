@@ -284,11 +284,11 @@ struct Maker<UnplacedCone> {
 // this class finishes the implementation
 
 template <typename ConeType = ConeTypes::UniversalCone>
-class SUnplacedCone : public SIMDUnplacedVolumeImplHelper<ConeImplementation<ConeType>, UnplacedCone>,
+class SUnplacedCone : public UnplacedVolumeImplHelper<ConeImplementation<ConeType>, UnplacedCone>,
                       public vecgeom::AlignedBase {
 public:
   using Kernel     = ConeImplementation<ConeType>;
-  using BaseType_t = SIMDUnplacedVolumeImplHelper<ConeImplementation<ConeType>, UnplacedCone>;
+  using BaseType_t = UnplacedVolumeImplHelper<ConeImplementation<ConeType>, UnplacedCone>;
   using BaseType_t::BaseType_t;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>

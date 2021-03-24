@@ -22,7 +22,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTet = SIMDSpecializedVolImplHelper<TetImplementation, transCodeT, rotCodeT>;
+using SpecializedTet = SpecializedVolImplHelper<TetImplementation, transCodeT, rotCodeT>;
 
 using SimpleTet = SpecializedTet<translation::kGeneric, rotation::kGeneric>;
 } // namespace VECGEOM_IMPL_NAMESPACE

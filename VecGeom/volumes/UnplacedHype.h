@@ -365,10 +365,10 @@ struct Maker<UnplacedHype> {
 
 /** Specialized version of the unplaced hyperboloid, supporting universal/hollow/non-hollow types.*/
 template <typename HypeType = HypeTypes::UniversalHype>
-class SUnplacedHype : public SIMDUnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>,
+class SUnplacedHype : public UnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>,
                       public AlignedBase {
 public:
-  using BaseType_t = SIMDUnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>;
+  using BaseType_t = UnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>;
   using BaseType_t::BaseType_t;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>

@@ -14,7 +14,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedMultiUnion = LoopSpecializedVolImplHelper<MultiUnionImplementation, transCodeT, rotCodeT>;
+using SpecializedMultiUnion = SpecializedVolImplHelper<MultiUnionImplementation, transCodeT, rotCodeT>;
 
 using SimpleMultiUnion = SpecializedMultiUnion<translation::kGeneric, rotation::kGeneric>;
 }

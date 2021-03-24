@@ -29,7 +29,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 ///
 /// Tetrahedron, also known as a triangular pyramid, is a polyhedron composed
 /// by four triangular faces. It is completely defined by its four vertices.
-class UnplacedTet : public SIMDUnplacedVolumeImplHelper<TetImplementation>, public AlignedBase {
+class UnplacedTet : public UnplacedVolumeImplHelper<TetImplementation>, public AlignedBase {
 
 private:
   TetStruct<Precision> fTet; ///< The structure with the tetrahedron data members

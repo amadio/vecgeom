@@ -19,7 +19,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, typename TrdTypeT>
-using SpecializedTrd = SIMDSpecializedVolImplHelper<TrdImplementation<TrdTypeT>, transCodeT, rotCodeT>;
+using SpecializedTrd = SpecializedVolImplHelper<TrdImplementation<TrdTypeT>, transCodeT, rotCodeT>;
 
 using SimpleTrd = SpecializedTrd<translation::kGeneric, rotation::kGeneric, TrdTypes::UniversalTrd>;
 

@@ -16,7 +16,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedSphere = SIMDSpecializedVolImplHelper<SphereImplementation, transCodeT, rotCodeT>;
+using SpecializedSphere = SpecializedVolImplHelper<SphereImplementation, transCodeT, rotCodeT>;
 using SimpleSphere      = SpecializedSphere<translation::kGeneric, rotation::kGeneric>;
 }
 } // End global namespace

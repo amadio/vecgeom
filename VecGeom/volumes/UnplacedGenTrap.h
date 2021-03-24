@@ -25,7 +25,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  * A generic trap:
  * see TGeoArb8 or UGenericTrap
  */
-class UnplacedGenTrap : public SIMDUnplacedVolumeImplHelper<GenTrapImplementation>, public AlignedBase {
+class UnplacedGenTrap : public UnplacedVolumeImplHelper<GenTrapImplementation>, public AlignedBase {
 
 public:
   using Vertex_t = Vector3D<Precision>;

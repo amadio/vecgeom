@@ -20,7 +20,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedCoaxialCones);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedCoaxialCones : public SIMDUnplacedVolumeImplHelper<CoaxialConesImplementation>, public AlignedBase {
+class UnplacedCoaxialCones : public UnplacedVolumeImplHelper<CoaxialConesImplementation>, public AlignedBase {
 
 private:
   CoaxialConesStruct<Precision> fCoaxialCones;

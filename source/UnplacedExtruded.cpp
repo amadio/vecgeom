@@ -291,10 +291,9 @@ SolidMesh *UnplacedExtruded::CreateMesh3D(Transformation3D const &trans, size_t 
 
 #ifdef VECCORE_CUDA
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedExtruded::Create(LogicalVolume const *const logical_volume,
-                                        Transformation3D const *const transformation, const int id,
-                                        VPlacedVolume *const placement)
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedExtruded::Create(LogicalVolume const *const logical_volume,
+                                                           Transformation3D const *const transformation, const int id,
+                                                           VPlacedVolume *const placement)
 {
   if (placement) {
     new (placement) SpecializedExtruded<transCodeT, rotCodeT>(logical_volume, transformation, id);
@@ -369,8 +368,8 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedExtruded::CopyToGpu() const
 
 #ifndef HYBRID_NAVIGATOR_PORTED_TO_CUDA
 template <>
-size_t DevicePtr<vecgeom::cuda::LoopSpecializedVolImplHelper<vecgeom::cuda::ExtrudedImplementation,
-                                                             translation::kGeneric, rotation::kGeneric>>::SizeOf()
+size_t DevicePtr<vecgeom::cuda::SpecializedVolImplHelper<vecgeom::cuda::ExtrudedImplementation, translation::kGeneric,
+                                                         rotation::kGeneric>>::SizeOf()
 {
   return 0;
 }
@@ -378,7 +377,7 @@ size_t DevicePtr<vecgeom::cuda::LoopSpecializedVolImplHelper<vecgeom::cuda::Extr
 template <>
 template <>
 void DevicePtr<
-    cuda::LoopSpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>>::
+    cuda::SpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>>::
     Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, unsigned int, int,
               int) const
 {
@@ -387,13 +386,13 @@ void DevicePtr<
 
 template <>
 void ConstructManyOnGpu<
-    cuda::LoopSpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>
-    /*, ... inferred from arguments */>(std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const * gpu_ptrs,
-                                        DevicePtr<cuda::LogicalVolume> const * logical,
-                                        DevicePtr<cuda::Transformation3D> const * trafo,
-                                        decltype(std::declval<VPlacedVolume>().id()) const * ids,
-                                        decltype(std::declval<VPlacedVolume>().GetCopyNo()) const * copyNos,
-                                        decltype(std::declval<VPlacedVolume>().GetChildId()) const * childIds)
+    cuda::SpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>
+    /*, ... inferred from arguments */>(std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs,
+                                        DevicePtr<cuda::LogicalVolume> const *logical,
+                                        DevicePtr<cuda::Transformation3D> const *trafo,
+                                        decltype(std::declval<VPlacedVolume>().id()) const *ids,
+                                        decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
+                                        decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds)
 {
 }
 
@@ -411,13 +410,13 @@ template size_t DevicePtr<cuda::UnplacedExtruded>::SizeOf();
 template void DevicePtr<cuda::UnplacedExtruded>::Construct() const;
 template <>
 void ConstructManyOnGpu<
-    cuda::LoopSpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>
-    /*, ... inferred from arguments */>(std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const * gpu_ptrs,
-                                        DevicePtr<cuda::LogicalVolume> const * logical,
-                                        DevicePtr<cuda::Transformation3D> const * trafo,
-                                        decltype(std::declval<VPlacedVolume>().id()) const * ids,
-                                        decltype(std::declval<VPlacedVolume>().GetCopyNo()) const * copyNos,
-                                        decltype(std::declval<VPlacedVolume>().GetChildId()) const * childIds);
+    cuda::SpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>
+    /*, ... inferred from arguments */>(std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs,
+                                        DevicePtr<cuda::LogicalVolume> const *logical,
+                                        DevicePtr<cuda::Transformation3D> const *trafo,
+                                        decltype(std::declval<VPlacedVolume>().id()) const *ids,
+                                        decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
+                                        decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds);
 
 } // namespace cxx
 

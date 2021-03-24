@@ -50,11 +50,11 @@ UnplacedMultiUnion *Flatten(VUnplacedVolume const *unplaced, size_t min_unions =
  *
  */
 template <BooleanOperation Op>
-class UnplacedBooleanVolume : public LoopUnplacedVolumeImplHelper<BooleanImplementation<Op>>, public AlignedBase {
+class UnplacedBooleanVolume : public UnplacedVolumeImplHelper<BooleanImplementation<Op>>, public AlignedBase {
 
 public:
   BooleanStruct fBoolean;
-  using LoopUnplacedVolumeImplHelper<BooleanImplementation<Op>>::fGlobalConvexity;
+  using UnplacedVolumeImplHelper<BooleanImplementation<Op>>::fGlobalConvexity;
 
   // the constructor
   VECCORE_ATT_HOST_DEVICE

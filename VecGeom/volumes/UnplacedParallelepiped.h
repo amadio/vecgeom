@@ -32,7 +32,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 /// Angle alpha is formed by the y-axis and the line joining
 /// centres of the faces at +/- dy.
 
-class UnplacedParallelepiped : public SIMDUnplacedVolumeImplHelper<ParallelepipedImplementation>, public AlignedBase {
+class UnplacedParallelepiped : public UnplacedVolumeImplHelper<ParallelepipedImplementation>, public AlignedBase {
 
 private:
   ParallelepipedStruct<Precision> fPara; ///< The parallelepiped structure

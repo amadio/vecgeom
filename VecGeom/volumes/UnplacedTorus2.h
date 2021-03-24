@@ -23,7 +23,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedTorus2);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // Introduce Intermediate class ( so that we can do typecasting )
-class UnplacedTorus2 : public LoopUnplacedVolumeImplHelper<TorusImplementation2>, public AlignedBase {
+class UnplacedTorus2 : public UnplacedVolumeImplHelper<TorusImplementation2>, public AlignedBase {
 private:
   // tube defining parameters
   TorusStruct2<Precision> fTorus;

@@ -22,7 +22,7 @@ VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedMultiUnion;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedMultiUnion : public LoopUnplacedVolumeImplHelper<MultiUnionImplementation>, public AlignedBase {
+class UnplacedMultiUnion : public UnplacedVolumeImplHelper<MultiUnionImplementation>, public AlignedBase {
 
 protected:
   mutable MultiUnionStruct fMultiUnion; ///< Structure storing multi-union parameters

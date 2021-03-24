@@ -39,7 +39,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 /// - dz = a * rhi^2 + b and  -dz = a * rlo^2 + b, where rhi > rlo, both >= 0
 /// - a = 2 * dz * dd and b = -dz * (rlo^2 + rhi^2) * dd, where dd = 1 / (rhi^2 - rlo^2)
 ///
-class UnplacedParaboloid : public SIMDUnplacedVolumeImplHelper<ParaboloidImplementation>, public AlignedBase {
+class UnplacedParaboloid : public UnplacedVolumeImplHelper<ParaboloidImplementation>, public AlignedBase {
 
 private:
   ParaboloidStruct<Precision> fParaboloid; ///< The paraboloid structure

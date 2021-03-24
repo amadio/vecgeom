@@ -17,7 +17,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedBox);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedBox : public SIMDUnplacedVolumeImplHelper<BoxImplementation>, public AlignedBase {
+class UnplacedBox : public UnplacedVolumeImplHelper<BoxImplementation>, public AlignedBase {
 
 private:
   BoxStruct<Precision> fBox;

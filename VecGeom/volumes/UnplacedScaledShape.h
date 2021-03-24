@@ -51,7 +51,7 @@ static UnplacedScaledShape *MakeScaledInstance(Scale3D scale, Argtypes... args)
 /**
  * The unplaced scaled shape class.
  */
-class UnplacedScaledShape : public SIMDUnplacedVolumeImplHelper<ScaledShapeImplementation>, public AlignedBase {
+class UnplacedScaledShape : public UnplacedVolumeImplHelper<ScaledShapeImplementation>, public AlignedBase {
 
 public:
   ScaledShapeStruct<Precision> fScaled; /* The scaled shape structure */

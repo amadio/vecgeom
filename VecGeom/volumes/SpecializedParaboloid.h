@@ -22,7 +22,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedParaboloid = SIMDSpecializedVolImplHelper<ParaboloidImplementation, transCodeT, rotCodeT>;
+using SpecializedParaboloid = SpecializedVolImplHelper<ParaboloidImplementation, transCodeT, rotCodeT>;
 
 using SimpleParaboloid = SpecializedParaboloid<translation::kGeneric, rotation::kGeneric>;
 } // namespace VECGEOM_IMPL_NAMESPACE

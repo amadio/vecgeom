@@ -35,7 +35,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
   The class uses scalar navigation interfaces, but has internal vectorization on the triangle components and on
   the navigation optimizer.
 */
-class UnplacedTessellated : public LoopUnplacedVolumeImplHelper<TessellatedImplementation>, public AlignedBase {
+class UnplacedTessellated : public UnplacedVolumeImplHelper<TessellatedImplementation>, public AlignedBase {
 protected:
   mutable TessellatedStruct<3, Precision> fTessellated; ///< Structure with Tessellated parameters
 

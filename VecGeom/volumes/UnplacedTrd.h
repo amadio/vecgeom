@@ -299,10 +299,10 @@ struct Maker<UnplacedTrd> {
 };
 
 template <typename TrdType = TrdTypes::UniversalTrd>
-class SUnplacedTrd : public SIMDUnplacedVolumeImplHelper<TrdImplementation<TrdType>, UnplacedTrd>, public AlignedBase {
+class SUnplacedTrd : public UnplacedVolumeImplHelper<TrdImplementation<TrdType>, UnplacedTrd>, public AlignedBase {
 public:
   using Kernel     = TrdImplementation<TrdType>;
-  using BaseType_t = SIMDUnplacedVolumeImplHelper<TrdImplementation<TrdType>, UnplacedTrd>;
+  using BaseType_t = UnplacedVolumeImplHelper<TrdImplementation<TrdType>, UnplacedTrd>;
   using BaseType_t::BaseType_t;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>

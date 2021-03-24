@@ -21,7 +21,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedGenericPolycone);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedGenericPolycone : public LoopUnplacedVolumeImplHelper<GenericPolyconeImplementation>, public AlignedBase {
+class UnplacedGenericPolycone : public UnplacedVolumeImplHelper<GenericPolyconeImplementation>, public AlignedBase {
 
 private:
   GenericPolyconeStruct<Precision> fGenericPolycone;

@@ -19,7 +19,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedSphere);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedSphere : public SIMDUnplacedVolumeImplHelper<SphereImplementation>, public AlignedBase {
+class UnplacedSphere : public UnplacedVolumeImplHelper<SphereImplementation>, public AlignedBase {
 
 private:
   SphereStruct<Precision> fSphere;

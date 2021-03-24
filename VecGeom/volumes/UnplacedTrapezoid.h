@@ -41,7 +41,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 typedef Vector3D<Precision> TrapCorners[8];
 
-class UnplacedTrapezoid : public SIMDUnplacedVolumeImplHelper<TrapezoidImplementation>, public AlignedBase {
+class UnplacedTrapezoid : public UnplacedVolumeImplHelper<TrapezoidImplementation>, public AlignedBase {
 
 private:
   TrapezoidStruct<Precision> fTrap;

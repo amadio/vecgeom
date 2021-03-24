@@ -17,7 +17,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedSExtruVolume);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedSExtruVolume : public LoopUnplacedVolumeImplHelper<SExtruImplementation>, public AlignedBase {
+class UnplacedSExtruVolume : public UnplacedVolumeImplHelper<SExtruImplementation>, public AlignedBase {
 
 private:
   PolygonalShell fPolyShell;

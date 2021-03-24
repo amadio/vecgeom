@@ -15,7 +15,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, typename hypeTypeT>
-using SpecializedHype = SIMDSpecializedVolImplHelper<HypeImplementation<hypeTypeT>, transCodeT, rotCodeT>;
+using SpecializedHype = SpecializedVolImplHelper<HypeImplementation<hypeTypeT>, transCodeT, rotCodeT>;
 
 using SimpleHype = SpecializedHype<translation::kGeneric, rotation::kGeneric, HypeTypes::UniversalHype>;
 

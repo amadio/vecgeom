@@ -19,7 +19,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedExtruded);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedExtruded : public LoopUnplacedVolumeImplHelper<ExtrudedImplementation>, public AlignedBase {
+class UnplacedExtruded : public UnplacedVolumeImplHelper<ExtrudedImplementation>, public AlignedBase {
 
   // template <typename U>
   // using vector_t = vecgeom::Vector<U>;

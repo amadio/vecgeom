@@ -15,9 +15,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedScaledShape = LoopSpecializedVolImplHelper<ScaledShapeImplementation, transCodeT, rotCodeT>;
-// SIMD interface below to be enabled when available in UnplacedVolume
-// using SpecializedScaledShape = SIMDSpecializedVolImplHelper<ScaledShapeImplementation, transCodeT, rotCodeT>;
+using SpecializedScaledShape = SpecializedVolImplHelper<ScaledShapeImplementation, transCodeT, rotCodeT>;
 
 using SimpleScaledShape = SpecializedScaledShape<translation::kGeneric, rotation::kGeneric>;
 }

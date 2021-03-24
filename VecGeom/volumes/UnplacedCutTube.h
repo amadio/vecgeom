@@ -23,7 +23,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedCutTube);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedCutTube : public SIMDUnplacedVolumeImplHelper<CutTubeImplementation>, public AlignedBase {
+class UnplacedCutTube : public UnplacedVolumeImplHelper<CutTubeImplementation>, public AlignedBase {
 
 private:
   CutTubeStruct<Precision> fCutTube; //> The cut tube data holder

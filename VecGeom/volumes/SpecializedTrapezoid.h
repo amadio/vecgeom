@@ -18,7 +18,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTrapezoid = SIMDSpecializedVolImplHelper<TrapezoidImplementation, transCodeT, rotCodeT>;
+using SpecializedTrapezoid = SpecializedVolImplHelper<TrapezoidImplementation, transCodeT, rotCodeT>;
 
 using SimpleTrapezoid = SpecializedTrapezoid<translation::kGeneric, rotation::kGeneric>;
 

@@ -14,7 +14,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedExtruded = LoopSpecializedVolImplHelper<ExtrudedImplementation, transCodeT, rotCodeT>;
+using SpecializedExtruded = SpecializedVolImplHelper<ExtrudedImplementation, transCodeT, rotCodeT>;
 
 using SimpleExtruded = SpecializedExtruded<translation::kGeneric, rotation::kGeneric>;
 }

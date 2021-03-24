@@ -12,7 +12,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedCutTube = SIMDSpecializedVolImplHelper<CutTubeImplementation, transCodeT, rotCodeT>;
+using SpecializedCutTube = SpecializedVolImplHelper<CutTubeImplementation, transCodeT, rotCodeT>;
 
 using SimpleCutTube = SpecializedCutTube<translation::kGeneric, rotation::kGeneric>;
 }

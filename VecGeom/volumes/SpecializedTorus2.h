@@ -18,7 +18,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 // at the moment this is not done
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTorus2 = LoopSpecializedVolImplHelper<TorusImplementation2, transCodeT, rotCodeT>;
+using SpecializedTorus2 = SpecializedVolImplHelper<TorusImplementation2, transCodeT, rotCodeT>;
 
 using SimpleTorus2 = SpecializedTorus2<translation::kGeneric, rotation::kGeneric>;
 

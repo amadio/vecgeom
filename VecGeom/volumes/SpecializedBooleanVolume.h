@@ -13,7 +13,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <BooleanOperation boolOp, TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedBooleanVolume = LoopSpecializedVolImplHelper<BooleanImplementation<boolOp>, transCodeT, rotCodeT>;
+using SpecializedBooleanVolume = SpecializedVolImplHelper<BooleanImplementation<boolOp>, transCodeT, rotCodeT>;
 
 using GenericPlacedUnionVolume = SpecializedBooleanVolume<kUnion, translation::kGeneric, rotation::kGeneric>;
 using GenericPlacedIntersectionVolume =

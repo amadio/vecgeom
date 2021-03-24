@@ -21,7 +21,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, typename polyconeTypeT>
-using SpecializedPolycone = LoopSpecializedVolImplHelper<PolyconeImplementation<polyconeTypeT>, transCodeT, rotCodeT>;
+using SpecializedPolycone = SpecializedVolImplHelper<PolyconeImplementation<polyconeTypeT>, transCodeT, rotCodeT>;
 
 using SimplePolycone = SpecializedPolycone<translation::kGeneric, rotation::kGeneric, ConeTypes::UniversalCone>;
 

@@ -97,20 +97,9 @@ public:
 private:
   // select target specialization helpers with SFINAE
   template <typename IUnplaced, typename ImplementingKernel>
-  VPlacedVolume *changeTypeKeepTransformation(
-      VPlacedVolume const *p, typename std::enable_if<IUnplaced::SIMDHELPER, IUnplaced>::type * = nullptr) const
+  VPlacedVolume *changeTypeKeepTransformation(VPlacedVolume const *p) const
   {
-    // if the implementing helper supports SIMD
-    auto c = VolumeFactory::ChangeTypeKeepTransformation<SIMDSpecializedVolImplHelper, ImplementingKernel>(p);
-    return c;
-  }
-
-  template <typename IUnplaced, typename ImplementingKernel>
-  VPlacedVolume *changeTypeKeepTransformation(
-      VPlacedVolume const *p, typename std::enable_if<!IUnplaced::SIMDHELPER, IUnplaced>::type * = nullptr) const
-  {
-    // if the implementing helper does not support SIMD
-    auto c = VolumeFactory::ChangeTypeKeepTransformation<LoopSpecializedVolImplHelper, ImplementingKernel>(p);
+    auto c = VolumeFactory::ChangeTypeKeepTransformation<SpecializedVolImplHelper, ImplementingKernel>(p);
     return c;
   }
 

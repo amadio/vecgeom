@@ -33,7 +33,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 ///
 /// (x/dx)^2 + (y/dy)^2 = 1
 ///
-class UnplacedEllipticalTube : public SIMDUnplacedVolumeImplHelper<EllipticalTubeImplementation>, public AlignedBase {
+class UnplacedEllipticalTube : public UnplacedVolumeImplHelper<EllipticalTubeImplementation>, public AlignedBase {
 
 private:
   EllipticalTubeStruct<Precision> fEllipticalTube;
