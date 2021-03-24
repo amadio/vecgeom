@@ -125,17 +125,6 @@ public:
     return -1.;
   }
 
-  // DistanceToOut does not make sense -- throw exeption
-  VECCORE_ATT_HOST_DEVICE
-  Real_v DistanceToOutVec(Vector3D<Real_v> const & /*p*/, Vector3D<Real_v> const & /*d*/,
-                          Real_v const & /*step_max*/) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("Forbidden DistanceToOut in Assembly called");
-#endif
-    return Real_v(-1.);
-  }
-
   using VUnplacedVolume::SafetyToOut;
   VECCORE_ATT_HOST_DEVICE
   Precision SafetyToOut(Vector3D<Precision> const &) const override
@@ -146,31 +135,11 @@ public:
     return -1.;
   }
 
-  // an explicit SIMD interface
-  VECCORE_ATT_HOST_DEVICE
-  Real_v SafetyToOutVec(Vector3D<Real_v> const &) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("Forbidden SafetyToOut in Assembly called");
-#endif
-    return Real_v(-1.);
-  }
-
   // ---------------- SafetyToIn functions -------------------------------------------------------
   VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &p) const override
   {
     return fLogicalVolume->GetSafetyEstimator()->ComputeSafetyToDaughtersForLocalPoint(p, fLogicalVolume);
-  }
-
-  // explicit SIMD interface
-  VECCORE_ATT_HOST_DEVICE
-  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("SafetyToInVec in Assembly not yet implemented");
-#endif
-    return Real_v(-1.);
   }
 
   // ---------------- DistanceToIn functions -----------------------------------------------------
@@ -185,16 +154,6 @@ public:
     VPlacedVolume const *pv;
     fLogicalVolume->GetNavigator()->CheckDaughterIntersections(fLogicalVolume, p, d, nullptr, nullptr, step, pv);
     return step;
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual Real_v DistanceToInVec(Vector3D<Real_v> const & /*p*/, Vector3D<Real_v> const & /*d*/,
-                                 const Real_v & /*step_max*/ = Real_v(kInfLength)) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("DistanceToInVec in Assembly not yet implemented");
-#endif
-    return Real_v(-1.);
   }
 
   Vector3D<Precision> SamplePointOnSurface() const override;

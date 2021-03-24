@@ -157,49 +157,6 @@ __attribute__((noinline)) void benchmarkLocalG4Safety(SOA3D<Precision> const &po
 }
 #endif // end if G4
 
-#ifdef VECGEOM_VECTOR
-// benchmarks the old vector interface (needing temporary workspace)
-template <typename T>
-__attribute__((noinline)) void benchVectorSafety(SOA3D<Precision> const &points, NavStatePool &pool)
-{
-  // bench safety
-  SOA3D<Precision> workspace(points.size());
-  Precision *safety = (double *)vecCore::AlignedAlloc(64, sizeof(double) * points.size());
-  Stopwatch timer;
-  VSafetyEstimator *se = T::Instance();
-  timer.Start();
-  se->ComputeVectorSafety(points, pool, workspace, safety);
-  timer.Stop();
-  std::cerr << timer.Elapsed() << "\n";
-  double accum(0.);
-  for (size_t i = 0; i < points.size(); ++i) {
-    accum += safety[i];
-  }
-  vecCore::AlignedFree(safety);
-  std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << "\n";
-}
-
-// benchmarks the new safety vector interface (which does not need temporary workspace)
-template <typename T>
-__attribute__((noinline)) void benchVectorSafetyNoWorkspace(SOA3D<Precision> const &points, NavStatePool &pool)
-{
-  // bench safety
-  Precision *safety = (double *)vecCore::AlignedAlloc(64, sizeof(double) * points.size());
-  Stopwatch timer;
-  VSafetyEstimator *se = T::Instance();
-  timer.Start();
-  se->ComputeVectorSafety(points, pool, safety);
-  timer.Stop();
-  std::cerr << timer.Elapsed() << "\n";
-  double accum(0.);
-  for (size_t i = 0; i < points.size(); ++i) {
-    accum += safety[i];
-  }
-  vecCore::AlignedFree(safety);
-  std::cerr << "VECTOR (NO WORKSP) accum  " << T::GetClassName() << " " << accum << "\n";
-}
-#endif
-
 // benchmarks the ROOT safety interface
 #ifdef VECGEOM_ROOT
 __attribute__((noinline)) void benchmarkROOTSafety(int nPoints, SOA3D<Precision> const &points)
@@ -310,18 +267,7 @@ void benchDifferentSafeties(SOA3D<Precision> const &points, SOA3D<Precision> con
   RUNBENCH(benchmarkLocalG4Safety(points, localpoints));
 #endif
 
-  // std::cerr << "##\n";
-  // benchVectorSafety<SPECIALESTIMATOR>(points, pool);
-
   std::cerr << "##\n";
-#ifdef VECGEOM_VECTORAPI
-  RUNBENCH(benchVectorSafety<SimpleSafetyEstimator>(points, pool));
-  std::cerr << "##\n";
-  RUNBENCH(benchVectorSafetyNoWorkspace<SimpleSafetyEstimator>(points, pool));
-  std::cerr << "##\n";
-  RUNBENCH(benchVectorSafety<SimpleABBoxSafetyEstimator>(points, pool));
-  std::cerr << "##\n";
-#endif
 }
 
 // main program

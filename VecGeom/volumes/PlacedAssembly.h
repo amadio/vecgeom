@@ -77,11 +77,6 @@ public:
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->UnplacedAssembly::Contains(localPoint);
   }
 
-  virtual void Contains(SOA3D<Precision> const & /*points*/, bool *const /*output*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual bool UnplacedContains(Vector3D<Precision> const &point) const override
@@ -99,11 +94,6 @@ public:
     return vecgeom::kOutside; // dummy return
   }
 
-  virtual void Inside(SOA3D<Precision> const & /*points*/, Inside_t *const /*output*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
@@ -112,12 +102,6 @@ public:
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())
         ->UnplacedAssembly::DistanceToIn(GetTransformation()->Transform(position),
                                          GetTransformation()->TransformDirection(direction), step_max);
-  }
-
-  virtual void DistanceToIn(SOA3D<Precision> const & /*position*/, SOA3D<Precision> const & /*direction*/,
-                            Precision const *const /*stepMax*/, Precision *const /*output*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -142,29 +126,11 @@ public:
     return -1.;
   }
 
-  virtual void DistanceToOut(SOA3D<Precision> const & /*position*/, SOA3D<Precision> const & /*direction*/,
-                             Precision const *const /*step_max*/, Precision *const /*output*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
-  virtual void DistanceToOut(SOA3D<Precision> const & /*position*/, SOA3D<Precision> const & /*direction*/,
-                             Precision const *const /*step_max*/, Precision *const /*output*/,
-                             int *const /*nextnodeindex*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const override
   {
     return GetUnplacedVolume()->SafetyToOut(position);
-  }
-
-  virtual void SafetyToOut(SOA3D<Precision> const & /*position*/, Precision *const /*safeties*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -173,46 +139,6 @@ public:
   {
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())
         ->UnplacedAssembly::SafetyToIn(GetTransformation()->Transform(position));
-  }
-
-  virtual void SafetyToIn(SOA3D<Precision> const & /*position*/, Precision *const /*safeties*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
-  // the SIMD vector interfaces (not implemented)
-  virtual Real_v DistanceToInVec(Vector3D<Real_v> const & /*position*/, Vector3D<Real_v> const & /*direction*/,
-                                 Real_v const /*step_max*/ = kInfLength) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("unimplemented function called");
-#endif
-    return Real_v(-1.);
-  }
-
-  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const & /*position*/, Vector3D<Real_v> const & /*direction*/,
-                                  Real_v const /*step_max*/ = kInfLength) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("unimplemented function called");
-#endif
-    return Real_v(-1.);
-  }
-
-  virtual Real_v SafetyToInVec(Vector3D<Real_v> const & /*position*/) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("unimplemented function called");
-#endif
-    return Real_v(-1.);
-  }
-
-  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const & /*position*/) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("unimplemented function called");
-#endif
-    return Real_v(-1.);
   }
 
   Precision SurfaceArea() const override

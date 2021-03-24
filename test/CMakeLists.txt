@@ -116,10 +116,6 @@ if(VECGEOM_USE_INDEXEDNAVSTATES)
   list(APPEND TEST_EXECUTABLES_CORE core/TestNavigationState.cpp)
 endif()
 
-if(NOT VECGEOM_ENABLE_CUDA)
-  list(APPEND TEST_EXECUTABLES_CORE core/testVectorSafety.cpp)
-endif()
-
 build_executables("${TEST_EXECUTABLES_CORE}")
 add_to_ctest("${TEST_EXECUTABLES_CORE}")
 

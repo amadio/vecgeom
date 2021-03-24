@@ -172,89 +172,7 @@ public:
     return output;
   }
 
-  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &position) const override
-  {
-    Transformation3D const *tr = this->GetTransformation();
-    return this->GetUnplacedVolume()->UnplacedVolume_t::SafetyToInVec(tr->Transform<transC, rotC>(position));
-  }
-
 }; // End class CommonSpecializedVolImplHelper
-
-// needs to be in the specializations
-template <class Specialization, typename Real_v, int transC, int rotC>
-VECGEOM_FORCE_INLINE
-static void ContainsLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
-                               Transformation3D const &trans, const size_t offset, const size_t size,
-                               SOA3D<Precision> const &points, bool *const output)
-{
-
-  using Bool_v = typename vecCore::Mask_v<Real_v>;
-  for (decltype(points.size()) i(offset); i < size; i += vecCore::VectorSize<Real_v>()) {
-    Vector3D<Real_v> point(vecCore::FromPtr<Real_v>(points.x() + i), vecCore::FromPtr<Real_v>(points.y() + i),
-                           vecCore::FromPtr<Real_v>(points.z() + i));
-    Bool_v result(false);
-    Specialization::template Contains<Real_v>(shapestruct, trans.Transform<transC, rotC>(point), result);
-    // vecCore::StoreMask(result, output);
-    // StoreMask has problem -> see VECCORE-21
-    for (size_t j = 0; j < vecCore::VectorSize<Real_v>(); ++j)
-      output[i + j] = vecCore::MaskLaneAt(result, j);
-  }
-}
-
-template <class Specialization, typename Real_v, int transC, int rotC>
-VECGEOM_FORCE_INLINE
-static void InsideLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
-                             Transformation3D const &trans, const size_t offset, const size_t size,
-                             SOA3D<Precision> const &points, Inside_t *const output)
-{
-  using Index_t = vecCore::Index_v<Real_v>;
-  for (decltype(points.size()) i(offset); i < size; i += vecCore::VectorSize<Real_v>()) {
-    Vector3D<Real_v> point(vecCore::FromPtr<Real_v>(points.x() + i), vecCore::FromPtr<Real_v>(points.y() + i),
-                           vecCore::FromPtr<Real_v>(points.z() + i));
-    Index_t result;
-    Specialization::template Inside<Real_v>(shapestruct, trans.Transform<transC, rotC>(point), result);
-    // TODO: make a proper store here
-    for (size_t j = 0; j < vecCore::VectorSize<Index_t>(); ++j)
-      output[i + j] = vecCore::LaneAt<Index_t>(result, j);
-  }
-}
-
-template <class Specialization, typename Real_v, int transC, int rotC>
-VECGEOM_FORCE_INLINE
-static void SafetyToInLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
-                                 Transformation3D const &trans, const size_t offset, const size_t size,
-                                 SOA3D<Precision> const &points, Precision *const output)
-{
-
-  for (decltype(points.size()) i(offset); i < size; i += vecCore::VectorSize<Real_v>()) {
-    Vector3D<Real_v> point(vecCore::FromPtr<Real_v>(points.x() + i), vecCore::FromPtr<Real_v>(points.y() + i),
-                           vecCore::FromPtr<Real_v>(points.z() + i));
-    Real_v result(kInfLength);
-    Specialization::template SafetyToIn<Real_v>(shapestruct, trans.Transform<transC, rotC>(point), result);
-    vecCore::Store(result, output + i);
-  }
-}
-
-template <class Specialization, typename Real_v, int transC, int rotC>
-VECGEOM_FORCE_INLINE
-static void DistanceToInLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
-                                   Transformation3D const &trans, const size_t offset, const size_t size,
-                                   SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                                   Precision const *const stepMax, Precision *const output)
-{
-
-  for (decltype(points.size()) i(offset); i < size; i += vecCore::VectorSize<Real_v>()) {
-    Vector3D<Real_v> point(vecCore::FromPtr<Real_v>(points.x() + i), vecCore::FromPtr<Real_v>(points.y() + i),
-                           vecCore::FromPtr<Real_v>(points.z() + i));
-    Vector3D<Real_v> dir(vecCore::FromPtr<Real_v>(directions.x() + i), vecCore::FromPtr<Real_v>(directions.y() + i),
-                         vecCore::FromPtr<Real_v>(directions.z() + i));
-    Real_v step_max(vecCore::FromPtr<Real_v>(stepMax + i));
-    Real_v result(kInfLength);
-    Specialization::template DistanceToIn<Real_v>(shapestruct, trans.Transform<transC, rotC>(point),
-                                                  trans.TransformDirection<rotC>(dir), step_max, result);
-    vecCore::Store(result, output + i);
-  }
-}
 
 template <class Specialization, int transC, int rotC>
 class SIMDSpecializedVolImplHelper : public CommonSpecializedVolImplHelper<Specialization, transC, rotC> {
@@ -278,76 +196,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual ~SIMDSpecializedVolImplHelper() {}
 
-  virtual void SafetyToIn(SOA3D<Precision> const &points, Precision *const output) const override
-  {
-    const auto kS = vecCore::VectorSize<VectorBackend::Real_v>();
-    auto offset   = points.size() - points.size() % kS;
-    //   auto shape = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetUnplacedStruct();
-    auto shape  = this->GetUnplacedStruct();
-    auto transf = this->GetTransformation();
-
-    // vector loop treatment
-    SafetyToInLoopKernel<Specialization, VectorBackend::Real_v, transC, rotC>(*shape, *transf, 0, offset, points,
-                                                                              output);
-    // tail treatment
-    SafetyToInLoopKernel<Specialization, ScalarBackend::Real_v, transC, rotC>(*shape, *transf, offset, points.size(),
-                                                                              points, output);
-  }
-
-  virtual void DistanceToIn(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                            Precision const *const stepMax, Precision *const output) const override
-  {
-    auto offset = points.size() - points.size() % vecCore::VectorSize<VectorBackend::Real_v>();
-    auto shape  = this->GetUnplacedStruct();
-    auto transf = this->GetTransformation();
-    // vector loop treatment
-    DistanceToInLoopKernel<Specialization, VectorBackend::Real_v, transC, rotC>(*shape, *transf, 0, offset, points,
-                                                                                directions, stepMax, output);
-    // tail treatment
-    DistanceToInLoopKernel<Specialization, ScalarBackend::Real_v, transC, rotC>(*shape, *transf, offset, points.size(),
-                                                                                points, directions, stepMax, output);
-  }
-
   using UnplacedVolume_t = typename Specialization::UnplacedVolume_t;
-
-  // the explicit SIMD interface
-  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
-                                 Real_v const step_max) const override
-  {
-    Real_v output(kInfLength);
-    Transformation3D const *tr = this->GetTransformation();
-    auto unplacedstruct        = this->GetUnplacedStruct();
-    Specialization::template DistanceToIn<Real_v>(*unplacedstruct, tr->Transform<transC, rotC>(p),
-                                                  tr->TransformDirection<rotC>(d), step_max, output);
-    return output;
-  }
-
-  virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override
-  {
-    auto offset = points.size() - points.size() % vecCore::VectorSize<VectorBackend::Real_v>();
-    auto shape  = this->GetUnplacedStruct();
-    auto transf = this->GetTransformation();
-    // vector loop treatment
-    ContainsLoopKernel<Specialization, VectorBackend::Real_v, transC, rotC>(*shape, *transf, 0, offset, points, output);
-    // tail treatment
-    ContainsLoopKernel<Specialization, ScalarBackend::Real_v, transC, rotC>(*shape, *transf, offset, points.size(),
-                                                                            points, output);
-  }
-
-  virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override
-  {
-    // I would be in favor of getting rid of this interface (unless someone asks for it)
-    // Inside is only provided for Geant4 which currently does not have a basket interface
-    // InsideTemplate(points, output);
-    auto offset = points.size() - points.size() % vecCore::VectorSize<VectorBackend::Real_v>();
-    auto shape  = this->GetUnplacedStruct();
-    auto transf = this->GetTransformation();
-    // vector loop treatment
-    InsideLoopKernel<Specialization, VectorBackend::Real_v, transC, rotC>(*shape, *transf, 0, offset, points, output);
-    // tail treatment
-    InsideLoopKernel<Specialization, ScalarBackend::Real_v, transC, rotC>(*shape, *transf, offset, points.size(),
-                                                                          points, output);
-  }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   using ThisClass_t = SIMDSpecializedVolImplHelper<Specialization, transC, rotC>;
@@ -383,10 +232,10 @@ public:
    * \note This requires an explicit template instantiation of ConstructManyOnGpu<ThisClass_t>().
    * \see VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL and its multi-argument versions.
    */
-  void CopyManyToGpu(std::vector<VPlacedVolume const *> const & host_volumes,
-                     std::vector<DevicePtr<cuda::LogicalVolume>> const & logical_volumes,
-                     std::vector<DevicePtr<cuda::Transformation3D>> const & transforms,
-                     std::vector<DevicePtr<cuda::VPlacedVolume>> const & in_gpu_ptrs) const override
+  void CopyManyToGpu(std::vector<VPlacedVolume const *> const &host_volumes,
+                     std::vector<DevicePtr<cuda::LogicalVolume>> const &logical_volumes,
+                     std::vector<DevicePtr<cuda::Transformation3D>> const &transforms,
+                     std::vector<DevicePtr<cuda::VPlacedVolume>> const &in_gpu_ptrs) const override
   {
     assert(host_volumes.size() == logical_volumes.size());
     assert(host_volumes.size() == transforms.size());
@@ -429,63 +278,6 @@ public:
   {
   }
 
-  virtual void SafetyToIn(SOA3D<Precision> const &points, Precision *const output) const override
-  {
-    auto shape  = this->GetUnplacedStruct();
-    auto transf = this->GetTransformation();
-    SafetyToInLoopKernel<Specialization, vecgeom::ScalarBackend::Real_v, transC, rotC>(*shape, *transf, 0,
-                                                                                       points.size(), points, output);
-  }
-
-  virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override
-  {
-    auto unplacedv = this->GetUnplacedStruct();
-    auto transf    = this->GetTransformation();
-    // vector loop treatment
-    ContainsLoopKernel<Specialization, vecgeom::ScalarBackend::Real_v, transC, rotC>(*unplacedv, *transf, 0,
-                                                                                     points.size(), points, output);
-  }
-
-  virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override
-  {
-    // I would be in favor of getting rid of this interface (unless someone asks for it)
-    // Inside is only provided for Geant4 which currently does not have a basket interface
-    // InsideTemplate(points, output);
-    auto shape  = this->GetUnplacedStruct();
-    auto transf = this->GetTransformation();
-    InsideLoopKernel<Specialization, vecgeom::ScalarBackend::Real_v, transC, rotC>(*shape, *transf, 0, points.size(),
-                                                                                   points, output);
-  }
-
-  virtual void DistanceToIn(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                            Precision const *const stepMax, Precision *const output) const override
-  {
-    auto shape  = this->GetUnplacedStruct();
-    auto transf = this->GetTransformation();
-    DistanceToInLoopKernel<Specialization, vecgeom::ScalarBackend::Real_v, transC, rotC>(
-        *shape, *transf, 0, points.size(), points, directions, stepMax, output);
-  }
-
-  // the explicit SIMD interface
-  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
-                                 Real_v const step_max) const override
-  {
-    Real_v output(kInfLength);
-    using vecCore::LaneAt;
-    using Real_s = Precision;
-    for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
-      Transformation3D const *tr = this->GetTransformation();
-      const auto unplacedstruct  = this->GetUnplacedStruct();
-      const Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
-      const Vector3D<Real_s> ds(LaneAt(d.x(), i), LaneAt(d.y(), i), LaneAt(d.z(), i)); // scalar direction;
-      Real_s tmp(-1.);
-      Specialization::template DistanceToIn<Real_s>(*unplacedstruct, tr->Transform<transC, rotC>(ps),
-                                                    tr->TransformDirection<rotC>(ds), LaneAt(step_max, i), tmp);
-      vecCore::AssignLane(output, i, tmp);
-    }
-    return output;
-  }
-
 #ifdef VECGEOM_CUDA_INTERFACE
   // QUESTION: CAN WE COMBINE THIS CODE WITH THE ONE FROM SIMDHelper and put it into CommonHelper?
   using ThisClass_t = LoopSpecializedVolImplHelper<Specialization, transC, rotC>;
@@ -522,10 +314,10 @@ public:
    * \note This requires an explicit template instantiation of ConstructManyOnGpu<ThisClass_t>().
    * \see VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL
    */
-  void CopyManyToGpu(std::vector<VPlacedVolume const *> const & host_volumes,
-                     std::vector<DevicePtr<cuda::LogicalVolume>> const & logical_volumes,
-                     std::vector<DevicePtr<cuda::Transformation3D>> const & transforms,
-                     std::vector<DevicePtr<cuda::VPlacedVolume>> const & in_gpu_ptrs) const override
+  void CopyManyToGpu(std::vector<VPlacedVolume const *> const &host_volumes,
+                     std::vector<DevicePtr<cuda::LogicalVolume>> const &logical_volumes,
+                     std::vector<DevicePtr<cuda::Transformation3D>> const &transforms,
+                     std::vector<DevicePtr<cuda::VPlacedVolume>> const &in_gpu_ptrs) const override
   {
     assert(host_volumes.size() == logical_volumes.size());
     assert(host_volumes.size() == transforms.size());

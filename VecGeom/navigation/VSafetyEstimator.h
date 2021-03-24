@@ -62,24 +62,6 @@ public:
   using Real_v = vecgeom::VectorBackend::Real_v;
   using Bool_v = vecCore::Mask_v<Real_v>;
 
-  VECCORE_ATT_HOST_DEVICE
-  virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const & /*localpoint*/, VPlacedVolume const * /*pvol*/,
-                                            Bool_v /*m*/) const = 0;
-
-  // interfaces to treat vectors/collections of points (uses the approach with intermediate storage and passing down the
-  // loops to shapes)
-  virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool &states,
-                                   SOA3D<Precision> & /*workspace*/, Precision * /*safeties*/) const = 0;
-
-  // interfaces to treat vectors/collections of points (uses the approach without intermediate storage; requires access
-  // to new SIMD interface)
-  virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool & /*states*/,
-                                   Precision * /*safeties*/) const = 0;
-
-private:
-  virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,
-                                           Precision * /*safeties*/) const = 0;
-
 public:
   VECCORE_ATT_HOST_DEVICE
   virtual ~VSafetyEstimator() {}
@@ -104,28 +86,6 @@ public:
     // std::cerr << "##### " << localpoint << "\n";
     // "suck in" algorithm from Impl
     return ((Impl *)this)->Impl::ComputeSafetyForLocalPoint(localpoint, state.Top());
-  }
-
-  // interfaces to treat vectors/collections of points (uses the approach without intermediate storage; requires access
-  // to new SIMD interface)
-  virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool & /*states*/,
-                                   Precision * /*safeties*/) const override
-  {
-    assert(0 && "not implemented yet, requires access to new SIM interface");
-  }
-
-  virtual void ComputeVectorSafety(SOA3D<Precision> const &globalpoints, NavStatePool &states,
-                                   SOA3D<Precision> &localpointworkspace, Precision *safeties) const override
-  {
-    // calculate local point from global point
-    auto np = globalpoints.size();
-    for (auto i = decltype(np){0}; i < np; ++i) {
-      Transformation3D m;
-      states[i]->TopMatrix(m);
-      localpointworkspace.set(i, m.Transform(globalpoints[i]));
-    }
-    // "suck in" algorithm from Impl
-    ((Impl *)this)->Impl::ComputeSafetyForLocalPoints(localpointworkspace, states[0]->Top(), safeties);
   }
 
   static const char *GetClassName() { return Impl::gClassNameString; }

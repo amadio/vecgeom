@@ -86,7 +86,7 @@ private:
   bool fTransalwayszero[3]        = {true, true, true};
   bool fTransIsConstant[3]        = {true, true, true}; // indicates if this component is a constant for all entries
   bool fRotIsConstant[9]          = {true, true, true, true, true,
-                            true, true, true, true}; // indicates if this component is a constant for all entries
+                                     true, true, true, true}; // indicates if this component is a constant for all entries
   std::vector<std::string> fTransVariableName; // variable names which are set according to SOA/AOS choices etc
   std::vector<std::string> fRotVariableName;
   std::vector<std::string> fVecTransVariableName; // variable names which are set according to SOA/AOS choices etc
@@ -175,12 +175,7 @@ private:
 
   void DumpRelocateMethod(std::ostream &) const;
 
-  void DumpLocalVectorSafetyFunctionDeclaration(std::ostream &);
-
-  void DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector(std::ostream &);
-
   void DumpSafetyFunctionDeclaration(std::ostream &);
-  void DumpVectorSafetyFunctionDeclaration(std::ostream &);
   void DumpTransformationAsserts(std::ostream &);
 
   void DumpLocalHitDetectionFunction(std::ostream &) const;
@@ -188,8 +183,6 @@ private:
   // they produce static component functions which are plugged into the generic implementation of VNavigatorHelper
   void DumpFoo(std::ostream &) const;
   void DumpStaticTreatGlobalToLocalTransformationFunction(std::ostream &) const;
-  // the vector version of for the coordinate transformation
-  void DumpStaticTreatGlobalToLocalTransformationsFunction(std::ostream &) const;
 
   void DumpStaticTreatDistanceToMotherFunction(std::ostream &) const;
   void DumpStaticPrepareOutstateFunction(std::ostream &) const;

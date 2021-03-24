@@ -194,34 +194,6 @@ public:
 
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint, VPlacedVolume const *pvol,
-                                            Bool_v m) const override
-  {
-    using vecCore::AssignLane;
-    using vecCore::LaneAt;
-    Real_v safety(0.);
-    if (!vecCore::MaskEmpty(m)) {
-      // SIMD safety to mother
-      safety = pvol->SafetyToOut(localpoint);
-
-      LogicalVolume const *lvol = pvol->GetLogicalVolume();
-      // now loop over the voxelized treatment of safety to in
-      for (unsigned int i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
-        if (vecCore::MaskLaneAt(m, i)) {
-          AssignLane(safety, i,
-                     TreatSafetyToIn(Vector3D<Precision>(LaneAt(localpoint.x(), i), LaneAt(localpoint.y(), i),
-                                                         LaneAt(localpoint.z(), i)),
-                                     lvol, LaneAt(safety, i)));
-        } else {
-          AssignLane(safety, i, 0.);
-        }
-      }
-    }
-    return safety;
-  }
-
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
   Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, LogicalVolume const *lvol, Precision outsafety) const
   {
     // a stack based workspace array
@@ -280,58 +252,6 @@ public:
                                                           LogicalVolume const *lvol) const override
   {
     return TreatSafetyToIn(localpoint, lvol, kInfLength);
-  }
-
-  // vector interface
-  VECGEOM_FORCE_INLINE
-  virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,
-                                           Precision * /*safeties*/) const override
-  {
-    //    // a stack based workspace array
-    //    static __thread ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
-    //
-    //    // safety to mother -- using vector interface
-    //    pvol->SafetyToOut(localpoints, safeties);
-    //
-    //    // safety to bounding boxes
-    //    LogicalVolume const *lvol = pvol->GetLogicalVolume();
-    //    if (!(lvol->GetDaughtersp()->size() > 0))
-    //      return;
-    //
-    //    // get bounding boxes (they are the same for all tracks)
-    //    int numberofboxes;
-    //    auto bboxes = fABBoxManager.GetABBoxes_v(lvol, numberofboxes);
-    //
-    //    // now loop over particles
-    //    for (int i = 0, ntracks = localpoints.size(); i < ntracks; ++i) {
-    //      double safety = safeties[i];
-    //      if (safeties[i] > 0.) {
-    //        double safetysqr = safeties[i] * safeties[i];
-    //        auto lpoint = localpoints[i];
-    //        // vectorized search through bounding boxes -- quickly excluding many candidates
-    //        auto ncandidates = GetSafetyCandidates_v(lpoint, bboxes, numberofboxes, boxsafetylist, safetysqr);
-    //        // loop over remaining candidates
-    //        for (unsigned int candidate = 0; candidate < ncandidates; ++candidate) {
-    //          auto boxsafetypair = boxsafetylist[candidate];
-    //          if (boxsafetypair.second < safetysqr) {
-    //            VPlacedVolume const *candidate = LookupDaughter(lvol, boxsafetypair.first);
-    //            if (boxsafetypair.first > lvol->GetDaughtersp()->size())
-    //              break;
-    //            auto candidatesafety = candidate->SafetyToIn(lpoint);
-    //#ifdef VERBOSE
-    //            if (candidatesafety * candidatesafety > boxsafetypair.second && boxsafetypair.second > 0)
-    //              std::cerr << "real safety smaller than boxsafety \n";
-    //#endif
-    //            if (candidatesafety < safety) {
-    //              safety = candidatesafety;
-    //              safetysqr = safety * safety;
-    //            }
-    //          }
-    //        }
-    //      }
-    //      // write back result
-    //      safeties[i] = safety;
-    //    }
   }
 
   static VSafetyEstimator *Instance()

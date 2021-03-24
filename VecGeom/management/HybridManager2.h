@@ -12,6 +12,7 @@
 #include "VecGeom/base/Global.h"
 
 #include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/base/SOA3D.h"
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/base/Transformation3D.h"

@@ -100,16 +100,6 @@ int main()
   assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(3., 0., 0), Vec3D_t(-1., 0., 0.)), 1.));
   assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 1.9999999), Vec3D_t(1., 0., 0.)), 0.4));
 
-  {
-    // test vector interface
-    using Vec3D_v = vecgeom::Vector3D<Real_v>;
-    Vec3D_v p(Real_v(0.), Real_v(0.), Real_v(-3)), d(Real_v(0.), Real_v(0.), Real_v(1.));
-    const auto dist = placedpoly1->DistanceToInVec(p, d);
-    for (size_t lane = 0; lane < vecCore::VectorSize<Real_v>(); ++lane) {
-      assert(ApproxEqual<Precision>(vecCore::LaneAt(dist, lane), 2.5));
-    }
-  }
-
   // test SafetyToIn
   // assert( placedpoly1-> SafetyToIn( Vec3D_t(0.,0.,-3.)) == 2. );
   // assert( placedpoly1-> SafetyToIn( Vec3D_t(0.5,0.,-1.)) == 0. );

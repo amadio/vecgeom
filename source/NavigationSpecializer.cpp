@@ -578,7 +578,6 @@ void NavigationSpecializer::DumpPublicClassDefinitions(std::ostream &outstream)
                                                                      // *gClassNameString=\"" << fClassName << "\";\n";
   DumpStaticInstanceFunction(outstream);
   DumpStaticTreatGlobalToLocalTransformationFunction(outstream);
-  DumpStaticTreatGlobalToLocalTransformationsFunction(outstream);
   DumpStaticTreatDistanceToMotherFunction(outstream);
   DumpStaticPrepareOutstateFunction(outstream);
   DumpLocalHitDetectionFunction(outstream);
@@ -586,10 +585,6 @@ void NavigationSpecializer::DumpPublicClassDefinitions(std::ostream &outstream)
 
   //  DumpSafetyFunctionDeclaration(outstream);
   //  DumpLocalSafetyFunctionDeclaration(outstream);
-
-  //  DumpVectorSafetyFunctionDeclaration(outstream);
-  //  DumpLocalVectorSafetyFunctionDeclaration(outstream);
-  //  DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector(outstream);
 }
 
 void NavigationSpecializer::DumpClassDefinitions(std::ostream &outstream)
@@ -1351,45 +1346,6 @@ void NavigationSpecializer::DumpSafetyFunctionDeclaration(std::ostream &outstrea
   outstream << "\n";
 }
 
-void NavigationSpecializer::DumpVectorSafetyFunctionDeclaration(std::ostream &outstream)
-{
-  outstream << "\n";
-  outstream << "virtual\n"
-            << "void\n"
-            << "ComputeVectorSafety(SOA3D<Precision> const& globalpoints, NavStatePool &states, SOA3D<Precision> "
-               "&localpointworkspace,"
-            << "Precision *safeties) const override {\n";
-
-  outstream << "VPlacedVolume const* pvol = states[0]->Top();\n";
-  outstream << "// need to put tail treatment \n";
-  outstream << "for(int i=0;i<globalpoints.size();i+=Vc::double_v::Size){\n";
-
-  // declare vector transformation variables
-  for (auto &var : fTransformVariables) {
-    outstream << "Vc::double_v " << var << "_v;\n";
-  }
-  // and init them ( basically a gather operation )
-  outstream << "for(int j=0;j<Vc::double_v::Size;++j){\n";
-  outstream << "size_t index = PathToIndex(states[i+j]);\n";
-  for (auto &var : fTransformVariables) {
-    outstream << var << "_v[j]=" << var << "[index];\n";
-  }
-  outstream << "}\n";
-
-  // put specialized global to local transformation code for the vector version
-  outstream << fVectorTransformationCode.str();
-
-  // call local function
-
-  outstream << "Vc::double_v safety = " << fClassName << "::ComputeSafetyForLocalSIMDPoint(local, pvol);\n";
-
-  outstream << "//write back to output array\n";
-  outstream << "safety.store( safeties + i);\n";
-  outstream << "} // closing loop over SIMD vector junks\n";
-  outstream << "}\n"; // function closing
-  outstream << "\n";
-}
-
 void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &outstream)
 {
   outstream << "VECGEOM_FORCE_INLINE\n"
@@ -1478,135 +1434,6 @@ void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &out
   outstream << "}\n";
 }
 
-void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclaration(std::ostream &outstream)
-{
-  outstream << "VECGEOM_FORCE_INLINE\n"
-            << "virtual\n"
-            << "void\n"
-            << "ComputeSafetyForLocalPoints(SOA3D<Precision> const& localpoints, VPlacedVolume const *pvol, Precision "
-               "*) const override {\n";
-  outstream << "// EMPTY BODY --> NEEDS TO BE FILLED FROM AN ANALYSIS OF MOTHER + DAUGHTERSHAPE TYPES \n";
-
-  // get the stream --> very cumbersome
-  VPlacedVolume *pvol = fLogicalVolume->Place();
-  std::stringstream shapetypestream;
-  pvol->PrintType(shapetypestream);
-  delete pvol;
-  std::string shapetype = shapetypestream.str();
-  outstream << "//return ((" << shapetype << "*)pvol)->" << shapetype << "::SafetyToOut(localpoint);\n";
-  outstream << "}\n";
-}
-
-void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector(std::ostream &outstream)
-{
-  // creating a helper function that processes SIMD chunks
-  outstream << "VECGEOM_FORCE_INLINE\n"
-            << "Vc::double_v\n"
-            << "ComputeSafetyForLocalSIMDPoint(Vector3D<Vc::double_v> const& localpoints, VPlacedVolume const *pvol) "
-               "const {\n";
-
-  // get the stream --> very cumbersome
-  VPlacedVolume *pvol = fLogicalVolume->Place();
-  std::stringstream implementationstream;
-  std::stringstream unplacedtypestream;
-  pvol->PrintImplementationType(implementationstream);
-  pvol->PrintUnplacedType(unplacedtypestream);
-  delete pvol;
-  outstream << "Vc::double_v safety;\n";
-  outstream << implementationstream.str() << "::SafetyToOut<kVc>(*(" << unplacedtypestream.str()
-            << "*) (pvol->GetUnplacedVolume()),localpoints, safety);\n";
-
-  // analyse daughters
-  // this is very crude --> we trust the shapetypes given back from the shape
-  // the only optimization here is that we get rid of the virtual function and that we unroll the loop
-
-  // but we could also analyse it deeply ourselves here and specialize ourselves
-  // future possible optimizations include the following:
-  // a) vectorization of similar daughter shapes
-  // b) constant extraction and propagation ( detect if shapes use same rotation and pull them out ... )
-  // c) put actual numeric values of shapes which may simplify the algorithms ... ( extreme shape specialization )
-  auto daughters  = fLogicalVolume->GetDaughtersp();
-  auto ndaughters = daughters->size();
-  if (ndaughters > 0) {
-    outstream << "auto daughters = pvol->GetLogicalVolume()->GetDaughtersp();\n";
-
-    if (fUnrollLoops) {
-      for (auto i = decltype(ndaughters){0}; i < ndaughters; ++i) {
-        implementationstream.str(""); // this clears the stream
-        unplacedtypestream.str("");
-        auto daughter = (*daughters)[i];
-        //          daughter->PrintImplementationType(implementationstream);
-        //          daughter->PrintUnplacedType(unplacedtypestream);
-        //          outstream << "{ Vc::double_v tmp2; auto daughter = (*daughters)[" << i << "];\n";
-        //          outstream << implementationstream.str() << "::SafetyToIn<kVc>(*(" << unplacedtypestream.str()
-        //                    << "*) (daughter->GetUnplacedVolume()), *daughter->GetTransformation(), localpoints,
-        //                    tmp2); \n";
-        //          outstream << "safety = Min(safety,tmp2); }\n";
-        std::stringstream shapetypestream;
-        daughter->PrintType(shapetypestream);
-        std::string shapetype = shapetypestream.str();
-        outstream << "safety = Min(safety, ((" << shapetype << "*) (*daughters)[" << i << "])->" << shapetype
-                  << "::SafetyToIn(localpoints));\n";
-      }
-    } else {
-      // first pass to separate list of polymorphic shapes into separated loops over the same kind
-      std::string currenttype;
-      std::list<std::pair<std::string, size_t>> looplist; // list for loop splitting
-      implementationstream.str("");
-      (*daughters)[0]->PrintImplementationType(implementationstream);
-      currenttype  = implementationstream.str();
-      size_t count = 1;
-      for (auto i = decltype(ndaughters){1}; i < ndaughters; ++i) {
-        auto daughter = (*daughters)[i];
-        implementationstream.str("");
-        daughter->PrintImplementationType(implementationstream);
-        std::string thistype = implementationstream.str();
-        if (currenttype.compare(thistype) == 0)
-          count++;
-        else {
-          looplist.push_back(std::pair<std::string, size_t>(currenttype, count));
-          count       = 1;
-          currenttype = thistype; /*somehow next type*/
-        }
-      }
-      looplist.push_back(std::pair<std::string, size_t>(currenttype, count));
-      // print some info about the loop list
-      for (auto &pair : looplist) {
-        std::cerr << "## " << pair.first << " " << pair.second << "\n";
-      }
-
-      // emit smaller loops
-      int offset = 0;
-      for (auto &pair : looplist) {
-        if (pair.second > 1) {
-          outstream << "for(int i = " << offset << ";i<" << offset + pair.second << ";++i){";
-          outstream << "auto daughter = (*daughters)[i];\n";
-          unplacedtypestream.str("");
-          (*daughters)[offset]->PrintUnplacedType(unplacedtypestream);
-          outstream << "Vc::double_v tmp2;\n";
-          outstream << pair.first << "::SafetyToIn<kVc>(*(" << unplacedtypestream.str()
-                    << "*) (daughter->GetUnplacedVolume()), *daughter->GetTransformation(), localpoints, tmp2);\n";
-          outstream << "safety = Min(safety,tmp2);\n";
-
-          outstream << "} // end loop\n";
-
-        } else {
-          outstream << "{ auto daughter = (*daughters)[" << offset << "];\n";
-          outstream << "Vc::double_v tmp2;\n";
-          unplacedtypestream.str("");
-          (*daughters)[offset]->PrintUnplacedType(unplacedtypestream);
-          outstream << pair.first << "::SafetyToIn<kVc>(*(" << unplacedtypestream.str()
-                    << "*) (daughter->GetUnplacedVolume()), *daughter->GetTransformation(), localpoints, tmp2);\n";
-          outstream << "safety = Min(safety,tmp2); }\n";
-        }
-        offset += pair.second;
-      }
-    }
-  }
-  outstream << "return safety;\n";
-  outstream << "}\n";
-}
-
 void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(std::ostream &outstream) const
 {
 
@@ -1622,21 +1449,6 @@ void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(s
   outstream << "// we know that is safe to do this because of static analysis (never do this in user code)\n";
   outstream << "internal->SetCacheValue(index);\n";
   fGlobalTransData.EmitScalarGlobalTransformationCode(outstream);
-  outstream << "}\n";
-}
-
-void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationsFunction(std::ostream &outstream) const
-{
-  outstream << "template <typename T, unsigned int ChunkSize>\n"
-            << "VECGEOM_FORCE_INLINE\n static void DoGlobalToLocalTransformations(NavigationState const ** in_states,"
-            << "SOA3D<Precision> const &globalpoints,"
-            << "SOA3D<Precision> const &globaldirs, unsigned int from_index,"
-            << "Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState ** internal) {\n";
-
-  // TODO: check if we have to do anything at all ( check for unity )
-
-  fGlobalTransData.EmitVectorGlobalTransformationCode(outstream);
-
   outstream << "}\n";
 }
 

@@ -91,8 +91,7 @@ int main(int argc, char *argv[])
     pointcontainer.resize(4);
     SOA3D<Precision> dircontainer(4);
     dircontainer.resize(4);
-    Precision *output = new Precision[4];
-    Precision *steps  = new Precision[4];
+    Precision *steps = new Precision[4];
 
     if (argc > 9) {
       pointcontainer.set(0, point);
@@ -143,8 +142,6 @@ int main(int argc, char *argv[])
         std::cout << "VecGeom Distance seems to be to small DO(p=p+dist*dir,dir) "
                   << vecgeomplaced->DistanceToOut(point + dir * dist, dir) << "\n";
     }
-    vecgeomplaced->DistanceToIn(pointcontainer, dircontainer, steps, output);
-    std::cout << "VecGeom DI-V " << output[0] << "\n";
     dist = vecgeomplaced->DistanceToOut(point, dir);
     std::cout << "VecGeom DO " << dist << "\n";
     std::cout << "VecGeom INSIDE(p=p+do*dir) " << VecGeomInsideToString(vecgeomplaced->Inside(point + dir * dist))
@@ -152,9 +149,6 @@ int main(int argc, char *argv[])
     Vector3D<Precision> norm;
     auto valid = vecgeomplaced->Normal(point + dist * dir, norm);
     std::cout << "VecGeom Normal(p+do*dir)" << norm << " valid : " << valid << "\n";
-
-    vecgeomplaced->DistanceToOut(pointcontainer, dircontainer, steps, output);
-    std::cout << "VecGeom DO-V " << output[0] << "\n";
 
     std::cout << "VecGeom SI " << vecgeomplaced->SafetyToIn(point) << "\n";
     std::cout << "VecGeom SO " << vecgeomplaced->SafetyToOut(point) << "\n";

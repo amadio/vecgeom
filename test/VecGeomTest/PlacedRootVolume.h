@@ -19,9 +19,6 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedRootVolume);
 
 inline namespace cxx {
 
-template <typename T>
-class SOA3D;
-
 class PlacedRootVolume : public VPlacedVolume {
 
 private:
@@ -54,22 +51,15 @@ public:
   VECGEOM_FORCE_INLINE
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const override;
 
-  virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override;
-
   VECGEOM_FORCE_INLINE
   virtual bool UnplacedContains(Vector3D<Precision> const &point) const override;
 
   VECGEOM_FORCE_INLINE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const override;
 
-  virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override;
-
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                  const Precision step_max) const override;
-
-  virtual void DistanceToIn(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                            Precision const *const stepMax, Precision *const output) const override;
 
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
@@ -78,49 +68,11 @@ public:
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                         Precision const stepMax) const override;
 
-  virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                             Precision const *const step_max, Precision *const output) const override;
-
-  virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                             Precision const *const step_max, Precision *const output,
-                             int *const nextnodeindex) const override;
-
   VECGEOM_FORCE_INLINE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const override;
 
-  virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const override;
-
   VECGEOM_FORCE_INLINE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const override;
-
-  virtual void SafetyToIn(SOA3D<Precision> const &position, Precision *const safeties) const override;
-
-  // the SIMD vector interfaces (not implemented)
-  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
-                                 Real_v const step_max = kInfLength) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-    return Real_v(-1.);
-  }
-
-  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
-                                  Real_v const step_max = kInfLength) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-    return Real_v(-1.);
-  }
-
-  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &position) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-    return Real_v(-1.);
-  }
-
-  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &position) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-    return Real_v(-1.);
-  }
 
   virtual void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 

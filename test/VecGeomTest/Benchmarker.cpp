@@ -117,8 +117,7 @@ BenchmarkResult Benchmarker::GenerateBenchmarkResult(Precision elapsed, const EB
 }
 
 int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *directions,
-                                  Precision const *const specialized, Precision const *const vectorized,
-                                  Precision const *const unspecialized,
+                                  Precision const *const specialized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
                                   Precision const *const root,
 #endif
@@ -135,7 +134,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
 
   int mismatches = 0;
   std::stringstream outputLabelsStream;
-  outputLabelsStream << "Vectorized / Specialized / Unspecialized";
+  outputLabelsStream << "Specialized / Unspecialized";
 #ifdef VECGEOM_ROOT
   if (fOkToRunROOT) outputLabelsStream << " / ROOT";
 #endif
@@ -156,11 +155,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
       bool mismatch = false;
       std::stringstream mismatchOutput;
       if (fVerbosity > 2) {
-        mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
-      }
-      if (!(specialized[i] == kInfLength && vectorized[i] == kInfLength) &&
-          std::fabs(specialized[i] - vectorized[i]) > fTolerance) {
-        mismatch = true;
+        mismatchOutput << specialized[i] << " / " << unspecialized[i];
       }
       if (!(specialized[i] == kInfLength && unspecialized[i] == kInfLength) &&
           std::fabs(specialized[i] - unspecialized[i]) > fTolerance) {
@@ -221,8 +216,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
 }
 
 int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision> *points, SOA3D<Precision> *directions,
-                                            Precision const *const specialized, Precision const *const vectorized,
-                                            Precision const *const unspecialized,
+                                            Precision const *const specialized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
                                             Precision const *const root,
 #endif
@@ -239,7 +233,7 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
 
   int mismatches = 0;
   std::stringstream outputLabelsStream;
-  outputLabelsStream << "Vectorized / Specialized / Unspecialized";
+  outputLabelsStream << "Specialized / Unspecialized";
 #ifdef VECGEOM_ROOT
   if (fOkToRunROOT) outputLabelsStream << " / ROOT";
 #endif
@@ -260,12 +254,7 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
       bool mismatch = false;
       std::stringstream mismatchOutput;
       if (fVerbosity > 2) {
-        mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
-      }
-      if (std::fabs(specialized[i] - vectorized[i]) > fTolerance &&
-          !(specialized[i] == kInfLength && vectorized[i] == kInfLength) &&
-          std::fabs(specialized[i] - expected) > kTolerance) {
-        mismatch = true;
+        mismatchOutput << specialized[i] << " / " << unspecialized[i];
       }
       if (std::fabs(specialized[i] - unspecialized[i]) > fTolerance &&
           !(specialized[i] == kInfLength && unspecialized[i] == kInfLength)) {
@@ -330,8 +319,7 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
 }
 
 int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *directions,
-                                 Precision const *const specialized, Precision const *const vectorized,
-                                 Precision const *const unspecialized,
+                                 Precision const *const specialized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
                                  Precision const *const root,
 #endif
@@ -348,7 +336,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
 
   std::stringstream outputLabelsStream;
 
-  outputLabelsStream << "Vectorized / Specialized / Unspecialized";
+  outputLabelsStream << "Specialized / Unspecialized";
 #ifdef VECGEOM_ROOT
   if (fOkToRunROOT) outputLabelsStream << " / ROOT";
 #endif
@@ -370,13 +358,8 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
       bool better   = true;
       std::stringstream mismatchOutput;
       if (fVerbosity > 2) {
-        mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
+        mismatchOutput << specialized[i] << " / " << unspecialized[i];
       }
-      if (!(specialized[i] == kInfLength && vectorized[i] == kInfLength) &&
-          std::fabs(specialized[i] - vectorized[i]) > kTolerance) {
-        mismatch = true;
-      }
-      better &= specialized[i] >= vectorized[i] - kTolerance;
       if (!(specialized[i] == kInfLength && unspecialized[i] == kInfLength) &&
           std::fabs(specialized[i] - unspecialized[i]) > kTolerance) {
         mismatch = true;
@@ -434,8 +417,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
 }
 
 int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precision> *directions,
-                                         Precision const *const specialized, Precision const *const vectorized,
-                                         Precision const *const unspecialized,
+                                         Precision const *const specialized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
                                          Precision const *const root,
 #endif
@@ -452,7 +434,7 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
 
   std::stringstream outputLabelsStream;
 
-  outputLabelsStream << "Vectorized / Specialized / Unspecialized";
+  outputLabelsStream << "Specialized / Unspecialized";
 #ifdef VECGEOM_ROOT
   if (fOkToRunROOT) outputLabelsStream << " / ROOT";
 #endif
@@ -474,13 +456,8 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
       bool better   = true;
       std::stringstream mismatchOutput;
       if (fVerbosity > 2) {
-        mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
+        mismatchOutput << specialized[i] << " / " << unspecialized[i];
       }
-      if (!(specialized[i] == kInfLength && vectorized[i] == kInfLength) &&
-          std::fabs(specialized[i] - vectorized[i]) > kTolerance && std::fabs(specialized[i]) > kTolerance) {
-        mismatch = true;
-      }
-      better &= specialized[i] >= vectorized[i];
       if (!(specialized[i] == kInfLength && unspecialized[i] == kInfLength) &&
           std::fabs(specialized[i] - unspecialized[i]) > kTolerance) {
         mismatch = true;
@@ -559,9 +536,6 @@ int Benchmarker::RunInsideBenchmark()
            "%i repetitions.\n",
            fPointCount, fRepetitions);
   }
-  if (fVerbosity > 1) {
-    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
-  }
 
   if (fPointPool) delete fPointPool;
   fPointPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
@@ -573,15 +547,13 @@ int Benchmarker::RunInsideBenchmark()
   if (fVerbosity > 1) printf("Done in %f s.\n", timer.Stop());
 
   std::stringstream outputLabelsContains, outputLabelsInside;
-  outputLabelsContains << "Vectorized - Specialized - Unspecialized";
-  outputLabelsInside << "Vectorized - Specialized - Unspecialized";
+  outputLabelsContains << "Specialized - Unspecialized";
+  outputLabelsInside << "Specialized - Unspecialized";
 
   // Allocate memory
   bool *const containsSpecialized     = AllocateAligned<bool>();
-  bool *const containsVectorized      = AllocateAligned<bool>();
   bool *const containsUnspecialized   = AllocateAligned<bool>();
   Inside_t *const insideSpecialized   = AllocateAligned<Inside_t>();
-  Inside_t *const insideVectorized    = AllocateAligned<Inside_t>();
   Inside_t *const insideUnspecialized = AllocateAligned<Inside_t>();
 #ifdef VECGEOM_ROOT
   bool *const containsRoot = AllocateAligned<bool>();
@@ -600,10 +572,6 @@ int Benchmarker::RunInsideBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-#if defined(VECGEOM_TEST_VTUNE)
-    __itt_task_begin(__itt_RunInsideBenchmark, __itt_null, __itt_null, __itt_RunInsideVectorized);
-#endif
-    RunInsideVectorized(containsVectorized, insideVectorized);
 #if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunInsideBenchmark);
 #endif
@@ -646,9 +614,8 @@ int Benchmarker::RunInsideBenchmark()
 
       std::stringstream mismatchOutput;
       if (fVerbosity > 2) {
-        mismatchOutput << containsVectorized[i] << " / " << containsSpecialized[i] << " / " << containsUnspecialized[i];
+        mismatchOutput << containsSpecialized[i] << " / " << containsUnspecialized[i];
       }
-      if (containsSpecialized[i] != containsVectorized[i]) mismatch = true;
       if (containsSpecialized[i] != containsUnspecialized[i]) mismatch = true;
 #ifdef VECGEOM_ROOT
       if (fOkToRunROOT) {
@@ -685,9 +652,8 @@ int Benchmarker::RunInsideBenchmark()
       bool mismatch = false;
       std::stringstream mismatchOutput;
       if (fVerbosity > 2) {
-        mismatchOutput << insideVectorized[i] << " / " << insideSpecialized[i] << " / " << insideUnspecialized[i];
+        mismatchOutput << insideSpecialized[i] << " / " << insideUnspecialized[i];
       }
-      if (insideSpecialized[i] != insideVectorized[i]) mismatch = true;
       if (insideSpecialized[i] != insideUnspecialized[i]) mismatch = true;
 #ifdef VECGEOM_GEANT4
       if (fOkToRunG4) {
@@ -720,10 +686,8 @@ int Benchmarker::RunInsideBenchmark()
   }
 
   // Clean up memory
-  FreeAligned(containsVectorized);
   FreeAligned(containsSpecialized);
   FreeAligned(containsUnspecialized);
-  FreeAligned(insideVectorized);
   FreeAligned(insideSpecialized);
   FreeAligned(insideUnspecialized);
 #ifdef VECGEOM_GEANT4
@@ -778,9 +742,6 @@ int Benchmarker::RunToInBenchmark()
            "%i repetitions.\n",
            fPointCount, fRepetitions);
   }
-  if (fVerbosity > 1) {
-    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
-  }
 
   // Allocate memory
   if (fPointPool) delete fPointPool;
@@ -807,11 +768,9 @@ int Benchmarker::RunToInBenchmark()
   fDirectionPool->resize(fPointCount * fPoolMultiplier);
 
   std::stringstream outputLabels;
-  outputLabels << "Vectorized - Specialized - Unspecialized";
+  outputLabels << "Specialized - Unspecialized";
 
   // Allocate output memory
-  Precision *const distancesVectorized    = AllocateAligned<Precision>();
-  Precision *const safetiesVectorized     = AllocateAligned<Precision>();
   Precision *const distancesSpecialized   = AllocateAligned<Precision>();
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
@@ -834,10 +793,6 @@ int Benchmarker::RunToInBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-#if defined(VECGEOM_TEST_VTUNE)
-    __itt_task_begin(__itt_RunToInBenchmark, __itt_null, __itt_null, __itt_RunToInVectorized);
-#endif
-    RunToInVectorized(distancesVectorized, safetiesVectorized);
 #if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToInBenchmark);
 #endif
@@ -866,23 +821,21 @@ int Benchmarker::RunToInBenchmark()
                 fDirectionPool->z(), distancesCuda, safetiesCuda);
 #endif
   }
-  int errorcode =
-      CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesVectorized, distancesUnspecialized,
+  int errorcode = CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesUnspecialized,
 #ifdef VECGEOM_ROOT
-                       distancesRoot,
+                                   distancesRoot,
 #endif
 #ifdef VECGEOM_GEANT4
-                       distancesGeant4,
+                                   distancesGeant4,
 #endif
 #ifdef VECGEOM_ENABLE_CUDA
-                       distancesCuda,
+                                   distancesCuda,
 #endif
-                       "DistanceToIn");
+                                   "DistanceToIn");
 
   // Clean up memory
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
-  FreeAligned(distancesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -895,7 +848,7 @@ int Benchmarker::RunToInBenchmark()
 
   // for the moment; do not consider safety for errorcodes
   // errorcode += CompareSafeties(
-  CompareSafeties(fPointPool, NULL, safetiesSpecialized, safetiesVectorized, safetiesUnspecialized,
+  CompareSafeties(fPointPool, NULL, safetiesSpecialized, safetiesUnspecialized,
 #ifdef VECGEOM_ROOT
                   safetiesRoot,
 #endif
@@ -909,7 +862,6 @@ int Benchmarker::RunToInBenchmark()
 
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
-  FreeAligned(safetiesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -945,9 +897,6 @@ int Benchmarker::RunToOutBenchmark()
            "%i repetitions.\n",
            fPointCount, fRepetitions);
   }
-  if (fVerbosity > 1) {
-    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
-  }
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
     fStepMax[i] = kInfLength;
@@ -971,11 +920,9 @@ int Benchmarker::RunToOutBenchmark()
   fDirectionPool->resize(fPointCount * fPoolMultiplier);
 
   std::stringstream outputLabels;
-  outputLabels << "Vectorized - Specialized - Unspecialized";
+  outputLabels << "Specialized - Unspecialized";
 
   // Allocate output memory
-  Precision *const distancesVectorized    = AllocateAligned<Precision>();
-  Precision *const safetiesVectorized     = AllocateAligned<Precision>();
   Precision *const distancesSpecialized   = AllocateAligned<Precision>();
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
@@ -998,10 +945,6 @@ int Benchmarker::RunToOutBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-#if defined(VECGEOM_TEST_VTUNE)
-    __itt_task_begin(__itt_RunToOutBenchmark, __itt_null, __itt_null, __itt_RunToOutVectorized);
-#endif
-    RunToOutVectorized(distancesVectorized, safetiesVectorized);
 #if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
@@ -1031,23 +974,21 @@ int Benchmarker::RunToOutBenchmark()
 #endif
   }
 
-  int errorcode =
-      CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesVectorized, distancesUnspecialized,
+  int errorcode = CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesUnspecialized,
 #ifdef VECGEOM_ROOT
-                       distancesRoot,
+                                   distancesRoot,
 #endif
 #ifdef VECGEOM_GEANT4
-                       distancesGeant4,
+                                   distancesGeant4,
 #endif
 #ifdef VECGEOM_ENABLE_CUDA
-                       distancesCuda,
+                                   distancesCuda,
 #endif
-                       "DistanceToOut");
+                                   "DistanceToOut");
 
   // Clean up memory
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
-  FreeAligned(distancesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1059,7 +1000,7 @@ int Benchmarker::RunToOutBenchmark()
 #endif
 
   // errorcode += CompareSafeties(
-  CompareSafeties(fPointPool, NULL, safetiesSpecialized, safetiesVectorized, safetiesUnspecialized,
+  CompareSafeties(fPointPool, NULL, safetiesSpecialized, safetiesUnspecialized,
 #ifdef VECGEOM_ROOT
                   safetiesRoot,
 #endif
@@ -1073,7 +1014,6 @@ int Benchmarker::RunToOutBenchmark()
 
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
-  FreeAligned(safetiesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1097,9 +1037,6 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
            "%i repetitions.\n",
            fPointCount, fRepetitions);
   }
-  if (fVerbosity > 1) {
-    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
-  }
 
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
@@ -1148,11 +1085,9 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
   fDirectionPool->resize(fPointCount * fPoolMultiplier);
 
   std::stringstream outputLabels;
-  outputLabels << "Vectorized - Specialized - Unspecialized";
+  outputLabels << "Specialized - Unspecialized";
 
   // Allocate output memory
-  Precision *const distancesVectorized    = AllocateAligned<Precision>();
-  Precision *const safetiesVectorized     = AllocateAligned<Precision>();
   Precision *const distancesSpecialized   = AllocateAligned<Precision>();
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
@@ -1175,10 +1110,6 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-#if defined(VECGEOM_TEST_VTUNE)
-    __itt_task_begin(__itt_RunToOutBenchmark, __itt_null, __itt_null, __itt_RunToOutVectorized);
-#endif
-    RunToOutVectorized(distancesVectorized, safetiesVectorized);
 #if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
@@ -1208,23 +1139,21 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #endif
   }
 
-  int errorcode =
-      CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesVectorized, distancesUnspecialized,
+  int errorcode = CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesUnspecialized,
 #ifdef VECGEOM_ROOT
-                       distancesRoot,
+                                   distancesRoot,
 #endif
 #ifdef VECGEOM_GEANT4
-                       distancesGeant4,
+                                   distancesGeant4,
 #endif
 #ifdef VECGEOM_ENABLE_CUDA
-                       distancesCuda,
+                                   distancesCuda,
 #endif
-                       "DistanceToOutFromBoundary");
+                                   "DistanceToOutFromBoundary");
 
   // Clean up memory
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
-  FreeAligned(distancesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1235,7 +1164,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
   FreeAligned(distancesCuda);
 #endif
 
-  errorcode += CheckSafetiesOnBoundary(fPointPool, NULL, safetiesSpecialized, safetiesVectorized, safetiesUnspecialized,
+  errorcode += CheckSafetiesOnBoundary(fPointPool, NULL, safetiesSpecialized, safetiesUnspecialized,
 #ifdef VECGEOM_ROOT
                                        safetiesRoot,
 #endif
@@ -1249,7 +1178,6 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
-  FreeAligned(safetiesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1272,9 +1200,6 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
            "benchmark for %i points for "
            "%i repetitions.\n",
            fPointCount, fRepetitions);
-  }
-  if (fVerbosity > 1) {
-    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
 
   fStepMax = AllocateAligned<Precision>();
@@ -1323,11 +1248,9 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
   fDirectionPool->resize(fPointCount * fPoolMultiplier);
 
   std::stringstream outputLabels;
-  outputLabels << "Vectorized - Specialized - Unspecialized";
+  outputLabels << "Specialized - Unspecialized";
 
   // Allocate output memory
-  Precision *const distancesVectorized    = AllocateAligned<Precision>();
-  Precision *const safetiesVectorized     = AllocateAligned<Precision>();
   Precision *const distancesSpecialized   = AllocateAligned<Precision>();
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
@@ -1350,7 +1273,6 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-    RunToOutVectorized(distancesVectorized, safetiesVectorized);
     RunToOutSpecialized(distancesSpecialized, safetiesSpecialized);
     RunToOutUnspecialized(distancesUnspecialized, safetiesUnspecialized);
 #ifdef VECGEOM_GEANT4
@@ -1365,23 +1287,21 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 #endif
   }
 
-  int errorcode =
-      CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesVectorized, distancesUnspecialized,
+  int errorcode = CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesUnspecialized,
 #ifdef VECGEOM_ROOT
-                       distancesRoot,
+                                   distancesRoot,
 #endif
 #ifdef VECGEOM_GEANT4
-                       distancesGeant4,
+                                   distancesGeant4,
 #endif
 #ifdef VECGEOM_ENABLE_CUDA
-                       distancesCuda,
+                                   distancesCuda,
 #endif
-                       "DistanceToOutFromBoundaryExiting");
+                                   "DistanceToOutFromBoundaryExiting");
 
   // Clean up memory
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
-  FreeAligned(distancesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1392,7 +1312,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
   FreeAligned(distancesCuda);
 #endif
 
-  errorcode += CheckSafetiesOnBoundary(fPointPool, NULL, safetiesSpecialized, safetiesVectorized, safetiesUnspecialized,
+  errorcode += CheckSafetiesOnBoundary(fPointPool, NULL, safetiesSpecialized, safetiesUnspecialized,
 #ifdef VECGEOM_ROOT
                                        safetiesRoot,
 #endif
@@ -1406,7 +1326,6 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
-  FreeAligned(safetiesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1429,9 +1348,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
            "benchmark for %i points for "
            "%i repetitions.\n",
            fPointCount, fRepetitions);
-  }
-  if (fVerbosity > 1) {
-    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
 
   if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
@@ -1477,11 +1393,9 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
   fDirectionPool->resize(fPointCount * fPoolMultiplier);
 
   std::stringstream outputLabels;
-  outputLabels << "Vectorized - Specialized - Unspecialized";
+  outputLabels << "Specialized - Unspecialized";
 
   // Allocate output memory
-  Precision *const distancesVectorized    = AllocateAligned<Precision>();
-  Precision *const safetiesVectorized     = AllocateAligned<Precision>();
   Precision *const distancesSpecialized   = AllocateAligned<Precision>();
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
@@ -1504,7 +1418,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-    RunToInVectorized(distancesVectorized, safetiesVectorized);
     RunToInSpecialized(distancesSpecialized, safetiesSpecialized);
     RunToInUnspecialized(distancesUnspecialized, safetiesUnspecialized);
 #ifdef VECGEOM_GEANT4
@@ -1519,23 +1432,22 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 #endif
   }
 
-  int errorcode = CheckDistancesFromBoundary(0., fPointPool, fDirectionPool, distancesSpecialized, distancesVectorized,
-                                             distancesUnspecialized,
+  int errorcode =
+      CheckDistancesFromBoundary(0., fPointPool, fDirectionPool, distancesSpecialized, distancesUnspecialized,
 #ifdef VECGEOM_ROOT
-                                             distancesRoot,
+                                 distancesRoot,
 #endif
 #ifdef VECGEOM_GEANT4
-                                             distancesGeant4,
+                                 distancesGeant4,
 #endif
 #ifdef VECGEOM_ENABLE_CUDA
-                                             distancesCuda,
+                                 distancesCuda,
 #endif
-                                             "DistanceToInFromBoundary");
+                                 "DistanceToInFromBoundary");
 
   // Clean up memory
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
-  FreeAligned(distancesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1546,7 +1458,7 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
   FreeAligned(distancesCuda);
 #endif
 
-  errorcode += CheckSafetiesOnBoundary(fPointPool, NULL, safetiesSpecialized, safetiesVectorized, safetiesUnspecialized,
+  errorcode += CheckSafetiesOnBoundary(fPointPool, NULL, safetiesSpecialized, safetiesUnspecialized,
 #ifdef VECGEOM_ROOT
                                        safetiesRoot,
 #endif
@@ -1560,7 +1472,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
-  FreeAligned(safetiesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1582,9 +1493,6 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
            "benchmark for %i points for "
            "%i repetitions.\n",
            fPointCount, fRepetitions);
-  }
-  if (fVerbosity > 1) {
-    printf("Number of SIMD lanes: %zu\n", vecCore::VectorSize<Real_v>());
   }
 
   fStepMax = AllocateAligned<Precision>();
@@ -1634,11 +1542,9 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
   fDirectionPool->resize(fPointCount * fPoolMultiplier);
 
   std::stringstream outputLabels;
-  outputLabels << "Vectorized - Specialized - Unspecialized";
+  outputLabels << "Specialized - Unspecialized";
 
   // Allocate output memory
-  Precision *const distancesVectorized    = AllocateAligned<Precision>();
-  Precision *const safetiesVectorized     = AllocateAligned<Precision>();
   Precision *const distancesSpecialized   = AllocateAligned<Precision>();
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
@@ -1661,7 +1567,6 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-    RunToInVectorized(distancesVectorized, safetiesVectorized);
     RunToInSpecialized(distancesSpecialized, safetiesSpecialized);
     RunToInUnspecialized(distancesUnspecialized, safetiesUnspecialized);
 #ifdef VECGEOM_GEANT4
@@ -1676,23 +1581,21 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #endif
   }
 
-  int errorcode =
-      CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesVectorized, distancesUnspecialized,
+  int errorcode = CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesUnspecialized,
 #ifdef VECGEOM_ROOT
-                       distancesRoot,
+                                   distancesRoot,
 #endif
 #ifdef VECGEOM_GEANT4
-                       distancesGeant4,
+                                   distancesGeant4,
 #endif
 #ifdef VECGEOM_ENABLE_CUDA
-                       distancesCuda,
+                                   distancesCuda,
 #endif
-                       "DistanceToInFromBoundary");
+                                   "DistanceToInFromBoundary");
 
   // Clean up memory
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
-  FreeAligned(distancesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1704,7 +1607,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #endif
 
   // errorcode += CompareSafeties(
-  CheckSafetiesOnBoundary(fPointPool, NULL, safetiesSpecialized, safetiesVectorized, safetiesUnspecialized,
+  CheckSafetiesOnBoundary(fPointPool, NULL, safetiesSpecialized, safetiesUnspecialized,
 #ifdef VECGEOM_ROOT
                           safetiesRoot,
 #endif
@@ -1718,7 +1621,6 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
-  FreeAligned(safetiesVectorized);
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1837,112 +1739,6 @@ void Benchmarker::RunToOutSpecialized(Precision *distances, Precision *safeties)
   }
   fResults.push_back(GenerateBenchmarkResult(elapsedDistance, kBenchmarkDistanceToOut, kBenchmarkSpecialized, 1));
   fResults.push_back(GenerateBenchmarkResult(elapsedSafety, kBenchmarkSafetyToOut, kBenchmarkSpecialized, 1));
-}
-
-void Benchmarker::RunInsideVectorized(bool *contains, Inside_t *inside)
-{
-  if (fVerbosity > 0) {
-    printf("Vectorized    - ");
-  }
-  Stopwatch timer;
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    SOA3D<Precision> points(fPointPool->x() + index, fPointPool->y() + index, fPointPool->z() + index, fPointCount);
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      v->Specialized()->Contains(points, contains);
-    }
-  }
-  Precision elapsedContains = timer.Stop();
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    SOA3D<Precision> points(fPointPool->x() + index, fPointPool->y() + index, fPointPool->z() + index, fPointCount);
-    for (auto v = fVolumes.begin(), v_end = fVolumes.end(); v != v_end; ++v) {
-      v->Specialized()->Inside(points, inside);
-    }
-  }
-  Precision elapsedInside = timer.Stop();
-  if (fVerbosity > 0 && fMeasurementCount == 1) {
-    printf("Inside: %.6fs (%.6fs), Contains: %.6fs (%.6fs), "
-           "Inside/Contains: %.2f\n",
-           elapsedInside, elapsedInside / fVolumes.size(), elapsedContains, elapsedContains / fVolumes.size(),
-           elapsedInside / elapsedContains);
-  }
-  fResults.push_back(GenerateBenchmarkResult(elapsedContains, kBenchmarkContains, kBenchmarkVectorized, fInsideBias));
-  fResults.push_back(GenerateBenchmarkResult(elapsedInside, kBenchmarkInside, kBenchmarkVectorized, fInsideBias));
-}
-
-void Benchmarker::RunToInVectorized(Precision *const distances, Precision *const safeties)
-{
-  if (fVerbosity > 0) {
-    printf("Vectorized    - ");
-  }
-  Stopwatch timer;
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    SOA3D<Precision> points(fPointPool->x() + index, fPointPool->y() + index, fPointPool->z() + index, fPointCount);
-    SOA3D<Precision> directions(fDirectionPool->x() + index, fDirectionPool->y() + index, fDirectionPool->z() + index,
-                                fPointCount);
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      v->Specialized()->DistanceToIn(points, directions, fStepMax, distances);
-    }
-  }
-  Precision elapsedDistance = timer.Stop();
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    SOA3D<Precision> points(fPointPool->x() + index, fPointPool->y() + index, fPointPool->z() + index, fPointCount);
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      v->Specialized()->SafetyToIn(points, safeties);
-    }
-  }
-  Precision elapsedSafety = timer.Stop();
-  if (fVerbosity > 0 && fMeasurementCount == 1) {
-    printf("DistanceToIn: %.6fs (%.6fs), SafetyToIn: %.6fs (%.6fs), "
-           "DistanceToIn/SafetyToIn: %.2f\n",
-           elapsedDistance, elapsedDistance / fVolumes.size(), elapsedSafety, elapsedSafety / fVolumes.size(),
-           elapsedDistance / elapsedSafety);
-  }
-  fResults.push_back(GenerateBenchmarkResult(elapsedDistance, kBenchmarkDistanceToIn, kBenchmarkVectorized, fToInBias));
-  fResults.push_back(GenerateBenchmarkResult(elapsedSafety, kBenchmarkSafetyToIn, kBenchmarkVectorized, fToInBias));
-}
-
-void Benchmarker::RunToOutVectorized(Precision *const distances, Precision *const safeties)
-{
-  if (fVerbosity > 0) {
-    printf("Vectorized    - ");
-  }
-  Stopwatch timer;
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    SOA3D<Precision> points(fPointPool->x() + index, fPointPool->y() + index, fPointPool->z() + index, fPointCount);
-    SOA3D<Precision> directions(fDirectionPool->x() + index, fDirectionPool->y() + index, fDirectionPool->z() + index,
-                                fPointCount);
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      v->Specialized()->DistanceToOut(points, directions, fStepMax, distances);
-    }
-  }
-  Precision elapsedDistance = timer.Stop();
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    SOA3D<Precision> points(fPointPool->x() + index, fPointPool->y() + index, fPointPool->z() + index, fPointCount);
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      v->Specialized()->SafetyToOut(points, safeties);
-    }
-  }
-  Precision elapsedSafety = timer.Stop();
-  if (fVerbosity > 0 && fMeasurementCount == 1) {
-    printf("DistanceToOut: %.6fs (%.6fs), SafetyToOut: %.6fs (%.6fs), "
-           "DistanceToOut/SafetyToOut: %.2f\n",
-           elapsedDistance, elapsedDistance / fVolumes.size(), elapsedSafety, elapsedSafety / fVolumes.size(),
-           elapsedDistance / elapsedSafety);
-  }
-  fResults.push_back(GenerateBenchmarkResult(elapsedDistance, kBenchmarkDistanceToOut, kBenchmarkVectorized, 1));
-  fResults.push_back(GenerateBenchmarkResult(elapsedSafety, kBenchmarkSafetyToOut, kBenchmarkVectorized, 1));
 }
 
 void Benchmarker::RunInsideUnspecialized(bool *contains, Inside_t *inside)
@@ -2139,7 +1935,7 @@ void Benchmarker::RunToOutGeant4(Precision *distances, Precision *safeties)
         const Vector3D<Precision> point = (*fPointPool)[p];
         const Vector3D<Precision> dir   = (*fDirectionPool)[p];
         distances[i]                    = v->Geant4()->DistanceToOut(G4ThreeVector(point[0], point[1], point[2]),
-                                                  G4ThreeVector(dir[0], dir[1], dir[2]), false, NULL, NULL);
+                                                                     G4ThreeVector(dir[0], dir[1], dir[2]), false, NULL, NULL);
       }
     }
   }

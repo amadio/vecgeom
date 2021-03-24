@@ -17,8 +17,6 @@
 #include <G4VSolid.hh>
 #endif
 
-using Real_v = vecgeom::VectorBackend::Real_v;
-
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class VPlacedVolume;);
@@ -34,8 +32,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedBox;
 class GeoManager;
-template <typename T>
-class SOA3D;
 
 /*!
  * \brief A placed volume is a positioned logical volume.
@@ -270,8 +266,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point) const = 0;
 
-  virtual void Contains(SOA3D<Precision> const &point, bool *const output) const = 0;
-
   /*!
    * Returns whether a space point is contained or not in the placed volume.
    * Also returns the transformed position.
@@ -296,8 +290,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const = 0;
 
-  virtual void Inside(SOA3D<Precision> const &point, Inside_t *const output) const = 0;
-
   /**
    * Like similar function in VUnplacedVolume but taking into account
    * the positioning of the shape due to the placement.
@@ -307,56 +299,12 @@ public:
                                  const Precision step_max = kInfLength) const = 0;
 
   /**
-   * Like similar function in VUnplacedVolume but taking into account
-   * the positioning of the shape due to the placement.
-   */
-  // if we have any SIMD backend, we offer a SIMD interface
-  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
-                                 const Real_v step_max = kInfLength) const = 0;
-
-  /**
-   * Like similar function in VUnplacedVolume but taking into account
-   * the positioning of the shape due to the placement.
-   */
-  template <typename T>
-  VECGEOM_FORCE_INLINE T DistanceToIn(Vector3D<T> const &position, Vector3D<T> const &direction,
-                                      const T step_max = T(kInfLength)) const
-  {
-    return DistanceToInVec(position, direction, step_max);
-  }
-
-  /**
-   * Like similar function in VUnplacedVolume but taking into account
-   * the positioning of the shape due to the placement.
-   */
-  virtual void DistanceToIn(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                            Precision const *const step_max, Precision *const output) const = 0;
-
-  /**
    * Like similar function in VUnplacedVolume. Here position and direction are supposed to be
    * in the frame of the placed volume!
    */
   VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                   Precision const step_max = kInfLength) const = 0;
-
-  /**
-   * Like similar function in VUnplacedVolume. Here position and direction are supposed to be
-   * in the frame of the placed volume!
-   */
-  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
-                                  Real_v const step_max = kInfLength) const = 0;
-
-  /**
-   * Like similar function in VUnplacedVolume. Here position and direction are supposed to be
-   * in the frame of the placed volume!
-   */
-  template <typename T>
-  VECGEOM_FORCE_INLINE T DistanceToOut(Vector3D<T> const &position, Vector3D<T> const &direction,
-                                       const T step_max = T(kInfLength)) const
-  {
-    return DistanceToOutVec(position, direction, step_max);
-  }
 
   /** A "placed" version of the DistanceToOut function; here
    * the point and direction are first of all transformed into the reference frame of the
@@ -368,15 +316,6 @@ public:
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                         Precision const step_max = kInfLength) const = 0;
 
-  /// to be deprecated
-  virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                             Precision const *const step_max, Precision *const output) const = 0;
-
-  /// to be deprecated
-  virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                             Precision const *const step_max, Precision *const output,
-                             int *const nextnodeindex) const = 0;
-
   /**
    * Like similar function in VUnplacedVolume but taking into account
    * the positioning of the shape due to the placement.
@@ -385,45 +324,11 @@ public:
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
 
   /**
-   * Like similar function in VUnplacedVolume but taking into account
-   * the positioning of the shape due to the placement.
-   */
-  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &position) const = 0;
-
-  /**
-   * Like similar function in VUnplacedVolume but taking into account
-   * the positioning of the shape due to the placement.
-   */
-  template <typename T>
-  VECGEOM_FORCE_INLINE T SafetyToIn(Vector3D<T> const &p) const
-  {
-    return SafetyToInVec(p);
-  }
-
-  /// to be deprecated
-  virtual void SafetyToIn(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
-
-  /**
    * Like similar function in VUnplacedVolume. Here position is supposed to be
    * in the frame of the placed volume.
    */
   VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const = 0;
-
-  /**
-   * Like similar function in VUnplacedVolume. Here position is supposed to be
-   * in the frame of the placed volume.
-   */
-  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &position) const = 0;
-
-  /// to be deprecated
-  virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
-
-  template <typename T>
-  VECGEOM_FORCE_INLINE T SafetyToOut(Vector3D<T> const &p) const
-  {
-    return SafetyToOutVec(p);
-  }
 
   /// Simple forward to capacity on VUnplacedVolume
   virtual Precision Capacity();

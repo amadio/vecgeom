@@ -9,6 +9,7 @@
 //
 #include "VecGeomTest/RootGeoManager.h"
 
+#include "VecGeom/base/SOA3D.h"
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/UnplacedBox.h"
@@ -65,8 +66,7 @@ int main(int argc, char *argv[])
     pointcontainer.resize(4);
     SOA3D<Precision> dircontainer(4);
     dircontainer.resize(4);
-    Precision *output = new Precision[4];
-    Precision *steps  = new Precision[4];
+    Precision *steps = new Precision[4];
 
     if (argc > 9) {
       pointcontainer.set(0, point);
@@ -115,11 +115,7 @@ int main(int argc, char *argv[])
         std::cout << "VecGeom Distance seems to be too small DO(p=p+dist*dir,dir) "
                   << vecgeomplaced->DistanceToOut(point + dir * dist, dir) << "\n";
     }
-    vecgeomplaced->DistanceToIn(pointcontainer, dircontainer, steps, output);
-    std::cout << "VecGeom DI-V " << output[0] << "\n";
     std::cout << "VecGeom DO " << vecgeomplaced->DistanceToOut(point, dir) << "\n";
-    vecgeomplaced->DistanceToOut(pointcontainer, dircontainer, steps, output);
-    std::cout << "VecGeom DO-V " << output[0] << "\n";
 
     std::cout << "VecGeom SI " << vecgeomplaced->SafetyToIn(point) << "\n";
     std::cout << "VecGeom SO " << vecgeomplaced->SafetyToOut(point) << "\n";

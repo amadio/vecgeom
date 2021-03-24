@@ -1,7 +1,6 @@
 #pragma once
 
 #include "VecGeom/base/Global.h"
-#include "VecGeom/base/SOA3D.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 
 #include <algorithm>
@@ -71,48 +70,10 @@ public:
     return GetUnplacedVolume()->UnplacedShape_t::DistanceToOut(point, direction, stepMax);
   }
 
-  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
-                                  Real_v const step_max = kInfLength) const override
-  {
-    return GetUnplacedVolume()->UnplacedShape_t::DistanceToOutVec(position, direction, step_max);
-  }
-
-  // a helper tramponline to dispatch to DistanceToOutVec if type is not scalar
-  template <typename T>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  T DistanceToOut(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max) const
-  {
-    return DistanceToOutVec(p, d, step_max);
-  }
-
   VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &point) const override
   {
     return GetUnplacedVolume()->UnplacedShape_t::SafetyToOut(point);
-  }
-
-  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &position) const override
-  {
-    return GetUnplacedVolume()->UnplacedShape_t::SafetyToOutVec(position);
-  }
-
-  virtual void DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                             Precision const *const stepMax, Precision *const output) const override
-  {
-    GetUnplacedVolume()->UnplacedShape_t::DistanceToOut(points, directions, stepMax, output);
-  }
-
-  virtual void DistanceToOut(SOA3D<Precision> const & /* position */, SOA3D<Precision> const & /* direction */,
-                             Precision const *const /* step_max */, Precision *const /* output */,
-                             int *const /* nextnodeindex */) const override
-  {
-    // interface not implemented (depcrecated)
-  }
-
-  virtual void SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const override
-  {
-    GetUnplacedVolume()->UnplacedShape_t::SafetyToOut(points, output);
   }
 
 }; // End class PlacedVolumeImplHelper

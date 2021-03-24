@@ -54,35 +54,11 @@ public:
     return fImplPtr->ImplementingUnplaced::DistanceToOut(p, d, normal, convex, step_max);
   }
 
-  VECCORE_ATT_HOST_DEVICE
-  Real_v DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d, Real_v const &step_max) const override
-  {
-    return fImplPtr->ImplementingUnplaced::DistanceToOutVec(p, d, step_max);
-  }
-
-  // the container/basket interface (possibly to be deprecated)
-  void DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                     Precision const *const step_max, Precision *const output) const override
-  {
-    return fImplPtr->ImplementingUnplaced::DistanceToOut(points, directions, step_max, output);
-  }
-
   // SafetyToOut
   VECCORE_ATT_HOST_DEVICE
   Precision SafetyToOut(Vector3D<Precision> const &p) const override
   {
     return fImplPtr->ImplementingUnplaced::SafetyToOut(p);
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override
-  {
-    return fImplPtr->ImplementingUnplaced::SafetyToOutVec(p);
-  }
-
-  void SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const override
-  {
-    return fImplPtr->ImplementingUnplaced::SafetyToOut(points, output);
   }
 
   // NOTE: This does not work yet (for whatever reason) since the trampoline dispatch is confused
@@ -95,23 +71,10 @@ public:
   //    return fImplPtr->ImplementingUnplaced::DistanceToIn(position, direction, step_max);
   //  }
 
-  //  VECCORE_ATT_HOST_DEVICE
-  //  Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
-  //                         const Real_v &step_max) const override
-  //  {
-  //    return fImplPtr->ImplementingUnplaced::DistanceToInVec(position, direction, step_max);
-  //  }
-
   VECCORE_ATT_HOST_DEVICE
   Precision SafetyToIn(Vector3D<Precision> const &position) const override
   {
     return fImplPtr->ImplementingUnplaced::SafetyToIn(position);
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override
-  {
-    return fImplPtr->ImplementingUnplaced::SafetyToInVec(p);
   }
 
   // ---------------- SamplePointOnSurface ----------------------------------------------------------

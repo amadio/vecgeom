@@ -180,39 +180,6 @@ public:
     return TreatSafetyToIn(localpoint, lvol, kInfLength);
   }
 
-  //
-  // These interfaces for baskets are only dummy-implemented at the moment
-  //
-  VECCORE_ATT_HOST_DEVICE
-  Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const & /*localpoint*/, VPlacedVolume const * /*pvol*/,
-                                    Bool_v /*m*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-    return Real_v(0.);
-  }
-
-  // interfaces to treat vectors/collections of points (uses the approach with intermediate storage and passing down the
-  // loops to shapes)
-  void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool &states,
-                           SOA3D<Precision> & /*workspace*/, Precision * /*safeties*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
-  // interfaces to treat vectors/collections of points (uses the approach without intermediate storage; requires access
-  // to new SIMD interface)
-  void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool & /*states*/,
-                           Precision * /*safeties*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
-  void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,
-                                   Precision * /*safeties*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
   static VSafetyEstimator *Instance()
   {
     static VoxelSafetyEstimator instance;

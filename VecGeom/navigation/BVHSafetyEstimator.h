@@ -68,42 +68,6 @@ public:
   {
     return BVHManager::GetBVH(lvol)->ComputeSafety(localpoint, kInfLength);
   }
-
-  /**
-   * Compute safety of a point given in the local coordinates of the placed volume @p pvol.
-   * @param[in] localpoint Points in SIMD layout in the local coordinates of the placed volume.
-   * @param[in] pvol Placed volume.
-   * @param[in] m Mask of active SIMD lanes.
-   */
-  VECCORE_ATT_HOST_DEVICE
-  Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint, VPlacedVolume const *pvol, Bool_v m) const final
-  {
-    using vecCore::Get;
-    using vecCore::Set;
-    using vecCore::VectorSize;
-
-    Real_v safeties(kInfLength);
-    for (size_t i = 0; i < VectorSize<Real_v>(); ++i) {
-      if (Get(m, i) == true) {
-        Vector3D<Precision> point(Get(localpoint[0], i), Get(localpoint[1], i), Get(localpoint[2], i));
-        Set(safeties, i, ComputeSafetyForLocalPoint(point, pvol));
-      }
-    }
-    return safeties;
-  }
-
-  /**
-   * Vector interface to compute safety for a set of points given in the local coordinates of the placed volume @p pvol.
-   * @param[in] localpoints Points in the local coordinates of the placed volume.
-   * @param[in] pvol Placed volume.
-   * @param[out] safeties Output safeties.
-   */
-  void ComputeSafetyForLocalPoints(SOA3D<Precision> const &localpoints, VPlacedVolume const *pvol,
-                                   Precision *safeties) const final
-  {
-    for (size_t i = 0; i < localpoints.size(); ++i)
-      safeties[i] = ComputeSafetyForLocalPoint({localpoints.x(i), localpoints.y(i), localpoints.z(i)}, pvol);
-  }
 };
 
 } // namespace VECGEOM_IMPL_NAMESPACE
