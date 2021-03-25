@@ -241,12 +241,6 @@ public:
   /// Print the actual volume type to an outstream
   virtual void PrintType(std::ostream &os) const = 0;
 
-  /// Returns translation code/enumeration of the placed volume
-  virtual int GetTransCode() const { return translation::kGeneric; }
-
-  /// Returns rotation code/enumeration of the placed volume
-  virtual int GetRotCode() const { return rotation::kGeneric; }
-
   /// Recursively prints contained volumes to standard output.
   VECCORE_ATT_HOST_DEVICE
   void PrintContent(const int depth = 0) const;
