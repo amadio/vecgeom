@@ -51,8 +51,6 @@ private:
 
   std::vector<TGeoNode const *> fTGeoNodeVector;
 
-  std::function<void *(TGeoMaterial const *)> fMaterialConversionLambda = [](TGeoMaterial const *) { return nullptr; };
-
   int fVerbose;
 
   bool fFlattenAssemblies; // flag deciding whether we flatten assemblies (like G4 does)
@@ -152,15 +150,6 @@ public:
 
   /// Conversion function from a TGeoMatrix to a corresponding VecGeom Transformation3D
   Transformation3D *Convert(TGeoMatrix const *const trans);
-
-  /**
-   * This function allows to register a callback that is executed
-   * whenever the geometry conversion process encounters a TGeoMaterial.
-   *
-   * We provide this as VecGeom does not have itself a material class, but
-   * when the user still wants to associate a material to a logical volume.
-   */
-  void SetMaterialConversionHook(std::function<void *(TGeoMaterial const *)> &&f) { fMaterialConversionLambda = f; }
 
   /// Conversion function from a VecGeom placed volume to a corresponding TGeoNode
   TGeoNode *Convert(VPlacedVolume const *const node);

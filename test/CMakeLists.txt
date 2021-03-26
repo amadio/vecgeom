@@ -125,7 +125,6 @@ if(VECGEOM_ROOT)
   set(TEST_EXECUTABLES_ROOT
     core/BoxBoxIntersectionTest.cpp
     core/SplittedABBox.cpp
-    core/TestRegions.cpp
     root/root_geometry.cpp
     root/complex_test1.cpp
     root/E03Test.cpp

@@ -57,8 +57,7 @@ int LogicalVolume::gIdCount = 0;
 
 #ifndef VECCORE_CUDA
 LogicalVolume::LogicalVolume(char const *const label, VUnplacedVolume const *const unplaced_volume)
-    : fUnplacedVolume(unplaced_volume), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr), fMaterialPtr(nullptr),
-      fMaterialCutsPtr(nullptr), fBasketManagerPtr(nullptr), fLevelLocator(SimpleAssemblyLevelLocator::GetInstance()),
+    : fUnplacedVolume(unplaced_volume), fId(0), fLabel(nullptr), fLevelLocator(SimpleAssemblyLevelLocator::GetInstance()),
       fSafetyEstimator(SimpleSafetyEstimator::Instance()), fNavigator(NewSimpleNavigator<>::Instance()), fDaughters()
 {
   fId = gIdCount++;
@@ -79,8 +78,7 @@ VECCORE_ATT_DEVICE
 LogicalVolume::LogicalVolume(VUnplacedVolume const *const unplaced_vol,
                              unsigned int id, Vector<Daughter> *GetDaughter)
     // Id for logical volumes is not needed on the device for CUDA
-    : fUnplacedVolume(unplaced_vol), fId(id), fLabel(nullptr), fUserExtensionPtr(nullptr), fMaterialPtr(nullptr),
-      fMaterialCutsPtr(nullptr), fBasketManagerPtr(nullptr), fDaughters(GetDaughter),
+    : fUnplacedVolume(unplaced_vol), fId(id), fLabel(nullptr), fDaughters(GetDaughter),
       fLevelLocator(new SimpleAssemblyLevelLocator()), fSafetyEstimator(SimpleSafetyEstimator::Instance()),
       fNavigator(NewSimpleNavigator<>::Instance())
 {

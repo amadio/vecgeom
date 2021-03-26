@@ -34,9 +34,6 @@ VECGEOM_DEVICE_DECLARE_CONV(class, LogicalVolume);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class Region; // forward declaration for a class which
-              // a user needs to implement in his code
-
 class VLevelLocator;
 class VSafetyEstimator;
 class VNavigator;
@@ -66,21 +63,6 @@ private:
   std::string *fLabel; ///< name of logical volume
 
   static int gIdCount; ///< a static class counter
-
-  //--- The following pointers are used mainly by simulation packages ---
-  // Consider enabling them only when needed
-
-  /// A pointer member to register arbitrary objects with logical volumes.
-  /// Included for the moment to model UserExtension like in a TGeoVolume.
-  void *fUserExtensionPtr;
-
-  void *fMaterialPtr; ///< Pointer to some user material class (used by Geant-V)
-
-  void *fMaterialCutsPtr; ///< Pointer to some user cuts (used by Geant-V)
-
-  void *fBasketManagerPtr; ///< A specific pointer used by Geant-V
-
-  Region *fRegion = nullptr; ///< Pointer to a region object (following the Geant4 Region concept)
 
   //--- The following pointers are used by VecGeom itself ---
 
@@ -158,25 +140,6 @@ public:
   /// Returns value of static instance counter
   static unsigned int GetIdCount() { return (unsigned int)gIdCount; }
 
-  /// Returns the user extension pointer.
-  VECGEOM_FORCE_INLINE
-  void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
-
-  /// Returns the material extension pointer.
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  void *GetMaterialPtr() const { return fMaterialPtr; }
-
-  /// Returns the cuts extension pointer.
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  void *GetMaterialCutsPtr() const { return fMaterialCutsPtr; }
-
-  /// Returns the basked manager pointer (Geant-V specific).
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  void *GetBasketManagerPtr() const { return fBasketManagerPtr; }
-
   /// Returns the level locator (used by VecGeom navigation).
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -232,23 +195,6 @@ public:
     fLabel = new std::string(label);
   }
 
-  /// Set user extension pointer of this logical volume.
-  VECGEOM_FORCE_INLINE
-  void SetUserExtensionPtr(void *userpointer) { fUserExtensionPtr = userpointer; }
-
-  /// Set the material pointer of this logical volume.
-  VECGEOM_FORCE_INLINE
-  void SetMaterialPtr(void *matpointer) { fMaterialPtr = matpointer; }
-
-  /// Set the cuts pointer of this logical volume.
-  VECGEOM_FORCE_INLINE
-  void SetMaterialCutsPtr(void *matcutpointer) { fMaterialCutsPtr = matcutpointer; }
-
-  /// Set the basket manager pointer of this logical volume (Geant-V specific).
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  void SetBasketManagerPtr(void *basketpointer) { fBasketManagerPtr = basketpointer; }
-
   /// Print the daughter information of this logical volume with a given indentation.
   VECCORE_ATT_HOST_DEVICE
   void Print(const int indent = 0) const;
@@ -290,17 +236,6 @@ public:
 
   friend std::ostream &operator<<(std::ostream &os, LogicalVolume const &vol);
 
-  /// Returns the region object associated to this logical volume.
-  Region *GetRegion() { return fRegion; }
-
-  /** Sets the Region pointer for this logical Volume.
-   * @param region The Region object that  will be associated to this logical volume.
-   * @param pushdown If pushdown=true this region will be applied to all logical volumes below (in the geom hierarchy)
-   *
-   * Set region will override any existing region. The user has to make sure to call in the right order.
-   */
-  void SetRegion(Region *region, bool pushdown = true);
-
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::LogicalVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol, int id,
                                            DevicePtr<cuda::Vector<CudaDaughter_t>> GetDaughter) const;
@@ -313,16 +248,6 @@ private:
   std::set<LogicalVolume *> GetSetOfDaughterLogicalVolumes() const;
 
 }; // End class
-
-inline void LogicalVolume::SetRegion(Region *region, bool pushdown)
-{
-  fRegion = region;
-  if (pushdown) {
-    for (auto &lv : GetSetOfDaughterLogicalVolumes()) {
-      lv->SetRegion(region, true);
-    }
-  }
-}
 
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
