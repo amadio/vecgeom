@@ -865,7 +865,7 @@ install(EXPORT VecGeomTargets
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
   set(DOXYFILE_OUTPUT_DIR  ${PROJECT_BINARY_DIR}/doxygen)
-  foreach(d doc/doxygen backend base benchmarking management navigation scripts source volumes)
+  foreach(d doc/doxygen vecgeom persistency scripts source services)
     set(DOXYFILE_SOURCE_DIRS "${DOXYFILE_SOURCE_DIRS} ${PROJECT_SOURCE_DIR}/${d}")
   endforeach()
 
