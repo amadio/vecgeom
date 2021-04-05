@@ -1241,7 +1241,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *const Middleware::processPhysica
     } else if (theChildNodeName == "rotation") {
       auto const rotationName = GetAttribute("name", aDOMElement->getAttributes());
       if (processRotation(aDOMElement)) {
-        position = rotationMap[rotationName];
+        rotation = rotationMap[rotationName];
       } else {
         std::cout << "Middleware::processPhysicalVolume: could not process rotation " << rotationName << std::endl;
       }
