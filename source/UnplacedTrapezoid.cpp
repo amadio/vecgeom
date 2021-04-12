@@ -584,7 +584,7 @@ bool UnplacedTrapezoid::MakeAPlane(const Vec3D &p1, const Vec3D &p2, const Vec3D
   Precision resid3 = normalVector.Dot(p3 - centr);
   Precision resid4 = normalVector.Dot(p4 - centr);
   Precision resid  = Max(Max(fabs(resid1), fabs(resid2)), Max(fabs(resid3), fabs(resid4)));
-  if (resid > 10 * kTolerance) {
+  if (resid > 1000 * kTolerance) {
     printf("*** WARNING (UnplacedTrapezoid): coplanarity test fails by residual = %e.\n", resid);
     printf("\tcorner 1: (%f; %f; %f)\n", p1.x(), p1.y(), p1.z());
     printf("\tcorner 2: (%f; %f; %f)\n", p2.x(), p2.y(), p2.z());
