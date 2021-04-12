@@ -241,7 +241,7 @@ void UnplacedPolycone::Print() const
     printf(" plane %lu at z pos %lf\n", p, fPolycone.fZs[p]);
   }
 
-  printf("have %zu size fSections\n", fPolycone.fSections.size());
+  printf("have %lu size fSections\n", fPolycone.fSections.size());
   printf("------ sections follow ----------\n");
   for (int s = 0; s < fPolycone.GetNSections(); ++s) {
     printf("## section %d, shift %lf\n", s, fPolycone.fSections[s].fShift);
