@@ -14,7 +14,7 @@
 namespace vgdml {
 
 namespace Frontend {
-bool Load(std::string const &aFilename, bool validate, double mm_unit)
+bool Load(std::string const &aFilename, bool validate, double mm_unit, bool verbose)
 {
   auto aBackend      = vgdml::Backend(validate);
   auto const aDOMDoc = aBackend.Load(aFilename);
@@ -23,7 +23,8 @@ bool Load(std::string const &aFilename, bool validate, double mm_unit)
     return false;
   }
   vecgeom::GeoManager::SetMillimeterUnit((vecgeom::Precision)mm_unit);
-  std::cout << "(II) vgdml::Frontend::Load: VecGeom millimeter is " << mm_unit << "\n";
+  if (verbose == 1)
+    std::cout << "(II) vgdml::Frontend::Load: VecGeom millimeter is " << mm_unit << "\n";
   auto aMiddleware            = vgdml::Middleware();
   auto const loadedMiddleware = aMiddleware.Load(aDOMDoc);
   return loadedMiddleware;
