@@ -29,7 +29,8 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class SOA3D;);
-
+VECGEOM_HOST_FORWARD_DECLARE(class NavStatePool;);
+VECGEOM_DEVICE_FORWARD_DECLARE(class NavStatePool;);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class NavStatePool {
