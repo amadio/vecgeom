@@ -26,10 +26,12 @@
 
 #include "VecGeom/navigation/VNavigator.h"
 #include "VecGeom/navigation/GlobalLocator.h"
+#include "VecGeom/navigation/BVHLevelLocator.h"
 #include "VecGeom/navigation/NewSimpleNavigator.h"
 #include "VecGeom/navigation/SimpleABBoxNavigator.h"
 #include "VecGeom/navigation/SimpleABBoxLevelLocator.h"
 #include "VecGeom/navigation/HybridNavigator2.h"
+#include "VecGeom/navigation/BVHNavigator.h"
 
 //#define CALLGRIND
 #ifdef CALLGRIND
@@ -198,24 +200,35 @@ void BenchTracks()
   }
 }
 
-void InitNavigators()
+void InitNavigators(int use_bvh_navigator)
 {
   for (auto &lvol : GeoManager::Instance().GetLogicalVolumesMap()) {
-    if (lvol.second->GetDaughtersp()->size() < 4) {
+    auto ndaughters = lvol.second->GetDaughtersp()->size();
+
+    if (ndaughters <= 2) {
       lvol.second->SetNavigator(NewSimpleNavigator<>::Instance());
-    }
-    if (lvol.second->GetDaughtersp()->size() >= 5) {
-      lvol.second->SetNavigator(SimpleABBoxNavigator<>::Instance());
-    }
-    if (lvol.second->GetDaughtersp()->size() >= 10) {
-      lvol.second->SetNavigator(HybridNavigator<>::Instance());
-      HybridManager2::Instance().InitStructure((lvol.second));
+    } else if (ndaughters <= 10) {
+      if (use_bvh_navigator) {
+        lvol.second->SetNavigator(BVHNavigator<>::Instance());
+      } else {
+        lvol.second->SetNavigator(SimpleABBoxNavigator<>::Instance());
+      }
+    } else { // ndaughters > 10
+      if (use_bvh_navigator) {
+        lvol.second->SetNavigator(BVHNavigator<>::Instance());
+      } else {
+        lvol.second->SetNavigator(HybridNavigator<>::Instance());
+        HybridManager2::Instance().InitStructure((lvol.second));
+      }
     }
 
     if (lvol.second->ContainsAssembly()) {
       lvol.second->SetLevelLocator(SimpleAssemblyAwareABBoxLevelLocator::GetInstance());
     } else {
-      lvol.second->SetLevelLocator(SimpleABBoxLevelLocator::GetInstance());
+      if (use_bvh_navigator)
+        lvol.second->SetLevelLocator(BVHLevelLocator::GetInstance());
+      else
+        lvol.second->SetLevelLocator(SimpleABBoxLevelLocator::GetInstance());
     }
   }
 }
@@ -602,6 +615,7 @@ int main(int argc, char *argv[])
 
   pixel_width = atof(argv[4]);
 
+  unsigned int use_bvh_navigator = 0;
   unsigned int cutatlevel = 1000;
   bool cutlevel           = false;
   for (auto i = 5; i < argc; i++) {
@@ -616,6 +630,9 @@ int main(int argc, char *argv[])
     if (!strcmp(argv[i], "--zerosteplimit")) {
       kZeroStepLimit = atof(argv[i + 1]);
       std::cout << "Setting zero step limit to " << kZeroStepLimit << "\n";
+    }
+    if (!strcmp(argv[i], "--use-bvh-navigator")) {
+      use_bvh_navigator = 1;
     }
   }
 
@@ -859,7 +876,7 @@ int main(int argc, char *argv[])
     // GeoManager::Instance().GetWorld()->PrintContent();
     std::cerr << "total number of nodes " << GeoManager::Instance().GetWorld()->GetLogicalVolume()->GetNTotal() << "\n";
 
-    InitNavigators();
+    InitNavigators(use_bvh_navigator);
 
     timer.Start();
 #ifdef CALLGRIND

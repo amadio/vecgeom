@@ -616,6 +616,8 @@ set(VECGEOM_COMMON_SRCS
   source/ABBoxManager.cpp
   source/HybridManager2.cpp
   source/FlatVoxelManager.cpp
+  source/BVH.cpp
+  source/BVHManager.cpp
 
   source/MessageLogger.cpp
 
