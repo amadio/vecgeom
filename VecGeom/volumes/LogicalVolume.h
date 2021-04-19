@@ -110,7 +110,7 @@ public:
 
 #else
   VECCORE_ATT_DEVICE
-  LogicalVolume(VUnplacedVolume const *const unplaced_vol, Vector<Daughter> *GetDaughter);
+  LogicalVolume(VUnplacedVolume const *const unplaced_vol, int id, Vector<Daughter> *GetDaughter);
 #endif
 
   ~LogicalVolume();
@@ -287,9 +287,9 @@ public:
   void SetRegion(Region *region, bool pushdown = true);
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  DevicePtr<cuda::LogicalVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol,
+  DevicePtr<cuda::LogicalVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol, int id,
                                            DevicePtr<cuda::Vector<CudaDaughter_t>> GetDaughter) const;
-  DevicePtr<cuda::LogicalVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol,
+  DevicePtr<cuda::LogicalVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol, int id,
                                            DevicePtr<cuda::Vector<CudaDaughter_t>> GetDaughter,
                                            DevicePtr<cuda::LogicalVolume> const gpu_ptr) const;
 #endif

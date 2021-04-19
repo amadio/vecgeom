@@ -81,7 +81,8 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
   timer.Start();
   for (std::set<LogicalVolume const *>::const_iterator i = logical_volumes_.begin(); i != logical_volumes_.end(); ++i) {
 
-    (*i)->CopyToGpu(LookupUnplaced((*i)->GetUnplacedVolume()), LookupDaughters((*i)->fDaughters), LookupLogical(*i));
+    (*i)->CopyToGpu(LookupUnplaced((*i)->GetUnplacedVolume()), (*i)->id(), LookupDaughters((*i)->fDaughters),
+                    LookupLogical(*i));
   }
   timer.Stop();
   if (verbose_ > 2) std::cerr << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
@@ -204,7 +205,7 @@ void CudaManager::CleanGpu()
   memory_map_.clear();
   gpu_memory_map_.clear();
 
-  world_gpu_   = vecgeom::DevicePtr<vecgeom::cuda::VPlacedVolume>();
+  world_gpu_    = vecgeom::DevicePtr<vecgeom::cuda::VPlacedVolume>();
   synchronized_ = false;
 
   if (verbose_ > 1) std::cout << " OK\n";
@@ -265,8 +266,7 @@ bool CudaManager::AllocateNavIndexOnCoproc()
   auto table_size = NavIndexTable::Instance()->GetTableSize();
   auto table      = NavIndexTable::Instance()->GetTable();
 
-  if (verbose_ > 2)
-  std::cout << "Allocating navigation index table...\n";
+  if (verbose_ > 2) std::cout << "Allocating navigation index table...\n";
 
   GpuAddress gpu_address;
   gpu_address.Allocate(table_size);
@@ -281,8 +281,7 @@ bool CudaManager::AllocateNavIndexOnCoproc()
   // Copy the table
   CopyToGpu((char *)table, gpu_address.GetPtr(), table_size);
 
-  if (verbose_ > 2)
-  std::cout << " OK\n";
+  if (verbose_ > 2) std::cout << " OK\n";
   return true;
 }
 
@@ -321,7 +320,7 @@ bool CudaManager::AllocatePlacedVolumesOnCoproc()
   // since the pointers in GeoManager::gCompactPlacedVolBuffer are sorted by the volume id, we are
   // getting the same order on the GPU/device automatically
   for (unsigned int i = 0; i < size; ++i) {
-    VPlacedVolume const *ptr                  = &GeoManager::gCompactPlacedVolBuffer[i];
+    VPlacedVolume const *ptr                   = &GeoManager::gCompactPlacedVolBuffer[i];
     memory_map_[ToCpuAddress(ptr)]             = gpu_address;
     fGPUtoCPUmapForPlacedVolumes_[gpu_address] = ptr;
     gpu_address += ptr->DeviceSizeOf();

@@ -76,12 +76,12 @@ LogicalVolume::LogicalVolume(char const *const label, VUnplacedVolume const *con
 
 #else
 VECCORE_ATT_DEVICE
-LogicalVolume::LogicalVolume(VUnplacedVolume const *const unplaced_vol, Vector<Daughter> *GetDaughter)
+LogicalVolume::LogicalVolume(VUnplacedVolume const *const unplaced_vol, int id, Vector<Daughter> *GetDaughter)
     // Id for logical volumes is not needed on the device for CUDA
-    : fUnplacedVolume(unplaced_vol), fId(-1), fLabel(nullptr), fUserExtensionPtr(nullptr), fMaterialPtr(nullptr),
+    : fUnplacedVolume(unplaced_vol), fId(id), fLabel(nullptr), fUserExtensionPtr(nullptr), fMaterialPtr(nullptr),
       fMaterialCutsPtr(nullptr), fBasketManagerPtr(nullptr), fDaughters(GetDaughter),
-      fLevelLocator(new SimpleAssemblyLevelLocator()),
-      fSafetyEstimator(SimpleSafetyEstimator::Instance()), fNavigator(NewSimpleNavigator<>::Instance())
+      fLevelLocator(new SimpleAssemblyLevelLocator()), fSafetyEstimator(SimpleSafetyEstimator::Instance()),
+      fNavigator(NewSimpleNavigator<>::Instance())
 {
 }
 
@@ -234,21 +234,21 @@ size_t LogicalVolume::GetNTotal() const
 
 #ifdef VECGEOM_CUDA_INTERFACE
 
-DevicePtr<cuda::LogicalVolume> LogicalVolume::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol,
+DevicePtr<cuda::LogicalVolume> LogicalVolume::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol, int id,
                                                         DevicePtr<cuda::Vector<CudaDaughter_t>> GetDaughter,
                                                         DevicePtr<cuda::LogicalVolume> const gpu_ptr) const
 {
-  gpu_ptr.Construct(unplaced_vol, GetDaughter);
+  gpu_ptr.Construct(unplaced_vol, id, GetDaughter);
   CudaAssertError();
   return gpu_ptr;
 }
 
-DevicePtr<cuda::LogicalVolume> LogicalVolume::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol,
+DevicePtr<cuda::LogicalVolume> LogicalVolume::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol, int id,
                                                         DevicePtr<cuda::Vector<CudaDaughter_t>> daughter) const
 {
   DevicePtr<cuda::LogicalVolume> gpu_ptr;
   gpu_ptr.Allocate();
-  return this->CopyToGpu(unplaced_vol, daughter, gpu_ptr);
+  return this->CopyToGpu(unplaced_vol, id, daughter, gpu_ptr);
 }
 
 #endif // VECGEOM_CUDA_INTERFACE
@@ -260,7 +260,7 @@ DevicePtr<cuda::LogicalVolume> LogicalVolume::CopyToGpu(DevicePtr<cuda::VUnplace
 namespace cxx {
 
 template size_t DevicePtr<cuda::LogicalVolume>::SizeOf();
-template void DevicePtr<cuda::LogicalVolume>::Construct(DevicePtr<cuda::VUnplacedVolume> const,
+template void DevicePtr<cuda::LogicalVolume>::Construct(DevicePtr<cuda::VUnplacedVolume> const, int,
                                                         DevicePtr<cuda::Vector<cuda::VPlacedVolume const *>>) const;
 } // namespace cxx
 
