@@ -33,6 +33,55 @@ VECGEOM_HOST_FORWARD_DECLARE(class NavStatePool;);
 VECGEOM_DEVICE_FORWARD_DECLARE(class NavStatePool;);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+VECCORE_FORCE_INLINE
+NavigationState const *GetNavigationState(int i, const char *buffer, int depth)
+{
+  return reinterpret_cast<NavigationState const *>(buffer + NavigationState::SizeOfInstanceAlignAware(depth) * i);
+}
+
+VECCORE_ATT_HOST_DEVICE
+VECCORE_FORCE_INLINE
+NavigationState *GetNavigationState(int i, char *buffer, int depth)
+{
+  return reinterpret_cast<NavigationState*>(buffer + NavigationState::SizeOfInstanceAlignAware(depth) * i);
+}
+
+class NavStatePoolView {
+public:
+
+  VECCORE_ATT_HOST_DEVICE
+  NavStatePoolView(char *buffer, int depth, int capacity) : fCapacity(capacity), fDepth(depth), fBuffer(buffer) {}
+
+  VECCORE_ATT_HOST_DEVICE
+  NavigationState *operator[](int i)
+  {
+    assert(i < fCapacity);
+    return GetNavigationState(i, fBuffer, fDepth);
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  NavigationState const *operator[](int i) const
+  {
+    assert(i < fCapacity);
+    return GetNavigationState(i, fBuffer, fDepth);
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  int Capacity() const { return fCapacity; }
+
+  VECCORE_ATT_HOST_DEVICE
+  int Depth() const { return fDepth; }
+
+  VECCORE_ATT_HOST_DEVICE
+  int IsValid() const { return fBuffer && fCapacity > 0 && fDepth > 0; }
+
+private:         // members
+  int   fCapacity; // Allocated size of the container.
+  int   fDepth;    // depth of the navigation objects to cover
+  char *fBuffer;   // the memory buffer in which we place states
+}; // end class
+
 class NavStatePool {
 
 public:
@@ -101,13 +150,13 @@ public:
   VECCORE_ATT_HOST_DEVICE
   NavigationState *operator[](int i)
   {
-    return reinterpret_cast<NavigationState *>(fBuffer + NavigationState::SizeOfInstanceAlignAware(fDepth) * i);
+     return GetNavigationState(i, fBuffer, fDepth);
   }
 
   VECCORE_ATT_HOST_DEVICE
   NavigationState const *operator[](int i) const
   {
-    return reinterpret_cast<NavigationState const *>(fBuffer + NavigationState::SizeOfInstanceAlignAware(fDepth) * i);
+     return GetNavigationState(i, fBuffer, fDepth);
   }
 
   // convert/init this to a plain NavigationState** array
