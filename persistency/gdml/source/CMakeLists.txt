@@ -10,6 +10,7 @@ add_library(vgdml
   include/Frontend.h
   include/Helper.h
   include/MaterialInfo.h
+  include/RegionInfo.h
   include/Middleware.h
   src/Backend.cpp
   src/Frontend.cpp

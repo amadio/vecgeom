@@ -5,7 +5,7 @@
 #
 #    \license Distributed under the Apache license 2.0
 # One executable for Backend/Frontend/Middleware
-foreach(_vgdml_test TestXercesBackend TestXercesFrontend TestXercesMiddleware)
+foreach(_vgdml_test TestXercesBackend TestXercesFrontend TestXercesMiddleware ReadMiddlewareData)
   add_executable(${_vgdml_test} ${_vgdml_test}/${_vgdml_test}.cpp)
   # Not 100% clear that USERKERNELLIB is needed
   target_link_libraries(${_vgdml_test} vgdml ${USERKERNELLIB})

@@ -19,6 +19,7 @@
 #include "VecGeom/volumes/BooleanStruct.h"
 
 #include "MaterialInfo.h"
+#include "RegionInfo.h"
 
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
@@ -39,9 +40,17 @@ class UnplacedTessellated;
 namespace vgdml {
 class Middleware {
 public:
+  using MaterialMap_t  = std::map<std::string, vgdml::Material>;
+  using RegionMap_t    = std::map<std::string, vgdml::Region>;
+  using VolumeMatMap_t = std::map<int, vgdml::Material>;
+
   Middleware() {}
   bool Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument);
   XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Save(void const *);
+  MaterialMap_t const &GetMaterialMap() const { return materialMap; }
+  RegionMap_t const &GetRegionMap() const { return regionMap; }
+  std::map<int, int> const &GetMaterialCutMap() const { return materialcutMap; }
+  VolumeMatMap_t const &GetVolumeMatMap() const { return volumeMaterialMap; }
 
 private:
   bool processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
@@ -58,6 +67,7 @@ private:
   bool processIsotope(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   bool processElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   bool processMaterial(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  bool processAuxiliary(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 
   bool processFacet(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode,
                     vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTessellated &storage);
@@ -118,6 +128,9 @@ private:
   std::map<std::string, vgdml::Isotope> isotopeMap;
   std::map<std::string, vgdml::Element> elementMap;
   std::map<std::string, vgdml::Material> materialMap;
+  std::map<std::string, vgdml::Region> regionMap;
+  std::map<int, int> materialcutMap;                // maps the logical volume id with a user material-cut couple id
+  std::map<int, vgdml::Material> volumeMaterialMap; // maps the logical volume id with a material record
 
   double GetDoubleAttribute(std::string const &attrName,
                             XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);

@@ -195,6 +195,9 @@ bool Middleware::processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMN
   } else if (name == "world") {
     auto const success = processWorld(aDOMNode);
     return success;
+  } else if (name == "auxiliary") {
+    auto const success = processAuxiliary(aDOMNode);
+    return success;
   }
   auto result = true;
   //  if do not know what to do, process the children
@@ -386,16 +389,17 @@ bool Middleware::processMaterial(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *a
         aMaterial.attributes["Dunit"] = Dunit;
         aMaterial.attributes["Dtype"] = Dtype;
       } else if (theNodeName == "composite") {
-        auto const element              = GetAttribute("ref", childAttributes);
-        auto const count                = GetAttribute("n", childAttributes);
-        aMaterial.components["element"] = count;
+        auto const element = GetAttribute("ref", childAttributes);
+        auto const count   = GetAttribute("n", childAttributes);
+        if (element.size()) aMaterial.components["element"] = count;
       } else { // theNodeName == "fraction"
-        auto const element           = GetAttribute("ref", childAttributes);
-        auto const fraction          = GetAttribute("n", childAttributes);
-        aMaterial.fractions[element] = fraction;
+        auto const element  = GetAttribute("ref", childAttributes);
+        auto const fraction = GetAttribute("n", childAttributes);
+        if (element.size()) aMaterial.fractions[element] = fraction;
       }
     }
   }
+  aMaterial.name     = materialName;
   auto const success = materialMap.insert(std::make_pair(materialName, aMaterial)).second;
   if (!success) {
     std::cout << "Middleware::processMaterial: failed to insert isotope with name " << materialName << std::endl;
@@ -657,7 +661,7 @@ double Middleware::GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
   const double mm              = vecgeom::GeoManager::GetMillimeterUnit();
   auto const *const attributes = aDOMNode->getAttributes();
   auto const nodeName          = Helper::Transcode(aDOMNode->getNodeName());
-  auto const unitTag           = (nodeName == "position") ? "unit" : "lunit";
+  auto const unitTag           = (nodeName == "position") ? "unit" : (nodeName == "auxiliary") ? "auxunit" : "lunit";
   auto const unit              = GetAttribute(unitTag, attributes);
   // if no unit attribute is specified, the default is mm
   auto const lengthMultiplier =
@@ -1127,7 +1131,7 @@ bool Middleware::processFacet(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
                               vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTessellated &storage)
 {
   if (debug) {
-    std::cout << "Middleware::processLogicVolume: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+    std::cout << "Middleware::processFacet: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
 
@@ -1162,6 +1166,7 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
     std::cout << "Middleware::processLogicVolume: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume *logicVolume = nullptr;
+  vgdml::Material const *foundMaterial                        = nullptr;
   auto const *const attributes                                = aDOMNode->getAttributes();
   auto const volumeName                                       = GetAttribute("name", attributes);
 
@@ -1184,12 +1189,42 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
 
       auto foundSolid = unplacedVolumeMap.find(solidName);
       if (foundSolid == unplacedVolumeMap.end()) {
-        std::cout << "Could not find solid " << solidName << std::endl;
+        std::cout << "processLogicVolume: Could not find solid reference " << solidName << " for logical volume "
+                  << volumeName << std::endl;
         return false;
       } else {
         if (debug) std::cout << "Found solid " << solidName << std::endl;
         logicVolume = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume(volumeName.c_str(), foundSolid->second);
         vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::Instance().RegisterLogicalVolume(logicVolume);
+        if (foundMaterial) {
+          auto const success = volumeMaterialMap.insert(std::make_pair(logicVolume->id(), *foundMaterial)).second;
+          if (!success) {
+            std::cout << "processLogicVolume: Could not insert volid-material pair: " << logicVolume->id() << " - "
+                      << foundMaterial->name << std::endl;
+            return false;
+          }
+        }
+      }
+    } else if (theChildNodeName == "materialref") {
+      auto const materialName = GetAttribute("ref", aDOMElement->getAttributes());
+      if (debug) std::cout << "volume " << volumeName << " refernces material " << materialName << std::endl;
+
+      auto pairMaterial = materialMap.find(materialName);
+      if (pairMaterial == materialMap.end()) {
+        std::cout << "processLogicVolume: Could not find material reference " << materialName << " for logical volume "
+                  << volumeName << std::endl;
+        return false;
+      } else {
+        if (debug) std::cout << "Found material " << materialName << std::endl;
+        foundMaterial = &pairMaterial->second;
+        if (logicVolume) {
+          auto const success = volumeMaterialMap.insert(std::make_pair(logicVolume->id(), *foundMaterial)).second;
+          if (!success) {
+            std::cout << "processLogicVolume: Could not insert volid-material pair: " << logicVolume->id() << " - "
+                      << foundMaterial->name << std::endl;
+            return false;
+          }
+        }
       }
     } else if (theChildNodeName == "physvol") {
       auto daughterVolume = processPhysicalVolume(aDOMElement);
@@ -1264,6 +1299,94 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *const Middleware::processPhysica
   auto const placedVolume = logicalVolume->Place(&transformation); // TODO position, rotation, label
   vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::Instance().RegisterPlacedVolume(placedVolume);
   return placedVolume;
+}
+
+bool Middleware::processAuxiliary(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processAuxiliary processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const auxType = GetAttribute("auxtype", aDOMNode->getAttributes());
+  if (auxType == "Region") {
+    auto const regionName = GetAttribute("auxvalue", aDOMNode->getAttributes());
+    vgdml::Region region;
+    region.name = regionName;
+    for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+      auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+      if (!aDOMElement) {
+        // Skip whitespace/text element
+        if (debug) {
+          std::cerr << "Skipping null DOM element: " << Helper::GetNodeInformation(it) << std::endl;
+        }
+        continue;
+      }
+      if (debug) {
+        std::cerr << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+      }
+      auto const theChildNodeName = Helper::Transcode(it->getNodeName());
+      if (theChildNodeName == "auxiliary") {
+        auto const *const attributes = aDOMElement->getAttributes();
+        auto const lengthMultiplier  = GetLengthMultiplier(aDOMElement);
+        auto const auxtype           = GetAttribute("auxtype", attributes);
+        // auto const auxunit = GetAttribute("auxunit", aDOMElement->getAttributes());
+        auto const lvName = GetAttribute("auxvalue", aDOMElement->getAttributes());
+        if (auxtype == "volume") {
+          // We search if the requested volume exists
+          auto logicalVolume = vecgeom::GeoManager::Instance().FindLogicalVolume(lvName.c_str());
+          if (!logicalVolume) {
+            std::cout << "Middleware::processAuxiliary: could not find logical volume " << lvName << std::endl;
+            return false;
+          }
+
+          region.volNames.emplace_back(lvName);
+        } else if (auxtype.find("cut") != std::string::npos) {
+          DECLAREANDGETLENGTVAR(auxvalue)
+          region.cuts.emplace_back(auxtype, auxvalue);
+        }
+      }
+    }
+    auto const success = regionMap.insert(std::make_pair(regionName, region)).second;
+    if (!success) {
+      std::cout << "Middleware::processAuxiliary: failed to insert region with name " << regionName << std::endl;
+      return false;
+    }
+  } else if (auxType == "MaterialCut") {
+    for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+      auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+      if (!aDOMElement) {
+        // Skip whitespace/text element
+        if (debug) {
+          std::cerr << "Skipping null DOM element: " << Helper::GetNodeInformation(it) << std::endl;
+        }
+        continue;
+      }
+      if (debug) {
+        std::cerr << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+      }
+      auto const theChildNodeName = Helper::Transcode(it->getNodeName());
+      if (theChildNodeName == "auxiliary") {
+        auto const *const attributes = aDOMElement->getAttributes();
+        auto const lvName            = GetAttribute("auxtype", attributes);
+        if (lvName.empty()) {
+          std::cout << "Middleware::processAuxiliary: cannot find auxvolume tag for MaterialCut" << std::endl;
+          return false;
+        }
+        auto logicalVolume = vecgeom::GeoManager::Instance().FindLogicalVolume(lvName.c_str());
+        if (!logicalVolume) {
+          std::cout << "Middleware::processAuxiliary: could not find logical volume " << lvName << std::endl;
+          return false;
+        }
+        DECLAREANDGETINTVAR(auxvalue)
+        auto const success = materialcutMap.insert(std::make_pair(logicalVolume->id(), auxvalue)).second;
+        if (!success) {
+          std::cout << "Middleware::processAuxiliary: failed to insert material-cut couple id for volume " << lvName
+                    << std::endl;
+          return false;
+        }
+      }
+    }
+  }
+  return true;
 }
 
 bool Middleware::processWorld(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)

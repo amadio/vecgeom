@@ -29,6 +29,7 @@ struct Element {
 };
 
 struct Material {
+  std::string name;
   std::map<std::string, std::string> attributes;
   std::map<std::string, std::string> fractions;
   std::map<std::string, std::string> components;

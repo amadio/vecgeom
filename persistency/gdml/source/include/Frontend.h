@@ -9,11 +9,16 @@
 #define VGDMLFrontend_h
 
 #include <string>
+#include <memory>
+#include "Middleware.h"
 
 namespace vgdml {
 
+class Middleware;
+
 namespace Frontend {
-bool Load(std::string const &aFilename, bool validate = true, double mm_unit = 0.1, bool verbose = 1);
+std::unique_ptr<Middleware> Load(std::string const &aFilename, bool validate = true, double mm_unit = 0.1,
+                                 bool verbose = 1);
 } // namespace Frontend
 
 } // namespace vgdml
