@@ -432,7 +432,7 @@ Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
         else
           pReturn = GetPointOnTriangle(point4, point3, point2);
       } else {
-        point3.Set(0.0, 0.0, GetZSegment(0).outer.GetCorners()[2][Flag].z());
+        point3.Set(0.0, 0.0, GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][Flag].z());
         pReturn = GetPointOnTriangle(point3, point1, point2);
       }
       return pReturn;
