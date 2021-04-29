@@ -44,6 +44,8 @@
 #include <vector>
 #include <array>
 
+#include <iomanip>
+
 // requires lengthMultiplier, angleMultiplier and attributes already declared
 #define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetDoubleAttribute(#x, attributes);
 #define DECLAREANDGETANGLEVAR(x) auto const x = angleMultiplier * GetDoubleAttribute(#x, attributes);
@@ -195,8 +197,8 @@ bool Middleware::processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMN
   } else if (name == "world") {
     auto const success = processWorld(aDOMNode);
     return success;
-  } else if (name == "auxiliary") {
-    auto const success = processAuxiliary(aDOMNode);
+  } else if (name == "userinfo") {
+    auto const success = processUserInfo(aDOMNode);
     return success;
   }
   auto result = true;
@@ -351,7 +353,7 @@ bool Middleware::processElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aD
   }
   auto const success = elementMap.insert(std::make_pair(elementName, anElement)).second;
   if (!success) {
-    std::cout << "Middleware::processElement: failed to insert isotope with name " << elementName << std::endl;
+    std::cout << "Middleware::processElement: failed to insert element with name " << elementName << std::endl;
   }
   return success;
 }
@@ -402,7 +404,7 @@ bool Middleware::processMaterial(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *a
   aMaterial.name     = materialName;
   auto const success = materialMap.insert(std::make_pair(materialName, aMaterial)).second;
   if (!success) {
-    std::cout << "Middleware::processMaterial: failed to insert isotope with name " << materialName << std::endl;
+    std::cout << "Middleware::processMaterial: failed to insert material with name " << materialName << std::endl;
   }
   return success;
 }
@@ -672,7 +674,9 @@ double Middleware::GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
                 : (unit == "km")
                       ? 1e6 * mm
                       : (unit == "um") ? 1e-3 * mm
-                                       : (unit == "nm") ? 1e-6 * mm : (unit == "cm") ? 10 * mm : mm; // TODO more units
+                                : (unit == "nm") ? 1e-6 * mm
+                                : (unit == "cm") ? 10 * mm
+                                                 : mm; // TODO more units
   return lengthMultiplier;
 }
 
@@ -1229,6 +1233,15 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
     } else if (theChildNodeName == "physvol") {
       auto daughterVolume = processPhysicalVolume(aDOMElement);
       logicVolume->PlaceDaughter(daughterVolume);
+    } else if (theChildNodeName == "auxiliary") {
+      Auxiliary aux;
+      auto const success = processAuxiliary(aDOMElement, aux);
+      if(!success) {
+        std::cout << "processLogicVolume: Could not process auxiliary tag in volume: " << volumeName << std::endl;
+        return false;
+      }
+      // emplace aux into volumeAux map
+      volumeAuxiliaryInfo[logicVolume->id()].emplace_back(std::move(aux));
     }
   }
   return logicVolume;
@@ -1301,91 +1314,59 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *const Middleware::processPhysica
   return placedVolume;
 }
 
-bool Middleware::processAuxiliary(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+bool Middleware::processUserInfo(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
-  if (debug) {
-    std::cout << "Middleware::processAuxiliary processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
-  }
-  auto const auxType = GetAttribute("auxtype", aDOMNode->getAttributes());
-  if (auxType == "Region") {
-    auto const regionName = GetAttribute("auxvalue", aDOMNode->getAttributes());
-    vgdml::Region region;
-    region.name = regionName;
-    for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
-      auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
-      if (!aDOMElement) {
-        // Skip whitespace/text element
-        if (debug) {
-          std::cerr << "Skipping null DOM element: " << Helper::GetNodeInformation(it) << std::endl;
-        }
-        continue;
-      }
-      if (debug) {
-        std::cerr << "Child: " << Helper::GetNodeInformation(it) << std::endl;
-      }
-      auto const theChildNodeName = Helper::Transcode(it->getNodeName());
-      if (theChildNodeName == "auxiliary") {
-        auto const *const attributes = aDOMElement->getAttributes();
-        auto const lengthMultiplier  = GetLengthMultiplier(aDOMElement);
-        auto const auxtype           = GetAttribute("auxtype", attributes);
-        // auto const auxunit = GetAttribute("auxunit", aDOMElement->getAttributes());
-        auto const lvName = GetAttribute("auxvalue", aDOMElement->getAttributes());
-        if (auxtype == "volume") {
-          // We search if the requested volume exists
-          auto logicalVolume = vecgeom::GeoManager::Instance().FindLogicalVolume(lvName.c_str());
-          if (!logicalVolume) {
-            std::cout << "Middleware::processAuxiliary: could not find logical volume " << lvName << std::endl;
-            return false;
-          }
-
-          region.volNames.emplace_back(lvName);
-        } else if (auxtype.find("cut") != std::string::npos) {
-          DECLAREANDGETLENGTVAR(auxvalue)
-          region.cuts.emplace_back(auxtype, auxvalue);
-        }
-      }
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    auto *aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+    if (aDOMElement == nullptr) {
+      // Skip whitespace/text element
+      continue;
     }
-    auto const success = regionMap.insert(std::make_pair(regionName, region)).second;
-    if (!success) {
-      std::cout << "Middleware::processAuxiliary: failed to insert region with name " << regionName << std::endl;
+
+    const std::string tag = Helper::Transcode(aDOMElement->getTagName());
+    if (tag != "auxiliary") {
       return false;
     }
-  } else if (auxType == "MaterialCut") {
-    for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
-      auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
-      if (!aDOMElement) {
-        // Skip whitespace/text element
-        if (debug) {
-          std::cerr << "Skipping null DOM element: " << Helper::GetNodeInformation(it) << std::endl;
-        }
-        continue;
-      }
-      if (debug) {
-        std::cerr << "Child: " << Helper::GetNodeInformation(it) << std::endl;
-      }
-      auto const theChildNodeName = Helper::Transcode(it->getNodeName());
-      if (theChildNodeName == "auxiliary") {
-        auto const *const attributes = aDOMElement->getAttributes();
-        auto const lvName            = GetAttribute("auxtype", attributes);
-        if (lvName.empty()) {
-          std::cout << "Middleware::processAuxiliary: cannot find auxvolume tag for MaterialCut" << std::endl;
-          return false;
-        }
-        auto logicalVolume = vecgeom::GeoManager::Instance().FindLogicalVolume(lvName.c_str());
-        if (!logicalVolume) {
-          std::cout << "Middleware::processAuxiliary: could not find logical volume " << lvName << std::endl;
-          return false;
-        }
-        DECLAREANDGETINTVAR(auxvalue)
-        auto const success = materialcutMap.insert(std::make_pair(logicalVolume->id(), auxvalue)).second;
-        if (!success) {
-          std::cout << "Middleware::processAuxiliary: failed to insert material-cut couple id for volume " << lvName
-                    << std::endl;
-          return false;
-        }
-      }
+
+    Auxiliary tmp;
+    if (!processAuxiliary(aDOMElement, tmp)) {
+      return false;
     }
+
+    userInfo.emplace_back(std::move(tmp));
   }
+
+  return true;
+}
+
+bool Middleware::processAuxiliary(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode, Auxiliary &aux)
+{
+  aux = Auxiliary();
+  aux.SetType(GetAttribute("auxtype", aDOMNode->getAttributes()));
+  aux.SetValue(GetAttribute("auxvalue", aDOMNode->getAttributes()));
+  aux.SetUnit(GetAttribute("auxunit", aDOMNode->getAttributes()));
+
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    auto *aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+    if (aDOMElement == nullptr) {
+      // Skip whitespace/text element
+      continue;
+    }
+
+    // Check that child is an auxiliary
+    const std::string tag = Helper::Transcode(aDOMElement->getTagName());
+    if (tag != "auxiliary") {
+      return false;
+    }
+
+    Auxiliary tmp;
+    if (!processAuxiliary(aDOMElement, tmp)) {
+      return false;
+    }
+
+    aux.AddChild(tmp);
+  }
+
   return true;
 }
 

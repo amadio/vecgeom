@@ -34,8 +34,6 @@ int main(int argC, char *argV[])
   // Different maps can be retrieved from the middleware object
   auto materialMap    = aMiddleware.GetMaterialMap();
   auto volumeMatMap   = aMiddleware.GetVolumeMatMap();
-  auto regionMap      = aMiddleware.GetRegionMap();
-  auto materialCutMap = aMiddleware.GetMaterialCutMap();
 
   // Region cuts have length units incorporated, one needs to divide the value by the VecGeom millimeter unit
   double mmunit     = vecgeom::GeoManager::GetMillimeterUnit();
@@ -63,43 +61,6 @@ int main(int argC, char *argV[])
     if (mat.components.size()) std::cout << "  components:\n";
     for (const auto &attv : mat.components)
       std::cout << "    " << attv.first << ": " << attv.second << std::endl;
-  }
-
-  // Iterate and print regions defined in the gdml file. See RegionInfo.h for content.
-  for (const auto &kv : regionMap) {
-    vgdml::Region const &region = kv.second;
-    std::cout << "Region: " << kv.first << std::endl;
-    std::cout << "  volumes:";
-    for (const auto &vname : region.volNames)
-      std::cout << "    " << vname << std::endl;
-    std::cout << "  cuts:";
-    for (const auto &cut : region.cuts)
-      std::cout << "    " << cut.name << ":  " << cut.value / mmunit << " mm" << std::endl;
-  }
-
-  // Iterate and print MaterialCuts. These represent the association between a given logical volume by name
-  // and a user-defined integer id representing a material-cut couple index. The association is stores as
-  // std::map<int,int> where the key is the logical volume id and the value is the material cut-couple id.
-  // Lines with the association are expected to have the format:
-  /*
-  <userinfo>
-    <auxiliary auxtype="MaterialCut" auxvalue="AdePT">       #auxvalue here not used yet
-      <auxiliary auxtype="OCMS0x7f4a9a758e00" auxvalue="10"/>
-      <auxiliary auxtype="TOBActiveRphi40x7f4a8f31c980" auxvalue="123"/>
-      ...
-    </auxiliary>
-  </userinfo>
-  */
-  std::cout << "MaterialCuts:" << std::endl;
-  for (const auto &kv : materialCutMap) {
-    auto lvpair = lvmap.find(kv.first);
-    if (lvpair == lvmap.end()) {
-      std::cout << "Error in ReadMiddlewareData: Cannot find logical volume with id = " << kv.first << std::endl;
-      return 1;
-    }
-    auto lv = lvpair->second;
-    std::cout << "  volume: " << lv->GetName() << "  id = " << lv->id() << "  mat=cut couple: " << kv.second
-              << std::endl;
   }
 
   return 0;

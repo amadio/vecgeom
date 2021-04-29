@@ -18,6 +18,7 @@
 #include "VecGeom/volumes/UnplacedVolume.h"
 #include "VecGeom/volumes/BooleanStruct.h"
 
+#include "Auxiliary.h"
 #include "MaterialInfo.h"
 #include "RegionInfo.h"
 
@@ -40,17 +41,25 @@ class UnplacedTessellated;
 namespace vgdml {
 class Middleware {
 public:
-  using MaterialMap_t  = std::map<std::string, vgdml::Material>;
-  using RegionMap_t    = std::map<std::string, vgdml::Region>;
-  using VolumeMatMap_t = std::map<int, vgdml::Material>;
+  using MaterialMap_t         = std::map<std::string, vgdml::Material>;
+  using VolumeMatMap_t        = std::map<int, vgdml::Material>;
+  using VolumeAuxiliaryInfo_t = std::map<int, std::vector<Auxiliary>>;
+  using UserInfo_t            = std::vector<Auxiliary>;
 
-  Middleware() {}
   bool Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument);
   XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Save(void const *);
+
+  /// Return map of GDML material name to material data
   MaterialMap_t const &GetMaterialMap() const { return materialMap; }
-  RegionMap_t const &GetRegionMap() const { return regionMap; }
-  std::map<int, int> const &GetMaterialCutMap() const { return materialcutMap; }
+
+  /// Return map of VecGeom LogicalVolume Id to GDML material
   VolumeMatMap_t const &GetVolumeMatMap() const { return volumeMaterialMap; }
+
+  /// Return map of VecGeom LogicalVolume Id to list of GDML auxiliary tags for that volume
+  VolumeAuxiliaryInfo_t const &GetVolumeAuxiliaryInfo() const { return volumeAuxiliaryInfo; }
+
+  /// Return list of auxiliary tags in GDML userinfo tag
+  UserInfo_t const &GetUserInfo() const { return userInfo; }
 
 private:
   bool processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
@@ -67,7 +76,8 @@ private:
   bool processIsotope(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   bool processElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   bool processMaterial(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
-  bool processAuxiliary(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  bool processAuxiliary(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode, Auxiliary &aux);
+  bool processUserInfo(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 
   bool processFacet(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode,
                     vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTessellated &storage);
@@ -127,10 +137,11 @@ private:
   std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>> rotationMap;
   std::map<std::string, vgdml::Isotope> isotopeMap;
   std::map<std::string, vgdml::Element> elementMap;
-  std::map<std::string, vgdml::Material> materialMap;
-  std::map<std::string, vgdml::Region> regionMap;
-  std::map<int, int> materialcutMap;                // maps the logical volume id with a user material-cut couple id
-  std::map<int, vgdml::Material> volumeMaterialMap; // maps the logical volume id with a material record
+
+  MaterialMap_t materialMap;                 ///< map of material name to a material record
+  VolumeMatMap_t volumeMaterialMap;          ///< map of VecGeom logical volume id to a material record
+  VolumeAuxiliaryInfo_t volumeAuxiliaryInfo; ///< map of VecGeom logical volume id to a list of auxiliary tags
+  UserInfo_t userInfo;                       ///< list of auxiliary tags in userinfo
 
   double GetDoubleAttribute(std::string const &attrName,
                             XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);

@@ -6,6 +6,7 @@
 #    \license Distributed under the Apache license 2.0
 
 add_library(vgdml
+  include/Auxiliary.h
   include/Backend.h
   include/Frontend.h
   include/Helper.h
