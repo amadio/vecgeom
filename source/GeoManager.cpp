@@ -313,14 +313,15 @@ LogicalVolume *GeoManager::FindLogicalVolume(const int id)
 
 LogicalVolume *GeoManager::FindLogicalVolume(char const *const label)
 {
-  LogicalVolume *output = NULL;
+  LogicalVolume *output = nullptr;
   bool multiple         = false;
-  for (auto v = fLogicalVolumesMap.begin(), v_end = fLogicalVolumesMap.end(); v != v_end; ++v) {
 
-    const std::string &fullname = v->second->GetLabel();
+  for (const auto &v : fLogicalVolumesMap) {
+    const std::string &fullname = (v.second)->GetLabel();
+
     if (fullname.compare(label) == 0) {
-      if (!output) {
-        output = v->second;
+      if (output == nullptr) {
+        output = v.second;
       } else {
         if (!multiple) {
           multiple = true;
@@ -330,12 +331,24 @@ LogicalVolume *GeoManager::FindLogicalVolume(char const *const label)
         } else {
           printf(", ");
         }
-        printf("[%i]", v->second->id());
+        printf("[%i]", (v.second)->id());
       }
     }
   }
   if (multiple) printf(". Returning first occurence.\n");
   return output;
+}
+
+int GeoManager::GetLogicalVolumeId(const std::string &label)
+{
+  const LogicalVolume *lv = this->FindLogicalVolume(label.c_str());
+  return (lv == nullptr) ? -1 : lv->id();
+}
+
+std::string GeoManager::GetLogicalVolumeLabel(int id)
+{
+  const LogicalVolume *lv = this->FindLogicalVolume(id);
+  return (lv == nullptr) ? "" : lv->GetLabel();
 }
 
 void GeoManager::Clear()

@@ -98,7 +98,8 @@ set(TEST_EXECUTABLES_CORE
   core/TestHybridBVH.cpp
   core/TestEarlyReturns.cpp
   core/CreateTessels.cpp
-  core/CreateExtruded.cpp)
+  core/CreateExtruded.cpp
+  core/TestGeoManager.cpp)
 
 if(USE_INDEXEDNAVSTATES)
   list(APPEND TEST_EXECUTABLES_CORE core/TestNavigationState.cpp)

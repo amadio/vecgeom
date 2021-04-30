@@ -212,6 +212,16 @@ public:
   LogicalVolume *FindLogicalVolume(char const *const label);
 
   /**
+   * \return Id of logical volume with passed label, or -1 if not found
+   */
+  int GetLogicalVolumeId(const std::string &label);
+
+  /**
+   * \return Label of logical volumen with passed Id, or empty string if not found
+   */
+  std::string GetLogicalVolumeLabel(int id);
+
+  /**
    * Clear/resets the GeoManager. All geometry information will be deleted.
    */
   void Clear();
@@ -239,7 +249,6 @@ public:
   bool MakeNavIndexTable(int depth_limit = 0, bool validate = false) const;
 #endif
 
-protected:
 private:
   GeoManager()
       : fVolumeCount(0), fTotalNodeCount(0), fWorld(NULL), fPlacedVolumesMap(), fLogicalVolumesMap(),
