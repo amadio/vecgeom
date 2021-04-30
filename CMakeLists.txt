@@ -328,12 +328,6 @@ elseif(Clang OR AppleClang)
   if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL "4")
    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -faligned-new")
   endif()
-
-  if(APPLE)
-    # prefer LLVM's standard C++ library on Mac OS X
-    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -stdlib=libc++")
-  endif()
-
 endif()
 
 # - Additional flags for coverage testing support
