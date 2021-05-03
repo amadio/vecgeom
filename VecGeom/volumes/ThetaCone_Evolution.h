@@ -567,14 +567,15 @@ public:
         }
       }
 
+      // Second cone is the XY plane, compute distance to plane
       if (fETheta >= kPi / 2 - halfAngTolerance && fETheta <= kPi / 2 + halfAngTolerance) {
         distThetaCone1 = firstRoot;
         distThetaCone2 = inf;
         vecCore__MaskedAssignFunc(distThetaCone2, (dir.z() < Real_v(0.)), Real_v(-1.) * point.z() / dir.z());
         Real_v zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
         Real_v zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
-        intsect2 = ((d22 >= 0) && (distThetaCone2 != kInfLength) && (Abs(zOfIntSecPtCone2) < kHalfTolerance) &&
-                    !(dir.z() == Real_v(0.)));
+        intsect2 =
+            ((distThetaCone2 != kInfLength) && (Abs(zOfIntSecPtCone2) < kHalfTolerance) && !(dir.z() == Real_v(0.)));
         intsect1 = ((d2 >= 0) && (distThetaCone1 != kInfLength) && (Abs(zOfIntSecPtCone1) < kHalfTolerance) &&
                     !(dir.z() == Real_v(0.)));
       }
@@ -634,6 +635,7 @@ public:
       }
     }
 
+    // First cone is the XY plane, compute distance to plane
     if (fSTheta >= kPi / 2 - halfAngTolerance && fSTheta <= kPi / 2 + halfAngTolerance) {
       distThetaCone2 = secondRoot;
       distThetaCone1 = kInfLength;
@@ -642,8 +644,8 @@ public:
 
       Real_v zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
 
-      intsect1 = ((d2 >= 0) && (distThetaCone1 != kInfLength) && (Abs(zOfIntSecPtCone1) < kHalfTolerance) &&
-                  (dir.z() != Real_v(0.)));
+      intsect1 =
+          ((distThetaCone1 != kInfLength) && (Abs(zOfIntSecPtCone1) < kHalfTolerance) && (dir.z() != Real_v(0.)));
       intsect2 = ((d22 >= 0) && (distThetaCone2 != kInfLength) && (Abs(zOfIntSecPtCone2) < kHalfTolerance) &&
                   (dir.z() != Real_v(0.)));
     }

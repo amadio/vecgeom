@@ -45,15 +45,15 @@ bool TestSphere()
   Sphere_t b3("Solid VecGeomSphere #3", 1, fRmax, PI / 6, PI / 2, fSTheta, fDTheta);
 
   // Check cubic volume
-  assert(b1.Capacity() == ((4 * PI / 3) * fR * fR * fR));
-  assert(b2.Capacity() == (((4 * PI / 3) * fR * fR * fR) / 4));
+  assert(ApproxEqual<Precision>(b1.Capacity(), ((4 * PI / 3) * fR * fR * fR)));
+  assert(ApproxEqual<Precision>(b2.Capacity(), (((4 * PI / 3) * fR * fR * fR) / 4)));
   // std::cout<<"Capacity of B3 : "<<b3.Capacity()<<std::endl;
   assert(ApproxEqual<Precision>(b3.Capacity(), 27.22713633111));
 
   // std::cout<<"Capacity : "<<b2.Capacity()<<std::endl;
   // Check Surface area
-  assert(b1.SurfaceArea() == ((4 * PI) * fR * fR));
-  assert(b2.SurfaceArea() == ((((4 * PI) * fR * fR) / 4) + (PI * fR * fR)));
+  assert(ApproxEqual<Precision>(b1.SurfaceArea(), ((4 * PI) * fR * fR)));
+  assert(ApproxEqual<Precision>(b2.SurfaceArea(), ((((4 * PI) * fR * fR) / 4) + (PI * fR * fR))));
   assert(ApproxEqual<Precision>(b2.SurfaceArea(), 56.5486677646));
   // std::cout<<std::setprecision(12)<<"SurfaceArea of B3 : "<< b3.SurfaceArea() << std::endl;
   // std::cout<<"Not : "<< b1.SurfaceArea()/4 << std::endl;
@@ -1088,23 +1088,23 @@ bool TestSphere()
 
   // Added a new test for normal
   Sphere_t sphNormal("normalTest", 80, 100, 0, 2 * PI, 0, 2.268928027592628);
-  Vec_t ptNORMAL(-58.1682, -74.6533, -32.3008);
+  Vec_t ptNORMAL(-57.1682, -73.6533, -32.3008);
   assert(sphNormal.Inside(ptNORMAL) == vecgeom::EInside::kInside);
   valid = sphNormal.Normal(ptNORMAL, normal);
-  assert(normal.Mag() == 1.);
+  assert(ApproxEqual<Precision>(normal.Mag(), 1.));
   assert(!valid); // because the point under test is Inside Point
 
   // added more precise point (reported by Gabriele), which makes it a surface point
   Vec_t ptNormalSurface(-58.16821296689909, -74.65330731271325, -32.30081589545529);
   assert(sphNormal.Inside(ptNormalSurface) == vecgeom::EInside::kSurface);
   valid = sphNormal.Normal(ptNormalSurface, normal);
-  assert(normal.Mag() == 1.);
+  assert(ApproxEqual<Precision>(normal.Mag(), 1.));
   assert(valid); // because the point under test is now OnSurface
 
   Vec_t ptOnEndThetaSurface(46.76611644842609, -40.66413203238494, -52.00144394546794); // Point on the EndTheta surface
   valid = sphNormal.Normal(ptOnEndThetaSurface, normal);
   assert(sphNormal.Inside(ptOnEndThetaSurface) == vecgeom::EInside::kSurface);
-  assert(normal.Mag() == 1.);
+  assert(ApproxEqual<Precision>(normal.Mag(), 1.));
   assert(valid); // because the point under test is on End Theta Surface
 
   return true;

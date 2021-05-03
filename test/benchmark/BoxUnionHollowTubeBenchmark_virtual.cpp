@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
   Transformation3D translation(-2.5, 0, 3.5);
 
   VPlacedVolume *worldPlaced = world.Place();
-  GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
   VPlacedVolume *placedsubtractedtube = (new LogicalVolume("", &subtractedtube))->Place(&translation);
   VPlacedVolume *placedmotherbox      = (new LogicalVolume("", &motherbox))->Place();
@@ -41,6 +40,7 @@ int main(int argc, char *argv[])
 
   // add this boolean solid to the world
   world.PlaceDaughter(&booleanlogical, &placement);
+  GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
   tester.SetVerbosity(3);

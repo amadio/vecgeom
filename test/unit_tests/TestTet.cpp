@@ -45,11 +45,11 @@ bool TestTet()
   Precision sx = 2., sy = 2., sz = 2., sxyz = 2. * sqrt3;
   Precision area = tet.SurfaceArea();
   std::cout << "Area : " << area << std::endl;
-  assert(area == sx + sy + sz + sxyz);
+  assert(ApproxEqual<Precision>(area, sx + sy + sz + sxyz));
 
   Precision vol = tet.Capacity();
   std::cout << "Volume : " << vol << std::endl;
-  assert(vol == 4. / 3.);
+  assert(ApproxEqual<Precision>(vol, 4. / 3.));
 
   Vec_t bmin, bmax;
   tet.Extent(bmin, bmax);
@@ -60,8 +60,8 @@ bool TestTet()
   // Check Inside()
   //
   std::cout << "=== Check Inside()" << std::endl;
-  Precision kin  = 0.999;
-  Precision kout = 1.001;
+  Precision kin  = 0.99;
+  Precision kout = 1.01;
 
   Vec_t pc = (p0 + p1 + p2 + p3) / 4.; // center of tetrahedron
 
@@ -284,21 +284,22 @@ bool TestTet()
   assert(tet.DistanceToOut(pnt, dir) == -1);
   assert(tet.DistanceToOut(pnt, -dir) == -1);
 
-  pnt = Vec_t(0.5, 0.5, -0.5 * vecgeom::kHalfTolerance);
-  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 1.));
-  assert(tet.DistanceToOut(pnt, -dir) == -0.5 * vecgeom::kHalfTolerance);
+  Precision eps = 0.5 * vecgeom::kHalfTolerance;
+  pnt           = Vec_t(0.5, 0.5, -eps);
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 1. + eps));
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, -dir), -eps));
 
   pnt = Vec_t(0.5, 0.5, 0.0);
   assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 1.));
-  assert(tet.DistanceToOut(pnt, -dir) == 0.0);
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, -dir), 0.0));
 
-  pnt = Vec_t(0.5, 0.5, 0.5 * vecgeom::kHalfTolerance);
-  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 1.));
-  assert(tet.DistanceToOut(pnt, -dir) == 0.5 * vecgeom::kHalfTolerance);
+  pnt = Vec_t(0.5, 0.5, eps);
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 1. - eps));
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, -dir), eps));
 
   pnt = Vec_t(0.5, 0.5, 0.5);
   assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, dir), 0.5));
-  assert(tet.DistanceToOut(pnt, -dir) == 0.5);
+  assert(ApproxEqual<Precision>(tet.DistanceToOut(pnt, -dir), 0.5));
 
   pnt = Vec_t(0.4, 0.4, 0.0);
   pntIn.Set(pnt.x(), pnt.y(), 0.5 * vecgeom::kHalfTolerance);

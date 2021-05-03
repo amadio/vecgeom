@@ -9,7 +9,7 @@
 #include <cmath>
 
 const double kApproxEqualTolerance    = 1E-6;
-const double kApproxEqualToleranceFlt = 1E-4;
+const double kApproxEqualToleranceFlt = 1E-3;
 
 // Return true if the double x is approximately equal to y
 //
