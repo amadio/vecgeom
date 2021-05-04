@@ -26,7 +26,8 @@ int main(int argC, char *argV[])
   }
   auto const filename = std::string((argC > 1) ? argV[1] : "cms2018.gdml");
   std::cout << "Now loading VecGeom geometry ... " << std::endl;
-  auto const loadedMiddleware = vgdml::Frontend::Load(filename, false, 1); // mm unit is 1
+  vgdml::Parser p;
+  auto const loadedMiddleware = p.Load(filename, false, 1); // mm unit is 1
   std::cout << "Geometry loaded with result: \"" << (loadedMiddleware ? "true" : "false") << "\"" << std::endl;
   if (!loadedMiddleware) return 1;
 

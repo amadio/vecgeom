@@ -13,7 +13,14 @@
 namespace vgdml {
 
 namespace Frontend {
-std::unique_ptr<Middleware> Load(std::string const &aFilename, bool validate, double mm_unit, bool verbose)
+bool Load(std::string const &aFilename, bool validate, double mm_unit, bool verbose)
+{
+  Parser p;
+  return p.Load(aFilename, validate, mm_unit, verbose) ? true : false;
+}
+} // namespace Frontend
+
+std::unique_ptr<Middleware> Parser::Load(std::string const &aFilename, bool validate, double mm_unit, bool verbose)
 {
   auto aBackend      = vgdml::Backend(validate);
   auto const aDOMDoc = aBackend.Load(aFilename);
@@ -21,17 +28,15 @@ std::unique_ptr<Middleware> Load(std::string const &aFilename, bool validate, do
     std::cerr << "== Error: GDML file " << aFilename << " could not be loaded\n";
     return nullptr;
   }
+
   vecgeom::GeoManager::SetMillimeterUnit((vecgeom::Precision)mm_unit);
   if (verbose == 1) std::cout << "(II) vgdml::Frontend::Load: VecGeom millimeter is " << mm_unit << "\n";
-  auto aMiddleware            = new vgdml::Middleware();
-  auto const loadedMiddleware = aMiddleware->Load(aDOMDoc);
-  if (!loadedMiddleware) {
-    delete aMiddleware;
-    aMiddleware = nullptr;
-  }
-  return std::unique_ptr<Middleware>(aMiddleware);
-}
 
-} // namespace Frontend
+  auto aMiddleware = std::unique_ptr<Middleware>(new Middleware());
+  if (!aMiddleware->Load(aDOMDoc)) {
+    return nullptr;
+  }
+  return aMiddleware;
+}
 
 } // namespace vgdml
