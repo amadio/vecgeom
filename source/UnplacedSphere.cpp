@@ -287,7 +287,7 @@ UnplacedSphere *Maker<UnplacedSphere>::MakeInstance(Precision pRmin, Precision p
                                                     Precision pSTheta, Precision pDTheta)
 {
 #if !defined(VECCORE_CUDA) && !defined(VECGEOM_NO_SPECIALIZATION)
-  if (pRmin == 0. && pDPhi == kTwoPi && pDTheta == kPi) {
+  if (pRmin == 0. && pDPhi >= kTwoPi && pDTheta == kPi) {
     return new SUnplacedImplAs<UnplacedSphere, UnplacedOrb>(pRmax);
   }
 #endif

@@ -452,9 +452,9 @@ UnplacedCone *Maker<UnplacedCone>::MakeInstance(const Precision &rmin1, const Pr
       // NonHollowCone becomes NonHollowTube
       if (rmax1 == rmax2) {
         return new SUnplacedImplAs<SUnplacedCone<ConeTypes::NonHollowCone>, SUnplacedTube<TubeTypes::NonHollowTube>>(
-            rmin1, rmax1, dz, phimin, deltaphi);
+            rmin1, rmax1, dz, phimin, 2 * M_PI);
       } else {
-        return new SUnplacedCone<ConeTypes::NonHollowCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi);
+        return new SUnplacedCone<ConeTypes::NonHollowCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, 2 * M_PI);
       }
     }
     if (deltaphi == M_PI) {

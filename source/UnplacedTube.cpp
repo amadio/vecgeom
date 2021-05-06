@@ -95,14 +95,14 @@ UnplacedTube *Maker<UnplacedTube>::MakeInstance(const Precision &rmin, const Pre
 {
 #ifndef VECGEOM_NO_SPECIALIZATION
   if (rmin <= 0) {
-    if (dphi >= 2 * M_PI) return new SUnplacedTube<TubeTypes::NonHollowTube>(rmin, rmax, z, sphi, dphi);
+    if (dphi >= 2 * M_PI) return new SUnplacedTube<TubeTypes::NonHollowTube>(rmin, rmax, z, sphi, 2*M_PI);
     if (dphi == M_PI) return new SUnplacedTube<TubeTypes::NonHollowTubeWithPiSector>(rmin, rmax, z, sphi, dphi);
     if (dphi < M_PI)
       return new SUnplacedTube<TubeTypes::NonHollowTubeWithSmallerThanPiSector>(rmin, rmax, z, sphi, dphi);
     if (dphi > M_PI)
       return new SUnplacedTube<TubeTypes::NonHollowTubeWithBiggerThanPiSector>(rmin, rmax, z, sphi, dphi);
   } else if (rmin > 0) {
-    if (dphi >= 2 * M_PI) return new SUnplacedTube<TubeTypes::HollowTube>(rmin, rmax, z, sphi, dphi);
+    if (dphi >= 2 * M_PI) return new SUnplacedTube<TubeTypes::HollowTube>(rmin, rmax, z, sphi, 2*M_PI);
     if (dphi == M_PI) return new SUnplacedTube<TubeTypes::HollowTubeWithPiSector>(rmin, rmax, z, sphi, dphi);
     if (dphi < M_PI) return new SUnplacedTube<TubeTypes::HollowTubeWithSmallerThanPiSector>(rmin, rmax, z, sphi, dphi);
     if (dphi > M_PI) return new SUnplacedTube<TubeTypes::HollowTubeWithBiggerThanPiSector>(rmin, rmax, z, sphi, dphi);

@@ -72,7 +72,7 @@ UnplacedPolycone *Maker<UnplacedPolycone>::MakeInstance(Precision phistart, Prec
   }
   if (isCompletelyNonHollow) {
     if (deltaphi >= 2 * M_PI) {
-      return new SUnplacedPolycone<ConeTypes::NonHollowCone>(phistart, deltaphi, Nz, z, rmin, rmax);
+      return new SUnplacedPolycone<ConeTypes::NonHollowCone>(phistart, 2 * M_PI, Nz, z, rmin, rmax);
     }
     if (deltaphi == M_PI) {
       return new SUnplacedPolycone<ConeTypes::NonHollowConeWithPiSector>(phistart, deltaphi, Nz, z, rmin, rmax);
@@ -90,7 +90,7 @@ UnplacedPolycone *Maker<UnplacedPolycone>::MakeInstance(Precision phistart, Prec
   }
   if (isCompletelyHollow) {
     if (deltaphi >= 2 * M_PI) {
-      return new SUnplacedPolycone<ConeTypes::HollowCone>(phistart, deltaphi, Nz, z, rmin, rmax);
+      return new SUnplacedPolycone<ConeTypes::HollowCone>(phistart, 2 * M_PI, Nz, z, rmin, rmax);
     }
     if (deltaphi == M_PI) {
       return new SUnplacedPolycone<ConeTypes::HollowConeWithPiSector>(phistart, deltaphi, Nz, z, rmin, rmax);
