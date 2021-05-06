@@ -153,6 +153,9 @@ public:
   /// Returns the total number of placeds volume contained in this logical volume AND below.
   size_t GetNTotal() const;
 
+  /// Returns value of static instance counter
+  static unsigned int GetIdCount() { return (unsigned int)gIdCount; }
+
   /// Returns the user extension pointer.
   VECGEOM_FORCE_INLINE
   void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
@@ -203,6 +206,8 @@ public:
   void SetNavigator(VNavigator const *n) { fNavigator = n; }
 
   /// Returns the id of this logical volume.
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   int id() const { return fId; }
 
   /// Returns the name of this logical volume.

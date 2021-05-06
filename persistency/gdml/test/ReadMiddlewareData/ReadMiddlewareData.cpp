@@ -37,7 +37,6 @@ int main(int argC, char *argV[])
   auto volumeMatMap   = aMiddleware.GetVolumeMatMap();
 
   // Region cuts have length units incorporated, one needs to divide the value by the VecGeom millimeter unit
-  double mmunit     = vecgeom::GeoManager::GetMillimeterUnit();
   auto const &lvmap = vecgeom::GeoManager::Instance().GetLogicalVolumesMap();
 
   // Iterate the material map and print all related info. See MaterialInfo.h for content.
