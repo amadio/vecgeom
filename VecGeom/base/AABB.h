@@ -6,9 +6,15 @@
 
 #include "VecGeom/base/Vector3D.h"
 
+#ifdef VECGEOM_ENABLE_CUDA
+#include "VecGeom/backend/cuda/Interface.h"
+#endif
+
 #include <algorithm>
 
 namespace vecgeom {
+VECGEOM_DEVICE_FORWARD_DECLARE(class AABB;);
+VECGEOM_DEVICE_DECLARE_CONV(class, AABB);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 /**
@@ -21,21 +27,27 @@ public:
   /** Default constructor. Required to use AABBs as elements in standard containers. */
   AABB() = default;
   /** Constructor. */
+  VECCORE_ATT_HOST_DEVICE
   AABB(Vector3D<Precision> Min, Vector3D<Precision> Max) : fMin(Min), fMax(Max) {}
 
   /** Returns the minimum coordinates of the AABB. */
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> Min() const { return fMin; }
 
   /** Returns the maximum coordinates of the AABB. */
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> Max() const { return fMax; }
 
   /** Returns the center of the AABB. */
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> Center() const { return 0.5 * (fMax + fMin); }
 
   /** Returns the extents of the AABB along each axis. */
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> Size() const { return fMax - fMin; }
 
   /** Expand AABB. @param s Amount by which to expand in each direction. */
+  VECCORE_ATT_HOST_DEVICE
   void Expand(Precision s)
   {
     s *= 0.5;
@@ -44,6 +56,7 @@ public:
   }
 
   /** Check whether a point is contained by the AABB. */
+  VECCORE_ATT_HOST_DEVICE
   bool Contains(Vector3D<Precision> p) const
   {
     return p[0] >= fMin[0] && p[0] < fMax[0] && p[1] >= fMin[1] && p[1] < fMax[1] && p[2] >= fMin[2] && p[2] < fMax[2];
@@ -55,6 +68,7 @@ public:
    * @param[in] point Input point.
    * @remark Returns a negative value if point is inside AABB.
    */
+  VECCORE_ATT_HOST_DEVICE
   Precision Safety(Vector3D<Precision> point) const { return ((point - Center()).Abs() - 0.5 * Size()).Max(); }
 
   /**
@@ -64,6 +78,7 @@ public:
    * @param[in] step Maximum distance for which an intersection should be reported.
    * @remark Returns a negative value if starting point is already inside AABB.
    */
+  VECCORE_ATT_HOST_DEVICE
   Precision Distance(Vector3D<Precision> point, Vector3D<Precision> direction) const
   {
     Precision tmin, tmax;
@@ -78,6 +93,7 @@ public:
    * @param[in] step Maximum distance for which an intersection should be reported.
    * @remark Returns a negative value if starting point is already inside AABB.
    */
+  VECCORE_ATT_HOST_DEVICE
   Precision DistanceInvDir(Vector3D<Precision> point, Vector3D<Precision> invdir) const
   {
     Precision tmin, tmax;
@@ -92,6 +108,7 @@ public:
    * @param tmin[out] Minimum `t` such that `point + t * direction` intersects the AABB.
    * @param tmax[out] Maximum `t` such that `point + t * direction` intersects the AABB.
    */
+  VECCORE_ATT_HOST_DEVICE
   void ComputeIntersection(Vector3D<Precision> point, Vector3D<Precision> direction, Precision &tmin,
                            Precision &tmax) const
   {
@@ -106,10 +123,15 @@ public:
    * @param tmin[out] Minimum `t` such that `point + t * direction` intersects the AABB.
    * @param tmax[out] Maximum `t` such that `point + t * direction` intersects the AABB.
    */
+  VECCORE_ATT_HOST_DEVICE
   void ComputeIntersectionInvDir(Vector3D<Precision> point, Vector3D<Precision> invdir, Precision &tmin,
                                  Precision &tmax) const
   {
-    using std::swap;
+    auto swap = [](Precision &a, Precision &b) {
+      Precision tmp = a;
+      a             = b;
+      b             = tmp;
+    };
 
     Vector3D<Precision> t0 = (fMin - point) * invdir;
     Vector3D<Precision> t1 = (fMax - point) * invdir;
@@ -127,6 +149,7 @@ public:
    * @param[in] point Starting point on the line.
    * @param[in] direction Direction of the line.
    */
+  VECCORE_ATT_HOST_DEVICE
   bool Intersect(Vector3D<Precision> point, Vector3D<Precision> direction) const
   {
     Precision tmin, tmax;
@@ -139,6 +162,7 @@ public:
    * @param[in] point Starting point on the line.
    * @param[in] invdir Inverse of direction vector of the input ray.
    */
+  VECCORE_ATT_HOST_DEVICE
   bool IntersectInvDir(Vector3D<Precision> point, Vector3D<Precision> invdir) const
   {
     Precision tmin, tmax;
@@ -153,6 +177,7 @@ public:
    * @param[in] step Maximum distance for which an intersection should be reported.
    * @remark Does not report an intersection if the AABB lies fully behind the ray.
    */
+  VECCORE_ATT_HOST_DEVICE
   bool Intersect(Vector3D<Precision> point, Vector3D<Precision> direction, Precision step) const
   {
     Precision tmin, tmax;
@@ -167,6 +192,7 @@ public:
    * @param[in] step Maximum distance for which an intersection should be reported.
    * @remark Does not report an intersection if the AABB lies fully behind the ray.
    */
+  VECCORE_ATT_HOST_DEVICE
   bool IntersectInvDir(Vector3D<Precision> point, Vector3D<Precision> invdir, Precision step) const
   {
     Precision tmin, tmax;
@@ -177,12 +203,13 @@ public:
   /**
    * Compute minimum AABB that encloses the two input AABBs, A and B.
    */
+  VECCORE_ATT_HOST_DEVICE
   static AABB Union(AABB const &A, AABB const &B)
   {
-    using std::max;
-    using std::min;
-    Vector3D<Precision> MinC(min(A.fMin[0], B.fMin[0]), min(A.fMin[1], B.fMin[1]), min(A.fMin[2], B.fMin[2]));
-    Vector3D<Precision> MaxC(max(A.fMax[0], B.fMax[0]), max(A.fMax[1], B.fMax[1]), max(A.fMax[2], B.fMax[2]));
+    using vecCore::math::Max;
+    using vecCore::math::Min;
+    Vector3D<Precision> MinC(Min(A.fMin[0], B.fMin[0]), Min(A.fMin[1], B.fMin[1]), Min(A.fMin[2], B.fMin[2]));
+    Vector3D<Precision> MaxC(Max(A.fMax[0], B.fMax[0]), Max(A.fMax[1], B.fMax[1]), Max(A.fMax[2], B.fMax[2]));
     return {MinC, MaxC};
   }
 
