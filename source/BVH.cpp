@@ -8,9 +8,9 @@
 #include "VecGeom/volumes/PlacedVolume.h"
 
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <numeric>
+#include <stdexcept>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -53,15 +53,15 @@ BVH::BVH(LogicalVolume const &volume, int depth) : fLV(volume)
   /* ptr is a pointer to ndaughters times (min, max) corner vectors of each AABB */
   Vector3D<Precision> *ptr = ABBoxManager::Instance().GetABBoxes(&volume, n);
 
-  assert(n > 0);
+  if (n <= 0) throw std::logic_error("Cannot construct BVH for volume with no children!");
 
-  fAABBs.resize(n);
+  fAABBs = new AABB[n];
   for (int i = 0; i < n; ++i)
     fAABBs[i] = AABB(ptr[2 * i], ptr[2 * i + 1]);
 
   /* Initialize map of primitive ids (i.e. child volume ids) as {0, 1, 2, ...}. */
-  fPrimId.resize(n);
-  std::iota(fPrimId.begin(), fPrimId.end(), 0);
+  fPrimId = new int[n];
+  std::iota(fPrimId, fPrimId + n, 0);
 
   /*
    * If depth = 0, choose depth dynamically based on the number of child volumes, up to the fixed
@@ -69,20 +69,86 @@ BVH::BVH(LogicalVolume const &volume, int depth) : fLV(volume)
    * volumes, or roughly at most 4 children per leaf node. For example, for 1000 volumes, the
    * default depth would be log2(500) = 8.96 -> 8, with 2^8 - 1 = 511 nodes, and 256 leaf nodes.
    */
-  depth = std::min(depth ? depth : (int)std::log2(n / 2), BVH_MAX_DEPTH);
+  fDepth = std::min(depth ? depth : std::max(0, (int)std::log2(n / 2)), BVH_MAX_DEPTH);
 
-  int nodes = (2 << depth) - 1;
+  unsigned int nodes = (2 << fDepth) - 1;
 
-  fNodes.resize(nodes);
-  fNChild.resize(nodes);
-  fOffset.resize(nodes);
+  fNChild = new int[nodes];
+  fOffset = new int[nodes];
+  fNodes  = new AABB[nodes];
 
   /* Recursively initialize BVH nodes starting at the root node */
-  ComputeNodes(0, fPrimId.begin(), fPrimId.end());
+  ComputeNodes(0, fPrimId, fPrimId + n, nodes);
 
   /* Mark internal nodes with a negative number of children to simplify traversal */
-  for (int id = 0; id < nodes / 2; ++id)
+  for (unsigned int id = 0; id < nodes / 2; ++id)
     if (fNChild[id] > 8 && (fNChild[id] == fNChild[2 * id + 1] + fNChild[2 * id + 2])) fNChild[id] = -1;
+}
+
+#ifdef VECGEOM_ENABLE_CUDA
+VECCORE_ATT_DEVICE
+BVH::BVH(LogicalVolume const *volume, int depth, int *dPrimId, AABB *dAABBs, int *dOffset, int *dNChild, AABB *dNodes)
+    : fLV(*volume), fPrimId(dPrimId), fOffset(dOffset), fNChild(dNChild), fNodes(dNodes), fAABBs(dAABBs), fDepth(depth)
+{
+}
+#endif
+
+void BVH::Print() const
+{
+  printf("BVH(%u): addr: %p, depth: %d, nodes: %d, children: %lu\n", fLV.id(), this, fDepth, (2 << fDepth) - 1,
+         fLV.GetDaughters().size());
+}
+
+#ifdef VECGEOM_CUDA_INTERFACE
+DevicePtr<cuda::BVH> BVH::CopyToGpu(void *addr) const
+{
+  int *dPrimId;
+  int *dOffset;
+  int *dNChild;
+  cuda::AABB *dAABBs;
+  cuda::AABB *dNodes;
+
+  if (!addr) throw std::logic_error("Cannot copy BVH into a null pointer!");
+
+  int n = fLV.GetDaughters().size();
+
+  CudaCheckError(cudaMalloc((void **)&dPrimId, n * sizeof(int)));
+  CudaCheckError(cudaMalloc((void **)&dAABBs, n * sizeof(AABB)));
+
+  CudaCheckError(cudaMemcpy((void *)dPrimId, (void *)fPrimId, n * sizeof(int), cudaMemcpyHostToDevice));
+  CudaCheckError(cudaMemcpy((void *)dAABBs, (void *)fAABBs, n * sizeof(AABB), cudaMemcpyHostToDevice));
+
+  int nodes = (2 << fDepth) - 1;
+
+  CudaCheckError(cudaMalloc((void **)&dOffset, nodes * sizeof(int)));
+  CudaCheckError(cudaMalloc((void **)&dNChild, nodes * sizeof(int)));
+  CudaCheckError(cudaMalloc((void **)&dNodes, nodes * sizeof(AABB)));
+
+  CudaCheckError(cudaMemcpy((void *)dOffset, (void *)fOffset, nodes * sizeof(int), cudaMemcpyHostToDevice));
+  CudaCheckError(cudaMemcpy((void *)dNChild, (void *)fNChild, nodes * sizeof(int), cudaMemcpyHostToDevice));
+  CudaCheckError(cudaMemcpy((void *)dNodes, (void *)fNodes, nodes * sizeof(AABB), cudaMemcpyHostToDevice));
+
+  cuda::LogicalVolume const *dvolume = CudaManager::Instance().LookupLogical(&fLV).GetPtr();
+
+  if (!dvolume) throw std::logic_error("Cannot copy BVH because logical volume does not exist on the device.");
+
+  DevicePtr<cuda::BVH> dBVH(addr);
+
+  dBVH.Construct(dvolume, fDepth, dPrimId, dAABBs, dOffset, dNChild, dNodes);
+
+  return dBVH;
+}
+#endif
+
+BVH::~BVH()
+{
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
+  if (fPrimId) delete[] fPrimId;
+  if (fOffset) delete[] fOffset;
+  if (fNChild) delete[] fNChild;
+  if (fNodes) delete[] fNodes;
+  if (fAABBs) delete[] fAABBs;
+#endif
 }
 
 /*
@@ -99,14 +165,14 @@ BVH::BVH(LogicalVolume const &volume, int depth) : fLV(volume)
  * same side of the splitting plane), or if the node contains only a single volume.
  */
 
-void BVH::ComputeNodes(unsigned int id, std::vector<int>::iterator first, std::vector<int>::iterator last)
+void BVH::ComputeNodes(unsigned int id, int *first, int *last, unsigned int nodes)
 {
   const Vector3D<Precision> basis[] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
 
-  if (id >= fNodes.size() || first == last) return;
+  if (id >= nodes || first == last) return;
 
   fNChild[id] = std::distance(first, last);
-  fOffset[id] = std::distance(fPrimId.begin(), first);
+  fOffset[id] = std::distance(fPrimId, first);
 
   fNodes[id] = fAABBs[*first];
   for (auto it = std::next(first); it != last; ++it)
@@ -120,8 +186,8 @@ void BVH::ComputeNodes(unsigned int id, std::vector<int>::iterator first, std::v
   auto mid =
       std::partition(first, last, [&](size_t i) { return Vector3D<Precision>::Dot(fAABBs[i].Center() - p, v) < 0.0; });
 
-  ComputeNodes(2 * id + 1, first, mid);
-  ComputeNodes(2 * id + 2, mid, last);
+  ComputeNodes(2 * id + 1, first, mid, nodes);
+  ComputeNodes(2 * id + 2, mid, last, nodes);
 }
 
 /*
@@ -172,18 +238,20 @@ void BVH::CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Pr
       fNodes[childL].ComputeIntersectionInvDir(localpoint, invdir, tminL, tmaxL);
       fNodes[childR].ComputeIntersectionInvDir(localpoint, invdir, tminR, tmaxR);
 
-      bool intersectL = tminL <= tmaxL && tmaxL >= 0.0 && tminL < step;
-      bool intersectR = tminR <= tmaxR && tmaxR >= 0.0 && tminR < step;
+      bool traverseL = tminL <= tmaxL && tmaxL >= 0.0 && tminL < step;
+      bool traverseR = tminR <= tmaxR && tmaxR >= 0.0 && tminR < step;
 
       /*
        * If both left and right nodes need to be checked, check closest one first.
        * This ensures step gets short as fast as possible so we can skip more nodes without checking.
        */
-      if (intersectL && intersectR && tminL > tminR) std::swap(childL, childR);
-
-      /* Push node id of intersecting nodes onto the stack */
-      if (intersectL) *ptr++ = childL;
-      if (intersectR) *ptr++ = childR;
+      if (tminR < tminL) {
+        if (traverseR) *ptr++ = childR;
+        if (traverseL) *ptr++ = childL;
+      } else {
+        if (traverseL) *ptr++ = childL;
+        if (traverseR) *ptr++ = childR;
+      }
     }
   } while (ptr > stack);
 }
@@ -218,10 +286,13 @@ Precision BVH::ComputeSafety(Vector3D<Precision> localpoint, Precision safety) c
       bool traverseL = safetyL < safety;
       bool traverseR = safetyR < safety;
 
-      if (traverseL && traverseR && safetyR < safetyL) std::swap(childL, childR);
-
-      if (traverseL) *ptr++ = childL;
-      if (traverseR) *ptr++ = childR;
+      if (safetyR < safetyL) {
+        if (traverseR) *ptr++ = childR;
+        if (traverseL) *ptr++ = childL;
+      } else {
+        if (traverseL) *ptr++ = childL;
+        if (traverseR) *ptr++ = childR;
+      }
     }
   } while (ptr > stack);
 
@@ -369,4 +440,12 @@ bool BVH::LevelLocate(VPlacedVolume const *exclvol, Vector3D<Precision> const &l
 }
 
 } // namespace VECGEOM_IMPL_NAMESPACE
+
+#ifdef VECCORE_CUDA
+namespace cxx {
+template void DevicePtr<cuda::BVH>::Construct(cuda::LogicalVolume const *volume, int depth, int *dPrimId,
+                                              cuda::AABB *dAABBs, int *dOffset, int *dNChild, cuda::AABB *dNodes) const;
+} // namespace cxx
+#endif
+
 } // namespace vecgeom

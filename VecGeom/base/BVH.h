@@ -10,6 +10,8 @@
 #include <vector>
 
 namespace vecgeom {
+VECGEOM_DEVICE_FORWARD_DECLARE(class BVH;);
+VECGEOM_DEVICE_DECLARE_CONV(class, BVH);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class LogicalVolume;
@@ -34,6 +36,33 @@ public:
    */
   BVH(LogicalVolume const &volume, int depth = 0);
 
+  /** Destructor. */
+  ~BVH();
+
+#ifdef VECGEOM_ENABLE_CUDA
+  /**
+   * Constructor for GPU. Takes as input pre-constructed BVH buffers.
+   * @param volume  Reference to logical volume on the device
+   * @param depth Depth of the BVH binary tree stored in the device buffers.
+   * @param dPrimId Device buffer with child volume ids
+   * @param dAABBs  Device buffer with AABBs of child volumes
+   * @param dOffset Device buffer with offsets in @c dPrimId for first child of each BVH node
+   * @param dNChild Device buffer with number of children for each BVH node
+   * @param dNodes AABBs of BVH nodes
+   */
+  VECCORE_ATT_DEVICE
+  BVH(LogicalVolume const *volume, int depth, int *dPrimId, AABB *dAABBs, int *dOffset, int *NChild, AABB *dNodes);
+#endif
+
+#ifdef VECGEOM_CUDA_INTERFACE
+  /** Copy and construct an instance of this BVH on the device, at the device address @p addr. */
+  DevicePtr<cuda::BVH> CopyToGpu(void *addr) const;
+#endif
+
+  /** Print a summary of BVH contents */
+  VECCORE_ATT_HOST_DEVICE
+  void Print() const;
+
   /**
    * Check ray defined by <tt>localpoint + t * localdir</tt> for intersections with children
    * of the logical volume associated with the BVH, and within a maximum distance of @p step
@@ -44,6 +73,7 @@ public:
    * @param[in] last Last volume. This volume is ignored when reporting intersections.
    * @param[out] hitcandidate Pointer to volume for which closest intersection was found.
    */
+  VECCORE_ATT_HOST_DEVICE
   void CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
                                   VPlacedVolume const *last, VPlacedVolume const *&hitcandidate) const;
 
@@ -53,6 +83,7 @@ public:
    * @param[in] safety Maximum safety. Volumes further than this are not checked.
    * @returns Minimum between safety to the closest child of logical volume and input @p safety.
    */
+  VECCORE_ATT_HOST_DEVICE
   Precision ComputeSafety(Vector3D<Precision> localpoint, Precision safety) const;
 
   /**
@@ -62,6 +93,7 @@ public:
    * @param[out] daughterlocalpoint Point in the local coordinates of @p daughterpvol
    * @returns Whether @p localpoint falls within a child volume of @p lvol.
    */
+  VECCORE_ATT_HOST_DEVICE
   bool LevelLocate(Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                    Vector3D<Precision> &daughterlocalpoint) const;
 
@@ -72,6 +104,7 @@ public:
    * @param[out] daughterlocalpoint Point in the local coordinates of newly located volume.
    * @returns Whether @p localpoint falls within a child volume of @p lvol.
    */
+  VECCORE_ATT_HOST_DEVICE
   bool LevelLocate(Vector3D<Precision> const &localpoint, NavigationState &state,
                    Vector3D<Precision> &daughterlocalpoint) const;
 
@@ -83,6 +116,7 @@ public:
    * @param[out] daughterlocalpoint Point in the local coordinates of @p daughterpvol
    * @returns Whether @p localpoint falls within a child volume of @p lvol.
    */
+  VECCORE_ATT_HOST_DEVICE
   bool LevelLocate(VPlacedVolume const *exclvol, Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                    Vector3D<Precision> &daughterlocalpoint) const;
 
@@ -95,6 +129,7 @@ public:
    * @param[out] daughterlocalpoint Point in the local coordinates of @p daughterpvol
    * @returns Whether @p localpoint falls within a child volume of @p lvol.
    */
+  VECCORE_ATT_HOST_DEVICE
   bool LevelLocate(VPlacedVolume const *exclvol, Vector3D<Precision> const &localpoint,
                    Vector3D<Precision> const &localdirection, VPlacedVolume const *&pvol,
                    Vector3D<Precision> &daughterlocalpoint) const;
@@ -112,14 +147,15 @@ private:
    * Recursion stops when all children lie on one side of the splitting plane, or when the current node
    * contains only a single child volume.
    */
-  void ComputeNodes(unsigned int id, std::vector<int>::iterator first, std::vector<int>::iterator last);
+  void ComputeNodes(unsigned int id, int* first, int* last, unsigned int nodes);
 
   LogicalVolume const &fLV; ///< Logical volume this BVH was constructed for
-  std::vector<int> fPrimId; ///< Child volume ids for each BVH node
-  std::vector<int> fOffset; ///< Offset in @c fPrimId for first child of each BVH node
-  std::vector<int> fNChild; ///< Number of children for each BVH node
-  std::vector<AABB> fNodes; ///< AABBs of BVH nodes
-  std::vector<AABB> fAABBs; ///< AABBs of children of logical volume @c fLV
+  int* fPrimId; ///< Child volume ids for each BVH node
+  int* fOffset; ///< Offset in @c fPrimId for first child of each BVH node
+  int* fNChild; ///< Number of children for each BVH node
+  AABB* fNodes; ///< AABBs of BVH nodes
+  AABB* fAABBs; ///< AABBs of children of logical volume @c fLV
+  int fDepth;   ///< Depth of the BVH
 };
 
 } // namespace VECGEOM_IMPL_NAMESPACE
