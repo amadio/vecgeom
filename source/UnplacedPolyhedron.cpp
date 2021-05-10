@@ -360,9 +360,13 @@ Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
   // We are starting with ZSegments(lateral parts)
 
   for (j = 0; j < GetZSegmentCount(); ++j) {
-    area = GetZSegment(j).outer.GetQuadrilateralArea(0);
-    totArea += area * GetSideCount();
-    aVector1.push_back(area);
+    if (GetZSegment(j).outer.size() > 0) {
+      area = GetZSegment(j).outer.GetQuadrilateralArea(0);
+      totArea += area * GetSideCount();
+      aVector1.push_back(area);
+    } else {
+      aVector1.push_back(0.0);
+    }
     if (GetZSegment(j).inner.size() > 0) {
       area = GetZSegment(j).inner.GetQuadrilateralArea(0);
       totArea += area * GetSideCount();
@@ -411,8 +415,8 @@ Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
 
   // Chose area and Create Point on Surface
 
-  Achose1 = 0.;
-  Achose2 = GetSideCount() * (aVector1[0] + aVector2[0]) + 2 * aVector3[0];
+  Achose1 = aTop + aBottom;
+  Achose2 = Achose1 + GetSideCount() * (aVector1[0] + aVector2[0]) + 2 * aVector3[0];
 
   chose = RNG::Instance().uniform(0.0, totArea);
   // Point on Top or Bottom
