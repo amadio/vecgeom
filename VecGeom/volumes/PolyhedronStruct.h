@@ -50,30 +50,55 @@ struct ZSegment {
 // a plain and lightweight struct to encapsulate data members of a polyhedron
 template <typename T = double>
 struct PolyhedronStruct {
-  int fSideCount;                 ///< Number of segments along phi.
-  bool fHasInnerRadii;            ///< Has any Z-segments with an inner radius != 0.
-  bool fHasPhiCutout;             ///< Has a cutout angle along phi.
-  bool fHasLargePhiCutout;        ///< Phi cutout is larger than pi.
-  T fPhiStart;                    ///< Phi start in radians (input to constructor)
-  T fPhiDelta;                    ///< Phi delta in radians (input to constructor)
-  evolution::Wedge fPhiWedge;     ///< Phi wedge
-  Array<ZSegment> fZSegments;     ///< AOS'esque collections of quadrilaterals
-  Array<T> fZPlanes;              ///< Z-coordinate of each plane separating segments
-  Array<T> fRMin;                 ///< Inner radii as specified in constructor.
-  Array<T> fRMax;                 ///< Outer radii as specified in constructor.
-  Array<bool> fSameZ;             ///< Array of flags marking that the following plane is at same Z
-  SOA3D<T> fPhiSections;          ///< Unit vectors marking the bounds between
-                                  ///  phi segments, represented by planes
-                                  ///  through the origin with the normal
-                                  ///  point along the positive phi direction.
-  TubeStruct<T> fBoundingTube;    ///< Tube enclosing the outer bounds of the
-                                  ///  polyhedron. Used in Contains, Inside and
-                                  ///  DistanceToIn.
-  T fBoundingTubeOffset;          ///< Offset in Z of the center of the bounding
-                                  ///  tube. Used as a quick substitution for
-                                  ///  running a full transformation.
-  mutable Precision fSurfaceArea; ///< Stored SurfaceArea
-  mutable Precision fCapacity;    ///< Stored Capacity
+  int fSideCount;              ///< Number of segments along phi.
+  bool fHasInnerRadii;         ///< Has any Z-segments with an inner radius != 0.
+  bool fHasPhiCutout;          ///< Has a cutout angle along phi.
+  bool fHasLargePhiCutout;     ///< Phi cutout is larger than pi.
+  T fPhiStart;                 ///< Phi start in radians (input to constructor)
+  T fPhiDelta;                 ///< Phi delta in radians (input to constructor)
+  evolution::Wedge fPhiWedge;  ///< Phi wedge
+  Array<ZSegment> fZSegments;  ///< AOS'esque collections of quadrilaterals
+  Array<T> fZPlanes;           ///< Z-coordinate of each plane separating segments
+  Array<T> fRMin;              ///< Inner radii as specified in constructor.
+  Array<T> fRMax;              ///< Outer radii as specified in constructor.
+  Array<bool> fSameZ;          ///< Array of flags marking that the following plane is at same Z
+  SOA3D<T> fPhiSections;       ///< Unit vectors marking the bounds between
+                               ///  phi segments, represented by planes
+                               ///  through the origin with the normal
+                               ///  point along the positive phi direction.
+  TubeStruct<T> fBoundingTube; ///< Tube enclosing the outer bounds of the
+                               ///  polyhedron. Used in Contains, Inside and
+                               ///  DistanceToIn.
+  T fBoundingTubeOffset;       ///< Offset in Z of the center of the bounding
+                               ///  tube. Used as a quick substitution for
+                               ///  running a full transformation.
+
+  /// Internal structure to cache component surface areas per Z segment
+  struct AreaStruct {
+    Precision area        = 0.;      ///< Cached total surface area
+    Precision top_area    = 0.;      ///< Area of top surface
+    Precision bottom_area = 0.;      ///< Area of top surface
+    Precision *outer      = nullptr; ///< Array of surface areas for the auter part
+    Precision *inner      = nullptr; ///< Array of surface areas for the inner part
+    Precision *phi        = nullptr; ///< Array of surface areas for the phi part
+
+    AreaStruct(int nseg)
+    {
+      inner = new Precision[nseg];
+      outer = new Precision[nseg];
+      phi   = new Precision[nseg];
+    }
+
+    ~AreaStruct()
+    {
+      delete[] inner;
+      delete[] outer;
+      delete[] phi;
+    }
+  };
+
+  mutable AreaStruct *fAreaStruct = nullptr; ///< Cached surface area values
+  mutable Precision fCapacity     = 0.;      ///< Stored Capacity
 
   // These data member and member functions are added for convexity detection
   bool fContinuousInSlope;
@@ -94,8 +119,8 @@ struct PolyhedronStruct {
         fHasLargePhiCutout(phiDelta < kPi), fPhiStart(NormalizeAngle<kScalar>(phiStart)),
         fPhiDelta((phiDelta > kTwoPi) ? kTwoPi : phiDelta), fPhiWedge(fPhiDelta, fPhiStart),
         fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount),
-        fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta), fSurfaceArea(0.), fCapacity(0.),
-        fContinuousInSlope(true), fConvexityPossible(true), fEqualRmax(true)
+        fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta), fContinuousInSlope(true),
+        fConvexityPossible(true), fEqualRmax(true)
   {
     // initialize polyhedron internals
     Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zPlanes, rMin, rMax);
@@ -106,8 +131,8 @@ struct PolyhedronStruct {
       : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < kTwoPi),
         fHasLargePhiCutout(phiDelta < kPi), fPhiStart(NormalizeAngle<kScalar>(phiStart)),
         fPhiDelta((phiDelta > kTwoPi) ? kTwoPi : phiDelta), fPhiWedge(fPhiDelta, fPhiStart), fZSegments(), fZPlanes(),
-        fRMin(), fRMax(), fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta), fSurfaceArea(0.),
-        fCapacity(0.), fContinuousInSlope(true), fConvexityPossible(true), fEqualRmax(true)
+        fRMin(), fRMax(), fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta),
+        fContinuousInSlope(true), fConvexityPossible(true), fEqualRmax(true)
   {
     if (verticesCount < 3) throw std::runtime_error("A Polyhedron needs at least 3 (rz) vertices");
 
@@ -213,6 +238,9 @@ struct PolyhedronStruct {
     delete[] rMax;
     delete[] zArg;
   }
+
+  VECCORE_ATT_HOST_DEVICE
+  ~PolyhedronStruct() { delete fAreaStruct; }
 
   VECCORE_ATT_HOST_DEVICE
   bool CheckContinuityInSlope(const Precision rOuter[], const Precision zPlane[], const unsigned int nz)

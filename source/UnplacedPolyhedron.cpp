@@ -195,25 +195,35 @@ Precision UnplacedPolyhedron::Capacity() const
 // VECCORE_ATT_HOST_DEVICE
 Precision UnplacedPolyhedron::SurfaceArea() const
 {
-  if (fPoly.fSurfaceArea == 0.) {
+  if (!fPoly.fAreaStruct) {
     signed int j;
     Precision totArea = 0., area, aTop = 0., aBottom = 0.;
+
+    fPoly.fAreaStruct = new PolyhedronStruct<Precision>::AreaStruct(GetZSegmentCount());
 
     // Below we generate the areas relevant to our solid
     // We are starting with ZSegments(lateral parts)
 
     for (j = 0; j < GetZSegmentCount(); ++j) {
+      fPoly.fAreaStruct->outer[j] = 0.;
+      fPoly.fAreaStruct->inner[j] = 0.;
+      fPoly.fAreaStruct->phi[j]   = 0.;
 
-      area = GetZSegment(j).outer.GetQuadrilateralArea(0) * GetSideCount();
-      totArea += area;
-
-      if (GetZSegment(j).inner.size() > 0) {
-        area = GetZSegment(j).inner.GetQuadrilateralArea(0) * GetSideCount();
+      if (GetZSegment(j).outer.size() > 0) {
+        area                        = GetZSegment(j).outer.GetQuadrilateralArea(0) * GetSideCount();
+        fPoly.fAreaStruct->outer[j] = area;
         totArea += area;
       }
 
-      if (HasPhiCutout()) {
-        area = GetZSegment(j).phi.GetQuadrilateralArea(0) * 2.0;
+      if (GetZSegment(j).inner.size() > 0) {
+        area                        = GetZSegment(j).inner.GetQuadrilateralArea(0) * GetSideCount();
+        fPoly.fAreaStruct->inner[j] = area;
+        totArea += area;
+      }
+
+      if (HasPhiCutout() && GetZSegment(j).phi.size() > 0) {
+        area                      = GetZSegment(j).phi.GetQuadrilateralArea(0) * 2.0;
+        fPoly.fAreaStruct->phi[j] = area;
         totArea += area;
       }
     }
@@ -234,6 +244,7 @@ Precision UnplacedPolyhedron::SurfaceArea() const
       aTop = GetSideCount() * (GetTriangleArea(point1, point2, point3));
     }
 
+    fPoly.fAreaStruct->top_area = aTop;
     totArea += aTop;
 
     point1 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][0];
@@ -248,10 +259,11 @@ Precision UnplacedPolyhedron::SurfaceArea() const
       aBottom = GetSideCount() * GetTriangleArea(point1, point2, point3);
     }
 
+    fPoly.fAreaStruct->bottom_area = aBottom;
     totArea += aBottom;
-    fPoly.fSurfaceArea = totArea;
+    fPoly.fAreaStruct->area = totArea;
   }
-  return fPoly.fSurfaceArea;
+  return fPoly.fAreaStruct->area;
 }
 
 #ifndef VECCORE_CUDA
@@ -348,153 +360,85 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnTriangle(Vector3D<Precision> c
 
 Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
 {
-  int j, Flag = 0;
-  Precision chose, rnd, totArea = 0., Achose1, Achose2, area, aTop = 0., aBottom = 0.;
+  int j;
+  Precision chose, rnd, achose;
+  Precision totArea = SurfaceArea();
+  auto areaStruct   = fPoly.fAreaStruct;
 
-  Vector3D<Precision> p0, p1, p2, p3, pReturn;
-  std::vector<Precision> aVector1;
-  std::vector<Precision> aVector2;
-  std::vector<Precision> aVector3;
-
-  // Below we generate the areas relevant to our solid
-  // We are starting with ZSegments(lateral parts)
-
-  for (j = 0; j < GetZSegmentCount(); ++j) {
-    if (GetZSegment(j).outer.size() > 0) {
-      area = GetZSegment(j).outer.GetQuadrilateralArea(0);
-      totArea += area * GetSideCount();
-      aVector1.push_back(area);
-    } else {
-      aVector1.push_back(0.0);
-    }
-    if (GetZSegment(j).inner.size() > 0) {
-      area = GetZSegment(j).inner.GetQuadrilateralArea(0);
-      totArea += area * GetSideCount();
-      aVector2.push_back(area);
-    } else {
-      aVector2.push_back(0.0);
-    }
-
-    if (HasPhiCutout()) {
-      area = GetZSegment(j).phi.GetQuadrilateralArea(0);
-      totArea += area * 2;
-      aVector3.push_back(area);
-    } else {
-      aVector3.push_back(0.0);
-    }
-  }
-
-  // Must include top and bottom areas
-  //
-  Vector3D<Precision> point1 = GetZSegment(0).outer.GetCorners()[0][0];
-  Vector3D<Precision> point2 = GetZSegment(0).outer.GetCorners()[1][0];
-  Vector3D<Precision> point3, point4;
-  if (GetZSegment(0).inner.size() > 0) {
-    point3 = GetZSegment(0).inner.GetCorners()[0][0];
-    point4 = GetZSegment(0).inner.GetCorners()[1][0];
-    aTop   = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
-  } else {
-    point3.Set(0.0, 0.0, GetZSegment(0).outer.GetCorners()[0][0].z());
-    aTop = GetSideCount() * (GetTriangleArea(point1, point2, point3));
-  }
-
-  totArea += aTop;
-  point1 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][0];
-  point2 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[3][0];
-
-  if (GetZSegment(GetZSegmentCount() - 1).inner.size() > 0) {
-    point3  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[2][0];
-    point4  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[3][0];
-    aBottom = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
-  } else {
-    point3.Set(0.0, 0.0, GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][0].z());
-    aBottom = GetSideCount() * GetTriangleArea(point1, point2, point3);
-  }
-
-  totArea += aBottom;
+  Vector3D<Precision> point1, point2, point3, point4, pReturn;
 
   // Chose area and Create Point on Surface
-
-  Achose1 = aTop + aBottom;
-  Achose2 = Achose1 + GetSideCount() * (aVector1[0] + aVector2[0]) + 2 * aVector3[0];
-
   chose = RNG::Instance().uniform(0.0, totArea);
-  // Point on Top or Bottom
-  if ((chose >= 0.) && (chose < aTop + aBottom)) {
 
-    chose = RNG::Instance().uniform(0.0, aTop + aBottom);
-    Flag  = int(RNG::Instance().uniform(0.0, GetSideCount()));
-    if ((chose >= 0.) && chose < aTop) {
-      point1 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][Flag];
-      point2 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[3][Flag];
+  achose = areaStruct->top_area + areaStruct->bottom_area; // top or bottom
+
+  // Point on Top or Bottom
+  if (chose < achose) {
+
+    chose     = RNG::Instance().uniform(0.0, achose);
+    int iside = int(RNG::Instance().uniform(0.0, GetSideCount()));
+    if (chose < areaStruct->top_area) {
+      point1 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][iside];
+      point2 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[3][iside];
       // Avoid generating points on degenerated triangles
       if (GetZSegment(GetZSegmentCount() - 1).inner.size() > 0) {
-        point3 = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[2][Flag];
-        point4 = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[3][Flag];
+        point3 = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[2][iside];
+        point4 = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[3][iside];
         if ((point4 - point3).Mag2() < kTolerance || RNG::Instance().uniform(0.0, 1.0) < 0.5)
           pReturn = GetPointOnTriangle(point3, point1, point2);
         else
           pReturn = GetPointOnTriangle(point4, point3, point2);
       } else {
-        point3.Set(0.0, 0.0, GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][Flag].z());
+        point3.Set(0.0, 0.0, GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][iside].z());
         pReturn = GetPointOnTriangle(point3, point1, point2);
       }
       return pReturn;
     } else {
-      point1 = GetZSegment(0).outer.GetCorners()[0][Flag];
-      point2 = GetZSegment(0).outer.GetCorners()[1][Flag];
+      point1 = GetZSegment(0).outer.GetCorners()[0][iside];
+      point2 = GetZSegment(0).outer.GetCorners()[1][iside];
 
       if (GetZSegment(0).inner.size() > 0) {
-        point3 = GetZSegment(0).inner.GetCorners()[0][Flag];
-        point4 = GetZSegment(0).inner.GetCorners()[1][Flag];
+        point3 = GetZSegment(0).inner.GetCorners()[0][iside];
+        point4 = GetZSegment(0).inner.GetCorners()[1][iside];
         // Avoid generating points on degenerated triangles
         if ((point4 - point3).Mag2() < kTolerance || RNG::Instance().uniform(0.0, 1.0) < 0.5)
           pReturn = GetPointOnTriangle(point3, point1, point2);
         else
           pReturn = GetPointOnTriangle(point4, point3, point2);
       } else {
-        point3.Set(0.0, 0.0, GetZSegment(0).outer.GetCorners()[0][Flag].z());
+        point3.Set(0.0, 0.0, GetZSegment(0).outer.GetCorners()[0][iside].z());
         pReturn = GetPointOnTriangle(point3, point1, point2);
       }
       return pReturn;
     }
-
-  } else // Point on Lateral segment or Phi segment
-  {
-
+  } else {
+    // Point on Lateral segment or Phi segment
     for (j = 0; j < GetZSegmentCount(); j++) {
-      if (((chose >= Achose1) && (chose < Achose2)) || (j == GetZSegmentCount() - 1)) {
-        Flag = j;
+      achose += areaStruct->outer[j] + areaStruct->inner[j] + areaStruct->phi[j];
+      if ((chose < achose) || (j == GetZSegmentCount() - 1)) {
         break;
       }
-      Achose1 += GetSideCount() * (aVector1[j] + aVector2[j]) + 2. * aVector3[j];
-      Achose2 = Achose1 + GetSideCount() * (aVector1[j + 1] + aVector2[j + 1]) + 2. * aVector3[j + 1];
     }
   }
 
   // At this point we have chosen a subsection
   // between to adjacent plane cuts
 
-  j = Flag;
-
-  rnd     = int(RNG::Instance().uniform(0.0, GetSideCount()));
-  totArea = GetSideCount() * (aVector1[j] + aVector2[j]) + 2. * aVector3[j];
+  rnd = int(RNG::Instance().uniform(0.0, GetSideCount()));
+  // area of the selected section
+  totArea = areaStruct->outer[j] + areaStruct->inner[j] + areaStruct->phi[j];
   chose   = RNG::Instance().uniform(0., totArea);
   Vector3D<Precision> RandVec;
-  if ((chose >= 0.) && (chose <= GetSideCount() * aVector1[j])) {
+  if (chose <= areaStruct->outer[j]) {
     RandVec = (GetZSegment(j)).outer.GetPointOnFace(rnd);
     return RandVec;
-  } else if ((chose >= 0.) && (chose <= GetSideCount() * (aVector1[j] + aVector2[j]))) {
+  } else if (chose <= areaStruct->outer[j] + areaStruct->inner[j]) {
     return (GetZSegment(j)).inner.GetPointOnFace(rnd);
-
-  } else // Point on Phi segment
-  {
-    rnd     = int(RNG::Instance().uniform(0.0, 1.999999));
-    RandVec = (GetZSegment(j)).phi.GetPointOnFace(rnd);
-    return RandVec;
   }
-
-  return Vector3D<Precision>(0, 0, 0); // error
+  // Point on Phi segment
+  rnd     = int(RNG::Instance().uniform(0.0, 1.999999));
+  RandVec = (GetZSegment(j)).phi.GetPointOnFace(rnd);
+  return RandVec;
 }
 
 VECCORE_ATT_HOST_DEVICE
