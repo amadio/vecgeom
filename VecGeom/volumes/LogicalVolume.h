@@ -60,7 +60,7 @@ private:
   /// Pointer to concrete unplaced volume/shape
   VUnplacedVolume const *fUnplacedVolume;
 
-  int fId; ///< global id of logical volume object
+  unsigned int fId; ///< global id of logical volume object
 
   std::string *fLabel; ///< name of logical volume
 
@@ -110,7 +110,8 @@ public:
 
 #else
   VECCORE_ATT_DEVICE
-  LogicalVolume(VUnplacedVolume const *const unplaced_vol, int id, Vector<Daughter> *GetDaughter);
+  LogicalVolume(VUnplacedVolume const *const unplaced_vol,
+                unsigned int id, Vector<Daughter> *GetDaughter);
 #endif
 
   ~LogicalVolume();
@@ -208,7 +209,7 @@ public:
   /// Returns the id of this logical volume.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  int id() const { return fId; }
+  unsigned int id() const { return fId; }
 
   /// Returns the name of this logical volume.
   const char *GetName() const { return fLabel->c_str(); }
