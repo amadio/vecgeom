@@ -89,6 +89,7 @@ struct PolyhedronStruct {
       phi   = new Precision[nseg];
     }
 
+    VECCORE_ATT_HOST_DEVICE
     ~AreaStruct()
     {
       delete[] inner;
