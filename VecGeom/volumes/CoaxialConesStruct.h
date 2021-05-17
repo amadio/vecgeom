@@ -25,6 +25,20 @@ struct CoaxialConesStruct {
   Vector<T> fRmin2Vect;
   Vector<T> fRmax2Vect;
 
+  /*
+  ** A function to Print the sequence of Coaxial cones,
+  ** Useful for debugging the Coaxial cones
+  */
+  void Print() const
+  {
+
+    for (unsigned int i = 0; i < fConeStructVector.size(); i++) {
+      std::cout << std::endl << "====== Index of cone struct : " << i << " ======" << std::endl;
+      fConeStructVector[i]->Print();
+      std::cout << std::endl;
+    }
+  }
+
   VECCORE_ATT_HOST_DEVICE
   CoaxialConesStruct() {}
 
@@ -155,10 +169,14 @@ struct CoaxialConesStruct {
       validNormal = fConeStructVector[i]->Normal(p, normal);
       if (validNormal) {
         norm += normal;
-        valid |= validNormal;
       }
+      valid |= validNormal;
     }
-    norm.Normalize();
+    if (valid) {
+      norm.Normalize();
+    } else {
+      norm.Set(0., 0., 1.);
+    }
     return valid;
   }
 };

@@ -110,6 +110,24 @@ bool TestCoaxialCones()
   Vec_t tempSurfPoint = temp1 + dist * 0.3 * tempDir;
   assert(Simple.Normal(tempSurfPoint, normal) && (Simple.Inside(tempSurfPoint) == vecgeom::EInside::kSurface));
 
+  {
+    // Added one more test case discovered when fixing FPE for GenericPolycone
+    Vec_t pt(2.51076, -1.61288, 0.5);
+    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+    int numOfCones    = 2;
+    Precision rmin1[] = {1., 5};
+    Precision rmax1[] = {1., 5.};
+    Precision rmin2[] = {1., 4.};
+    Precision rmax2[] = {2., 5.};
+    Precision dz      = 0.5;
+    CoaxialCones_t Simple("CoaxialCones", numOfCones, rmin1, rmax1, rmin2, rmax2, dz, 0., 2 * vecgeom::kPi);
+    bool valid = false;
+    Vec_t normal(0., 0., 0.);
+    valid = Simple.Normal(pt, normal);
+    assert(!valid && ApproxEqual(normal, Vec_t(0., 0., 1.)));
+    std::cout << "Normal : " << normal << std::endl;
+  }
+
   return true;
 }
 

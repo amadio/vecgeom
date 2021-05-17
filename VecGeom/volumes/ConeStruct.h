@@ -163,7 +163,7 @@ struct ConeStruct {
   VECCORE_ATT_HOST_DEVICE
   void Print() const
   {
-    printf("UnplacedCone {rmin1 %.2f, rmax1 %.2f, rmin2 %.2f, "
+    printf("ConeStruct :  {rmin1 %.2f, rmax1 %.2f, rmin2 %.2f, "
            "rmax2 %.2f, dz %.2f, phistart %.2f, deltaphi %.2f}",
            fRmin1, fRmax1, fRmin2, fRmax2, fDz, fSPhi, fDPhi);
   }
@@ -193,13 +193,19 @@ struct ConeStruct {
     distZ = vecCore::math::Abs(p.z()) - fDz;
     rho   = vecCore::math::Sqrt(p.x() * p.x() + p.y() * p.y());
 
-    pRMin    = rho - p.z() * fTanRMin;
-    widRMin  = fRmin2 - fDz * fTanRMin;
-    distRMin = (pRMin - widRMin) / fSecRMin;
+    pRMin   = rho - p.z() * fTanRMin;
+    widRMin = fRmin2 - fDz * fTanRMin;
+    if (vecCore::math::Abs(_frmin1 - _frmin2) < kHalfTolerance)
+      distRMin = (rho - _frmin2);
+    else
+      distRMin = (pRMin - widRMin) / fSecRMin;
 
-    pRMax    = rho - p.z() * fTanRMax;
-    widRMax  = fRmax2 - fDz * fTanRMax;
-    distRMax = (pRMax - widRMax) / fSecRMax;
+    pRMax   = rho - p.z() * fTanRMax;
+    widRMax = fRmax2 - fDz * fTanRMax;
+    if (vecCore::math::Abs(_frmax1 - _frmax2) < kHalfTolerance)
+      distRMax = (rho - _frmax2);
+    else
+      distRMax = (pRMax - widRMax) / fSecRMax;
 
     bool inside = distZ < kTolerance && distRMax < kTolerance;
     if (fRmin1 || fRmin2) inside &= distRMin > -kTolerance;
