@@ -741,6 +741,11 @@ endif()
 
 # build the CUDA version of the library
 if(VECGEOM_ENABLE_CUDA)
+  # This is a hack to force the project include dirs as the first in
+  # the list passed to nvcc. Due to FindCUDA not respecting CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE
+  # Will disappear once migration to native CMake CUDA support is done.
+  cuda_include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+
   cuda_add_library(vecgeomcuda ${VECGEOM_CUDA_SRCS} SHARED
     OPTIONS ${CUDA_ARCH}
     # For debug information we might need
