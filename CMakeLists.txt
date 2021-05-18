@@ -648,6 +648,7 @@ if(VECGEOM_ENABLE_CUDA)
 
   # some CUDA kernel code in "userspace" and test
   set(VECGEOM_CUDA_SRCS
+    source/BVHManager.cu
     source/CudaManager.cu
     source/CudaGlobalSymbols.cu
     # ?? Test code get compiled into vecgeomcuda ??

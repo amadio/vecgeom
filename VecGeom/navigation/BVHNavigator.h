@@ -56,7 +56,7 @@ public:
                                           VPlacedVolume const *&hitcandidate) const final
   {
     VPlacedVolume const *last = in_state ? in_state->GetLastExited() : nullptr;
-    BVHManager::GetBVH(lvol).CheckDaughterIntersections(localpoint, localdir, step, last, hitcandidate);
+    BVHManager::GetBVH(lvol)->CheckDaughterIntersections(localpoint, localdir, step, last, hitcandidate);
     return false; /* return value indicates whether out_state has been modified */
   }
 };

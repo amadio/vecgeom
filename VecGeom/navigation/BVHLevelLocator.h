@@ -44,7 +44,7 @@ public:
   bool LevelLocate(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                    Vector3D<Precision> &daughterlocalpoint) const final
   {
-    return BVHManager::GetBVH(lvol).LevelLocate(localpoint, pvol, daughterlocalpoint);
+    return BVHManager::GetBVH(lvol)->LevelLocate(localpoint, pvol, daughterlocalpoint);
   }
 
   /**
@@ -58,7 +58,7 @@ public:
   bool LevelLocate(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint, NavigationState &state,
                    Vector3D<Precision> &daughterlocalpoint) const final
   {
-    return BVHManager::GetBVH(lvol).LevelLocate(localpoint, state, daughterlocalpoint);
+    return BVHManager::GetBVH(lvol)->LevelLocate(localpoint, state, daughterlocalpoint);
   }
 
   /**
@@ -74,7 +74,7 @@ public:
                           Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                           Vector3D<Precision> &daughterlocalpoint) const final
   {
-    return BVHManager::GetBVH(lvol).LevelLocate(exclvol, localpoint, pvol, daughterlocalpoint);
+    return BVHManager::GetBVH(lvol)->LevelLocate(exclvol, localpoint, pvol, daughterlocalpoint);
   }
 
   /**
@@ -91,7 +91,7 @@ public:
                           Vector3D<Precision> const &localpoint, Vector3D<Precision> const &localdirection,
                           VPlacedVolume const *&pvol, Vector3D<Precision> &daughterlocalpoint) const final
   {
-    return BVHManager::GetBVH(lvol).LevelLocate(exclvol, localpoint, localdirection, pvol, daughterlocalpoint);
+    return BVHManager::GetBVH(lvol)->LevelLocate(exclvol, localpoint, localdirection, pvol, daughterlocalpoint);
   }
 }; // end class declaration
 

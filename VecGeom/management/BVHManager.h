@@ -7,7 +7,9 @@
 #include "VecGeom/base/BVH.h"
 #include "VecGeom/volumes/LogicalVolume.h"
 
-#include <vector>
+#ifdef VECGEOM_ENABLE_CUDA
+#include "VecGeom/backend/cuda/Interface.h"
+#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -18,17 +20,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  */
 
 class BVHManager {
-private:
-  /** Constructor. Private since this is a singleton class accessed only via the @c Instance() static method. */
-  BVHManager() = default;
-
 public:
-  /** Returns a reference to this singleton's instance. */
-  static BVHManager &Instance()
-  {
-    static BVHManager instance;
-    return instance;
-  }
+  BVHManager() = delete;
 
   /**
    * Initializes the bounding volume hierarchies for all logical volumes in the geometry.
@@ -42,10 +35,16 @@ public:
    */
   static void Init();
 
-  static BVH const &GetBVH(LogicalVolume const *v) { return *(Instance().fBVHs[v->id()]); }
+#ifdef VECGEOM_CUDA_INTERFACE
+  /** Initializes bounding volume hierarchies on the GPU. */
+  static void DeviceInit();
+#endif
 
-private:
-  std::vector<BVH *> fBVHs; ///< Vector of @c BVH instances for each logical volume.
+  VECCORE_ATT_HOST_DEVICE
+  static BVH const *GetBVH(int id);
+
+  VECCORE_ATT_HOST_DEVICE
+  static BVH const *GetBVH(LogicalVolume const *v);
 };
 
 } // namespace VECGEOM_IMPL_NAMESPACE

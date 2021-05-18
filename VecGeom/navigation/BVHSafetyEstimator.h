@@ -40,7 +40,7 @@ public:
     Precision safety = pvol->SafetyToOut(localpoint);
 
     if (safety > 0.0 && pvol->GetDaughters().size() > 0)
-      safety = BVHManager::GetBVH(pvol->GetLogicalVolume()).ComputeSafety(localpoint, safety);
+      safety = BVHManager::GetBVH(pvol->GetLogicalVolume())->ComputeSafety(localpoint, safety);
 
     return safety;
   }
@@ -55,7 +55,7 @@ public:
   Precision ComputeSafetyToDaughtersForLocalPoint(Vector3D<Precision> const &localpoint,
                                                   LogicalVolume const *lvol) const final
   {
-    return BVHManager::GetBVH(lvol).ComputeSafety(localpoint, kInfLength);
+    return BVHManager::GetBVH(lvol)->ComputeSafety(localpoint, kInfLength);
   }
 
   /**
