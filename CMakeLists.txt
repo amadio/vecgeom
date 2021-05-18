@@ -303,7 +303,7 @@ if(GNU)
   endif()
 
 elseif(Intel)
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fmax-errors=${VECGEOM_ERROR_LIMIT} -diag-disable 3438")
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fmax-errors=${VECGEOM_ERROR_LIMIT}")
 
   if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ggdb -O0")
