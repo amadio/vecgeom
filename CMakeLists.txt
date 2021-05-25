@@ -857,7 +857,10 @@ install(EXPORT VecGeomTargets
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
   set(DOXYFILE_OUTPUT_DIR  ${PROJECT_BINARY_DIR}/doxygen)
-  foreach(d doc/doxygen vecgeom persistency scripts source services)
+  foreach(d doc/doxygen VecGeom persistency scripts source services)
+    if(NOT EXISTS ${PROJECT_SOURCE_DIR}/${d})
+      message(SEND_ERROR "Doxygen configured wrongly: The path ${d} doesn't exist in ${PROJECT_SOURCE_DIR}.")
+    endif()
     set(DOXYFILE_SOURCE_DIRS "${DOXYFILE_SOURCE_DIRS} ${PROJECT_SOURCE_DIR}/${d}")
   endforeach()
 
