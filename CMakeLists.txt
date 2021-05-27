@@ -7,7 +7,7 @@ endif()
 include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
 
-project(VecGeom VERSION 1.1.14)
+project(VecGeom VERSION 1.1.15)
 
 ################################################################################
 # - Core CMake settings
