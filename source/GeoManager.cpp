@@ -8,7 +8,6 @@
 #include "VecGeom/management/NavIndexTable.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/navigation/NavigationState.h"
-#include "VecGeom/navigation/BVHNavigator.h"
 #include "VecGeom/management/ABBoxManager.h"
 #include "VecGeom/volumes/UnplacedBooleanVolume.h"
 #include "VecGeom/volumes/UnplacedScaledShape.h"
@@ -212,7 +211,6 @@ void GeoManager::CloseGeometry()
 
   CompactifyMemory();
   vecgeom::ABBoxManager::Instance().InitABBoxesForCompleteGeometry();
-  BVHManager::Init();
   fIsClosed = true;
 
 #ifdef VECGEOM_USE_NAVINDEX

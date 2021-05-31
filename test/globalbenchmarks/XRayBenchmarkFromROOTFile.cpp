@@ -202,6 +202,9 @@ void BenchTracks()
 
 void InitNavigators(int use_bvh_navigator)
 {
+  if (use_bvh_navigator)
+    BVHManager::Init();
+
   for (auto &lvol : GeoManager::Instance().GetLogicalVolumesMap()) {
     auto ndaughters = lvol.second->GetDaughtersp()->size();
 
