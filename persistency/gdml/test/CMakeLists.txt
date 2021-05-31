@@ -5,7 +5,8 @@
 #
 #    \license Distributed under the Apache license 2.0
 # Executable for Backend/Frontend/Middleware/Schema types
-foreach(_vgdml_test TestXercesBackend TestXercesFrontend TestXercesMiddleware ReadMiddlewareData TestVGDMLAuxiliary TestVGDMLVolumeAuxiliaryInfo)
+foreach(_vgdml_test TestXercesBackend TestXercesFrontend TestXercesMiddleware ReadMiddlewareData
+                    TestVGDMLAuxiliary TestVGDMLNavigation TestVGDMLVolumeAuxiliaryInfo)
   add_executable(${_vgdml_test} ${_vgdml_test}/${_vgdml_test}.cpp)
   # Not 100% clear that USERKERNELLIB is needed
   target_link_libraries(${_vgdml_test} vgdml ${USERKERNELLIB})
@@ -29,4 +30,12 @@ foreach(BASENAMEGDML oneOrb oneSphere oneTorus oneBox oneTube oneConeSegment one
   add_test(NAME TestXercesMiddleware-${BASENAMEGDML} COMMAND TestXercesMiddleware ${GDMLFILE})
 endforeach()
 
+# - Navigation tests using GDML input file
 
+foreach(NAVIGATOR SimpleABBoxNavigator HybridNavigator BVHNavigator)
+  foreach(GDML trackML cms2018)
+    set(GDML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../gdmls/${GDML}.gdml)
+    add_test(NAME Test${NAVIGATOR}-${GDML}
+      COMMAND TestVGDMLNavigation -i 10 -n ${NAVIGATOR} ${GDML_FILE})
+  endforeach()
+endforeach()
