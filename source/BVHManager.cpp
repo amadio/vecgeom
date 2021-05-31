@@ -7,6 +7,9 @@
 #include <vector>
 
 namespace vecgeom {
+#ifdef VECCORE_CUDA
+inline
+#endif
 namespace cuda {
 
 void *AllocateDeviceBVHBuffer(size_t n);
