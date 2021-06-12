@@ -827,7 +827,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processPolyh
 {
   using vecgeom::Precision;
   if (debug) {
-    std::cout << "Middleware::processPolycone: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+    std::cout << "Middleware::processPolyhedron: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *attributes      = aDOMNode->getAttributes();
   auto const lengthMultiplier = GetLengthMultiplier(aDOMNode);
