@@ -237,7 +237,9 @@ struct PolyconeStruct {
 
       // i has to be at least one to complete a section
       if (i > 0) {
-        if (((z > prevZ) && (dirZ > 0)) || ((z < prevZ) && (dirZ < 0))) {
+	// GL: I had to add kTolerance here, otherwise this polycone would get an
+	//     extra 0-length ZSection on the GPU -- see VECGEOM-578
+        if (((z > prevZ + kTolerance) && (dirZ > 0)) || ((z < prevZ - kTolerance) && (dirZ < 0))) {
           if (dirZ * (z - prevZ) < 0) {
 #ifndef VECCORE_CUDA
             std::cerr << "Cannot create a Polycone with different Z directions.Use GenericPolycone." << std::endl
