@@ -23,7 +23,8 @@ static int ClosestAxis(Vector3D<Precision> v)
   return v[0] > v[2] ? (v[0] > v[1] ? 0 : 1) : (v[1] > v[2] ? 1 : 2);
 }
 
-/*
+/**
+ * \class BVH
  * The BVH class is based on a complete binary tree stored contiguously in an array.
  *
  * For a given node id, 2*id + 1 gives the left child id, and 2*id + 2 gives the right child id.
