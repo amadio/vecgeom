@@ -134,6 +134,12 @@ namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedMultiUnion>::SizeOf();
 template void DevicePtr<cuda::UnplacedMultiUnion>::Construct() const;
+template void ConstructManyOnGpu<cuda::MultiUnionImplementation /*, ... inferred from arguments */>(
+    std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const * gpu_ptrs,
+    DevicePtr<cuda::LogicalVolume> const * logical, DevicePtr<cuda::Transformation3D> const * trafo,
+    decltype(std::declval<VPlacedVolume>().id()) const * ids,
+    decltype(std::declval<VPlacedVolume>().GetCopyNo()) const * copyNos,
+    decltype(std::declval<VPlacedVolume>().GetChildId()) const * childIds);
 
 } // namespace cxx
 
@@ -162,9 +168,21 @@ void DevicePtr<
 {
   return;
 }
+
+template <>
+void ConstructManyOnGpu<
+    cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric, rotation::kGeneric>
+    /*, ... inferred from arguments */>(std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const * gpu_ptrs,
+                                        DevicePtr<cuda::LogicalVolume> const * logical,
+                                        DevicePtr<cuda::Transformation3D> const * trafo,
+                                        decltype(std::declval<VPlacedVolume>().id()) const * ids,
+                                        decltype(std::declval<VPlacedVolume>().GetCopyNo()) const * copyNos,
+                                        decltype(std::declval<VPlacedVolume>().GetChildId()) const * childIds)
+{
+}
+
 // template void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
 //                                                           rotation::kGeneric>>::Construct() const;
-
 } // namespace cxx
 #endif
 

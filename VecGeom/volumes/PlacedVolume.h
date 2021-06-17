@@ -451,6 +451,19 @@ public:
                                                    DevicePtr<cuda::VPlacedVolume> const gpu_ptr) const      = 0;
   virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
                                                    DevicePtr<cuda::Transformation3D> const transform) const = 0;
+  /**
+   * Copy many instances of this class to the GPU.
+   * \param host_volumes Host volumes to be copied. These should all be of the same type as the class that this function is called with.
+   * \param logical_volumes GPU addresses of the logical volumes corresponding to the placed volumes.
+   * \param transforms GPU addresses of the transformations corresponding to the placed volumes.
+   * \param in_gpu_ptrs GPU addresses where the GPU instances of the host volumes should be placed.
+   * \note This requires an explicit template instantiation of ConstructManyOnGpu<ThisClass_t>().
+   * \see VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL
+   */
+  virtual void CopyManyToGpu(std::vector<VPlacedVolume const *> const & host_volumes,
+                             std::vector<DevicePtr<cuda::LogicalVolume>> const & logical_volumes,
+                             std::vector<DevicePtr<cuda::Transformation3D>> const & transforms,
+                             std::vector<DevicePtr<cuda::VPlacedVolume>> const & in_gpu_ptrs) const = 0;
 
   template <typename Derived>
   DevicePtr<cuda::VPlacedVolume> CopyToGpuImpl(DevicePtr<cuda::LogicalVolume> const logical_volume,
@@ -516,6 +529,12 @@ public:
                                                              DevicePtr<cuda::Transformation3D> const transform,   \
                                                              const unsigned int id, const int copy_no,            \
                                                              const int child_id) const;                           \
+  template void ConstructManyOnGpu<cuda::PlacedVol, Extra>(                                                       \
+      std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const * gpu_ptrs,                                      \
+      DevicePtr<cuda::LogicalVolume> const * logical, DevicePtr<cuda::Transformation3D> const * trafo,            \
+      decltype(std::declval<VPlacedVolume>().id()) const * ids,                                                   \
+      decltype(std::declval<VPlacedVolume>().GetCopyNo()) const * copyNos,                                        \
+      decltype(std::declval<VPlacedVolume>().GetChildId()) const * childIds);                                     \
   }
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
@@ -582,6 +601,12 @@ public:
   template void DevicePtr<cuda::PlacedVol, Extra, cuda::Type>::Construct(                                     \
       DevicePtr<cuda::LogicalVolume> const logical_volume, DevicePtr<cuda::Transformation3D> const transform, \
       const unsigned int id, const int copy_no, const int child_id) const;                                    \
+  template void ConstructManyOnGpu<cuda::PlacedVol, Extra, cuda::Type>(                                       \
+      std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const * gpu_ptrs,                                  \
+      DevicePtr<cuda::LogicalVolume> const * logical, DevicePtr<cuda::Transformation3D> const * trafo,        \
+      decltype(std::declval<VPlacedVolume>().id()) const * ids,                                               \
+      decltype(std::declval<VPlacedVolume>().GetCopyNo()) const * copyNos,                                    \
+      decltype(std::declval<VPlacedVolume>().GetChildId()) const * childIds);                                 \
   }
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
@@ -624,6 +649,12 @@ public:
   template void DevicePtr<cuda::PlacedVol, trans, radii, phi>::Construct(                                     \
       DevicePtr<cuda::LogicalVolume> const logical_volume, DevicePtr<cuda::Transformation3D> const transform, \
       const unsigned int id, const int copy_no, const int child_id) const;                                    \
+  template void ConstructManyOnGpu<cuda::PlacedVol, trans, radii, phi>(                                       \
+      std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const * gpu_ptrs,                                  \
+      DevicePtr<cuda::LogicalVolume> const * logical, DevicePtr<cuda::Transformation3D> const * trafo,        \
+      decltype(std::declval<VPlacedVolume>().id()) const * ids,                                               \
+      decltype(std::declval<VPlacedVolume>().GetCopyNo()) const * copyNos,                                    \
+      decltype(std::declval<VPlacedVolume>().GetChildId()) const * childIds);                                 \
   }
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
@@ -680,6 +711,12 @@ public:
                                                                   DevicePtr<cuda::Transformation3D> const transform,   \
                                                                   const unsigned int id, const int copy_no,            \
                                                                   const int child_id) const;                           \
+  template void ConstructManyOnGpu<cuda::PlacedVol, trans, rot>(                                                       \
+      std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const * gpu_ptrs,                                           \
+      DevicePtr<cuda::LogicalVolume> const * logical, DevicePtr<cuda::Transformation3D> const * trafo,                 \
+      decltype(std::declval<VPlacedVolume>().id()) const * ids,                                                        \
+      decltype(std::declval<VPlacedVolume>().GetCopyNo()) const * copyNos,                                             \
+      decltype(std::declval<VPlacedVolume>().GetChildId()) const * childIds);                                          \
   }
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)

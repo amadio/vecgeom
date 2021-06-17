@@ -11,6 +11,8 @@
 #include "driver_types.h" // Required for cudaError_t type
 #include "cuda_runtime.h"
 
+#include <vector>
+#include <unordered_map>
 #include <type_traits>
 
 namespace vecgeom {
@@ -35,6 +37,23 @@ __global__ void ConstructArrayOnGpu(DataClass *gpu_ptr, size_t nElements, ArgsTy
   while (idx < nElements) {
     new (gpu_ptr + idx) DataClass(params...);
     idx += blockDim.x * gridDim.x;
+  }
+}
+
+/*!
+ * Construct many objects on the GPU, whose addresses and parameters are passed as arrays.
+ * \tparam DataClass Type of the objects to construct.
+ * \param nElements Number of elements to construct. It is assumed that all argument arrays have this size.
+ * \param gpu_ptrs  Array of pointers to place the new objects at.
+ * \param params    Array(s) of constructor parameters for each object.
+ */
+template <typename DataClass, typename... ArgsTypes>
+__global__ void ConstructManyOnGpu(size_t nElements, DataClass ** gpu_ptrs, const ArgsTypes *... params)
+{
+  const size_t tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+  for (size_t idx = tid; idx < nElements; idx += blockDim.x * gridDim.x) {
+    new (gpu_ptrs[idx]) DataClass(params[idx]...);
   }
 }
 
@@ -390,6 +409,71 @@ public:
   static size_t SizeOf();
 #endif
 };
+
+namespace CudaInterfaceHelpers {
+
+/*!
+ * Copy multiple arrays of values to the GPU.
+ * For each array, allocate memory on the device, and copy it to the GPU.
+ * The cpuToGpuMapping finally maps the CPU array pointers to the GPU arrays.
+ * \param[out] cpuToGpuMapping Mapping of CPU array to GPU array. It gets filled during the function execution.
+ * \param[in]  nElement Number of elements in all collections.
+ * \param[in]  toCopy First array to copy.
+ * \param[in]  restToCopy Parameter pack with more arrays to copy (can be empty).
+ */
+template <typename Arg_t, typename... Args_t>
+void allocateAndCopyToGpu(std::unordered_map<const void *, void *> & cpuToGpuMapping, std::size_t nElement,
+                          const Arg_t * toCopy, const Args_t *... restToCopy)
+{
+  const auto nByte         = sizeof(toCopy[0]) * nElement;
+  const void * hostMem     = toCopy;
+  void * deviceMem         = AllocateOnGpu<void *>(nByte);
+  cpuToGpuMapping[hostMem] = deviceMem;
+  CopyToGpu(hostMem, deviceMem, nByte);
+
+#if __cplusplus >= 201703L
+  if constexpr (sizeof...(Args_t) > 0) {
+    allocateAndCopyToGpu(cpuToGpuMapping, nElement, restToCopy...);
+  }
+#else
+  // C++11 "fold expression" hack. Please remove once VecGeom moves to c++17.
+  int expandParameterPack[] = { 0, ((void) allocateAndCopyToGpu(cpuToGpuMapping, nElement, restToCopy), 0) ...};
+  (void) expandParameterPack[0]; // Make nvcc happy
+#endif
+}
+
+}
+
+/*!
+ * Construct many objects on the GPU, whose addresses and constructor parameters are passed as arrays.
+ * \tparam DataClass The type to construct on the GPU.
+ * \tparam DevPtr_t Device pointer type to specify the location of the GPU objects.
+ * \param  nElement Number of elements to construct. It is assumed that all argument arrays have this length.
+ * \param  gpu_ptrs Array of addresses to place the new objects at.
+ * \param  params   Array(s) of constructor parameters with one entry for each object.
+ */
+template <class DataClass, class DevPtr_t, typename... Args_t>
+void ConstructManyOnGpu(std::size_t nElement, const DevPtr_t * gpu_ptrs, const Args_t *... params)
+#ifdef VECCORE_CUDA
+{
+  using namespace CudaInterfaceHelpers;
+  std::unordered_map<const void *, void *> cpuToGpuMem;
+  std::vector<DataClass *> raw_gpu_ptrs;
+  std::transform(gpu_ptrs, gpu_ptrs + nElement, std::back_inserter(raw_gpu_ptrs),
+                 [](const DevPtr_t & ptr) { return static_cast<DataClass *>(ptr.GetPtr()); });
+  allocateAndCopyToGpu(cpuToGpuMem, nElement, raw_gpu_ptrs.data(), params...);
+
+  ConstructManyOnGpu<<<128, 32>>>(raw_gpu_ptrs.size(),
+                                  static_cast<decltype(raw_gpu_ptrs.data())>(cpuToGpuMem[raw_gpu_ptrs.data()]),
+                                  static_cast<decltype(params)>(cpuToGpuMem[params])...);
+
+  for (const auto& memCpu_memGpu : cpuToGpuMem) {
+    FreeFromGpu(memCpu_memGpu.second);
+  }
+}
+#else
+    ;
+#endif
 
 } // End cxx namespace
 

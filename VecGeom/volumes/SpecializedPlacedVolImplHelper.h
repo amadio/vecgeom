@@ -380,6 +380,39 @@ public:
     gpu_ptr.Allocate();
     return CopyToGpu(logical_volume, transform, DevicePtr<cuda::VPlacedVolume>((void *)gpu_ptr));
   }
+
+  /**
+   * Copy many instances of this class to the GPU.
+   * \param host_volumes Host volumes to be copied. These should all be of the same type as the class that this function is called with.
+   * \param logical_volumes GPU addresses of the logical volumes corresponding to the placed volumes.
+   * \param transforms GPU addresses of the transformations corresponding to the placed volumes.
+   * \param in_gpu_ptrs GPU addresses where the GPU instances of the host volumes should be placed.
+   * \note This requires an explicit template instantiation of ConstructManyOnGpu<ThisClass_t>().
+   * \see VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL and its multi-argument versions.
+   */
+  void CopyManyToGpu(std::vector<VPlacedVolume const *> const & host_volumes,
+                     std::vector<DevicePtr<cuda::LogicalVolume>> const & logical_volumes,
+                     std::vector<DevicePtr<cuda::Transformation3D>> const & transforms,
+                     std::vector<DevicePtr<cuda::VPlacedVolume>> const & in_gpu_ptrs) const override
+  {
+    assert(host_volumes.size() == logical_volumes.size());
+    assert(host_volumes.size() == transforms.size());
+    assert(host_volumes.size() == in_gpu_ptrs.size());
+
+    std::vector<decltype(std::declval<ThisClass_t>().id())> ids;
+    std::vector<decltype(std::declval<ThisClass_t>().GetCopyNo())> copyNos;
+    std::vector<decltype(std::declval<ThisClass_t>().GetChildId())> childIds;
+    for (auto placedVol : host_volumes) {
+      ids.push_back(placedVol->id());
+      copyNos.push_back(placedVol->GetCopyNo());
+      childIds.push_back(placedVol->GetChildId());
+    }
+
+    ConstructManyOnGpu<CudaType_t<ThisClass_t>>(in_gpu_ptrs.size(), in_gpu_ptrs.data(), logical_volumes.data(),
+                                                transforms.data(), ids.data(), copyNos.data(), childIds.data());
+    CudaCheckError();
+  }
+
 #endif // VECGEOM_CUDA_INTERFACE
 
 }; // end SIMD Helper
@@ -493,6 +526,38 @@ public:
     DevicePtr<CudaType_t<ThisClass_t>> gpu_ptr;
     gpu_ptr.Allocate();
     return CopyToGpu(logical_volume, transform, DevicePtr<cuda::VPlacedVolume>((void *)gpu_ptr));
+  }
+
+  /**
+   * Copy many instances of this class to the GPU.
+   * \param host_volumes Host volumes to be copied. These should all be of the same type as the class that this function is called with.
+   * \param logical_volumes GPU addresses of the logical volumes corresponding to the placed volumes.
+   * \param transforms GPU addresses of the transformations corresponding to the placed volumes.
+   * \param in_gpu_ptrs GPU addresses where the GPU instances of the host volumes should be placed.
+   * \note This requires an explicit template instantiation of ConstructManyOnGpu<ThisClass_t>().
+   * \see VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL
+   */
+  void CopyManyToGpu(std::vector<VPlacedVolume const *> const & host_volumes,
+                     std::vector<DevicePtr<cuda::LogicalVolume>> const & logical_volumes,
+                     std::vector<DevicePtr<cuda::Transformation3D>> const & transforms,
+                     std::vector<DevicePtr<cuda::VPlacedVolume>> const & in_gpu_ptrs) const override
+  {
+    assert(host_volumes.size() == logical_volumes.size());
+    assert(host_volumes.size() == transforms.size());
+    assert(host_volumes.size() == in_gpu_ptrs.size());
+
+    std::vector<decltype(std::declval<ThisClass_t>().id())> ids;
+    std::vector<decltype(std::declval<ThisClass_t>().GetCopyNo())> copyNos;
+    std::vector<decltype(std::declval<ThisClass_t>().GetChildId())> childIds;
+    for (auto placedVol : host_volumes) {
+      ids.push_back(placedVol->id());
+      copyNos.push_back(placedVol->GetCopyNo());
+      childIds.push_back(placedVol->GetChildId());
+    }
+
+    ConstructManyOnGpu<CudaType_t<ThisClass_t>>(in_gpu_ptrs.size(), in_gpu_ptrs.data(), logical_volumes.data(),
+                                                transforms.data(), ids.data(), copyNos.data(), childIds.data());
+    CudaCheckError();
   }
 #endif // VECGEOM_CUDA_INTERFACE
 

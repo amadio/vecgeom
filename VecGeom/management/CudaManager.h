@@ -214,6 +214,9 @@ private:
   // template <typename TrackContainer>
   // void LocatePointsTemplate(TrackContainer const &container, const int n,
   //                           const int depth, int *const output) const;
+
+  /// Copy all placed volumes to the device.
+  void CopyPlacedVolumes() const;
 };
 
 // void CudaManagerLocatePoints(VPlacedVolume const *const world,
