@@ -494,6 +494,9 @@ public:
 
 #ifdef VECCORE_CUDA
 
+/**
+ * Trigger template instantiations of DevicePtr<Type>::SizeOf() and DevicePtr<Type>::Construct.
+ */
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME(PlacedVol)                                                       \
   namespace cxx {                                                                                          \
   template size_t DevicePtr<cuda::PlacedVol>::SizeOf();                                                    \
@@ -503,6 +506,9 @@ public:
                                                       const int child_id) const;                           \
   }
 
+/**
+ * Trigger template instantiations of DevicePtr<Type>::SizeOf() and DevicePtr<Type>::Construct.
+ */
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol, Extra)                                                  \
   namespace cxx {                                                                                                 \
   template size_t DevicePtr<cuda::PlacedVol, Extra>::SizeOf();                                                    \
