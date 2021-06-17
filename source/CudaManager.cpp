@@ -18,6 +18,7 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <unordered_map>
 
 namespace vecgeom {
 
@@ -99,34 +100,24 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
 
   if (verbose_ > 2) std::cout << "Copying transformations_...";
   timer.Start();
-  for (std::set<Transformation3D const *>::const_iterator i = transformations_.begin(); i != transformations_.end();
-       ++i) {
+  {
+    std::vector<Transformation3D const *> trafos;
+    std::vector<DevicePtr<cuda::Transformation3D>> devPtrs;
+    for (Transformation3D const * trafo : transformations_) {
+      trafos.push_back(trafo);
+      devPtrs.push_back(LookupTransformation(trafo));
+    }
 
-    (*i)->CopyToGpu(LookupTransformation(*i));
+    Transformation3D::CopyManyToGpu(trafos, devPtrs);
   }
   timer.Stop();
   if (verbose_ > 2) std::cout << " OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
 
   if (verbose_ > 2) std::cout << "Copying placed volumes...";
-  // TODO: eventually we want to copy the placed volumes in one go (since they live now in contiguous buffers on both
-  // sides
-  // (the catch is that we will need to fix the virtual table pointers on the device side manually )
-
   timer.Start();
-  for (std::set<VPlacedVolume const *>::const_iterator i = placed_volumes_.begin(); i != placed_volumes_.end(); ++i) {
 
-    (*i)->CopyToGpu(LookupLogical((*i)->GetLogicalVolume()), LookupTransformation((*i)->GetTransformation()),
-                    LookupPlaced(*i));
+  CopyPlacedVolumes();
 
-    // check (assert) that everything is ok concerning the order of placed volume objects
-    // also asserts that sizeof(vecgeom::cxx::VPlacedVolume) == sizeof(vecgeom::cuda::VPlacedVolume)
-    assert((size_t)(*i) ==
-           (size_t)(&GeoManager::gCompactPlacedVolBuffer[0]) + sizeof(vecgeom::cxx::VPlacedVolume) * (*i)->id());
-#ifdef VECGEOM_ENABLE_CUDA
-    assert((size_t)(LookupPlaced(*i).GetPtr()) ==
-           (size_t)(fPlacedVolumeBufferOnDevice.GetPtr()) + sizeof(vecgeom::cxx::VPlacedVolume) * (*i)->id());
-#endif
-  }
   timer.Stop();
   if (verbose_ > 2) std::cout << (verbose_ > 3 ? "\n\t" : " ") << "OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
 
@@ -494,6 +485,48 @@ DevicePtr<CudaManager::CudaDaughter_t> CudaManager::LookupDaughterArray(Vector<D
 void CudaManager::PrintGeometry() const
 {
   CudaManagerPrintGeometry(world_gpu());
+}
+
+/**
+ * Sort all placed volumes by type, and bulk-copy all instances of each type to the device.
+ */
+void CudaManager::CopyPlacedVolumes() const
+{
+  struct TypeInfoForPlaced {
+    std::vector<vecgeom::cxx::VPlacedVolume const *> hostVol;
+    std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::LogicalVolume>> logical;
+    std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::Transformation3D>> trafo;
+    std::vector<vecgeom::cxx::CudaManager::CudaDaughterPtr_t> gpuVol;
+  };
+
+  std::unordered_map<std::type_index, TypeInfoForPlaced> typesToCopy;
+  for (VPlacedVolume const * pvol : placed_volumes_) {
+    const std::type_index tidx{typeid(*pvol)};
+
+    auto & typeInfo = typesToCopy[std::type_index(typeid(*pvol))];
+    typeInfo.hostVol.push_back(pvol);
+    typeInfo.logical.push_back(LookupLogical(pvol->GetLogicalVolume()));
+    typeInfo.trafo.push_back(LookupTransformation(pvol->GetTransformation()));
+    typeInfo.gpuVol.push_back(LookupPlaced(pvol));
+
+    // check (assert) that everything is ok concerning the order of placed volume objects
+    // also asserts that sizeof(vecgeom::cxx::VPlacedVolume) == sizeof(vecgeom::cuda::VPlacedVolume)
+    assert((size_t)(pvol) ==
+           (size_t)(&GeoManager::gCompactPlacedVolBuffer[0]) + sizeof(vecgeom::cxx::VPlacedVolume) * pvol->id());
+#ifdef VECGEOM_ENABLE_CUDA
+    assert((size_t)(LookupPlaced(pvol).GetPtr()) ==
+           (size_t)(fPlacedVolumeBufferOnDevice.GetPtr()) + sizeof(vecgeom::cxx::VPlacedVolume) * pvol->id());
+#endif
+  }
+
+  for (const auto & type_volInfo : typesToCopy) {
+    const auto & volInfo                 = type_volInfo.second;
+    const VPlacedVolume * const firstVol = volInfo.hostVol.front();
+    if (verbose_ > 3) {
+      std::cout << "\n\t" << volInfo.hostVol.size() << "\t" << type_volInfo.first.name();
+    }
+    firstVol->CopyManyToGpu(volInfo.hostVol, volInfo.logical, volInfo.trafo, volInfo.gpuVol);
+  }
 }
 
 // template <typename TrackContainer>
