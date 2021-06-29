@@ -253,7 +253,6 @@ VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
 Inside_v Planes::Inside(Vector3D<Real_v> const &point) const
 {
-
   Inside_v result = Inside_v(EInside::kInside);
 
   int i       = 0;
@@ -262,8 +261,8 @@ Inside_v Planes::Inside(Vector3D<Real_v> const &point) const
   for (; i < n; ++i) {
     Real_v distanceResult =
         fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
-    vecCore::MaskedAssign(result, distanceResult > Real_v(kTolerance), EInside::kOutside);
-    vecCore::MaskedAssign(result, result == Inside_v(EInside::kInside) && distanceResult > Real_v(-kTolerance),
+    vecCore::MaskedAssign(result, distanceResult > Real_v(kHalfTolerance), EInside::kOutside);
+    vecCore::MaskedAssign(result, result == Inside_v(EInside::kInside) && distanceResult > Real_v(-kHalfTolerance),
                           Inside_v(EInside::kSurface));
     if (vecCore::MaskFull(result == Inside_v(EInside::kOutside))) break;
   }
@@ -280,8 +279,8 @@ Inside_v Planes::Inside(Vector3D<Real_v> const &point, int i) const
   Inside_v result = Inside_v(EInside::kInside);
   Real_v distanceResult =
       fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
-  vecCore::MaskedAssign(result, distanceResult > Real_v(kTolerance), Inside_v(EInside::kOutside));
-  vecCore::MaskedAssign(result, result == Inside_v(EInside::kInside) && distanceResult > Real_v(-kTolerance),
+  vecCore::MaskedAssign(result, distanceResult > Real_v(kHalfTolerance), Inside_v(EInside::kOutside));
+  vecCore::MaskedAssign(result, result == Inside_v(EInside::kInside) && distanceResult > Real_v(-kHalfTolerance),
                         Inside_v(EInside::kSurface));
 
   return result;
