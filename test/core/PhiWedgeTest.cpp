@@ -52,7 +52,7 @@ int main()
     assert(!wedge.Contains<kScalar>(Vector3D_t(1., -1. * kTolerance, 0.)));
     assert(!wedge.Contains<kScalar>(Vector3D_t(-1, -1., 0.)));
     assert(wedge.Contains<kScalar>(Vector3D_t(std::cos(kPi / 3.), std::sin(kPi / 3.), 0.)));
-    assert(!wedge.Contains<kScalar>(Vector3D_t(std::cos(kPi / 3. + kTolerance), std::sin(kPi / 3. + kTolerance), 0.)));
+    assert(!wedge.Contains<kScalar>(Vector3D_t(std::cos(kPi / 3. + kAngTolerance), std::sin(kPi / 3. + kAngTolerance), 0.)));
     assert(wedge.Contains<kScalar>(Vector3D_t(std::cos(kPi / 6.), std::sin(kPi / 6.), 0.)));
     assert(!wedge.Contains<kScalar>(Vector3D_t(std::cos(kPi / 2.), std::sin(kPi / 2.), 0.)));
 
@@ -63,7 +63,7 @@ int main()
     assert(wedge.Inside<kScalar>(Vector3D_t(1., -0.5 * kTolerance, 0.)) == EInside::kSurface);
     assert(wedge.Inside<kScalar>(Vector3D_t(1., 0.5 * kTolerance, 0.)) == EInside::kSurface);
     assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(kPi / 3.), std::sin(kPi / 3.), 0.)) == EInside::kSurface);
-    assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(kPi / 3. + kTolerance), std::sin(kPi / 3. + kTolerance), 0.)) ==
+    assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(kPi / 3. + kAngTolerance), std::sin(kPi / 3. + kAngTolerance), 0.)) ==
            EInside::kOutside);
     assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(kPi / 6.), std::sin(kPi / 6.), 0.)) == EInside::kInside);
     assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(kPi / 2.), std::sin(kPi / 2.), 0.)) == EInside::kOutside);
@@ -79,7 +79,7 @@ int main()
     assert(wedge.Contains<kScalar>(Vector3D_t(1., 0., 0.)));
     assert(!wedge.Contains<kScalar>(Vector3D_t(1., -1. * kTolerance, 0.)));
     assert(wedge.Contains<kScalar>(Vector3D_t(std::cos(angle / 3.), std::sin(angle / 3.), 0.)));
-    assert(!wedge.Contains<kScalar>(Vector3D_t(std::cos(angle + kTolerance), std::sin(angle + kTolerance), 0.)));
+    assert(!wedge.Contains<kScalar>(Vector3D_t(std::cos(angle + kAngTolerance), std::sin(angle + kAngTolerance), 0.)));
     assert(wedge.Contains<kScalar>(Vector3D_t(std::cos(angle / 6.), std::sin(angle / 6.), 0.)));
     assert(!wedge.Contains<kScalar>(Vector3D_t(std::cos(angle + 0.1), std::sin(angle + 0.1), 0.)));
 
@@ -88,7 +88,7 @@ int main()
     assert(wedge.Inside<kScalar>(Vector3D_t(1., -0.5 * kTolerance, 0.)) == EInside::kSurface);
     assert(wedge.Inside<kScalar>(Vector3D_t(1., 0.5 * kTolerance, 0.)) == EInside::kSurface);
     assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(angle), std::sin(angle), 0.)) == EInside::kSurface);
-    assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(angle + kTolerance), std::sin(angle + kTolerance), 0.)) ==
+    assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(angle + kAngTolerance), std::sin(angle + kAngTolerance), 0.)) ==
            EInside::kOutside);
     assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(angle / 6.), std::sin(angle / 6.), 0.)) == EInside::kInside);
     assert(wedge.Inside<kScalar>(Vector3D_t(std::cos(angle + 0.1), std::sin(angle + 0.1), 0.)) == EInside::kOutside);

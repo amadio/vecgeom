@@ -90,7 +90,7 @@ int main()
   assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., -1.)), 2.5));
   assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., 1.)) == vecgeom::kInfLength);
   assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(3., 0., 0), Vec3D_t(-1., 0., 0.)), 1.));
-  assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 1.999999999), Vec3D_t(1., 0., 0.)), 0.4));
+  assert(ApproxEqual<Precision>(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 1.9999999), Vec3D_t(1., 0., 0.)), 0.4));
 
   {
     // test vector interface

@@ -98,7 +98,7 @@ bool TestPolycone()
   assert(placedpoly1->DistanceToIn(Vec_t(0., 0., 3), Vec_t(0., 0., -1.)) == 2.5);
   assert(placedpoly1->DistanceToIn(Vec_t(0., 0., 3), Vec_t(0., 0., 1.)) == kInfLength);
   assert(placedpoly1->DistanceToIn(Vec_t(3., 0., 0), Vec_t(-1., 0., 0.)) == 1);
-  assert(std::fabs(placedpoly1->DistanceToIn(Vec_t(0., 0., 1.999999999), Vec_t(1., 0., 0.)) - 0.4) <
+  assert(std::fabs(placedpoly1->DistanceToIn(Vec_t(0., 0., 1.9999999), Vec_t(1., 0., 0.)) - 0.4) <
          1000. * kTolerance);
 
   // test SafetyToIn
