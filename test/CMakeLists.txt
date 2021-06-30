@@ -251,11 +251,13 @@ if(VECGEOM_ENABLE_CUDA)
   set(TEST_EXECUTABLES_CUDA
     cuda/BVHTest.cpp
     cuda/MapTest.cpp
-    cuda/MapTestClass.cpp)
+    cuda/MapTestClass.cpp
+    cuda/GeometryTest.cpp)
   build_executables("${TEST_EXECUTABLES_CUDA}")
 
   add_test(NAME MapTest COMMAND MapTest)
   add_test(NAME BVHTest COMMAND BVHTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
+  add_test(NAME GeometryTest COMMAND $<TARGET_FILE:GeometryTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
 endif()
 
 

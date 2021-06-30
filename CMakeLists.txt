@@ -653,6 +653,7 @@ if(VECGEOM_ENABLE_CUDA)
     source/CudaGlobalSymbols.cu
     # ?? Test code get compiled into vecgeomcuda ??
     test/cuda/BVHTest.cu
+    test/cuda/GeometryTest.cu
     test/cuda/MapTest.cu
     test/cuda/MapTestClass.cu)
 
