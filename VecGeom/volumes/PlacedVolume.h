@@ -169,7 +169,7 @@ public:
   }
 
   /// Returns name/label.
-  VECCORE_ATT_HOST_DEVICE
+  VECCORE_ATT_HOST
   VECGEOM_FORCE_INLINE
   const char *GetName() const { return (*label_).c_str(); }
 
