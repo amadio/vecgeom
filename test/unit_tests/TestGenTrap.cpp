@@ -138,7 +138,7 @@ bool TestGenTrap()
   assert(Dist < 0.);
 
   Vec_t testp;
-  Precision testValue = 0.11;
+  Precision testValue = 0.15;
   // X
   valid = trap1.Normal(ponxp, normal);
   testp = ponxp + testValue * normal;
@@ -236,6 +236,7 @@ bool TestGenTrap()
     Dist = trap2.DistanceToIn(psurf, -dir);
     assert(ApproxEqual<Precision>(Dist, kInfLength));
   }
+
 
   // CalculateExtent
 

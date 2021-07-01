@@ -36,6 +36,28 @@ T MakeMinusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfToleranc
   return (tolerant) ? x - halftol : x;
 }
 
+/// @brief Utilities to compute tolerance value for cross products. Length should be an overestimate
+/// of the point vector length
+/// P = point to check if on one side or the other of the AB segment. Cross product computed as:
+///   cross = AP x AB
+/// The distance from point P to segment AB is cross/|AB|, hence the tolerance of cross is kTolerance * |AB|
+/// One needs to pass length > |AB| to the method.
+template <bool tolerant, typename T>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+T MakePlusTolerantCrossProduct(T const &x, T const &length, decltype(kHalfTolerance) halftol = kHalfTolerance)
+{
+  return (tolerant) ? x + length * halftol : x;
+}
+
+template <bool tolerant, typename T>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+T MakeMinusTolerantCrossProduct(T const &x,  T const &length, decltype(kHalfTolerance) halftol = kHalfTolerance)
+{
+  return (tolerant) ? x - length * halftol : x;
+}
+
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE

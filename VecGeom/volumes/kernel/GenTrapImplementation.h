@@ -228,10 +228,10 @@ vecCore::Mask_v<Real_v> GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedSt
     cross -= (pointy - cornerY) * deltaX;
     degenerate =
         degenerate && (deltaX < Real_v(MakePlusTolerant<true>(0.))) && (deltaY < Real_v(MakePlusTolerant<true>(0.)));
-    completelyoutside = completelyoutside || (cross < Real_v(MakeMinusTolerant<true>(0.)));
+    completelyoutside = completelyoutside || (cross < Real_v(MakeMinusTolerantCrossProduct<true,Real_v>(0., Abs(deltaX) + Abs(deltaY))));
     // if (vecCore::EarlyReturnAllowed()) {
     if (vecCore::MaskFull(completelyoutside)) {
-      return Bool_v(false);
+      return Bool_v(false); 
     }
     // }
   }
