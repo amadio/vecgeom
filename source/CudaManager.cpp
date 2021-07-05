@@ -56,7 +56,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
 {
   Stopwatch timer, overalltimer;
   overalltimer.Start();
-  if (verbose_ > 0) std::cerr << "Starting synchronization to GPU.\n";
+  if (verbose_ > 0) std::cout << "Starting synchronization to GPU.\n";
 
 #ifdef VECGEOM_USE_NAVINDEX
   if (NavIndexTable::Instance()->GetTableSize() == 0)
@@ -75,9 +75,9 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
   // Create new objects with pointers adjusted to point to GPU memory, then
   // copy them to the allocated memory locations on the GPU.
 
-  if (verbose_ > 1) std::cerr << "Copying geometry to GPU..." << std::endl;
+  if (verbose_ > 1) std::cout << "Copying geometry to GPU..." << std::endl;
 
-  if (verbose_ > 2) std::cerr << "\nCopying logical volumes...";
+  if (verbose_ > 2) std::cout << "\nCopying logical volumes...";
   timer.Start();
   for (std::set<LogicalVolume const *>::const_iterator i = logical_volumes_.begin(); i != logical_volumes_.end(); ++i) {
 
@@ -85,9 +85,9 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
                     LookupLogical(*i));
   }
   timer.Stop();
-  if (verbose_ > 2) std::cerr << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
+  if (verbose_ > 2) std::cout << " OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
 
-  if (verbose_ > 2) std::cerr << "Copying unplaced volumes...";
+  if (verbose_ > 2) std::cout << "Copying unplaced volumes...";
   timer.Start();
   for (std::set<VUnplacedVolume const *>::const_iterator i = unplaced_volumes_.begin(); i != unplaced_volumes_.end();
        ++i) {
@@ -95,7 +95,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
     (*i)->CopyToGpu(LookupUnplaced(*i));
   }
   timer.Stop();
-  if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
+  if (verbose_ > 2) std::cout << " OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
 
   if (verbose_ > 2) std::cout << "Copying transformations_...";
   timer.Start();
@@ -105,7 +105,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
     (*i)->CopyToGpu(LookupTransformation(*i));
   }
   timer.Stop();
-  if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
+  if (verbose_ > 2) std::cout << " OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
 
   if (verbose_ > 2) std::cout << "Copying placed volumes...";
   // TODO: eventually we want to copy the placed volumes in one go (since they live now in contiguous buffers on both
@@ -128,7 +128,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
 #endif
   }
   timer.Stop();
-  if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
+  if (verbose_ > 2) std::cout << (verbose_ > 3 ? "\n\t" : " ") << "OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
 
   if (verbose_ > 2) std::cout << "Copying daughter arrays...";
   timer.Start();
@@ -154,7 +154,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
     (*i)->CopyToGpu(LookupDaughterArray(*i), LookupDaughters(*i));
   }
   timer.Stop();
-  if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
+  if (verbose_ > 2) std::cout << " OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
 
   synchronized_ = true;
 
@@ -266,7 +266,7 @@ bool CudaManager::AllocateNavIndexOnCoproc()
   auto table_size = NavIndexTable::Instance()->GetTableSize();
   auto table      = NavIndexTable::Instance()->GetTable();
 
-  if (verbose_ > 2) std::cout << "Allocating navigation index table...\n";
+  if (verbose_ > 2) std::cout << "Allocating navigation index table...";
 
   GpuAddress gpu_address;
   gpu_address.Allocate(table_size);
@@ -297,7 +297,7 @@ bool CudaManager::AllocatePlacedVolumesOnCoproc()
   // we start from the compact buffer on the CPU
   unsigned int size = placed_volumes_.size();
 
-  if (verbose_ > 2) std::cout << "Allocating placed volumes...\n";
+  if (verbose_ > 2) std::cout << "Allocating placed volumes...";
 
   size_t totalSize = 0;
   // calculate total size of buffer on GPU to hold the GPU copies of the collection
@@ -394,8 +394,8 @@ void CudaManager::AllocateGeometry()
   }
 
   if (verbose_ > 0) {
-    fprintf(stderr, "NUMBER OF PLACED VOLUMES %ld\n", placed_volumes_.size());
-    fprintf(stderr, "NUMBER OF UNPLACED VOLUMES %ld\n", unplaced_volumes_.size());
+    printf("NUMBER OF PLACED VOLUMES %ld\n", placed_volumes_.size());
+    printf("NUMBER OF UNPLACED VOLUMES %ld\n", unplaced_volumes_.size());
   }
 }
 
