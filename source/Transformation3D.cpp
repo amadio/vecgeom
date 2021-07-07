@@ -230,6 +230,41 @@ DevicePtr<cuda::Transformation3D> Transformation3D::CopyToGpu() const
   return this->CopyToGpu(gpu_ptr);
 }
 
+/**
+ * Copy a large number of transformation instances to the GPU.
+ * \param trafos Host instances to copy.
+ * \param gpu_ptrs Device pointers to indicate where the transformations should be placed.
+ * The device memory must have been allocated before copying.
+ */
+void Transformation3D::CopyManyToGpu(const std::vector<Transformation3D const *>& trafos,
+                                     const std::vector<DevicePtr<cuda::Transformation3D>>& gpu_ptrs)
+{
+  assert(trafos.size() == gpu_ptrs.size());
+
+  // Memory for constructor data
+  // Store it as
+  // tx0, tx1, tx2, ...,
+  // ty0, ty1, ty2, ...,
+  // ...
+  // rot0_0, rot0_1, rot0_2, ...,
+  // ...
+  std::vector<Precision> trafoData(12 * trafos.size());
+
+  std::size_t trafoCounter = 0;
+  for (Transformation3D const * trafo : trafos) {
+    for (unsigned int i = 0; i < 3; ++i) trafoData[trafoCounter +  i    * trafos.size()] = trafo->Translation(i);
+    for (unsigned int i = 0; i < 9; ++i) trafoData[trafoCounter + (i+3) * trafos.size()] = trafo->Rotation(i);
+    ++trafoCounter;
+  }
+
+  ConstructManyOnGpu<cuda::Transformation3D>(trafos.size(), gpu_ptrs.data(),
+      trafoData.data(),                     trafoData.data() +  1 * trafos.size(), trafoData.data() +  2 * trafos.size(), // translations
+      trafoData.data() + 3 * trafos.size(), trafoData.data() +  4 * trafos.size(), trafoData.data() +  5 * trafos.size(), // rotations
+      trafoData.data() + 6 * trafos.size(), trafoData.data() +  7 * trafos.size(), trafoData.data() +  8 * trafos.size(),
+      trafoData.data() + 9 * trafos.size(), trafoData.data() + 10 * trafos.size(), trafoData.data() + 11 * trafos.size()
+  );
+}
+
 #endif // VECGEOM_CUDA_INTERFACE
 
 } // namespace VECGEOM_IMPL_NAMESPACE
@@ -244,6 +279,11 @@ template void DevicePtr<cuda::Transformation3D>::Construct(const Precision tx, c
                                                            const Precision r3, const Precision r4, const Precision r5,
                                                            const Precision r6, const Precision r7,
                                                            const Precision r8) const;
+template void ConstructManyOnGpu<Transformation3D>(std::size_t, DevicePtr<cuda::Transformation3D> const *,
+                                                   Precision const * tx, Precision const * ty, Precision const * tz,
+                                                   Precision const * r0, Precision const * r1, Precision const * r2,
+                                                   Precision const * r3, Precision const * r4, Precision const * r5,
+                                                   Precision const * r6, Precision const * r7, Precision const * r8);
 
 } // namespace cxx
 

@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 #ifdef VECGEOM_ROOT
 class TGeoMatrix;
@@ -425,6 +426,8 @@ public:
   size_t DeviceSizeOf() const { return DevicePtr<cuda::Transformation3D>::SizeOf(); }
   DevicePtr<cuda::Transformation3D> CopyToGpu() const;
   DevicePtr<cuda::Transformation3D> CopyToGpu(DevicePtr<cuda::Transformation3D> const gpu_ptr) const;
+  static void CopyManyToGpu(const std::vector<Transformation3D const *>& trafos,
+                            const std::vector<DevicePtr<cuda::Transformation3D>>& gpu_ptrs);
 #endif
 
 #ifdef VECGEOM_ROOT
