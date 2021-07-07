@@ -152,23 +152,23 @@ public:
   void set_verbose(const int verbose) { verbose_ = verbose; }
 
   template <typename Type>
-  GpuAddress Lookup(Type const *const key);
+  GpuAddress Lookup(Type const *const key) const;
 
   template <typename Type>
-  GpuAddress Lookup(DevicePtr<Type> key);
+  GpuAddress Lookup(DevicePtr<Type> key) const;
 
-  DevicePtr<cuda::VUnplacedVolume> LookupUnplaced(VUnplacedVolume const *const host_ptr);
+  DevicePtr<cuda::VUnplacedVolume> LookupUnplaced(VUnplacedVolume const *const host_ptr) const;
 
-  DevicePtr<cuda::LogicalVolume> LookupLogical(LogicalVolume const *const host_ptr);
+  DevicePtr<cuda::LogicalVolume> LookupLogical(LogicalVolume const *const host_ptr) const;
 
-  DevicePtr<cuda::VPlacedVolume> LookupPlaced(VPlacedVolume const *const host_ptr);
+  DevicePtr<cuda::VPlacedVolume> LookupPlaced(VPlacedVolume const *const host_ptr) const;
   VPlacedVolume const *LookupPlacedCPUPtr(const void *address);
 
-  DevicePtr<cuda::Transformation3D> LookupTransformation(Transformation3D const *const host_ptr);
+  DevicePtr<cuda::Transformation3D> LookupTransformation(Transformation3D const *const host_ptr) const;
 
-  DevicePtr<cuda::Vector<CudaDaughter_t>> LookupDaughters(Vector<Daughter_t> *const host_ptr);
+  DevicePtr<cuda::Vector<CudaDaughter_t>> LookupDaughters(Vector<Daughter_t> *const host_ptr) const;
 
-  DevicePtr<CudaDaughter_t> LookupDaughterArray(Vector<Daughter_t> *const host_ptr);
+  DevicePtr<CudaDaughter_t> LookupDaughterArray(Vector<Daughter_t> *const host_ptr) const;
 
 private:
   CudaManager();

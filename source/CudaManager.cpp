@@ -443,49 +443,49 @@ void CudaManager::ScanGeometry(VPlacedVolume const *const volume)
 }
 
 template <typename Type>
-typename CudaManager::GpuAddress CudaManager::Lookup(Type const *const key)
+typename CudaManager::GpuAddress CudaManager::Lookup(Type const *const key) const
 {
   const CpuAddress cpu_address = ToCpuAddress(key);
-  GpuAddress output            = memory_map_[cpu_address];
-  assert(output != nullptr);
-  return output;
+  const auto iter = memory_map_.find(cpu_address);
+  assert(iter != memory_map_.end());
+  return iter->second;
 }
 
 template <typename Type>
-typename CudaManager::GpuAddress CudaManager::Lookup(DevicePtr<Type> key)
+typename CudaManager::GpuAddress CudaManager::Lookup(DevicePtr<Type> key) const
 {
   GpuAddress gpu_address(key);
-  GpuAddress output = gpu_memory_map_[gpu_address];
-  assert(output != nullptr);
-  return output;
+  const auto iter = gpu_memory_map_.find(gpu_address);
+  assert(iter != gpu_memory_map_.end());
+  return iter->second;
 }
 
-DevicePtr<cuda::VUnplacedVolume> CudaManager::LookupUnplaced(VUnplacedVolume const *const host_ptr)
+DevicePtr<cuda::VUnplacedVolume> CudaManager::LookupUnplaced(VUnplacedVolume const *const host_ptr) const
 {
   return DevicePtr<cuda::VUnplacedVolume>(Lookup(host_ptr));
 }
 
-DevicePtr<cuda::LogicalVolume> CudaManager::LookupLogical(LogicalVolume const *const host_ptr)
+DevicePtr<cuda::LogicalVolume> CudaManager::LookupLogical(LogicalVolume const *const host_ptr) const
 {
   return DevicePtr<cuda::LogicalVolume>(Lookup(host_ptr));
 }
 
-DevicePtr<cuda::VPlacedVolume> CudaManager::LookupPlaced(VPlacedVolume const *const host_ptr)
+DevicePtr<cuda::VPlacedVolume> CudaManager::LookupPlaced(VPlacedVolume const *const host_ptr) const
 {
   return DevicePtr<cuda::VPlacedVolume>(Lookup(host_ptr));
 }
 
-DevicePtr<cuda::Transformation3D> CudaManager::LookupTransformation(Transformation3D const *const host_ptr)
+DevicePtr<cuda::Transformation3D> CudaManager::LookupTransformation(Transformation3D const *const host_ptr) const
 {
   return DevicePtr<cuda::Transformation3D>(Lookup(host_ptr));
 }
 
-DevicePtr<cuda::Vector<CudaManager::CudaDaughter_t>> CudaManager::LookupDaughters(Vector<Daughter> *const host_ptr)
+DevicePtr<cuda::Vector<CudaManager::CudaDaughter_t>> CudaManager::LookupDaughters(Vector<Daughter> *const host_ptr) const
 {
   return DevicePtr<cuda::Vector<CudaManager::CudaDaughter_t>>(Lookup(host_ptr));
 }
 
-DevicePtr<CudaManager::CudaDaughter_t> CudaManager::LookupDaughterArray(Vector<Daughter> *const host_ptr)
+DevicePtr<CudaManager::CudaDaughter_t> CudaManager::LookupDaughterArray(Vector<Daughter> *const host_ptr) const
 {
   GpuAddress daughters_(LookupDaughters(host_ptr));
   return DevicePtr<CudaManager::CudaDaughter_t>(Lookup(daughters_));
