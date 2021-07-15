@@ -19,6 +19,7 @@ using vecgeom::kPi;
 template <class Polyhedra_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestPolyhedra()
 {
+  Precision tolerance = vecgeom::kTolerance;
 
   Precision RMINVec[8];
   RMINVec[0] = 30;
@@ -174,8 +175,35 @@ bool TestPolyhedra()
   assert(MyPGon2->Inside(p7) == vecgeom::EInside::kInside);
   assert(MyPGon2->Inside(p8) == vecgeom::EInside::kSurface);
 
+  // Check that Inside and Contains agree for points around phi tolerance.
+  {
+    Vec_t pPhiInside(20 + tolerance, 20, 5);
+    std::cout << " MyPGon->Contains(" << pPhiInside << ") = " << MyPGon->Contains(pPhiInside) << "\n";
+    std::cout << " MyPGon->Inside(" << pPhiInside << ") = " << MyPGon->Inside(pPhiInside) << "\n";
+
+    assert(MyPGon->Contains(pPhiInside));
+    assert(MyPGon->Inside(pPhiInside) == vecgeom::EInside::kInside);
+  }
+
+  {
+    Vec_t pPhiSurface(20, 20, 5);
+    std::cout << " MyPGon->Contains(" << pPhiSurface << ") = " << MyPGon->Contains(pPhiSurface) << "\n";
+    std::cout << " MyPGon->Inside(" << pPhiSurface << ") = " << MyPGon->Inside(pPhiSurface) << "\n";
+
+    assert(!MyPGon->Contains(pPhiSurface));
+    assert(MyPGon->Inside(pPhiSurface) == vecgeom::EInside::kSurface);
+  }
+
+  {
+    Vec_t pPhiOutside(20 - tolerance, 20, 5);
+    std::cout << " MyPGon->Contains(" << pPhiOutside << ") = " << MyPGon->Contains(pPhiOutside) << "\n";
+    std::cout << " MyPGon->Inside(" << pPhiOutside << ") = " << MyPGon->Inside(pPhiOutside) << "\n";
+
+    assert(!MyPGon->Contains(pPhiOutside));
+    assert(MyPGon->Inside(pPhiOutside) == vecgeom::EInside::kOutside);
+  }
+
   // Check DistanceToIn
-  Precision tolerance = vecgeom::kTolerance;
   assert(std::fabs((MyPGon->DistanceToIn(p1, dirx))) < tolerance);
   assert(std::fabs((MyPGon->DistanceToIn(p1, -diry))) < tolerance);
   // Point on top endcap moving horizontally: either enter at 0 or not enter at all

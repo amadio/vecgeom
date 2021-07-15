@@ -721,6 +721,13 @@ bool PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarContainsKernel(Unp
     if (segment.inner.Contains<Precision>(point)) return false;
   }
 
+  // In principle, handling of phi should not be needed here since it is
+  // contained in the bounding tube. However, we need to check again due
+  // to different handling of tolerances.
+  if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
+    if (!segment.phi.Contains<Precision>(point)) return false;
+  }
+
   return true;
 }
 
