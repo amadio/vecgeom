@@ -137,10 +137,6 @@ struct PolyhedronImplementation {
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  static bool ScalarSegmentContainsKernel(UnplacedStruct_t const &unplaced, Vector3D<Precision> const &point, int);
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
   static Inside_t ScalarInsideKernel(UnplacedStruct_t const &unplaced, Vector3D<Precision> const &point);
 
   VECCORE_ATT_HOST_DEVICE
@@ -673,30 +669,6 @@ vecCore::Mask_v<Real_v> PolyhedronImplementation<innerRadiiT, phiCutoutT>::InPhi
   }
   // Otherwise it should be in front of both planes
   return pointSeg0 && pointSeg1;
-}
-
-template <Polyhedron::EInnerRadii innerRadiiT, Polyhedron::EPhiCutout phiCutoutT>
-VECCORE_ATT_HOST_DEVICE
-bool PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarSegmentContainsKernel(UnplacedStruct_t const &unplaced,
-                                                                                    Vector3D<Precision> const &point,
-                                                                                    int segmentIndex)
-{
-
-  ZSegment const &segment = unplaced.fZSegments[segmentIndex];
-
-  // Check that the point is in the outer shell
-  if (!segment.outer.Contains<Precision>(point)) return false;
-
-  // Check that the point is not in the inner shell
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
-    if (segment.inner.Contains<Precision>(point)) return false;
-  }
-
-  // check phi using the bounding tubes Wegde
-  if (unplaced.fHasPhiCutout)
-    if (!unplaced.fBoundingTube.fPhiWedge.Contains<Precision>(point)) return false;
-
-  return true;
 }
 
 template <Polyhedron::EInnerRadii innerRadiiT, Polyhedron::EPhiCutout phiCutoutT>
