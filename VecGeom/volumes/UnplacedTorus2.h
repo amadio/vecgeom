@@ -70,6 +70,7 @@ public:
                                         fTorus.fRtor + fTorus.fRmax + kTolerance, fTorus.fRmax, _sphi, _dphi);
 
     DetectConvexity();
+    ComputeBBox();
   }
 
   VECCORE_ATT_HOST_DEVICE

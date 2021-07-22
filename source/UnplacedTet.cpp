@@ -18,6 +18,7 @@ UnplacedTet::UnplacedTet()
 {
   // default constructor
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -26,6 +27,7 @@ UnplacedTet::UnplacedTet(const Vector3D<Precision> &p0, const Vector3D<Precision
     : fTet(p0, p1, p2, p3)
 {
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE

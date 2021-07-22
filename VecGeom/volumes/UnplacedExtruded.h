@@ -31,7 +31,10 @@ private:
 public:
   /** @brief Dummy constructor */
   VECCORE_ATT_HOST_DEVICE
-  UnplacedExtruded() : fXtru() {}
+  UnplacedExtruded() : fXtru()
+  {
+    ComputeBBox();
+  }
 
   /** @brief Constructor providing polygone vertices and sections */
   VECCORE_ATT_HOST_DEVICE
@@ -39,6 +42,7 @@ public:
       : fXtru(nvertices, vertices, nsections, sections)
   {
     fGlobalConvexity = (nsections == 2) && fXtru.IsConvexPolygon();
+    ComputeBBox();
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -46,6 +50,7 @@ public:
       : fXtru(nvertices, x, y, zmin, zmax)
   {
     fGlobalConvexity = fXtru.IsConvexPolygon();
+    ComputeBBox();
   }
 
   VECCORE_ATT_HOST_DEVICE

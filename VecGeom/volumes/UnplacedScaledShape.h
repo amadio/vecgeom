@@ -58,7 +58,11 @@ public:
 public:
   /// Dummy ctor
   VECCORE_ATT_HOST_DEVICE
-  UnplacedScaledShape() : fScaled() { fGlobalConvexity = fScaled.fPlaced->GetUnplacedVolume()->IsConvex(); }
+  UnplacedScaledShape() : fScaled()
+  {
+    fGlobalConvexity = fScaled.fPlaced->GetUnplacedVolume()->IsConvex();
+    ComputeBBox();
+  }
 
   /// Constructor based on placed volume
   VECCORE_ATT_HOST_DEVICE
@@ -66,6 +70,7 @@ public:
       : fScaled(placed, sx, sy, sz)
   {
     fGlobalConvexity = fScaled.fPlaced->GetUnplacedVolume()->IsConvex();
+    ComputeBBox();
   }
 
 #if defined(VECCORE_CUDA)
@@ -95,6 +100,7 @@ public:
     LogicalVolume *lvol = new LogicalVolume("", shape);
     fScaled.fPlaced     = lvol->Place();
     fGlobalConvexity    = fScaled.fPlaced->GetUnplacedVolume()->IsConvex();
+    ComputeBBox();
   }
 #endif
 
@@ -105,6 +111,7 @@ public:
     fScaled.fPlaced  = other.fScaled.fPlaced->GetLogicalVolume()->Place();
     fScaled.fScale   = other.fScaled.fScale;
     fGlobalConvexity = other.fGlobalConvexity;
+    ComputeBBox();
   }
 
   /// Assignment operator

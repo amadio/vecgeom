@@ -226,6 +226,7 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
     zarg[i] = zVect[i];
   }
   fPolycone.Init(phiStart, phiTotal, fPolycone.fNz, zarg, rmin, rmax);
+  ComputeBBox();
   delete[] rmin;
   delete[] rmax;
   delete[] zarg;

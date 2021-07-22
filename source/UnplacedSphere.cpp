@@ -32,13 +32,16 @@ UnplacedSphere::UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi
                                Precision pDTheta)
     : fSphere(pRmin, pRmax, pSPhi, pDPhi, pSTheta, pDTheta)
 {
-
   DetectConvexity();
+  ComputeBBox();
 }
 
 // specialized constructor for orb like instantiation
 VECCORE_ATT_HOST_DEVICE
-UnplacedSphere::UnplacedSphere(Precision pR) : UnplacedSphere(0, pR) {}
+UnplacedSphere::UnplacedSphere(Precision pR) : UnplacedSphere(0, pR)
+{
+  ComputeBBox();
+}
 
 VECCORE_ATT_HOST_DEVICE
 void UnplacedSphere::DetectConvexity()

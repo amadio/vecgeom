@@ -52,6 +52,7 @@ public:
       : fCone(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi)
   {
     DetectConvexity();
+    ComputeBBox();
   }
 
   // Constructor needed by specialization when Cone becomes Tube
@@ -59,6 +60,7 @@ public:
       : fCone(rmin, rmax, rmin, rmax, dz, phimin, deltaphi)
   {
     DetectConvexity();
+    ComputeBBox();
   }
 
   VECCORE_ATT_HOST_DEVICE

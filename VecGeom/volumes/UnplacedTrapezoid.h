@@ -59,11 +59,16 @@ public:
   {
     fGlobalConvexity = true;
     MakePlanes();
+    ComputeBBox();
   }
 
   // default constructor
   VECCORE_ATT_HOST_DEVICE
-  UnplacedTrapezoid() : fTrap(0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.) { fGlobalConvexity = true; }
+  UnplacedTrapezoid() : fTrap(0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.)
+  {
+    fGlobalConvexity = true;
+    ComputeBBox();
+  }
 
   /// \brief Fast constructor: all parameters from one array
   VECCORE_ATT_HOST_DEVICE
@@ -71,6 +76,7 @@ public:
       : UnplacedTrapezoid(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7],
                           params[8], params[9], params[10])
   {
+    ComputeBBox();
   }
 
   /// \brief Constructor based on 8 corner points

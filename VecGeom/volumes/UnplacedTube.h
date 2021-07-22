@@ -30,6 +30,7 @@ public:
       : fTube(_rmin, _rmax, _z, _sphi, _dphi)
   {
     DetectConvexity();
+    ComputeBBox();
   }
 
   VECCORE_ATT_HOST_DEVICE

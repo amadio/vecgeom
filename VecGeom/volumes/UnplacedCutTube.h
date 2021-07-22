@@ -29,7 +29,7 @@ private:
 
 public:
   VECCORE_ATT_HOST_DEVICE
-  UnplacedCutTube() : fCutTube() {}
+  UnplacedCutTube() : fCutTube() { ComputeBBox(); }
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedCutTube(Precision const &rmin, Precision const &rmax, Precision const &z, Precision const &sphi,
@@ -46,6 +46,7 @@ public:
 #endif
     }
     DetectConvexity();
+    ComputeBBox();
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -64,6 +65,7 @@ public:
 #endif
     }
     DetectConvexity();
+    ComputeBBox();
   }
 
   VECCORE_ATT_HOST_DEVICE

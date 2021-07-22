@@ -42,7 +42,7 @@ public:
    *
    */
   VECCORE_ATT_HOST_DEVICE
-  UnplacedGenericPolycone() {}
+  UnplacedGenericPolycone();
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedGenericPolycone(Precision phiStart,  // initial phi starting angle

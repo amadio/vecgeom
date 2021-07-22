@@ -41,7 +41,11 @@ protected:
 public:
   /// Default constructor for the unplaced tessellated shape class.
   VECCORE_ATT_HOST_DEVICE
-  UnplacedTessellated() : fTessellated() { fGlobalConvexity = false; }
+  UnplacedTessellated() : fTessellated()
+  {
+    fGlobalConvexity = false;
+    ComputeBBox();
+  }
 
   /// Getter for the TessellatedStruct object containing the actual data (facets, vertices, clusters of facets)
   /** @return The tessellatedStruct object */

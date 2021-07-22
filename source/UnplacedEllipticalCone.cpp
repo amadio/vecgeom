@@ -21,6 +21,7 @@ UnplacedEllipticalCone::UnplacedEllipticalCone(Precision a, Precision b, Precisi
 {
   SetParameters(a, b, h, zcut);
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE

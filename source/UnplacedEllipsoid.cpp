@@ -20,6 +20,7 @@ VECCORE_ATT_HOST_DEVICE
 UnplacedEllipsoid::UnplacedEllipsoid()
 {
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -32,6 +33,7 @@ UnplacedEllipsoid::UnplacedEllipsoid(Precision dx, Precision dy, Precision dz, P
   fEllipsoid.fZBottomCut = zBottomCut;
   fEllipsoid.fZTopCut    = zTopCut;
   CheckParameters();
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE

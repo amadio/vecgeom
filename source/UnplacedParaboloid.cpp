@@ -19,6 +19,7 @@ UnplacedParaboloid::UnplacedParaboloid() : fCubicVolume(0), fSurfaceArea(0)
 {
   // default constructor
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -28,6 +29,7 @@ UnplacedParaboloid::UnplacedParaboloid(const Precision rlo, const Precision rhi,
   CalcCapacity();
   CalcSurfaceArea();
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE

@@ -130,6 +130,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(TrapCorners const corners) : fTrap()
 {
   // fill data members
   fromCornersToParameters(corners);
+  ComputeBBox();
 }
 
 /*VECCORE_ATT_HOST_DEVICE
@@ -149,6 +150,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision dx1, Precision dx2, Precision dy,
 {
   MakePlanes();
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 UnplacedTrapezoid::UnplacedTrapezoid(Precision dx1, Precision dx2, Precision dy1, Precision dy2, Precision dz)
@@ -156,6 +158,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision dx1, Precision dx2, Precision dy1
 {
   MakePlanes();
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 UnplacedTrapezoid::UnplacedTrapezoid(Precision dx, Precision dy, Precision dz, Precision alpha, Precision theta,
@@ -167,6 +170,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision dx, Precision dy, Precision dz, P
   fTrap.fTanAlpha2 = fTrap.fTanAlpha1;
   MakePlanes();
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 VECCORE_ATT_HOST_DEVICE
 UnplacedTrapezoid::UnplacedTrapezoid(Precision xbox, Precision ybox, Precision zbox)
@@ -182,6 +186,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision xbox, Precision ybox, Precision z
 
   MakePlanes();
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 Precision UnplacedTrapezoid::Capacity() const

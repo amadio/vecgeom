@@ -49,6 +49,7 @@ public:
     fPolycone.fEqualRmax         = true;
     fPolycone.Init(phistart, deltaphi, Nz, z, rMin, rMax);
     DetectConvexity();
+    ComputeBBox();
   }
 
   // Constructor needed by specialization when Polycone becomes Tube
@@ -69,6 +70,7 @@ public:
     fPolycone.fEqualRmax         = true;
     fPolycone.Init(phistart, deltaphi, Nz, z, rMin, rMax);
     DetectConvexity();
+    ComputeBBox();
   }
 
   // the constructor
@@ -82,6 +84,7 @@ public:
     fPolycone.fEqualRmax         = true;
     fPolycone.Init(phistart, deltaphi, Nz, z, rmin, rmax);
     DetectConvexity();
+    ComputeBBox();
   }
 
   // alternative constructor, required for integration with Geant4

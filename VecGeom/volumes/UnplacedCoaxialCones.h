@@ -30,13 +30,14 @@ public:
    *
    */
   VECCORE_ATT_HOST_DEVICE
-  UnplacedCoaxialCones() {}
+  UnplacedCoaxialCones() { ComputeBBox(); }
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedCoaxialCones(unsigned int numOfCones, Precision *rmin1Vect, Precision *rmax1Vect, Precision *rmin2Vect,
                        Precision *rmax2Vect, Precision dz, Precision sphi, Precision dphi)
       : fCoaxialCones(numOfCones, rmin1Vect, rmax1Vect, rmin2Vect, rmax2Vect, dz, sphi, dphi)
   {
+    ComputeBBox();
   }
 
   VECCORE_ATT_HOST_DEVICE

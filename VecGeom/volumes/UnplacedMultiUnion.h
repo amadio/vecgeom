@@ -29,7 +29,11 @@ protected:
 public:
   // the constructor
   VECCORE_ATT_HOST_DEVICE
-  UnplacedMultiUnion() : fMultiUnion() { fGlobalConvexity = false; }
+  UnplacedMultiUnion() : fMultiUnion()
+  {
+    fGlobalConvexity = false;
+    ComputeBBox();
+  }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE

@@ -46,6 +46,7 @@ public:
       : fGenTrap(verticesx, verticesy, halfzheight)
   {
     fGlobalConvexity = !fGenTrap.fIsTwisted;
+    ComputeBBox();
   }
 
   /** @brief UnplacedGenTrap destructor */

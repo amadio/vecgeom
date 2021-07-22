@@ -362,8 +362,8 @@ bool TestOrb()
   Vec_t t0KnownPoint2(725.77514262389081523, -745.20572125476428482, 778.25732374796621116);
   vecLen = t0KnownPoint2.Mag();
   Vec_t t0Dir2((1 / vecLen) * (t0KnownPoint2 * (-1)));
-  // Propagate to the solid first with 99 % of the distance
-  shiftDist = b6.DistanceToIn(t0KnownPoint2, t0Dir2) * 0.99;
+  // Propagate to the solid first
+  shiftDist = b6.GetUnplacedVolume()->ApproachSolid(t0KnownPoint2, 1 / t0Dir2);
   Vec_t t0Point2(t0KnownPoint2 + shiftDist * t0Dir2);
   double shiftDist2 = b6.DistanceToIn(t0Point2, t0Dir2);
   Vec_t t0Point3(t0Point2 + shiftDist2 * t0Dir2);

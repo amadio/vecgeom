@@ -43,7 +43,7 @@ private:
   Vector3D<Precision> fUpperCorner;
 
   void SetLogicalVolume(LogicalVolume *lv) { fLogicalVolume = lv; }
-  void UpdateExtent() { UnplacedAssembly::Extent(fLowerCorner, fUpperCorner); }
+  void UpdateExtent() { UnplacedAssembly::Extent(fLowerCorner, fUpperCorner); ComputeBBox(); }
   friend class LogicalVolume;
 
 public:

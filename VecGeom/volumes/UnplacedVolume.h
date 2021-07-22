@@ -12,6 +12,7 @@
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/Transformation3D.h"
 #include "VecGeom/base/SOA3D.h"
+#include "VecGeom/volumes/kernel/BoxImplementation.h"
 #include <string>
 #include <ostream>
 
@@ -40,6 +41,7 @@ class VUnplacedVolume {
 
 private:
   friend class CudaManager;
+  Vector3D<Precision> fBBox[2]; ///< bounding box corners
 
 protected:
   bool fGlobalConvexity;
@@ -51,6 +53,26 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   virtual ~VUnplacedVolume() {}
+
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  void SetBBox(std::array<Vector3D<Precision>, 2> BBox) 
+  {
+    fBBox[0] = BBox[0];
+    fBBox[1] = BBox[1];
+  }
+
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  void GetBBox(Vector3D<Precision> &amin, Vector3D<Precision> &amax) const
+  {
+    amin = fBBox[0];
+    amax = fBBox[1];
+  }
+
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  void ComputeBBox() { Extent(fBBox[0], fBBox[1]); }
 
   // ---------------- Contains --------------------------------------------------------------------
 
@@ -240,6 +262,18 @@ public:
    */
   VECCORE_ATT_HOST_DEVICE
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const /* = 0 */;
+
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  Precision ApproachSolid(Vector3D<Precision> const &point, Vector3D<Precision> const &invDir) const
+  {
+    Vector3D<int> sign;
+    sign[0] = invDir.x() < 0;
+    sign[1] = invDir.y() < 0;
+    sign[2] = invDir.z() < 0;
+
+    return BoxImplementation::IntersectCachedKernel2<Precision, Precision>(fBBox, point, invDir, sign.x(), sign.y(), sign.z(), 0, kInfLength);
+  }
 
   /*!
    *  Returns whether the shape is (globally) convex or not.

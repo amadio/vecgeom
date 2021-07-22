@@ -57,6 +57,7 @@ public:
       : fHype(rMin, rMax, stIn, stOut, dz)
   {
     DetectConvexity();
+    ComputeBBox();
   }
 
   /// Getter for the structure storing hyperboloid data.

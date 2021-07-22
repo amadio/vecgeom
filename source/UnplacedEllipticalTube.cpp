@@ -21,6 +21,7 @@ UnplacedEllipticalTube::UnplacedEllipticalTube(Precision dx, Precision dy, Preci
 {
   SetParameters(dx, dy, dz);
   fGlobalConvexity = true;
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE

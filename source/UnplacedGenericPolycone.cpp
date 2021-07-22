@@ -47,6 +47,7 @@ UnplacedGenericPolycone::UnplacedGenericPolycone(Precision phiStart, // initial 
   rd.GetPolyconeParameters(vectOfRmin1Vect, vectOfRmax1Vect, vectOfRmin2Vect, vectOfRmax2Vect, zS, fAMin, fAMax);
 
   fGenericPolycone.Set(vectOfRmin1Vect, vectOfRmax1Vect, vectOfRmin2Vect, vectOfRmax2Vect, zS, fSPhi, fDPhi);
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE

@@ -59,6 +59,7 @@ public:
       : fBoolean(op, left, right)
   {
     fGlobalConvexity = false;
+    VUnplacedVolume::ComputeBBox();
 #ifndef VECCORE_CUDA
     if (fBoolean.fLeftVolume->IsAssembly() || fBoolean.fRightVolume->IsAssembly()) {
       throw std::runtime_error("Trying to make boolean out of assembly which is not supported\n");

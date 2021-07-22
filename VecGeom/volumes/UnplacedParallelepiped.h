@@ -50,6 +50,7 @@ public:
       : fPara(dimensions, alpha, theta, phi)
   {
     fGlobalConvexity = true;
+    ComputeBBox();
   }
 
   /// Constructor from three dimensions and three angles
@@ -65,6 +66,7 @@ public:
       : fPara(dx, dy, dz, alpha, theta, phi)
   {
     fGlobalConvexity = true;
+    ComputeBBox();
   }
 
   /// Default constructor
