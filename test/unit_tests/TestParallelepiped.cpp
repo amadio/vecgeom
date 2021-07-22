@@ -69,13 +69,15 @@ bool TestParallelepiped()
   std::cout << " surf = " << surf << "   mc_estimated = " << surfCheck << std::endl;
   assert(std::abs(surf - surfCheck) < 0.01 * surf);
 
-  // Check Extent
+  // Check Extent and cached BBox
 
-  std::cout << "=== Check Extent()" << std::endl;
+  std::cout << "=== Check Extent() and cached BBox" << std::endl;
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   Vec_t minCheck(kInfLength, kInfLength, kInfLength);
   Vec_t maxCheck(-kInfLength, -kInfLength, -kInfLength);
   para.Extent(minExtent, maxExtent);
+  para.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   for (int i = 0; i < Npoints; ++i) {
     Vec_t p = para.GetUnplacedVolume()->SamplePointOnSurface();
     minCheck.Set(std::min(p.x(), minCheck.x()), std::min(p.y(), minCheck.y()), std::min(p.z(), minCheck.z()));
@@ -90,6 +92,8 @@ bool TestParallelepiped()
   assert(std::abs(maxExtent.x() - maxCheck.x()) < 0.001 * std::abs(maxExtent.x()));
   assert(std::abs(maxExtent.y() - maxCheck.y()) < 0.001 * std::abs(maxExtent.y()));
   assert(maxExtent.z() == maxCheck.z());
+  assert(ApproxEqual<Precision>(minExtent, minBBox));
+  assert(ApproxEqual<Precision>(maxExtent, maxBBox));
 
   // Check Inside
 

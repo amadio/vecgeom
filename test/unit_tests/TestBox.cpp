@@ -57,15 +57,22 @@ bool TestBox()
   assert(b1.SurfaceArea() == 20800);
   assert(b2.SurfaceArea() == 6 * 20 * 20);
 
-  // CalculateExtent
+  // Check Extent and cached BBox
 
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   b1.Extent(minExtent, maxExtent);
+  b1.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   assert(ApproxEqual(minExtent, Vec_t(-20, -30, -40)));
   assert(ApproxEqual(maxExtent, Vec_t(20, 30, 40)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
   b2.Extent(minExtent, maxExtent);
+  b2.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   assert(ApproxEqual(minExtent, Vec_t(-10, -10, -10)));
   assert(ApproxEqual(maxExtent, Vec_t(10, 10, 10)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
 
   // Check Surface Normal
   Vec_t normal;

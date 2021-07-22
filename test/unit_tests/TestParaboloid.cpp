@@ -119,6 +119,14 @@ bool TestParaboloid()
   valid = p1.Normal(pOutZ, normal);
   assert(!valid && ApproxEqual(normal, Vec_t(0, 0, -1.)));
 
+  // Check Extent and cached BBox
+  Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
+  p1.Extent(minExtent, maxExtent);
+  p1.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
+
   return true;
 }
 

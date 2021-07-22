@@ -323,16 +323,23 @@ bool TestPolycone()
   // std::cout <<"D2I unverified: Line "<< __LINE__ <<", p="<< pbigx <<", dir="<< vxy <<", dist="<<Dist<<"\n";
   assert(ApproxEqual<Precision>(Dist, kInfLength));
 
-  // CalculateExtent
+  // Check Extent and cached BBox
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   Simple.Extent(minExtent, maxExtent);
+  Simple.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   // std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
   assert(ApproxEqual(minExtent, Vec_t(-80, -80, -10)));
   assert(ApproxEqual(maxExtent, Vec_t(80, 80, 10)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
   MyPCone->Extent(minExtent, maxExtent);
+  MyPCone->GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   // std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
   // assert(ApproxEqual(minExtent, Vec_t(-80, -80, -20)));
   // assert(ApproxEqual(maxExtent, Vec_t(80, 80, 40)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
 
 #ifdef SCAN_SOLID
 

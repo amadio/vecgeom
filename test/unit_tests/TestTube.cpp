@@ -473,16 +473,23 @@ bool TestTubs()
   assert(in == vecgeom::EInside::kSurface);
   valid = t4SN.Normal(pSN1, normal);
 
-  // CalculateExtent
+  // Check Extent and cached BBox
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   t1.Extent(minExtent, maxExtent);
+  t1.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   // std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
   assert(ApproxEqual(minExtent, Vec_t(-50, -50, -50)));
   assert(ApproxEqual(maxExtent, Vec_t(50, 50, 50)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
   t2.Extent(minExtent, maxExtent);
+  t2.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   // std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
   assert(ApproxEqual(minExtent, Vec_t(-50, -50, -50)));
   assert(ApproxEqual(maxExtent, Vec_t(50, 50, 50)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
 
   /* ********************************
   ************************************ */

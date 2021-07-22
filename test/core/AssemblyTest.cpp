@@ -2,6 +2,7 @@
 #include "VecGeom/volumes/PlacedAssembly.h"
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/volumes/Box.h"
+#include "test/unit_tests/ApproxEqual.h"
 
 // make sure that assert are included even in Release mode
 #ifdef NDEBUG
@@ -99,6 +100,14 @@ int main()
 
   assert(emin == ass->GetLowerCorner());
   assert(emax == ass->GetUpperCorner());
+
+  // test bounding box
+  Vector3D<Precision> minExtent, maxExtent;
+  Vector3D<Precision> minBBox, maxBBox;
+  ass->Extent(minExtent, maxExtent);
+  ass->GetBBox(minBBox, maxBBox);
+  assert(ApproxEqual<Precision>(minExtent, minBBox));
+  assert(ApproxEqual<Precision>(maxExtent, maxBBox));
 
   // check Normal
   // TBD

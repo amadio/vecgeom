@@ -399,16 +399,23 @@ bool TestTrd()
 
   // return-value = 2.4415531753644804e-15
 
-  // CalculateExtent
+  // Check Extent and cached BBox
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   trd1.Extent(minExtent, maxExtent);
+  trd1.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   // std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
   assert(ApproxEqual(minExtent, Vec_t(-20, -30, -40)));
   assert(ApproxEqual(maxExtent, Vec_t(20, 30, 40)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
   trd2.Extent(minExtent, maxExtent);
+  trd2.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   // std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
   assert(ApproxEqual(minExtent, Vec_t(-30, -40, -40)));
   assert(ApproxEqual(maxExtent, Vec_t(30, 40, 40)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
 
   // Simple Unit Tests for Factory of Trd.
   // Trd_t trdBoxTrd1("Test Trd", 20, 20, 30, 40);

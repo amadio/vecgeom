@@ -22,6 +22,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(const int sideCount, const int zPlaneCoun
     : UnplacedPolyhedron(0., kTwoPi, sideCount, zPlaneCount, zPlanes, rMin, rMax)
 {
   DetectConvexity();
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -31,6 +32,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, c
     : fPoly(phiStart, phiDelta, sideCount, zPlaneCount, zPlanes, rMin, rMax)
 {
   DetectConvexity();
+  ComputeBBox();
 }
 
 UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount,
@@ -41,6 +43,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, c
     : fPoly(phiStart, phiDelta, sideCount, verticesCount, r, z)
 {
   DetectConvexity();
+  ComputeBBox();
 }
 
 VECCORE_ATT_HOST_DEVICE

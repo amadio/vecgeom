@@ -73,6 +73,14 @@ int main()
   assert(poly1->Capacity() > 0);
   assert(std::fabs(poly1->Capacity() - (section0.Capacity() + section1.Capacity() + section2.Capacity())) < 1e-6);
 
+  // test bounding box
+  Vector3D<Precision> minExtent, maxExtent;
+  Vector3D<Precision> minBBox, maxBBox;
+  poly1->Extent(minExtent, maxExtent);
+  poly1->GetBBox(minBBox, maxBBox);
+  assert(ApproxEqual<Precision>(minExtent, minBBox));
+  assert(ApproxEqual<Precision>(maxExtent, maxBBox));
+
   // create a place version
   VPlacedVolume const *placedpoly1 = (new LogicalVolume("poly1", poly1))->Place(new Transformation3D());
 

@@ -55,6 +55,17 @@ int TestBooleans()
   LogicalVolume lboxminusholes("CombinedBoolean", &boxminusholes);
   auto placedcombinedboolean = lboxminusholes.Place();
 
+  // Check Extent and cached BBox
+  Vec3D_t minExtent, maxExtent, minBBox, maxBBox;
+  holes.Extent(minExtent, maxExtent);
+  holes.GetBBox(minBBox, maxBBox);
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
+  boxminusholes.Extent(minExtent, maxExtent);
+  boxminusholes.GetBBox(minBBox, maxBBox);
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
+  
   auto capacity = boxminusholes.Capacity();
   assert(capacity > 0);
   assert(std::fabs(capacity - (bv - 2. * tv)) / capacity < 1E-03);

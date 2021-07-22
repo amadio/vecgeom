@@ -281,9 +281,6 @@ public:
 
   std::ostream &StreamInfo(std::ostream &os) const;
 
-  VECCORE_ATT_HOST_DEVICE
-  void ComputeBBox() const;
-
   // VECCORE_ATT_HOST_DEVICE
   // Precision sqr(Precision x) {return x*x;};
 

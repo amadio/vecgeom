@@ -146,13 +146,17 @@ bool TestPolyhedra()
   diry = Vec_t(0, 1, 0);
   dirz = Vec_t(0, 0, 1);
 
-  // CalculateExtent
+  // Check Extent and cached BBox
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   MyPGon->Extent(minExtent, maxExtent);
+  MyPGon->GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   std::cout << "polyhedra Extent():  min=" << minExtent << " max=" << maxExtent << std::endl;
   // In VecGeom the extent is minimal
   assert(ApproxEqual(minExtent, Vec_t(0, 0, -30)));
   assert(ApproxEqual(maxExtent, Vec_t(80. / cos(halfdphi), 40. * sqrt(2.) / cos(halfdphi), 40)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
 
   // Check Inside
   std::cout << " EInside values:  kInside=" << vecgeom::EInside::kInside << ", kSurface=" << vecgeom::EInside::kSurface

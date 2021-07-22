@@ -87,7 +87,7 @@ private:
   PolyhedronStruct<Precision> fPoly; ///< Structure holding polyhedron data
 
 public:
-  UnplacedPolyhedron() : fPoly() {}
+  UnplacedPolyhedron() : fPoly() { ComputeBBox(); }
   /// \param sideCount Number of sides along phi in each Z-segment.
   /// \param zPlaneCount Number of Z-planes to draw segments between. The number
   ///                    of segments will always be this number minus one.

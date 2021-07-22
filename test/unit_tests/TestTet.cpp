@@ -52,10 +52,14 @@ bool TestTet()
   assert(ApproxEqual<Precision>(vol, 4. / 3.));
 
   Vec_t bmin, bmax;
+  Vec_t minBBox, maxBBox;
   tet.Extent(bmin, bmax);
+  tet.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   std::cout << "Extent : " << bmin << ", " << bmax << std::endl;
   assert(bmin == Vec_t(0., 0., 0.));
   assert(bmax == Vec_t(2., 2., 2.));
+  assert(ApproxEqual(bmin, minBBox));
+  assert(ApproxEqual(bmax, maxBBox));
 
   // Check Inside()
   //

@@ -238,12 +238,16 @@ bool TestGenTrap()
   }
 
 
-  // CalculateExtent
+  // Check Extent and cached BBox
 
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   trap2.Extent(minExtent, maxExtent);
+  trap2.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   assert(ApproxEqual(minExtent, Vec_t(-3, -3, -5)));
   assert(ApproxEqual(maxExtent, Vec_t(3, 3, 5)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
   return true;
 }
 

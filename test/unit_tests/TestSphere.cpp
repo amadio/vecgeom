@@ -58,13 +58,21 @@ bool TestSphere()
   // std::cout<<std::setprecision(12)<<"SurfaceArea of B3 : "<< b3.SurfaceArea() << std::endl;
   // std::cout<<"Not : "<< b1.SurfaceArea()/4 << std::endl;
 
+  // Check Extent and cached BBox
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   b1.Extent(minExtent, maxExtent);
+  b1.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   assert(ApproxEqual(minExtent, Vec_t(-fR, -fR, -fR)));
   assert(ApproxEqual(maxExtent, Vec_t(fR, fR, fR)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
   b2.Extent(minExtent, maxExtent);
+  b2.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   assert(ApproxEqual(minExtent, Vec_t(-1.5, 0, -3.)));
   assert(ApproxEqual(maxExtent, Vec_t(2.59808, 3., 3.)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
   // assert(ApproxEqual(minExtent,Vec_t(-6,-6,-6)));
   // assert(ApproxEqual(maxExtent,Vec_t( 6, 6, 6)));
 

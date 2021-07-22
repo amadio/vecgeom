@@ -64,7 +64,9 @@ public:
   bool AddTriangularFacet(Vector3D<Precision> const &vt0, Vector3D<Precision> const &vt1,
                           Vector3D<Precision> const &vt2, bool absolute = true)
   {
-    return fTessellated.AddTriangularFacet(vt0, vt1, vt2, absolute);
+    bool result = fTessellated.AddTriangularFacet(vt0, vt1, vt2, absolute);
+    ComputeBBox();
+    return result;
   }
 
   /// Method for adding a new quadrilateral facet, delegated to TessellatedStruct
@@ -81,7 +83,9 @@ public:
   bool AddQuadrilateralFacet(Vector3D<Precision> const &vt0, Vector3D<Precision> const &vt1,
                              Vector3D<Precision> const &vt2, Vector3D<Precision> const &vt3, bool absolute = true)
   {
-    return fTessellated.AddQuadrilateralFacet(vt0, vt1, vt2, vt3, absolute);
+    bool result = fTessellated.AddQuadrilateralFacet(vt0, vt1, vt2, vt3, absolute);
+    ComputeBBox();
+    return result;
   }
 
   /// Getter for the number of facets.

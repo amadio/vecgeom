@@ -252,9 +252,6 @@ std::string UnplacedSphere::GetEntityType() const
 
 #endif // !VECCORE_CUDA
 
-VECCORE_ATT_HOST_DEVICE
-void UnplacedSphere::ComputeBBox() const {}
-
 /*UnplacedSphere *UnplacedSphere::Clone() const
 {
   return new UnplacedSphere(fSphere.fRmin, fSphere.fRmax, fSphere.fSPhi, fSphere.fDPhi, fSphere.fSTheta,

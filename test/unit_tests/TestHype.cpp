@@ -60,14 +60,19 @@ bool TestHype()
   assert(!strcmp(b1.GetName(), "Solid VecGeomHype #1"));
   assert(!strcmp(b2.GetName(), "Solid VecGeomHype #2"));
 
+  // Check Extent and cached BBox
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   b1.Extent(minExtent, maxExtent);
+  b1.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   double tSTout = std::tan(stOut);
   double tSTin  = std::tan(stIn);
 
   double xy = std::sqrt(fRmax * fRmax + tSTout * tSTout * halfZ * halfZ);
   assert(ApproxEqual(minExtent, Vec_t(-xy, -xy, -halfZ)));
   assert(ApproxEqual(maxExtent, Vec_t(xy, xy, halfZ)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
 
   // Check Surface Normal
   Vec_t normal;

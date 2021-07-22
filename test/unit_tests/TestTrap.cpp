@@ -637,15 +637,22 @@ bool TestTrap()
   dist = trap1.DistanceToIn(Vec_t(0, 0, 70), vymz);
   assert(ApproxEqual<Precision>(dist, 30.0 * sqrt(2.0)));
 
-  // CalculateExtent
+  // Check Extent and cached BBox
 
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   trap1.Extent(minExtent, maxExtent);
+  trap1.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   assert(ApproxEqual(minExtent, Vec_t(-20, -30, -40)));
   assert(ApproxEqual(maxExtent, Vec_t(20, 30, 40)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
   trap2.Extent(minExtent, maxExtent);
+  trap2.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   assert(ApproxEqual(minExtent, Vec_t(-30, -40, -40)));
   assert(ApproxEqual(maxExtent, Vec_t(30, 40, 40)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
 
 #ifndef VECGEOM_NO_SPECIALIZATION
   Precision tdz = 5., ttheta = 0., tphi = 0., tdy1 = 4., tdx1 = 3., tdx2 = 3., tAlpha1 = 0., tdy2 = 4., tdx3 = 3.,

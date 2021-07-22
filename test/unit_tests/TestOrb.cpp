@@ -62,13 +62,21 @@ bool TestOrb()
   assert(ApproxEqual<Precision>(b1.SurfaceArea(), ((4 * kPi) * fR * fR)));
   assert(ApproxEqual<Precision>(b2.SurfaceArea(), ((4 * kPi) * 6 * 6)));
 
+  // Check Extent and cached BBox
   Vec_t minExtent, maxExtent;
+  Vec_t minBBox, maxBBox;
   b1.Extent(minExtent, maxExtent);
+  b1.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   assert(ApproxEqual(minExtent, Vec_t(-fR, -fR, -fR)));
   assert(ApproxEqual(maxExtent, Vec_t(fR, fR, fR)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
   b2.Extent(minExtent, maxExtent);
+  b2.GetUnplacedVolume()->GetBBox(minBBox, maxBBox);
   assert(ApproxEqual(minExtent, Vec_t(-6, -6, -6)));
   assert(ApproxEqual(maxExtent, Vec_t(6, 6, 6)));
+  assert(ApproxEqual(minExtent, minBBox));
+  assert(ApproxEqual(maxExtent, maxBBox));
 
   // Check Surface Normal
   Vec_t normal;
