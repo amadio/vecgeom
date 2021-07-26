@@ -36,7 +36,6 @@ int runTester(ImplT const *shape, int npoints, bool debug, bool stat)
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
-  tester.SetSolidTolerance(1.e-9);
   tester.SetTestBoundaryErrors(true);
   int errCode = tester.Run(shape);
 

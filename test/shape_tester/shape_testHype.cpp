@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
-  tester.SetSolidTolerance(1.e-9);
   tester.SetTestBoundaryErrors(true);
   int errCode = tester.Run(hype);
 

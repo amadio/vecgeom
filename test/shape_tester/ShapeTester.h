@@ -8,10 +8,16 @@
 
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/base/RNG.h"
+
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
 #endif
-const double kApproxEqualTolerance = 1E-6;
+
+#ifdef VECGEOM_FLOAT_PRECISION
+const Precision kApproxEqualTolerance = 1e-3;
+#else
+const Precision kApproxEqualTolerance = 1e-6;
+#endif
 
 using vecgeom::Precision;
 using Vec_t = vecgeom::Vector3D<Precision>;
@@ -141,11 +147,11 @@ private:
     return rand;
   }
 
-  inline double RandomIncrease()
+  inline Precision RandomIncrease()
   {
-    double tolerance = vecgeom::kTolerance;
-    double rand      = -1 + 2 * fRNG.uniform();
-    double dif       = tolerance * 0.1 * rand;
+    Precision tolerance = vecgeom::kTolerance;
+    Precision rand      = -1 + 2 * fRNG.uniform();
+    Precision dif       = tolerance * 0.1 * rand;
     return dif;
   }
 
@@ -199,8 +205,8 @@ private:
   ImplT const *fVolume;      // Pointer that owns shape object.
   std::string fVolumeString; // data member to store the name of volume;
 
-  std::vector<double> fResultDouble; // stl vector for storing the double results
-  std::vector<Vec_t> fResultVector;  // stl vector for storing the vector results
+  std::vector<Precision> fResultPrecision; // stl vector for storing the double/float results
+  std::vector<Vec_t> fResultVector;        // stl vector for storing the vector results
 
   int fOffsetSurface;    // offset of surface points
   int fOffsetInside;     // offset of inside points
@@ -229,7 +235,7 @@ private:
   int fNumDisp;    // number of points to be displayed in case a shape is not following conventions.
   bool fVisualize; // Flag to be set or unset by EnableDebugger() function that user will
   // call with true parameter if want to see visualization in case of some mismatch
-  double fSolidTolerance; // Tolerance on boundary declared by solid (default kTolerance)
+  Precision fSolidTolerance; // Tolerance on boundary declared by solid (default kTolerance)
 #ifdef VECGEOM_ROOT
   vecgeom::Visualizer fVisualizer; // Visualizer object to visualize the geometry if fVisualize is set.
 #endif

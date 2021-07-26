@@ -51,7 +51,6 @@ int main(int argc, char *argv[])
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
-  tester.SetSolidTolerance(1.e-9);
   tester.SetTestBoundaryErrors(false);
   int errCode = tester.Run(solid);
 

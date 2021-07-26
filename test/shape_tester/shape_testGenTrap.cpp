@@ -89,7 +89,11 @@ int main(int argc, char *argv[])
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
-  tester.SetSolidTolerance(1.e-7);
+
+  #ifndef VECGEOM_FLOAT_PRECISION
+    tester.SetSolidTolerance(1.e-7);
+  #endif
+  
   tester.SetTestBoundaryErrors(true);
   int errCode = tester.Run(solid);
 

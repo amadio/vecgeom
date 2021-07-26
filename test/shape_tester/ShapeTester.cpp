@@ -250,9 +250,9 @@ int ShapeTester<ImplT>::TestConsistencySolids()
   if (fIfSaveAllData) {
     Vec_t point;
     for (int i = 0; i < fMaxPoints; i++) {
-      point            = fPoints[i];
-      Inside_t inside  = fVolume->Inside(point);
-      fResultDouble[i] = (double)inside;
+      point               = fPoints[i];
+      Inside_t inside     = fVolume->Inside(point);
+      fResultPrecision[i] = (Precision)inside;
     }
     SaveResultsToFile("Inside");
   }
@@ -578,9 +578,9 @@ int ShapeTester<ImplT>::TestSafetyFromOutsideSolids()
   if (fIfSaveAllData) {
     Vec_t point;
     for (int i = 0; i < fMaxPoints; i++) {
-      point            = fPoints[i];
-      double res       = fVolume->SafetyToIn(point);
-      fResultDouble[i] = res;
+      point               = fPoints[i];
+      Precision res       = fVolume->SafetyToIn(point);
+      fResultPrecision[i] = res;
     }
     SaveResultsToFile("SafetyFromOutside");
   }
@@ -600,9 +600,9 @@ int ShapeTester<ImplT>::TestSafetyFromInsideSolids()
     Vec_t point;
 
     for (int i = 0; i < fMaxPoints; i++) {
-      point            = fPoints[i];
-      double res       = fVolume->SafetyToOut(point);
-      fResultDouble[i] = res;
+      point               = fPoints[i];
+      Precision res       = fVolume->SafetyToOut(point);
+      fResultPrecision[i] = res;
     }
 
     SaveResultsToFile("SafetyFromInside");
@@ -639,10 +639,10 @@ int ShapeTester<ImplT>::TestDistanceToInSolids()
   if (fIfSaveAllData) {
     Vec_t point, direction;
     for (int i = 0; i < fMaxPoints; i++) {
-      point            = fPoints[i];
-      direction        = fDirections[i];
-      double res       = fVolume->DistanceToIn(point, direction);
-      fResultDouble[i] = res;
+      point               = fPoints[i];
+      direction           = fDirections[i];
+      Precision res       = fVolume->DistanceToIn(point, direction);
+      fResultPrecision[i] = res;
 
       Vec_t normal;
       PropagatedNormalU(point, direction, res, normal);
@@ -671,9 +671,9 @@ int ShapeTester<ImplT>::TestDistanceToOutSolids()
       point     = fPoints[i];
       direction = fDirections[i];
       normal.Set(0);
-      double res = CallDistanceToOut(fVolume, point, direction, normal, convex);
+      Precision res = CallDistanceToOut(fVolume, point, direction, normal, convex);
 
-      fResultDouble[i] = res;
+      fResultPrecision[i] = res;
       fResultVector[i] = normal;
     }
   }
@@ -688,8 +688,8 @@ int ShapeTester<ImplT>::TestFarAwayPoint()
   int errCode = 0;
   Vec_t point, point1, vec, direction, normal, pointSurf;
   int icount = 0, icount1 = 0, nError = 0;
-  double distIn, diff, difMax = 0., maxDistIn = 0.;
-  double tolerance = fSolidTolerance;
+  Precision distIn, diff, difMax = 0., maxDistIn = 0.;
+  Precision tolerance = fSolidTolerance;
   ClearErrors();
 
   // for ( int j=0; j<fMaxPointsSurface+fMaxPointsEdge; j++)
@@ -1865,7 +1865,7 @@ void ShapeTester<ImplT>::CreatePointsAndDirections()
 
     fPoints.resize(fMaxPoints);
     fDirections.resize(fMaxPoints);
-    fResultDouble.resize(fMaxPoints);
+    fResultPrecision.resize(fMaxPoints);
     fResultVector.resize(fMaxPoints);
 
     CreatePointsAndDirectionsOutside();
@@ -1964,7 +1964,7 @@ int ShapeTester<ImplT>::SaveResultsToFile(const string &fMethod1)
       if (saveVectors)
         file << "Norm=" << PrintCoordinates(fResultVector[i], spacer, prec) << "\n";
       else
-        file << fResultDouble[i] << "\n";
+        file << fResultPrecision[i] << "\n";
     }
     return 0;
   }
