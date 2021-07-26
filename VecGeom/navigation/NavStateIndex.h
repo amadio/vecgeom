@@ -101,6 +101,14 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  NavIndex_t GetNavIndex() const { return fNavInd; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void SetNavIndex(NavIndex_t ind) { fNavInd = ind; }
+
+  VECCORE_ATT_HOST_DEVICE
   int GetObjectSize() const { return (int)sizeof(NavStateIndex); }
 
   VECCORE_ATT_HOST_DEVICE
