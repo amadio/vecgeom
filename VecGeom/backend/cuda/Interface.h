@@ -48,12 +48,23 @@ __global__ void ConstructArrayOnGpu(DataClass *gpu_ptr, size_t nElements, ArgsTy
  * \param params    Array(s) of constructor parameters for each object.
  */
 template <typename DataClass, typename... ArgsTypes>
-__global__ void ConstructManyOnGpu(size_t nElements, DataClass ** gpu_ptrs, const ArgsTypes *... params)
+__global__ void ConstructManyOnGpu(size_t nElements, DataClass **gpu_ptrs, const ArgsTypes *... params)
 {
   const size_t tid = threadIdx.x + blockIdx.x * blockDim.x;
 
   for (size_t idx = tid; idx < nElements; idx += blockDim.x * gridDim.x) {
     new (gpu_ptrs[idx]) DataClass(params[idx]...);
+  }
+}
+
+template <typename DataClass>
+__global__ void CopyBBoxesToGpu(size_t nElements, DataClass **raw_ptrs, Precision *boxes)
+{
+  const size_t tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+  for (size_t idx = tid; idx < nElements; idx += blockDim.x * gridDim.x) {
+    raw_ptrs[idx]->SetBBox({boxes[6 * idx], boxes[6 * idx + 1], boxes[6 * idx + 2]},
+                           {boxes[6 * idx + 3], boxes[6 * idx + 4], boxes[6 * idx + 5]});
   }
 }
 
@@ -63,7 +74,7 @@ void Generic_CopyToGpu(DataClass *const gpu_ptr, ArgsTypes... params)
   ConstructOnGpu<<<1, 1>>>(gpu_ptr, params...);
 }
 
-} // End cuda namespace
+} // namespace cuda
 
 #else
 
@@ -74,7 +85,7 @@ Type *AllocateOnDevice();
 template <typename DataClass, typename... ArgsTypes>
 void Generic_CopyToGpu(DataClass *const gpu_ptr, ArgsTypes... params);
 
-} // End cuda namespace
+} // namespace cuda
 
 #endif
 
@@ -221,7 +232,9 @@ public:
   {
   }
 
-  ~DevicePtrBase() { /* does not own content per se */}
+  ~DevicePtrBase()
+  { /* does not own content per se */
+  }
 
   void Malloc(unsigned long size)
   {
@@ -422,12 +435,12 @@ namespace CudaInterfaceHelpers {
  * \param[in]  restToCopy Parameter pack with more arrays to copy (can be empty).
  */
 template <typename Arg_t, typename... Args_t>
-void allocateAndCopyToGpu(std::unordered_map<const void *, void *> & cpuToGpuMapping, std::size_t nElement,
-                          const Arg_t * toCopy, const Args_t *... restToCopy)
+void allocateAndCopyToGpu(std::unordered_map<const void *, void *> &cpuToGpuMapping, std::size_t nElement,
+                          const Arg_t *toCopy, const Args_t *... restToCopy)
 {
   const auto nByte         = sizeof(toCopy[0]) * nElement;
-  const void * hostMem     = toCopy;
-  void * deviceMem         = AllocateOnGpu<void *>(nByte);
+  const void *hostMem      = toCopy;
+  void *deviceMem          = AllocateOnGpu<void *>(nByte);
   cpuToGpuMapping[hostMem] = deviceMem;
   CopyToGpu(hostMem, deviceMem, nByte);
 
@@ -437,12 +450,12 @@ void allocateAndCopyToGpu(std::unordered_map<const void *, void *> & cpuToGpuMap
   }
 #else
   // C++11 "fold expression" hack. Please remove once VecGeom moves to c++17.
-  int expandParameterPack[] = { 0, ((void) allocateAndCopyToGpu(cpuToGpuMapping, nElement, restToCopy), 0) ...};
-  (void) expandParameterPack[0]; // Make nvcc happy
+  int expandParameterPack[] = {0, ((void)allocateAndCopyToGpu(cpuToGpuMapping, nElement, restToCopy), 0)...};
+  (void)expandParameterPack[0]; // Make nvcc happy
 #endif
 }
 
-}
+} // namespace CudaInterfaceHelpers
 
 /*!
  * Construct many objects on the GPU, whose addresses and constructor parameters are passed as arrays.
@@ -453,21 +466,21 @@ void allocateAndCopyToGpu(std::unordered_map<const void *, void *> & cpuToGpuMap
  * \param  params   Array(s) of constructor parameters with one entry for each object.
  */
 template <class DataClass, class DevPtr_t, typename... Args_t>
-void ConstructManyOnGpu(std::size_t nElement, const DevPtr_t * gpu_ptrs, const Args_t *... params)
+void ConstructManyOnGpu(std::size_t nElement, const DevPtr_t *gpu_ptrs, const Args_t *... params)
 #ifdef VECCORE_CUDA
 {
   using namespace CudaInterfaceHelpers;
   std::unordered_map<const void *, void *> cpuToGpuMem;
   std::vector<DataClass *> raw_gpu_ptrs;
   std::transform(gpu_ptrs, gpu_ptrs + nElement, std::back_inserter(raw_gpu_ptrs),
-                 [](const DevPtr_t & ptr) { return static_cast<DataClass *>(ptr.GetPtr()); });
+                 [](const DevPtr_t &ptr) { return static_cast<DataClass *>(ptr.GetPtr()); });
   allocateAndCopyToGpu(cpuToGpuMem, nElement, raw_gpu_ptrs.data(), params...);
 
   ConstructManyOnGpu<<<128, 32>>>(raw_gpu_ptrs.size(),
                                   static_cast<decltype(raw_gpu_ptrs.data())>(cpuToGpuMem[raw_gpu_ptrs.data()]),
                                   static_cast<decltype(params)>(cpuToGpuMem[params])...);
 
-  for (const auto& memCpu_memGpu : cpuToGpuMem) {
+  for (const auto &memCpu_memGpu : cpuToGpuMem) {
     FreeFromGpu(memCpu_memGpu.second);
   }
 }
@@ -475,9 +488,36 @@ void ConstructManyOnGpu(std::size_t nElement, const DevPtr_t * gpu_ptrs, const A
     ;
 #endif
 
+template <class DataClass, class DevPtr_t>
+void CopyBBoxesToGpuImpl(std::size_t nElement, const DevPtr_t *gpu_ptrs, Precision *boxes_data)
+#ifdef VECCORE_CUDA
+{
+  std::unordered_map<const void *, void *> cpuToGpuMem;
+  std::vector<DataClass *> raw_gpu_ptrs;
+  std::transform(gpu_ptrs, gpu_ptrs + nElement, std::back_inserter(raw_gpu_ptrs),
+                 [](const DevPtr_t &ptr) { return static_cast<DataClass *>(ptr.GetPtr()); });
+
+  const auto nByteBoxes        = 6 * nElement * sizeof(Precision);
+  const auto nByteVolumes      = nElement * sizeof(DataClass *);
+  Precision *boxes_data_gpu    = AllocateOnGpu<Precision>(nByteBoxes);
+  DataClass **raw_gpu_ptrs_gpu = AllocateOnGpu<DataClass *>(nByteVolumes);
+
+  CopyToGpu(boxes_data, boxes_data_gpu, nByteBoxes);
+  CopyToGpu(raw_gpu_ptrs.data(), raw_gpu_ptrs_gpu, nByteVolumes);
+  cudaDeviceSynchronize();
+
+  CopyBBoxesToGpu<DataClass><<<128, 32>>>(raw_gpu_ptrs.size(), raw_gpu_ptrs_gpu, boxes_data_gpu);
+
+  FreeFromGpu(boxes_data_gpu);
+  FreeFromGpu(raw_gpu_ptrs_gpu);
+}
+#else
+    ;
+#endif
+
 } // End cxx namespace
 
-} // End vecgeom namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_ENABLE_CUDA
 

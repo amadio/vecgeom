@@ -2,6 +2,9 @@
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/base/SOA3D.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
+#ifdef VECGEOM_ENABLE_CUDA
+#include "VecGeom/backend/cuda/Interface.h"
+#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -286,5 +289,41 @@ VPlacedVolume *VUnplacedVolume::PlaceVolume(char const *const label, LogicalVolu
 }
 
 #endif
+
+#ifdef VECGEOM_CUDA_INTERFACE
+void VUnplacedVolume::CopyBBoxesToGpu(const std::vector<VUnplacedVolume const *> &volumes,
+                                      const std::vector<DevicePtr<cuda::VUnplacedVolume>> &gpu_ptrs)
+{
+  assert(volumes.size() == gpu_ptrs.size() && "Unequal CPU/GPU vectors for copying bounding boxes.");
+  // Copy boxes data in a contiguous array, box icrt starting at index 6*icrt
+  std::vector<Precision> boxesData(6 * gpu_ptrs.size());
+  int icrt = 0;
+  for (auto vol : volumes) {
+    Vector3D<Precision> amin, amax;
+    vol->GetBBox(amin, amax);
+    assert((amax - amin).Mag() > 0);
+    for (unsigned int i = 0; i < 3; ++i) {
+      boxesData[6 * icrt + i]     = amin[i];
+      boxesData[6 * icrt + i + 3] = amax[i];
+    }
+    icrt++;
+  }
+  // Dispatch to the GPU interface helper
+  CopyBBoxesToGpuImpl<cuda::VUnplacedVolume, DevicePtr<cuda::VUnplacedVolume>>(gpu_ptrs.size(), gpu_ptrs.data(),
+                                                                               boxesData.data());
+}
+#endif
+
 } // namespace VECGEOM_IMPL_NAMESPACE
+#ifdef VECCORE_CUDA
+
+namespace cxx {
+
+template void CopyBBoxesToGpuImpl<cuda::VUnplacedVolume, DevicePtr<cuda::VUnplacedVolume>>(
+    std::size_t, DevicePtr<cuda::VUnplacedVolume> const *, cuda::Precision *);
+
+} // namespace cxx
+
+#endif // VECCORE_CUDA
+
 } // namespace vecgeom

@@ -56,10 +56,10 @@ public:
 
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  void SetBBox(std::array<Vector3D<Precision>, 2> BBox) 
+  void SetBBox(Vector3D<Precision> const &amin, Vector3D<Precision> const &amax)
   {
-    fBBox[0] = BBox[0];
-    fBBox[1] = BBox[1];
+    fBBox[0] = amin;
+    fBBox[1] = amax;
   }
 
   VECGEOM_FORCE_INLINE
@@ -72,7 +72,12 @@ public:
 
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  void ComputeBBox() { Extent(fBBox[0], fBBox[1]); }
+  void ComputeBBox()
+  {
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
+    Extent(fBBox[0], fBBox[1]);
+#endif
+  }
 
   // ---------------- Contains --------------------------------------------------------------------
 
@@ -272,7 +277,8 @@ public:
     sign[1] = invDir.y() < 0;
     sign[2] = invDir.z() < 0;
 
-    return BoxImplementation::IntersectCachedKernel2<Precision, Precision>(fBBox, point, invDir, sign.x(), sign.y(), sign.z(), 0, kInfLength);
+    return BoxImplementation::IntersectCachedKernel2<Precision, Precision>(fBBox, point, invDir, sign.x(), sign.y(),
+                                                                           sign.z(), 0, kInfLength);
   }
 
   /*!
@@ -353,6 +359,9 @@ public:
     gpu_ptr.Allocate();
     return this->CopyToGpu(DevicePtr<cuda::VUnplacedVolume>((void *)gpu_ptr));
   }
+
+  static void CopyBBoxesToGpu(const std::vector<VUnplacedVolume const *> &volumes,
+                              const std::vector<DevicePtr<cuda::VUnplacedVolume>> &gpu_ptrs);
 
 #endif
 

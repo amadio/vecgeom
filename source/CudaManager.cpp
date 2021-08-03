@@ -103,7 +103,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
   {
     std::vector<Transformation3D const *> trafos;
     std::vector<DevicePtr<cuda::Transformation3D>> devPtrs;
-    for (Transformation3D const * trafo : transformations_) {
+    for (Transformation3D const *trafo : transformations_) {
       trafos.push_back(trafo);
       devPtrs.push_back(LookupTransformation(trafo));
     }
@@ -143,6 +143,21 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
 
     // Create array object wrapping newly copied C arrays
     (*i)->CopyToGpu(LookupDaughterArray(*i), LookupDaughters(*i));
+  }
+  timer.Stop();
+  if (verbose_ > 2) std::cout << " OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
+
+  if (verbose_ > 2) std::cout << "Copying bounding boxes...";
+  timer.Start();
+  {
+    std::vector<VUnplacedVolume const *> volumes;
+    std::vector<DevicePtr<cuda::VUnplacedVolume>> devPtrs;
+    for (VUnplacedVolume const *vol : unplaced_volumes_) {
+      volumes.push_back(vol);
+      devPtrs.push_back(LookupUnplaced(vol));
+    }
+
+    VUnplacedVolume::CopyBBoxesToGpu(volumes, devPtrs);
   }
   timer.Stop();
   if (verbose_ > 2) std::cout << " OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
@@ -437,7 +452,7 @@ template <typename Type>
 typename CudaManager::GpuAddress CudaManager::Lookup(Type const *const key) const
 {
   const CpuAddress cpu_address = ToCpuAddress(key);
-  const auto iter = memory_map_.find(cpu_address);
+  const auto iter              = memory_map_.find(cpu_address);
   assert(iter != memory_map_.end());
   return iter->second;
 }
@@ -471,7 +486,8 @@ DevicePtr<cuda::Transformation3D> CudaManager::LookupTransformation(Transformati
   return DevicePtr<cuda::Transformation3D>(Lookup(host_ptr));
 }
 
-DevicePtr<cuda::Vector<CudaManager::CudaDaughter_t>> CudaManager::LookupDaughters(Vector<Daughter> *const host_ptr) const
+DevicePtr<cuda::Vector<CudaManager::CudaDaughter_t>> CudaManager::LookupDaughters(
+    Vector<Daughter> *const host_ptr) const
 {
   return DevicePtr<cuda::Vector<CudaManager::CudaDaughter_t>>(Lookup(host_ptr));
 }
@@ -500,10 +516,10 @@ void CudaManager::CopyPlacedVolumes() const
   };
 
   std::unordered_map<std::type_index, TypeInfoForPlaced> typesToCopy;
-  for (VPlacedVolume const * pvol : placed_volumes_) {
+  for (VPlacedVolume const *pvol : placed_volumes_) {
     const std::type_index tidx{typeid(*pvol)};
 
-    auto & typeInfo = typesToCopy[std::type_index(typeid(*pvol))];
+    auto &typeInfo = typesToCopy[std::type_index(typeid(*pvol))];
     typeInfo.hostVol.push_back(pvol);
     typeInfo.logical.push_back(LookupLogical(pvol->GetLogicalVolume()));
     typeInfo.trafo.push_back(LookupTransformation(pvol->GetTransformation()));
@@ -519,9 +535,9 @@ void CudaManager::CopyPlacedVolumes() const
 #endif
   }
 
-  for (const auto & type_volInfo : typesToCopy) {
-    const auto & volInfo                 = type_volInfo.second;
-    const VPlacedVolume * const firstVol = volInfo.hostVol.front();
+  for (const auto &type_volInfo : typesToCopy) {
+    const auto &volInfo                 = type_volInfo.second;
+    const VPlacedVolume *const firstVol = volInfo.hostVol.front();
     if (verbose_ > 3) {
       std::cout << "\n\t" << volInfo.hostVol.size() << "\t" << type_volInfo.first.name();
     }
