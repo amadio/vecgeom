@@ -40,4 +40,4 @@ struct GeometryInfo {
   }
 };
 
-std::vector<GeometryInfo> visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume *volume);
+std::vector<GeometryInfo> visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume* volume, std::size_t numVols);

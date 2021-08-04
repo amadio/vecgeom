@@ -90,7 +90,8 @@ int main(int argc, char **argv)
   cudaManager.Synchronize();
 
   printf("Visiting device geometry ... ");
-  auto deviceGeometry = visitDeviceGeometry(cudaManager.world_gpu());
+  const std::size_t numVols = geoManager.GetTotalNodeCount();
+  auto deviceGeometry = visitDeviceGeometry(cudaManager.world_gpu(), numVols);
 
   printf("Comparing to host geometry ... ");
   std::size_t volumeCounter = 0;

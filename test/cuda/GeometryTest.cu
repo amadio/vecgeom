@@ -32,14 +32,12 @@ __global__ void kernel_visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume *v
   visitVolumes(volume, geoData, g_volumesVisited, nGeoData, 0);
 }
 
-std::vector<GeometryInfo> visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume *volume)
+std::vector<GeometryInfo> visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume *volume, std::size_t maxElem)
 {
   auto err = cudaDeviceSynchronize();
   if (err != cudaSuccess) {
     errx(2, "Cuda error before visiting device geometry: '%s'", cudaGetErrorString(err));
   }
-
-  constexpr std::size_t maxElem = 100000;
 
   GeometryInfo *geoDataGPU;
   cudaMalloc(&geoDataGPU, maxElem * sizeof(GeometryInfo));

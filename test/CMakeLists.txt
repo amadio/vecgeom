@@ -258,8 +258,8 @@ if(VECGEOM_ENABLE_CUDA)
   add_test(NAME MapTest COMMAND MapTest)
   add_test(NAME BVHTest COMMAND BVHTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
   add_test(NAME GeometryTest COMMAND $<TARGET_FILE:GeometryTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
+  add_test(NAME cms2018-Test COMMAND $<TARGET_FILE:GeometryTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/cms2018.gdml)
 endif()
-
 
 ################################################################################
 # - Shape Tester tests
