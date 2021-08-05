@@ -257,6 +257,57 @@ void BVH::CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Pr
   } while (ptr > stack);
 }
 
+void BVH::ApproachNextDaughter(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
+                               VPlacedVolume const *last) const
+{
+  int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+
+  /* Calculate and reuse inverse direction to save on divisions */
+  Vector3D<Precision> invdir(1.0 / NonZero(localdir[0]), 1.0 / NonZero(localdir[1]), 1.0 / NonZero(localdir[2]));
+
+  do {
+    unsigned int id = *--ptr; /* pop next node id to be checked from the stack */
+
+    if (fNChild[id] >= 0) {
+      /* For leaf nodes, loop over children */
+      for (int i = 0; i < fNChild[id]; ++i) {
+        int prim = fPrimId[fOffset[id] + i];
+        /* Check AABB first, then the volume itself if needed */
+        if (fAABBs[prim].IntersectInvDir(localpoint, invdir, step)) {
+          auto vol  = fLV.GetDaughters()[prim];
+          auto dist = vol->GetUnplacedVolume()->ApproachSolid(localpoint, invdir);
+          /* If distance to current child is smaller than current step, update step and hitcandidate */
+          if (dist < step && !(dist <= 0.0 && vol == last)) step = dist;
+        }
+      }
+    } else {
+      unsigned int childL = 2 * id + 1;
+      unsigned int childR = 2 * id + 2;
+
+      /* For internal nodes, check AABBs to know if we need to traverse left and right children */
+      Precision tminL = kInfLength, tmaxL = -kInfLength, tminR = kInfLength, tmaxR = -kInfLength;
+
+      fNodes[childL].ComputeIntersectionInvDir(localpoint, invdir, tminL, tmaxL);
+      fNodes[childR].ComputeIntersectionInvDir(localpoint, invdir, tminR, tmaxR);
+
+      bool traverseL = tminL <= tmaxL && tmaxL >= 0.0 && tminL < step;
+      bool traverseR = tminR <= tmaxR && tmaxR >= 0.0 && tminR < step;
+
+      /*
+       * If both left and right nodes need to be checked, check closest one first.
+       * This ensures step gets short as fast as possible so we can skip more nodes without checking.
+       */
+      if (tminR < tminL) {
+        if (traverseR) *ptr++ = childR;
+        if (traverseL) *ptr++ = childL;
+      } else {
+        if (traverseL) *ptr++ = childL;
+        if (traverseR) *ptr++ = childR;
+      }
+    }
+  } while (ptr > stack);
+}
+
 /*
  * BVH::ComputeSafety is very similar to the method above regarding traversal of the tree, but it
  * computes only the safety instead of the intersection using a ray, so the logic is a bit simpler.

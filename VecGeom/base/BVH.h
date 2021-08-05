@@ -77,6 +77,10 @@ public:
   void CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
                                   VPlacedVolume const *last, VPlacedVolume const *&hitcandidate) const;
 
+  VECCORE_ATT_HOST_DEVICE
+  void ApproachNextDaughter(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
+                            VPlacedVolume const *last) const;
+
   /**
    * Compute safety against children of the logical volume associated with the BVH.
    * @param[in] localpoint Point in the local coordinates of the logical volume.
@@ -147,15 +151,15 @@ private:
    * Recursion stops when all children lie on one side of the splitting plane, or when the current node
    * contains only a single child volume.
    */
-  void ComputeNodes(unsigned int id, int* first, int* last, unsigned int nodes);
+  void ComputeNodes(unsigned int id, int *first, int *last, unsigned int nodes);
 
   LogicalVolume const &fLV; ///< Logical volume this BVH was constructed for
-  int* fPrimId; ///< Child volume ids for each BVH node
-  int* fOffset; ///< Offset in @c fPrimId for first child of each BVH node
-  int* fNChild; ///< Number of children for each BVH node
-  AABB* fNodes; ///< AABBs of BVH nodes
-  AABB* fAABBs; ///< AABBs of children of logical volume @c fLV
-  int fDepth;   ///< Depth of the BVH
+  int *fPrimId;             ///< Child volume ids for each BVH node
+  int *fOffset;             ///< Offset in @c fPrimId for first child of each BVH node
+  int *fNChild;             ///< Number of children for each BVH node
+  AABB *fNodes;             ///< AABBs of BVH nodes
+  AABB *fAABBs;             ///< AABBs of children of logical volume @c fLV
+  int fDepth;               ///< Depth of the BVH
 };
 
 } // namespace VECGEOM_IMPL_NAMESPACE
