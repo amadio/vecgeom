@@ -21,7 +21,7 @@ NavIndex_t BuildNavIndexVisitor::apply(NavStatePath *state, int level, NavIndex_
     return NavIndexTable::Instance()->ValidateState(state);
   }
   // Size in bytes of the current node data
-  size_t current_size = (3 + nd + ((nd + 1) & 1)) * sizeof(unsigned int) + int(cacheTrans) * 12 * sizeof(double);
+  size_t current_size = (3 + nd + ((nd + 1) & 1)) * sizeof(unsigned int) + int(cacheTrans) * 12 * sizeof(Precision);
   if (fDoCount) {
     fTableSize += current_size;
     return 0;
@@ -66,14 +66,15 @@ NavIndex_t BuildNavIndexVisitor::apply(NavStatePath *state, int level, NavIndex_
   *content_hasm = 0x04 + 0x02 * (unsigned short)mat.HasTranslation() + (unsigned short)mat.HasRotation();
 
   // Write the transformation elements
-  auto content_mat = (double *)(&fNavInd[fCurrent]);
+  auto content_mat = (Precision *)(&fNavInd[fCurrent]);
   for (auto i = 0; i < 3; ++i)
     content_mat[i] = mat.Translation(i);
   for (auto i = 0; i < 9; ++i)
     content_mat[i + 3] = mat.Rotation(i);
 
   // Set new value for fCurrent
-  fCurrent += 24;
+  fCurrent += 12 * sizeof(Precision) / sizeof(NavIndex_t);
+  assert((fCurrent - new_mother) * sizeof(NavIndex_t) == current_size);
   return new_mother;
 }
 

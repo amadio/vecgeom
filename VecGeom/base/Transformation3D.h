@@ -426,8 +426,8 @@ public:
   size_t DeviceSizeOf() const { return DevicePtr<cuda::Transformation3D>::SizeOf(); }
   DevicePtr<cuda::Transformation3D> CopyToGpu() const;
   DevicePtr<cuda::Transformation3D> CopyToGpu(DevicePtr<cuda::Transformation3D> const gpu_ptr) const;
-  static void CopyManyToGpu(const std::vector<Transformation3D const *>& trafos,
-                            const std::vector<DevicePtr<cuda::Transformation3D>>& gpu_ptrs);
+  static void CopyManyToGpu(const std::vector<Transformation3D const *> &trafos,
+                            const std::vector<DevicePtr<cuda::Transformation3D>> &gpu_ptrs);
 #endif
 
 #ifdef VECGEOM_ROOT
@@ -611,7 +611,7 @@ void Transformation3D::DoRotation_new(Vector3D<InputType> const &master, Vector3
   }
 
   // General case
-  local = Vector3D<double>(); // reset to zero -- any better way to do this???
+  local = Vector3D<InputType>(); // reset to zero -- any better way to do this???
   if (code & 0x001) {
     local[0] += master[0] * fRotation[0];
   }

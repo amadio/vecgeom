@@ -29,8 +29,8 @@ namespace visitorcuda {
 
 class GlobalToLocalVisitor {
 private:
-  int fError = 0;   ///< error code
-  int fNiter = 0;   ///< number of iterations
+  int fError = 0; ///< error code
+  int fNiter = 0; ///< number of iterations
 public:
   VECCORE_ATT_HOST_DEVICE
   GlobalToLocalVisitor() {}
@@ -115,21 +115,21 @@ int visitAllPlacedVolumesPassNavIndex(VPlacedVolume const *currentvolume, Visito
                             "level mismatch",
                             "navigation index inconsistency for Push/Pop",
                             "number of daughters mismatch",
-                            "transformation matrix mismatch"
-                           };
-  constexpr int maxiter = 100000; // limit the maximum number of iterations (slow on 1 GPU thread)
+                            "transformation matrix mismatch"};
+  constexpr int maxiter  = 100000; // limit the maximum number of iterations (slow on 1 GPU thread)
   if (currentvolume != NULL) {
     state->Push(currentvolume);
     visitor->apply(state, nav_ind);
     auto ierr = visitor->GetError();
     if (ierr) {
-      printf("=== EEE === TestNavIndex: %s\n", errcodes[ierr]);
+      printf("=== EEE === TestNavIndex: %s\n", errcodes[ierr - 1]);
       return ierr;
     }
     if (visitor->GetNiter() > maxiter) return 0;
     for (auto daughter : currentvolume->GetDaughters()) {
       auto nav_ind_d = NavStateIndex::PushImpl(nav_ind, daughter);
-      visitAllPlacedVolumesPassNavIndex(daughter, visitor, state, nav_ind_d);
+      ierr           = visitAllPlacedVolumesPassNavIndex(daughter, visitor, state, nav_ind_d);
+      if (ierr > 0) return ierr;
       if (visitor->GetNiter() > maxiter) return 0;
     }
     state->Pop();
@@ -139,11 +139,11 @@ int visitAllPlacedVolumesPassNavIndex(VPlacedVolume const *currentvolume, Visito
 
 } // namespace visitorcuda
 
-__global__
-void TestNavIndexGPUKernel(vecgeom::cuda::VPlacedVolume const* const gpu_world, vecgeom::cuda::NavStatePath * const state, int *ierr)
+__global__ void TestNavIndexGPUKernel(vecgeom::cuda::VPlacedVolume const *const gpu_world,
+                                      vecgeom::cuda::NavStatePath *const state, int *ierr)
 {
   using namespace visitorcuda;
-  
+
   state->Clear();
   GlobalToLocalVisitor visitor;
 
@@ -152,14 +152,14 @@ void TestNavIndexGPUKernel(vecgeom::cuda::VPlacedVolume const* const gpu_world, 
   *ierr = visitAllPlacedVolumesPassNavIndex(gpu_world, &visitor, state, nav_ind_top);
 }
 
-int TestNavIndexGPU(vecgeom::cxx::VPlacedVolume const* const world, int maxdepth)
+int TestNavIndexGPU(vecgeom::cxx::VPlacedVolume const *const world, int maxdepth)
 {
   // Load and synchronize the geometry on the GPU
   size_t statesize = NavigationState::SizeOfInstance(maxdepth);
 
   vecgeom::cxx::CudaManager::Instance().LoadGeometry(world);
   vecgeom::cxx::CudaManager::Instance().Synchronize();
-  
+
   auto gpu_world = vecgeom::cxx::CudaManager::Instance().world_gpu();
   assert(gpu_world && "GPU world volume is a null pointer");
 
@@ -182,9 +182,7 @@ int TestNavIndexGPU(vecgeom::cxx::VPlacedVolume const* const world, int maxdepth
 
   checkCudaErrors(cudaFree(input_buffer));
   auto tvalidate = timer.Stop();
-  if (!ierr)
-    std::cout << "=== Info navigation table validation on GPU took: " << tvalidate << " sec.\n";
+  if (!ierr) std::cout << "=== Info navigation table validation on GPU took: " << tvalidate << " sec.\n";
 
   return ierr;
 }
-

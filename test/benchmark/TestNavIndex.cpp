@@ -115,12 +115,13 @@ int visitAllPlacedVolumesPassNavIndex(VPlacedVolume const *currentvolume, Visito
     visitor->apply(state, nav_ind);
     auto ierr = visitor->GetError();
     if (ierr) {
-      printf("=== EEE === TestNavIndex: %s\n", errcodes[ierr]);
+      printf("=== EEE === TestNavIndex: %s\n", errcodes[ierr - 1]);
       return ierr;
     }
     for (auto daughter : currentvolume->GetDaughters()) {
       auto nav_ind_d = NavStateIndex::PushImpl(nav_ind, daughter);
-      visitAllPlacedVolumesPassNavIndex(daughter, visitor, state, nav_ind_d);
+      ierr           = visitAllPlacedVolumesPassNavIndex(daughter, visitor, state, nav_ind_d);
+      if (ierr) return ierr;
     }
     state->Pop();
   }
