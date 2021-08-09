@@ -104,11 +104,11 @@ void ShapeTester<ImplT>::EnableDebugger(bool val)
 template <typename ImplT>
 Vec_t ShapeTester<ImplT>::GetRandomDirection()
 {
-  double phi   = 2. * kPi * fRNG.uniform();
-  double theta = vecgeom::ACos(1. - 2. * fRNG.uniform());
-  double vx    = std::sin(theta) * std::cos(phi);
-  double vy    = std::sin(theta) * std::sin(phi);
-  double vz    = std::cos(theta);
+  Precision phi   = 2. * kPi * fRNG.uniform();
+  Precision theta = vecgeom::ACos(1. - 2. * fRNG.uniform());
+  Precision vx    = std::sin(theta) * std::cos(phi);
+  Precision vy    = std::sin(theta) * std::sin(phi);
+  Precision vz    = std::cos(theta);
   Vec_t vec(vx, vy, vz);
   vec.Normalize();
 
@@ -116,13 +116,13 @@ Vec_t ShapeTester<ImplT>::GetRandomDirection()
 }
 
 template <typename ImplT>
-Vec_t ShapeTester<ImplT>::GetPointOnOrb(double r)
+Vec_t ShapeTester<ImplT>::GetPointOnOrb(Precision r)
 {
-  double phi   = 2. * kPi * fRNG.uniform();
-  double theta = vecgeom::ACos(1. - 2. * fRNG.uniform());
-  double vx    = std::sin(theta) * std::cos(phi);
-  double vy    = std::sin(theta) * std::sin(phi);
-  double vz    = std::cos(theta);
+  Precision phi   = 2. * kPi * fRNG.uniform();
+  Precision theta = vecgeom::ACos(1. - 2. * fRNG.uniform());
+  Precision vx    = std::sin(theta) * std::cos(phi);
+  Precision vy    = std::sin(theta) * std::sin(phi);
+  Precision vz    = std::cos(theta);
   Vec_t vec(vx, vy, vz);
   vec.Normalize();
   vec = vec * r;
@@ -143,13 +143,13 @@ int ShapeTester<ImplT>::TestBoundaryPrecision(int mode)
   int errCode         = 0;
   int nError          = 0;
   constexpr int ndist = 8;
-  double dtest;
-  double maxerr;
-  double ndotvmin = 0.2; // avoid directions parallel to surface
+  Precision dtest;
+  Precision maxerr;
+  Precision ndotvmin = 0.2; // avoid directions parallel to surface
   std::cout << "# Testing boundary precision\n";
-  double x[ndist];
+  Precision x[ndist];
 #ifdef VECGEOM_ROOT
-  double y[ndist];
+  Precision y[ndist];
   TCanvas *cerrors = new TCanvas("cerrors", "Boundary precision", 1200, 800);
   TLegend *legend  = new TLegend(0.12, 0.75, 0.32, 0.87);
   legend->SetLineColor(0);
@@ -197,9 +197,9 @@ int ShapeTester<ImplT>::TestBoundaryPrecision(int mode)
           if (fVolume->Inside(pout) == vecgeom::EInside::kOutside) break;
         }
         // Compute distance back to boundary.
-        double dunit = fVolume->DistanceToIn(pout, -v);
+        Precision dunit = fVolume->DistanceToIn(pout, -v);
         // Compute rounded boundary error (along normal)
-        double error = (dunit - dtest) * norm.Dot(v);
+        Precision error = (dunit - dtest) * norm.Dot(v);
         // Ignore large errors which can be due to missing the shape or by
         // shooting from inner boundaries
         if (Abs(error) < 1.e-1 && Abs(error) > maxerr) maxerr = Abs(error);
@@ -276,11 +276,11 @@ int ShapeTester<ImplT>::ShapeNormal()
 #endif
   Vec_t minExtent, maxExtent;
   fVolume->Extent(minExtent, maxExtent);
-  double maxX   = std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
-  double maxY   = std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
-  double maxZ   = std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
-  double maxXYZ = 2 * std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
-  double step   = maxXYZ * fSolidTolerance;
+  Precision maxX   = std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
+  Precision maxY   = std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
+  Precision maxZ   = std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
+  Precision maxXYZ = 2. * std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
+  Precision step   = maxXYZ * fSolidTolerance;
   for (i = 0; i < fMaxPointsInside; i++) {
     // Initial point is inside
     Vec_t point = fPoints[i + fOffsetInside];
@@ -290,8 +290,8 @@ int ShapeTester<ImplT>::ShapeNormal()
 
     Inside_t inside;
     int count   = 0;
-    double dist = CallDistanceToOut(fVolume, point, dir, norm, convex);
-    // Propagate on boundary
+    Precision dist = CallDistanceToOut(fVolume, point, dir, norm, convex);
+    // Propagate on boundary  
     point = point + dist * dir;
     for (int j = 0; j < numTrials; j++) {
       Vec_t dir_new;
@@ -306,7 +306,7 @@ int ShapeTester<ImplT>::ShapeNormal()
       } while ((inside != vecgeom::EInside::kInside) && (count < 1000));
 
       if (count >= 1000) {
-        ReportError(&nError, point, dir_new, 0,
+        ReportError(&nError, point, dir_new, 0.,
                     "SN: Cannot reach inside solid "
                     "from point on boundary after propagation with tolerance after 1000 trials");
         break;
@@ -317,16 +317,16 @@ int ShapeTester<ImplT>::ShapeNormal()
       // Now shoot along the direction that just crossed the surface and expect
       // to find a distance bigger than the tolerance
       dist = CallDistanceToOut(fVolume, point, dir_new, norm, convex);
-      if (dist < kTolerance) {
+      if (dist < fSolidTolerance) {
         ReportError(&nError, point, dir_new, dist,
-                    "SN: DistanceToOut has to be  bigger than tolerance for point Inside");
+                    "SN: DistanceToOut has to be bigger than tolerance for point Inside");
       }
       // Distance to exit should not be infinity
       if (dist >= kInfLength) {
         ReportError(&nError, point, dir_new, dist, "SN: DistanceToOut has to be finite number");
       }
       // The normal vector direction at the exit point has to point outwards
-      double dot = norm.Dot(dir_new);
+      Precision dot = norm.Dot(dir_new);
       if (dot < 0.) {
         ReportError(&nError, point, dir_new, dot, "SN: Wrong direction of Normal calculated by DistanceToOut");
       }
@@ -336,7 +336,7 @@ int ShapeTester<ImplT>::ShapeNormal()
       if (fDefinedNormal) {
         Vec_t normal;
         bool valid = fVolume->Normal(point, normal);
-        if (!valid) ReportError(&nError, point, dir_new, 0, "SN: Normal has to be valid for point on the Surface");
+        if (!valid) ReportError(&nError, point, dir_new, 0., "SN: Normal has to be valid for point on the Surface");
         dot = normal.Dot(dir_new);
         // Normal has to point outwards
         if (dot < 0.) {
@@ -349,18 +349,18 @@ int ShapeTester<ImplT>::ShapeNormal()
 #endif
       // Check if exiting point is actually on surface
       if (fVolume->Inside(point) == vecgeom::EInside::kOutside) {
-        ReportError(&nError, point, dir_new, 0, "SN: DistanceToOut is overshooting,  new point must be on the Surface");
+        ReportError(&nError, point, dir_new, 0., "SN: DistanceToOut is overshooting,  new point must be on the Surface");
         break;
       }
       if (fVolume->Inside(point) == vecgeom::EInside::kInside) {
-        ReportError(&nError, point, dir_new, 0,
+        ReportError(&nError, point, dir_new, 0.,
                     "SN: DistanceToOut is undershooting,  new point must be on the Surface");
         break;
       }
       // Compute safety from point on boundary - they should be no more than
       //  the solid tolerance
-      double safFromIn  = fVolume->SafetyToOut(point);
-      double safFromOut = fVolume->SafetyToIn(point);
+      Precision safFromIn  = fVolume->SafetyToOut(point);
+      Precision safFromOut = fVolume->SafetyToIn(point);
       if (safFromIn > fSolidTolerance)
         ReportError(&nError, point, dir_new, safFromIn, "SN: SafetyToOut must be less than tolerance on Surface ");
       if (safFromOut > fSolidTolerance)
@@ -391,7 +391,7 @@ int ShapeTester<ImplT>::ShapeDistances()
   int i;
   int nError = 0;
   ClearErrors();
-  double maxDifOut = 0, maxDifIn = 0., delta = 0., tolerance = fSolidTolerance;
+  Precision maxDifOut = 0, maxDifIn = 0., delta = 0., tolerance = fSolidTolerance;
   bool convex = false, convex2 = false;
   bool globalConvex = true;
   if (dynamic_cast<VPlacedVolume const *>(fVolume)) {
@@ -402,11 +402,11 @@ int ShapeTester<ImplT>::ShapeDistances()
   Vec_t minExtent, maxExtent;
 
   fVolume->Extent(minExtent, maxExtent);
-  double maxX   = std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
-  double maxY   = std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
-  double maxZ   = std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
-  double maxXYZ = 2 * std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
-  double dmove  = maxXYZ;
+  Precision maxX   = std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
+  Precision maxY   = std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
+  Precision maxZ   = std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
+  Precision maxXYZ = 2. * std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
+  Precision dmove  = maxXYZ;
 
 #ifdef VECGEOM_ROOT
   // Histograms
@@ -429,7 +429,7 @@ int ShapeTester<ImplT>::ShapeDistances()
     Vec_t point = fPoints[i + fOffsetInside];
     Vec_t dir   = fDirections[i + fOffsetInside];
     // Compute distance to outside
-    double DistanceOut2 = CallDistanceToOut(fVolume, point, dir, norm, convex2);
+    Precision DistanceOut2 = CallDistanceToOut(fVolume, point, dir, norm, convex2);
     // Compute a new point before boundary
     /*
     Instead of creating new point like
@@ -440,13 +440,13 @@ int ShapeTester<ImplT>::ShapeDistances()
     error
     */
     Vec_t pointSurf = point + dir * DistanceOut2;
-    Vec_t pointIn   = pointSurf - dir * 10 * tolerance;
+    Vec_t pointIn   = pointSurf - dir * 10. * tolerance;
     // Compute distance to outside from pointIn
-    double DistanceOut = CallDistanceToOut(fVolume, pointIn, dir, norm, convex);
+    Precision DistanceOut = CallDistanceToOut(fVolume, pointIn, dir, norm, convex);
     // Compute a new point just after the boundary outside
-    Vec_t pointOut = pointSurf + dir * 10 * tolerance;
+    Vec_t pointOut = pointSurf + dir * 10. * tolerance;
     // Now shoot in the opposite direction and compute distance to inside
-    double DistanceIn = fVolume->DistanceToIn(pointOut, -dir);
+    Precision DistanceIn = fVolume->DistanceToIn(pointOut, -dir);
     // The distances to the boindary from points near boundary should be small
     if (DistanceOut > 1000. * tolerance)
       ReportError(&nError, pointIn, dir, DistanceOut, "SD: DistanceToOut is not precise");
@@ -455,7 +455,7 @@ int ShapeTester<ImplT>::ShapeDistances()
 
     // Calculate distances for convex or non-convex cases, from the point
     // propagated on surface
-    double DistanceToInSurf = fVolume->DistanceToIn(point + dir * DistanceOut2, dir);
+    Precision DistanceToInSurf = fVolume->DistanceToIn(point + dir * DistanceOut2, dir);
     if (DistanceToInSurf >= kInfLength) {
       // The solid is not crossed again, so it may be convex on this surface
       // Aim to move the point outside, but not too far
@@ -468,7 +468,7 @@ int ShapeTester<ImplT>::ShapeDistances()
         // really non-convex on this surface (sampling to be increased)
         for (int k = 0; k < 100; k++) {
           Vec_t rndDir    = GetRandomDirection();
-          double distTest = fVolume->DistanceToIn(pointSurf, rndDir);
+          Precision distTest = fVolume->DistanceToIn(pointSurf, rndDir);
           if ((distTest <= kInfLength) && (distTest > fSolidTolerance)) {
             matchConvexity = true;
             break;
@@ -488,7 +488,7 @@ int ShapeTester<ImplT>::ShapeDistances()
       dmove = DistanceOut2 + DistanceToInSurf * 0.5;
     }
     // Shoot back to the solid from point moved outside
-    double DistanceToIn2 = fVolume->DistanceToIn(point + dir * dmove, -dir);
+    Precision DistanceToIn2 = fVolume->DistanceToIn(point + dir * dmove, -dir);
 
     if (maxDifOut < DistanceOut) {
       maxDifOut = DistanceOut;
@@ -498,7 +498,7 @@ int ShapeTester<ImplT>::ShapeDistances()
     }
 
     // dmove should be close to the sum between DistanceOut2 and DistanceIn2
-    double difDelta = dmove - DistanceOut2 - DistanceToIn2;
+    Precision difDelta = dmove - DistanceOut2 - DistanceToIn2;
     if (std::fabs(difDelta) > 10. * tolerance)
       ReportError(&nError, point, dir, difDelta, "SD: Distances calculation is not precise");
     if (difDelta > delta) delta = std::fabs(difDelta);
@@ -686,9 +686,9 @@ template <typename ImplT>
 int ShapeTester<ImplT>::TestFarAwayPoint()
 {
   int errCode = 0;
-  Vec_t point, point1, vec, direction, normal, pointSurf;
+  Vec_t point, point1, vec, direction, normal, pointSurf, pointBB;
   int icount = 0, icount1 = 0, nError = 0;
-  Precision distIn, diff, difMax = 0., maxDistIn = 0.;
+  Precision distIn, distBB, diff, difMax = 0., maxDistIn = 0.;
   Precision tolerance = fSolidTolerance;
   ClearErrors();
 
@@ -705,12 +705,13 @@ int ShapeTester<ImplT>::TestFarAwayPoint()
     point1 = point;
 
     // Move point far away
-    for (int i = 0; i < 10000; i++) {
-      point1 = point1 + vec * 10000;
-    }
+    point1 = point1 + vec * kFarAway;
     // Shoot back to solid, then compute point on surface
-    distIn    = fVolume->DistanceToIn(point1, -vec);
-    pointSurf = point1 - distIn * vec;
+    distBB    = fVolume->GetUnplacedVolume()->ApproachSolid(point1, -1 / vec);
+    pointBB   = point1 - distBB * vec;
+    distIn    = fVolume->DistanceToIn(pointBB, -vec);
+    pointSurf = pointBB - distIn * vec;
+    distIn   += distBB;
     if ((distIn < kInfLength) && (distIn > maxDistIn)) {
       maxDistIn = distIn;
     }
@@ -751,9 +752,9 @@ int ShapeTester<ImplT>::TestSurfacePoint()
   Vec_t point, pointSurf, vec, direction, normal;
   bool convex = false;
   int icount = 0, icount1 = 0;
-  double distIn, distOut;
+  Precision distIn, distOut;
   int iIn = 0, iInNoSurf = 0, iOut = 0, iOutNoSurf = 0;
-  double tolerance = fSolidTolerance;
+  Precision tolerance = fSolidTolerance;
   int nError       = 0;
   ClearErrors();
 #ifdef VECGEOM_ROOT
@@ -776,7 +777,7 @@ int ShapeTester<ImplT>::TestSurfacePoint()
     if (fVolume->Inside(point) != vecgeom::EInside::kSurface) {
       icount++;
       Vec_t v(0, 0, 0);
-      ReportError(&nError, point, v, 0, "TS:  Point on not on the Surface");
+      ReportError(&nError, point, v, 0., "TS:  Point on not on the Surface");
     }
     // test if for point on Surface distIn and distOut are not 0 at the same time
     Vec_t v = GetRandomDirection();
@@ -785,7 +786,7 @@ int ShapeTester<ImplT>::TestSurfacePoint()
 
     if (distIn == 0. && distOut == 0.) {
       icount1++;
-      ReportError(&nError, point, v, 0, "TS: DistanceToIn=DistanceToOut=0 for point on Surface");
+      ReportError(&nError, point, v, 0., "TS: DistanceToIn=DistanceToOut=0 for point on Surface");
     }
     // test Accuracy distance for fPoints near Surface
     // The point may be slightly outside or inside
@@ -861,16 +862,16 @@ int ShapeTester<ImplT>::TestInsidePoint()
 
   Vec_t minExtent, maxExtent;
   fVolume->Extent(minExtent, maxExtent);
-  double maxX   = std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
-  double maxY   = std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
-  double maxZ   = std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
-  double maxXYZ = 2 * std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
+  Precision maxX   = std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
+  Precision maxY   = std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
+  Precision maxZ   = std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
+  Precision maxXYZ = 2. * std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
 
   for (int j = 0; j < fMaxPointsInside; j++) {
     // Check values of Safety
     // Initial point inside
     Vec_t point         = fPoints[j + fOffsetInside];
-    double safeDistance = fVolume->SafetyToOut(point);
+    Precision safeDistance = fVolume->SafetyToOut(point);
     // Safety from inside should be positive
     if (safeDistance <= 0.0) {
       Vec_t zero(0);
@@ -881,7 +882,7 @@ int ShapeTester<ImplT>::TestInsidePoint()
       return errCode;
     }
     // Safety from wrong side should be negative
-    double safeDistanceFromOut = fVolume->SafetyToIn(point);
+    Precision safeDistanceFromOut = fVolume->SafetyToIn(point);
     if (safeDistanceFromOut >= 0.0) {
       std::string message("TI: SafetyFromOutside(p) should be Negative value (-1.) for Points Inside");
       Vec_t zero(0);
@@ -904,8 +905,8 @@ int ShapeTester<ImplT>::TestInsidePoint()
       bool valid = false, convex = false;
       Vec_t norm;
       // Shoot towards outside point and compute distance to out
-      double dist = CallDistanceToOut(fVolume, point, v, norm, convex);
-      double NormalDist;
+      Precision dist = CallDistanceToOut(fVolume, point, v, norm, convex);
+      Precision NormalDist;
 
       NormalDist = fVolume->SafetyToOut(point);
       // Distance to out has to be always smaller than the extent diagonal
@@ -937,7 +938,7 @@ int ShapeTester<ImplT>::TestInsidePoint()
         }
       }
       // DistanceToIn from point on wrong side has to be negative
-      double distIn = fVolume->DistanceToIn(point, v);
+      Precision distIn = fVolume->DistanceToIn(point, v);
       if (distIn >= 0.) {
         std::string message("TI: DistanceToIn(p,v) has to be negative (-1) for Inside points.");
         ReportError(&nError, point, v, distIn, message.c_str());
@@ -989,7 +990,7 @@ int ShapeTester<ImplT>::TestOutsidePoint()
     // std::cout<<"ConsistencyOutside check"<<j<<std::endl;
     // Initial point outside
     Vec_t point         = fPoints[j + fOffsetOutside];
-    double safeDistance = fVolume->SafetyToIn(point);
+    Precision safeDistance = fVolume->SafetyToIn(point);
     // Safety has to be positive
     if (safeDistance <= 0.0) {
       Vec_t zero(0);
@@ -1000,7 +1001,7 @@ int ShapeTester<ImplT>::TestOutsidePoint()
       return errCode;
     }
 
-    double safeDistanceFromInside = fVolume->SafetyToOut(point);
+    Precision safeDistanceFromInside = fVolume->SafetyToOut(point);
     // Safety from wrong side point has to be negative
     if (safeDistanceFromInside >= 0.0) {
       std::string msg("TO: SafetyToOut(p) should be Negative value (-1.) for points Outside (VecGeom conv)");
@@ -1013,8 +1014,10 @@ int ShapeTester<ImplT>::TestOutsidePoint()
       // Connecting point inside
       Vec_t vr = fPoints[i + fOffsetInside] - point;
       Vec_t v  = vr.Unit();
-
-      double dist = fVolume->DistanceToIn(point, v);
+      Precision distBB = fVolume->GetUnplacedVolume()->ApproachSolid(point, 1 / v);
+      Vec_t pointBB = point + distBB * v;
+      Precision distIn = fVolume->DistanceToIn(pointBB, v);
+      Precision dist = distIn + distBB;
       // Distance to inside has to be positive
       if (dist <= 0) {
         ReportError(&nError, point, v, safeDistance, "TO: DistanceToIn(p,v) <= 0");
@@ -1032,7 +1035,7 @@ int ShapeTester<ImplT>::TestOutsidePoint()
       }
 
       // Moving the point to the Surface
-      Vec_t p              = point + dist * v;
+      Vec_t p              = pointBB + distIn * v;
       Inside_t insideOrNot = fVolume->Inside(p);
       // Propagated point has to be on surface
       if (insideOrNot == vecgeom::EInside::kOutside) {
@@ -1166,7 +1169,10 @@ int ShapeTester<ImplT>::TestOutsidePoint()
 
       Vec_t v = vr.Unit();
 
-      double dist = fVolume->DistanceToIn(point, v);
+      Precision distBB = fVolume->GetUnplacedVolume()->ApproachSolid(point, 1 / v);
+      Vec_t pointBB = point + distBB * v;
+      Precision distIn = fVolume->DistanceToIn(pointBB, v);
+      Precision dist = distIn + distBB;
 
       if (dist <= 0) {
         ReportError(&nError, point, v, dist, "TO3: DistanceToIn(p,v) <= 0");
@@ -1180,7 +1186,7 @@ int ShapeTester<ImplT>::TestOutsidePoint()
         ReportError(&nError, point, v, safeDistance, "TO3: DistanceToIn(p,v) < DistanceToIn(p)");
         continue;
       }
-      Vec_t p = point + dist * v;
+      Vec_t p = pointBB + distIn * v;
 
       Inside_t insideOrNot = fVolume->Inside(p);
       if (insideOrNot == vecgeom::EInside::kOutside) {
@@ -1211,13 +1217,13 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(Precision dist)
   int errCode = 0;
   Vec_t point, pointSurf, pointIn, v, direction, normal;
   bool convex = false;
-  double distIn, distOut;
-  double maxDistIn = 0, diff = 0, difMax = 0;
+  Precision distIn, distOut;
+  Precision maxDistIn = 0., diff = 0., difMax = 0.;
   int nError = 0;
   ClearErrors();
   int iIn = 0, iInNoSurf = 0, iOut = 0, iOutNoSurf = 0;
   int iInInf = 0, iInZero = 0;
-  double tolerance = kTolerance;
+  Precision tolerance = kTolerance;
 
 #ifdef VECGEOM_ROOT
   // Histograms
@@ -1263,7 +1269,7 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(Precision dist)
           // Test for consistency for fPoints situated Inside
           pointIn = pointSurf + vec * 1000. * kTolerance;
           if (fVolume->Inside(pointIn) == vecgeom::EInside::kInside) {
-            double distOut1   = CallDistanceToOut(fVolume, pointIn, vec, normal, convex);
+            Precision distOut1   = CallDistanceToOut(fVolume, pointIn, vec, normal, convex);
             Inside_t surfaceP = fVolume->Inside(pointIn + distOut1 * vec);
             if (distOut1 >= kInfLength) {
               iInInf++;
@@ -1361,7 +1367,7 @@ int ShapeTester<ImplT>::ShapeSafetyFromInside(int max)
   if (max > fMaxPointsInside) max = fMaxPointsInside;
   for (int i = 0; i < max; i++) {
     point      = fPoints[i];
-    double res = fVolume->SafetyToOut(point);
+    Precision res = fVolume->SafetyToOut(point);
     for (int j = 0; j < 1000; j++) {
       dir         = GetRandomDirection();
       pointSphere = point + res * dir;
@@ -1369,14 +1375,14 @@ int ShapeTester<ImplT>::ShapeSafetyFromInside(int max)
       // visualisation
       pm3->SetNextPoint(pointSphere.x(), pointSphere.y(), pointSphere.z());
 #endif
-      double distOut = CallDistanceToOut(fVolume, point, dir, norm, convex);
+      Precision distOut = CallDistanceToOut(fVolume, point, dir, norm, convex);
       if (distOut < res) {
         count1++;
         ReportError(&nError, pointSphere, dir, distOut, "SSFI: DistanceToOut is underestimated,  less that Safety");
       }
       if (fVolume->Inside(pointSphere) == vecgeom::EInside::kOutside) {
         ReportError(&nError, pointSphere, dir, res, "SSFI: Safety is not safe, point on the SafetySphere is Outside");
-        double error = fVolume->DistanceToIn(pointSphere, -dir);
+        Precision error = fVolume->DistanceToIn(pointSphere, -dir);
         if (error > 100 * kTolerance) {
           count++;
         }
@@ -1410,7 +1416,7 @@ int ShapeTester<ImplT>::ShapeSafetyFromOutside(int max)
 {
   int errCode = 0;
   Vec_t point, temp, dir, pointSphere, normal;
-  double res, error;
+  Precision res, error;
   int count = 0, count1 = 0;
   int nError;
   ClearErrors();
@@ -1434,7 +1440,7 @@ int ShapeTester<ImplT>::ShapeSafetyFromOutside(int max)
 
       for (int j = 0; j < numTrials; j++) {
         dir           = GetRandomDirection();
-        double distIn = fVolume->DistanceToIn(point, dir);
+        Precision distIn = fVolume->DistanceToIn(point, dir);
         if (distIn < res) {
           count1++;
           ReportError(&nError, point, dir, distIn, "SSFO: DistanceToIn is underestimated,  less that Safety");
@@ -1564,17 +1570,17 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
   int nError  = 0;
   Vec_t minExtent, maxExtent;
   fVolume->Extent(minExtent, maxExtent);
-  double maxX   = 2 * std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
-  double maxY   = 2 * std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
-  double maxZ   = 2 * std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
-  double extent = std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
-  double cell   = 2 * extent / ngrid;
+  Precision maxX   = 2. * std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
+  Precision maxY   = 2. * std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
+  Precision maxZ   = 2. * std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
+  Precision extent = std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
+  Precision cell   = 2. * extent / ngrid;
 
   std::vector<Vec_t> grid_fPoints; // new double[3*ngrid*ngrid*npercell];
   grid_fPoints.resize(ngrid * ngrid * npercell);
   Vec_t point;
   Vec_t dir;
-  double xmin, ymin;
+  Precision xmin, ymin;
   dir.x() = std::sin(theta * kDegToRad) * std::cos(phi * kDegToRad);
   dir.y() = std::sin(theta * kDegToRad) * std::sin(phi * kDegToRad);
   dir.z() = std::cos(theta * kDegToRad);
@@ -1629,9 +1635,9 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
       }
     }
   }
-  double sum    = 0;
-  double sumerr = 0;
-  double dist, lastdist;
+  Precision sum    = 0;
+  Precision sumerr = 0;
+  Precision dist, lastdist;
   int nhit         = 0;
   int ntransitions = 0;
   bool last        = false;
@@ -1667,7 +1673,7 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
   if ((fVerbose) && (graphics)) {
     printf("th=%g phi=%g: analytical: %f    --------   sampled: %f +/- %f\n", theta, phi, fGCapacityAnalytical,
            fGCapacitySampled, fGCapacityError);
-    printf("Hit ratio: %f\n", double(nhit) / ip);
+    printf("Hit ratio: %f\n", Precision(nhit) / ip);
     if (nhit > 0) printf("Average crossed length: %f\n", sum / nhit);
   }
   if ((fGCapacitySampled - fGCapacityAnalytical) > 10 * fGCapacityError) nError++;
@@ -1687,14 +1693,14 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
 }
 //////////////////////////////////////////////////////////////////////////////
 template <typename ImplT>
-double ShapeTester<ImplT>::CrossedLength(const Vec_t &point, const Vec_t &dir, bool useeps)
+Precision ShapeTester<ImplT>::CrossedLength(const Vec_t &point, const Vec_t &dir, bool useeps)
 {
   // Return crossed length of the shape for the given ray, taking into account possible multiple crossings
-  double eps = 0;
+  Precision eps = 0;
 
   if (useeps) eps = 1.E-9;
-  double len  = 0;
-  double dist = fVolume->DistanceToIn(point, dir);
+  Precision len  = 0;
+  Precision dist = fVolume->DistanceToIn(point, dir);
   if (dist > 1E10) return len;
   // Propagate from starting point with the found distance (on the numerical boundary)
   Vec_t pt(point), norm;
@@ -1744,9 +1750,9 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsSurface()
       else {
         Vec_t dir = GetRandomDirection(), norm;
         bool convex=false;
-        double random = fRNG.uniform();
+        Precision random = fRNG.uniform();
         int index = (int)fMaxPointsInside*random;
-        double dist = CallDistanceToOut(fVolume, fPoints[index],dir,norm,convex);
+        Precision dist = CallDistanceToOut(fVolume, fPoints[index],dir,norm,convex);
         pointU = fPoints[index]+dir*dist ;
 
       }
@@ -1797,10 +1803,10 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsOutside()
 
   Vec_t minExtent, maxExtent;
   fVolume->Extent(minExtent, maxExtent);
-  double maxX = std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
-  double maxY = std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
-  double maxZ = std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
-  double rOut = std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
+  Precision maxX = std::max(std::fabs(maxExtent.x()), std::fabs(minExtent.x()));
+  Precision maxY = std::max(std::fabs(maxExtent.y()), std::fabs(minExtent.y()));
+  Precision maxZ = std::max(std::fabs(maxExtent.z()), std::fabs(minExtent.z()));
+  Precision rOut = std::sqrt(maxX * maxX + maxY * maxY + maxZ * maxZ);
 
   for (int i = 0; i < fMaxPointsOutside; i++) {
 
@@ -1812,7 +1818,7 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsOutside()
       point *= rOut * fOutsideMaxRadiusMultiple;
     } while (fVolume->Inside(point) != vecgeom::EInside::kOutside);
 
-    double random = fRNG.uniform();
+    Precision random = fRNG.uniform();
     if (random <= fOutsideRandomDirectionPercent / 100.) {
       vec = GetRandomDirection();
     } else {
@@ -1834,10 +1840,10 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsInside()
   fVolume->Extent(minExtent, maxExtent);
   int i = 0;
   while (i < fMaxPointsInside) {
-    double x = RandomRange(minExtent.x(), maxExtent.x());
-    double y = RandomRange(minExtent.y(), maxExtent.y());
+    Precision x = RandomRange(minExtent.x(), maxExtent.x());
+    Precision y = RandomRange(minExtent.y(), maxExtent.y());
     if (minExtent.y() == maxExtent.y()) y = RandomRange(-1000, +1000);
-    double z = RandomRange(minExtent.z(), maxExtent.z());
+    Precision z = RandomRange(minExtent.z(), maxExtent.z());
     Vec_t point0(x, y, z);
     if (fVolume->Inside(point0) == vecgeom::EInside::kInside) {
       Vec_t point(x, y, z);
@@ -2195,7 +2201,7 @@ int ShapeTester<ImplT>::RunMethod(ImplT const *testVolume, std::string fMethod1)
 // times already.
 //
 template <typename ImplT>
-void ShapeTester<ImplT>::ReportError(int *nError, Vec_t &p, Vec_t &v, double distance,
+void ShapeTester<ImplT>::ReportError(int *nError, Vec_t &p, Vec_t &v, Precision distance,
                                      std::string comment) //, std::ostream &fLogger )
 {
 

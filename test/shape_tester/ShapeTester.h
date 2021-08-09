@@ -93,7 +93,7 @@ private:
   void FlushSS(std::stringstream &ss);
   void Flush(const std::string &s);
 
-  Vec_t GetPointOnOrb(double r);
+  Vec_t GetPointOnOrb(Precision r);
   Vec_t GetRandomDirection();
 
   int TestBoundaryPrecision(int mode);
@@ -121,7 +121,7 @@ private:
   int XRayProfile(double theta = 45, int nphi = 15, int ngrid = 1000, bool useeps = true);
   int Integration(double theta = 45, double phi = 45, int ngrid = 1000, bool useeps = true, int npercell = 1,
                   bool graphics = true);
-  double CrossedLength(const Vec_t &point, const Vec_t &dir, bool useeps);
+  Precision CrossedLength(const Vec_t &point, const Vec_t &dir, bool useeps);
   void CreatePointsAndDirections();
   void CreatePointsAndDirectionsSurface();
   void CreatePointsAndDirectionsEdge();
@@ -174,7 +174,7 @@ private:
 protected:
   Vec_t GetRandomPoint() const;
   double GaussianRandom(const double cutoff) const;
-  void ReportError(int *nError, Vec_t &p, Vec_t &v, double distance, std::string comment); //, std::ostream &fLogger );
+  void ReportError(int *nError, Vec_t &p, Vec_t &v, Precision distance, std::string comment); //, std::ostream &fLogger );
   void ClearErrors();
   int CountErrors() const;
 
