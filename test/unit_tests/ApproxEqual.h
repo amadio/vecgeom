@@ -51,14 +51,14 @@ bool ApproxEqual<float>(const float &x, const float &y)
   if (x == y) {
     return true;
   } else if (x * y == 0.0) {
-    double diff = std::fabs(x - y);
+    float diff = std::fabs(x - y);
     return diff < kApproxEqualToleranceFlt;
   } else if (fabs(x) > 1.0e+100 || fabs(y) > 1.0e+100) {
     // handle comparisons to infinity
     return (x * y > 0) && fabs(x) > 1.0e+100 && fabs(y) > 1.0e+100;
   } else {
-    double diff  = std::fabs(x - y);
-    double abs_x = std::fabs(x), abs_y = std::fabs(y);
+    float diff  = std::fabs(x - y);
+    float abs_x = std::fabs(x), abs_y = std::fabs(y);
     return diff / (abs_x + abs_y) < kApproxEqualToleranceFlt;
   }
 }

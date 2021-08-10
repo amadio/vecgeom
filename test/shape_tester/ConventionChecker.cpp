@@ -56,7 +56,7 @@ void ShapeTester<ImplT>::SetNumDisp(int num)
 
 // Helper function taken from ApproxEqual.h
 template <typename ImplT>
-bool ShapeTester<ImplT>::ApproxEqual(const double x, const double y)
+bool ShapeTester<ImplT>::ApproxEqual(const double &x, const double &y)
 {
   if (x == y) {
     return true;
@@ -66,6 +66,21 @@ bool ShapeTester<ImplT>::ApproxEqual(const double x, const double y)
   } else {
     double diff  = std::fabs(x - y);
     double abs_x = std::fabs(x), abs_y = std::fabs(y);
+    return diff / (abs_x + abs_y) < kApproxEqualTolerance;
+  }
+}
+
+template <typename ImplT>
+bool ShapeTester<ImplT>::ApproxEqual(const float &x, const float &y)
+{
+  if (x == y) {
+    return true;
+  } else if (x * y == 0.0) {
+    float diff = std::fabs(x - y);
+    return diff < kApproxEqualTolerance;
+  } else {
+    float diff  = std::fabs(x - y);
+    float abs_x = std::fabs(x), abs_y = std::fabs(y);
     return diff / (abs_x + abs_y) < kApproxEqualTolerance;
   }
 }
@@ -130,7 +145,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     // bool valid =
     fVolume->Normal(point, normal);
 
-    double Dist = fVolume->DistanceToIn(point, direction);
+    Precision Dist = fVolume->DistanceToIn(point, direction);
     // if (Dist >= kInfLength) Dist = kInfLength;
 
     int indx = 0;
@@ -240,7 +255,7 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
 {
 
   int nError = 0;
-  double Dist;
+  Precision Dist;
 
   bool insidePointConventionPassed = true;
 
@@ -311,12 +326,13 @@ template <typename ImplT>
 bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
 {
   int nError = 0;
-  double Dist;
+  Precision Dist, DistBB;
 
   bool outsidePointConventionPassed = true;
 
   for (int i = 0; i < fMaxPointsOutside; i++) { // test SamplePointOnSurface()
     Vec_t point     = fPoints[fOffsetOutside + i];
+    Vec_t pointBB;
     Vec_t direction = fDirections[fOffsetOutside + i];
     if (fVolume->Inside(point) != vecgeom::EInside::kOutside) {
       ReportError(&nError, point, direction, 0.,
@@ -325,7 +341,9 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
 
     int indx = 10;
     // Convention Check for DistanceToIn
-    Dist = fVolume->DistanceToIn(point, direction);
+    DistBB = fVolume->GetUnplacedVolume()->ApproachSolid(point, 1 / direction);
+    pointBB = point + DistBB * direction;
+    Dist = fVolume->DistanceToIn(pointBB, direction) + DistBB;
     // if (Dist >= kInfLength) Dist = kInfLength;
     if (!(Dist > 0.)) {
       ReportError(&nError, point, direction, Dist, "DistanceToIn for Outside Point should be > 0.");

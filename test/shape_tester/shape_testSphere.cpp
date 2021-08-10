@@ -33,6 +33,9 @@ int runTester(ImplT const *shape, int npoints, bool debug, bool stat)
 
   ShapeTester<ImplT> tester;
   tester.setDebug(debug);
+  #ifdef VECGEOM_FLOAT_PRECISION
+    tester.SetSolidTolerance(1.e-4);
+  #endif
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
   int errcode = tester.Run(shape);

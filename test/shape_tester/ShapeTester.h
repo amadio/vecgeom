@@ -51,7 +51,8 @@ public:
   inline void SetOutsideMaxRadiusMultiple(const Precision percent) { fOutsideMaxRadiusMultiple = percent; }
   inline void SetOutsideRandomDirectionPercent(const Precision percent) { fOutsideRandomDirectionPercent = percent; }
   inline void SetSaveAllData(const bool safe) { fIfSaveAllData = safe; }
-  inline void SetSolidTolerance(Precision value) { fSolidTolerance = value; }
+  inline void SetSolidTolerance(const Precision value) { fSolidTolerance = value; }
+  inline void SetSolidFarAway(const Precision value) { fSolidFarAway = value; }
   inline void SetTestBoundaryErrors(bool flag) { fTestBoundaryErrors = flag; }
   void SetFolder(const std::string &newFolder);
   void SetVerbose(int verbose) { fVerbose = verbose; }
@@ -166,7 +167,8 @@ private:
   bool ShapeConventionInsidePoint();  // Function to check conventions for Inside Points
   bool ShapeConventionOutsidePoint(); // Function to check conventions for Outside Points
   void SetNumDisp(int);               // Function to set num. of points to be displayed during convention failure
-  bool ApproxEqual(const double x, const double y); // Helper function to check approximate equality
+  bool ApproxEqual(const double &x, const double &y); // Helper function to check approximate equality of doubles
+  bool ApproxEqual(const float &x, const float &y); // Helper function to check approximate equality of floats
   // Return true if the 3vector check is approximately equal to target
   template <class Vec_t>
   bool ApproxEqual(const Vec_t &check, const Vec_t &target);
@@ -236,6 +238,7 @@ private:
   bool fVisualize; // Flag to be set or unset by EnableDebugger() function that user will
   // call with true parameter if want to see visualization in case of some mismatch
   Precision fSolidTolerance; // Tolerance on boundary declared by solid (default kTolerance)
+  Precision fSolidFarAway; // Distance to shoot points at from solid in TestFarAwayPoints
 #ifdef VECGEOM_ROOT
   vecgeom::Visualizer fVisualizer; // Visualizer object to visualize the geometry if fVisualize is set.
 #endif

@@ -90,6 +90,7 @@ void ShapeTester<ImplT>::SetDefaults()
 
   fVisualize          = false;
   fSolidTolerance     = vecgeom::kTolerance;
+  fSolidFarAway       = vecgeom::kFarAway;
   fStat               = false;
   fTestBoundaryErrors = true;
   fDebug              = false;
@@ -705,7 +706,7 @@ int ShapeTester<ImplT>::TestFarAwayPoint()
     point1 = point;
 
     // Move point far away
-    point1 = point1 + vec * kFarAway;
+    point1 = point1 + vec * fSolidFarAway;
     // Shoot back to solid, then compute point on surface
     distBB    = fVolume->GetUnplacedVolume()->ApproachSolid(point1, -1 / vec);
     pointBB   = point1 - distBB * vec;
@@ -925,7 +926,7 @@ int ShapeTester<ImplT>::TestInsidePoint()
         continue;
       }
       // Distance to out from inside point should be bigger than the safety
-      if (dist < safeDistance - 1E-10) {
+      if (dist < safeDistance - fSolidTolerance) {
         ReportError(&nError, point, v, safeDistance, "TI: DistanceToOut(p,v) < DistanceToIn(p)");
         continue;
       }
@@ -1223,7 +1224,7 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(Precision dist)
   ClearErrors();
   int iIn = 0, iInNoSurf = 0, iOut = 0, iOutNoSurf = 0;
   int iInInf = 0, iInZero = 0;
-  Precision tolerance = kTolerance;
+  Precision tolerance = fSolidTolerance;
 
 #ifdef VECGEOM_ROOT
   // Histograms
