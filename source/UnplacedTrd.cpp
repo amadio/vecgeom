@@ -272,15 +272,16 @@ Vector3D<Precision> UnplacedTrd::SamplePointOnSurface() const
   return A + r1 * (B - A) + r2 * (C - A);
 }
 
-#ifndef VECCORE_CUDA
 bool UnplacedTrd::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
 {
+  using vecCore::math::Abs;
+  using vecCore::math::Min;
 
   int noSurfaces = 0;
   Vector3D<Precision> sumnorm(0., 0., 0.), vecnorm(0., 0., 0.);
   Precision distz;
 
-  distz = std::fabs(std::fabs(point[2]) - fTrd.fDZ);
+  distz = Abs(Abs(point[2]) - fTrd.fDZ);
 
   Precision xnorm = 1.0 / sqrt(4 * fTrd.fDZ * fTrd.fDZ + (fTrd.fDX2 - fTrd.fDX1) * (fTrd.fDX2 - fTrd.fDX1));
   Precision ynorm = 1.0 / sqrt(4 * fTrd.fDZ * fTrd.fDZ + (fTrd.fDY2 - fTrd.fDY1) * (fTrd.fDY2 - fTrd.fDY1));
@@ -301,24 +302,29 @@ bool UnplacedTrd::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &
       2.0 * fTrd.fDZ * point[1] - (fTrd.fDY2 - fTrd.fDY1) * point[2] - fTrd.fDZ * (fTrd.fDY1 + fTrd.fDY2);
   distpy *= ynorm;
 
-  if (fabs(distmx) <= kHalfTolerance) {
+  Precision safmin = Min(Abs(distmx), Abs(distpx));
+  safmin           = Min(safmin, Min(Abs(distmy), Abs(distpy)));
+  safmin           = Min(safmin, Abs(distz));
+  bool valid       = safmin <= kHalfTolerance;
+
+  if (Abs(distmx) - safmin <= kHalfTolerance) {
     noSurfaces++;
     sumnorm += Vector3D<Precision>(-2.0 * fTrd.fDZ, 0.0, -(fTrd.fDX2 - fTrd.fDX1)) * xnorm;
   }
-  if (fabs(distpx) <= kHalfTolerance) {
+  if (Abs(distpx) - safmin <= kHalfTolerance) {
     noSurfaces++;
     sumnorm += Vector3D<Precision>(2.0 * fTrd.fDZ, 0.0, -(fTrd.fDX2 - fTrd.fDX1)) * xnorm;
   }
-  if (fabs(distpy) <= kHalfTolerance) {
+  if (Abs(distpy) - safmin <= kHalfTolerance) {
     noSurfaces++;
     sumnorm += Vector3D<Precision>(0.0, 2.0 * fTrd.fDZ, -(fTrd.fDY2 - fTrd.fDY1)) * ynorm;
   }
-  if (fabs(distmy) <= kHalfTolerance) {
+  if (Abs(distmy) - safmin <= kHalfTolerance) {
     noSurfaces++;
     sumnorm += Vector3D<Precision>(0.0, -2.0 * fTrd.fDZ, -(fTrd.fDY2 - fTrd.fDY1)) * ynorm;
   }
 
-  if (std::fabs(distz) <= kHalfTolerance) {
+  if (Abs(distz) - safmin <= kHalfTolerance) {
     noSurfaces++;
     if (point[2] >= 0.)
       sumnorm += Vector3D<Precision>(0., 0., 1.);
@@ -342,9 +348,8 @@ bool UnplacedTrd::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &
   norm[1] = vecnorm[1];
   norm[2] = vecnorm[2];
 
-  return noSurfaces != 0;
+  return valid;
 }
-#endif
 
 std::ostream &UnplacedTrd::StreamInfo(std::ostream &os) const
 {
