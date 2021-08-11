@@ -245,10 +245,15 @@ public:
     auto trans_dest = reinterpret_cast<char *>(fTranslation);
     auto rot_src    = reinterpret_cast<const char *>(rot);
     auto rot_dest   = reinterpret_cast<char *>(fRotation);
-    for (size_t i = 0; i < 3 * sizeof(Precision); ++i)
-      trans_dest[i] = trans_src[i];
-    for (size_t i = 0; i < 9 * sizeof(Precision); ++i)
-      rot_dest[i] = rot_src[i];
+    if (has_trans) {
+      for (size_t i = 0; i < 3 * sizeof(Precision); ++i)
+        trans_dest[i] = trans_src[i];
+    }
+
+    if (has_rot) {
+      for (size_t i = 0; i < 9 * sizeof(Precision); ++i)
+        rot_dest[i] = rot_src[i];
+    }
 
     fHasTranslation = has_trans;
     fHasRotation    = has_rot;
