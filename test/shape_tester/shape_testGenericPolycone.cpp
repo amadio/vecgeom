@@ -27,6 +27,8 @@ int main(int argc, char *argv[])
 
   #ifndef VECGEOM_FLOAT_PRECISION
     tester.SetSolidTolerance(1.e-7);
+  #else
+    tester.SetSolidTolerance(1.e-4);
   #endif
   
   tester.SetTestBoundaryErrors(false);

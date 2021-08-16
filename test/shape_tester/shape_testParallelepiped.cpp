@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
 
   Para_t *solid   = 0;
   Precision dx    = 10.;
-  Precision dy    = 7;
-  Precision dz    = 15;
+  Precision dy    = 7.;
+  Precision dz    = 15.;
   Precision alpha = 30.;
   Precision theta = 30.;
   Precision phi   = 45.;
@@ -54,6 +54,9 @@ int main(int argc, char *argv[])
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
   tester.SetTestBoundaryErrors(true);
+  #ifdef VECGEOM_FLOAT_PRECISION
+     tester.SetSolidTolerance(1.e-4);
+  #endif
   int errCode = tester.Run(solid);
 
   std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << "\n";

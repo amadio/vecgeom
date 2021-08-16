@@ -32,13 +32,13 @@ int main(int argc, char *argv[])
   UnplacedMultiUnion &multiunion = (UnplacedMultiUnion &)(*solid->GetUnplacedVolume());
   std::cout << "Testing multi-union of " << nsolids << " boxes\n";
 
-  constexpr double size = 10.;
+  constexpr Precision size = 10.;
 
-  double sized = size * std::pow(0.5 / nsolids, 1. / 3.);
+  Precision sized = size * std::pow(0.5 / nsolids, 1. / 3.);
   for (int i = 0; i < nsolids; ++i) {
-    Vector3D<double> pos(RNG::Instance().uniform(-size, size), RNG::Instance().uniform(-size, size),
+    Vector3D<Precision> pos(RNG::Instance().uniform(-size, size), RNG::Instance().uniform(-size, size),
                          RNG::Instance().uniform(-size, size));
-    double sizernd = RNG::Instance().uniform(0.8 * sized, 1.2 * sized);
+    Precision sizernd = RNG::Instance().uniform(0.8 * sized, 1.2 * sized);
     Transformation3D trans(pos.x(), pos.y(), pos.z(), RNG::Instance().uniform(-180, 180),
                            RNG::Instance().uniform(-180, 180), RNG::Instance().uniform(-180, 180));
     trans.SetProperties();

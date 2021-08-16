@@ -34,6 +34,9 @@ int main(int argc, char *argv[])
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
   tester.SetTestBoundaryErrors(false);
+  #ifdef VECGEOM_FLOAT_PRECISION
+    tester.SetSolidTolerance(1e-5);
+  #endif
   int errCode = tester.Run(solid);
 
   std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << "\n";

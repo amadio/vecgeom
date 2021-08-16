@@ -88,6 +88,9 @@ int runTester(ImplT const *shape, int npoints, bool debug, bool stat)
   ShapeTester<ImplT> tester;
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
+  #ifdef VECGEOM_FLOAT_PRECISION
+    tester.SetSolidTolerance(1e-4);
+  #endif
   int errcode = tester.Run(shape);
 
   std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << "\n";

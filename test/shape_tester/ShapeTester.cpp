@@ -1216,9 +1216,9 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(Precision dist)
 {
   // Test accuracy of DistanceToIn method against required one
   int errCode = 0;
-  Vec_t point, pointSurf, pointIn, v, direction, normal;
+  Vec_t point, pointSurf, pointIn, pointBB, v, direction, normal;
   bool convex = false;
-  Precision distIn, distOut;
+  Precision distIn, distOut, distBB;
   Precision maxDistIn = 0., diff = 0., difMax = 0.;
   int nError = 0;
   ClearErrors();
@@ -1264,7 +1264,9 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(Precision dist)
         for (int j = 0; j < 1000; j++) {
           vec = GetRandomDirection();
 
-          distIn  = fVolume->DistanceToIn(point, vec);
+          distBB  = fVolume->GetUnplacedVolume()->ApproachSolid(point, 1 / vec);
+          pointBB = point + distBB * vec;
+          distIn  = fVolume->DistanceToIn(pointBB, vec) + distBB;
           distOut = CallDistanceToOut(fVolume, point, vec, normal, convex);
 
           // Test for consistency for fPoints situated Inside
@@ -1307,7 +1309,6 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(Precision dist)
 
           distOut           = CallDistanceToOut(fVolume, point, vec, normal, convex);
           Inside_t surfaceP = fVolume->Inside(point + distOut * vec);
-          distIn            = fVolume->DistanceToIn(point, vec);
           // iWrongSideIn++;
           if (distOut >= kInfLength) {
             iInInf++;
