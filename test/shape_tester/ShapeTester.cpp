@@ -1270,7 +1270,7 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(Precision dist)
           distOut = CallDistanceToOut(fVolume, point, vec, normal, convex);
 
           // Test for consistency for fPoints situated Inside
-          pointIn = pointSurf + vec * 1000. * kTolerance;
+          pointIn = pointSurf + vec * 1000. * tolerance;
           if (fVolume->Inside(pointIn) == vecgeom::EInside::kInside) {
             Precision distOut1   = CallDistanceToOut(fVolume, pointIn, vec, normal, convex);
             Inside_t surfaceP = fVolume->Inside(pointIn + distOut1 * vec);

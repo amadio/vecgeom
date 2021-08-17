@@ -144,7 +144,7 @@ struct TetImplementation {
     }
 
     vecCore::MaskedAssign(distance,
-                          distance >= distanceOut || distanceOut <= kHalfTolerance || absSafe <= kHalfTolerance,
+                          distance >= distanceOut || distanceOut <= kHalfTolerance || absSafe <= -kHalfTolerance,
                           Real_v(kInfLength));
   }
 

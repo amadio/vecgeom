@@ -38,6 +38,7 @@ int runTester(ImplT const *shape, int npoints, bool debug, bool stat)
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
   tester.SetTestBoundaryErrors(true);
+  tester.SetSolidTolerance(0.5 * vecgeom::kTolerance);
   int errCode = tester.Run(shape);
 
   std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errCode << "\n";
