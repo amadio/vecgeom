@@ -1054,7 +1054,6 @@ int ShapeTester<ImplT>::TestOutsidePoint()
         continue;
       }
       if (insideOrNot == vecgeom::EInside::kInside) {
-        insideOrNot = fVolume->Inside(p);
         ReportError(&nError, point, v, dist, "TO: DistanceToIn(p,v) overshoots");
         continue;
       }
@@ -1062,7 +1061,6 @@ int ShapeTester<ImplT>::TestOutsidePoint()
       safeDistance = fVolume->SafetyToIn(p);
       // The safety from a boundary should not be bigger than the tolerance
       if (safeDistance > fSolidTolerance) {
-        safeDistance = fVolume->SafetyToIn(p);
         ReportError(&nError, p, v, safeDistance, "TO2: SafetyToIn(p) should be zero");
         continue;
       }
@@ -1182,7 +1180,10 @@ int ShapeTester<ImplT>::TestOutsidePoint()
 
       Vec_t v = vr.Unit();
 
-      Precision distBB = fVolume->GetUnplacedVolume()->ApproachSolid(point, 1 / v);
+      Vec_t invdir = Vec_t(1./NonZero(v.x()), 1./NonZero(v.y()), 1./NonZero(v.z()));
+      Precision distBB = fVolume->GetUnplacedVolume()->ApproachSolid(point, invdir);
+      // Avoid approaching to the boundary
+      distBB = (distBB > toleranceBB) ? distBB - toleranceBB : 0.;
       Vec_t pointBB = point + distBB * v;
       Precision distIn = fVolume->DistanceToIn(pointBB, v);
       Precision dist = distIn + distBB;
