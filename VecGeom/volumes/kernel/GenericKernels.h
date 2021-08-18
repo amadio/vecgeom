@@ -65,7 +65,7 @@ T MakePlusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kT
 {
   // calculate (x + halftol) * (x + halftol) which should always >= 0;
   // in order to be fast, we neglect the + tol * tol term (since it should be negligible)
-  return (tolerant) ? xsq + tol * x : xsq;
+  return (tolerant) ? xsq + 2. * tol * x : xsq;
 }
 
 template <bool tolerant, typename T>
@@ -76,7 +76,7 @@ T MakeMinusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = k
   // calculate (x - halftol) * (x - halftol) which should always >= 0;
   // in order to be fast, we neglect the + tol * tol term (since it should be negligible)
   // but we make sure that there is never a negative sign (hence the Abs)
-  return (tolerant) ? Abs(xsq - tol * x) : xsq;
+  return (tolerant) ? Abs(xsq - 2. * tol * x) : xsq;
 }
 
 template <bool treatSurfaceT, class Backend>
