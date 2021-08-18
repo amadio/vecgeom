@@ -111,8 +111,8 @@ struct SphereImplementation {
     // Phi boundaries  : Do not check if it has no phi boundary!
     if (!sphere.fFullPhiSphere) {
 
-      Bool_v completelyoutsidephi;
-      Bool_v completelyinsidephi;
+      Bool_v completelyoutsidephi(false);
+      Bool_v completelyinsidephi(false);
       sphere.fPhiWedge.GenericKernelForContainsAndInside<Real_v, ForInside>(localPoint, completelyinsidephi,
                                                                             completelyoutsidephi);
       completelyoutside |= completelyoutsidephi;

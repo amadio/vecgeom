@@ -434,8 +434,8 @@ struct TubeImplementation {
     }
 
     if (checkPhiTreatment<tubeTypeT>(tube)) {
-      Bool_v completelyoutsidephi;
-      Bool_v completelyinsidephi;
+      Bool_v completelyoutsidephi(false);
+      Bool_v completelyinsidephi(false);
       tube.fPhiWedge.GenericKernelForContainsAndInside<Real_v, ForInside>(point, completelyinsidephi,
                                                                           completelyoutsidephi);
 

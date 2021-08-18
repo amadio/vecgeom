@@ -296,8 +296,8 @@ VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> Wedge::Contains(Vector3D<Real_v> const &point) const
 {
   typedef typename vecCore::Mask_v<Real_v> Bool_v;
-  Bool_v unused;
-  Bool_v outside;
+  Bool_v unused(false);
+  Bool_v outside(false);
   GenericKernelForContainsAndInside<Real_v, false>(point, unused, outside);
   return !outside;
 }

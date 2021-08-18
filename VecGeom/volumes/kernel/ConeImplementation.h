@@ -100,8 +100,8 @@ struct ConeImplementation {
                        typename vecCore::Mask_v<Real_v> &inside)
   {
     typedef typename vecCore::Mask_v<Real_v> Bool_v;
-    Bool_v unused;
-    Bool_v outside;
+    Bool_v unused(false);
+    Bool_v outside(false);
     ConeHelpers<Real_v, coneTypeT>::template GenericKernelForContainsAndInside<false>(cone, point, unused, outside);
     inside = !outside;
   }

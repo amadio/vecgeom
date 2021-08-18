@@ -117,7 +117,6 @@ public:
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const override
   {
     bool output(false);
-    Vector3D<Precision> lp;
     Transformation3D const *tr = this->GetTransformation();
     localPoint                 = tr->Transform<transC, rotC, Precision>(point);
     Specialization::Contains(*this->GetUnplacedStruct(), localPoint, output);
