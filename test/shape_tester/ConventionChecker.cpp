@@ -43,7 +43,6 @@
 #include <sstream>
 #include <vector>
 
-using vecgeom::kHalfTolerance;
 using vecgeom::kInfLength;
 using Vec_t = vecgeom::Vector3D<Precision>;
 
@@ -151,10 +150,11 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     int indx = 0;
 
     // Conventions Check for DistanceToIn
-
-    if (direction.Dot(normal) < 0.) // particle is entering into the shape
+    // A.G Note that for points on edges (often in single precision mode) the ray
+    // may not hit the solid even if `approaching` (i.e direction.Dot(normal) < 0)
+    if (direction.Dot(normal) < 0. && Dist < kInfLength) // particle is entering into the shape
     {
-      bool ok = fabs(Dist * direction.Dot(normal)) <= vecgeom::kTolerance;
+      bool ok = fabs(Dist * direction.Dot(normal)) <= fSolidTolerance;
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
@@ -168,7 +168,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     // Consider all the shapes as "Not convex" even if it is !!.
     bool convexShape = false; // convexShape = IsConvex()
     // Point on Surface and moving outside
-    if (direction.Dot(normal) > 0.) // particle is exiting from the shape
+    if (direction.Dot(normal) > 0. && Dist == kInfLength) // particle is exiting from the shape
     {
       if (convexShape) {
         if (!ApproxEqual(Dist, kInfLength)) {
@@ -194,9 +194,9 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     bool convex = false;
     Dist        = CallDistanceToOut(fVolume, point, direction, norm, convex);
     // if (Dist >= kInfLength) Dist = kInfLength;
-    if (direction.Dot(normal) > 0.) {
+    if (direction.Dot(normal) > 0. && Dist == kInfLength) {
       // particle is exiting from the shape
-      bool ok = (Dist * direction.Dot(normal)) <= vecgeom::kTolerance;
+      bool ok = (Dist * direction.Dot(normal)) <= fSolidTolerance;
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
@@ -209,11 +209,14 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     if (direction.Dot(normal) < 0.) // particle is entering from the shape
     {
       if (!(Dist > 0.)) {
-        ReportError(&nError, point, direction, Dist,
-                    "DistanceToOut for Surface Point entering into the Shape should be > 0.");
+        // Double-check if we are not on an edge
+        if (fVolume->DistanceToIn(point, direction) < fSolidTolerance) {
+          ReportError(&nError, point, direction, Dist,
+                      "DistanceToOut for Surface Point entering into the Shape should be > 0.");
 
-        fScore |= (1 << indx);
-        surfPointConventionPassed &= false;
+          fScore |= (1 << indx);
+          surfPointConventionPassed &= false;
+        }
       }
     }
 
@@ -222,7 +225,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     Dist = fVolume->SafetyToIn(point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
-      bool ok = Dist <= kHalfTolerance;
+      bool ok = Dist <= fSolidTolerance;
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
@@ -236,7 +239,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     Dist = fVolume->SafetyToOut(point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
-      bool ok = Dist <= kHalfTolerance;
+      bool ok = Dist <= fSolidTolerance;
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
@@ -273,6 +276,8 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
     {
       bool ok = Dist < 0.;
       if (!ok) {
+        fVolume->Inside(point);
+        Dist     = fVolume->DistanceToIn(point, direction);
         ReportError(&nError, point, direction, Dist,
                     "DistanceToIn for Inside Point should be Negative (-1.) (Wrong side)");
         fScore |= (1 << indx);
