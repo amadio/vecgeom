@@ -512,9 +512,9 @@ public:
 
     // very fast check on z-height
     Real_v absz       = Abs(point[2]);
-    completelyoutside = absz > MakePlusTolerant<ForInside>(cone.fDz, kConeTolerance);
+    completelyoutside = absz > MakePlusTolerant<ForInside>(cone.fDz, kHalfConeTolerance);
     if (ForInside) {
-      completelyinside = absz < MakeMinusTolerant<ForInside>(cone.fDz, kConeTolerance);
+      completelyinside = absz < MakeMinusTolerant<ForInside>(cone.fDz, kHalfConeTolerance);
     }
     if (vecCore::MaskFull(completelyoutside)) {
       return;
