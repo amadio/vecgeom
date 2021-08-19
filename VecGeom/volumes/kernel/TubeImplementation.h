@@ -269,16 +269,18 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
   // approaching phi plane from the right side?
   // this depends whether we use it for DistanceToIn or DistanceToOut
   // Note: wedge normals poing towards the wedge inside, by convention!
+  Real_v dirDotNorm = dir.x() * normalX + dir.y() * normalY;
   if (insectorCheck)
-    ok = (dir.x() * normalX + dir.y() * normalY > Real_v(0.)); // DistToIn  -- require tracks entering volume
+    ok = (dirDotNorm > Real_v(0.)); // DistToIn  -- require tracks entering volume
   else
-    ok = (dir.x() * normalX + dir.y() * normalY < Real_v(0.)); // DistToOut -- require tracks leaving volume
+    ok = (dirDotNorm < Real_v(0.)); // DistToOut -- require tracks leaving volume
 
   // if( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok) ) return;
 
   Real_v dirDotXY = (dir.y() * alongX - dir.x() * alongY);
   dist            = (alongY * pos.x() - alongX * pos.y()) / NonZero(dirDotXY);
-  ok &= dist > -kHalfTolerance;
+  // A.G to check validity, we have to compare with tolerance the safety rather than the distance to plane
+  ok &= (dist * Abs(dirDotNorm)) > -kHalfTolerance;
   // if( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok) ) return;
 
   if (insectorCheck) {

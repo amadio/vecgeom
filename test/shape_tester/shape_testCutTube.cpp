@@ -57,10 +57,9 @@ int main(int argc, char *argv[])
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
-  tester.SetTestBoundaryErrors(true);
-  #ifdef VECGEOM_FLOAT_PRECISION
-    tester.SetSolidTolerance(1e-4);
-  #endif
+  //tester.SetTestBoundaryErrors(true);
+  tester.SetSolidTolerance(vecgeom::kTolerance);
+
   int errCode = tester.Run(cuttube);
 
   std::cout << "Final Error count for Shape *** " << cuttube->GetName() << "*** = " << errCode << "\n";

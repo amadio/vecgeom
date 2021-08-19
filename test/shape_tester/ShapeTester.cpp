@@ -788,6 +788,8 @@ int ShapeTester<ImplT>::TestSurfacePoint()
     distOut = CallDistanceToOut(fVolume, point, v, normal, convex);
 
     if (distIn == 0. && distOut == 0.) {
+    distIn  = fVolume->DistanceToIn(point, v);
+    distOut = CallDistanceToOut(fVolume, point, v, normal, convex);
       icount1++;
       ReportError(&nError, point, v, 0., "TS: DistanceToIn=DistanceToOut=0 for point on Surface");
     }
@@ -1086,7 +1088,7 @@ int ShapeTester<ImplT>::TestOutsidePoint()
       if (dist >= kInfLength) {
         ReportError(&nError, p, v, dist, "TO2: DistanceToOut(p,v) == kInfLength");
         continue;
-      } else if (dist < 0) {
+      } else if (dist < -fSolidTolerance) { // Not an error if distance is negative
         ReportError(&nError, p, v, dist, "TO2: DistanceToOut(p,v) < 0");
         continue;
       }

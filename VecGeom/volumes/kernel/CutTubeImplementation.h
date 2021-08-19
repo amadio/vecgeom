@@ -208,7 +208,7 @@ void CutTubeImplementation::DistanceToInKernel(UnplacedStruct_t const &unplaced,
 
 #if USE_CONV_WRONG_SIDE == 1
   if (vecCore::EarlyReturnAllowed()) {
-    if (vecCore::MaskFull((inside_cutplanes != EInside::kInside) && !hitplanes)) // No particles are hitting
+    if (vecCore::MaskFull((inside_cutplanes == EInside::kOutside) && !hitplanes)) // No particles are hitting
       return;
   }
 #endif
@@ -262,6 +262,9 @@ void CutTubeImplementation::DistanceToInKernel(UnplacedStruct_t const &unplaced,
   Real_v dtube = InfinityLength<Real_v>();
   TubeImplementation<TubeTypes::UniversalTube>::DistanceToInKernel<Real_v>(unplaced.GetTubeStruct(), propagated,
                                                                            direction, stepMax, dtube);
+  // A.G Propagation to cut planes can put the point inside the tube, so DistanceToIn may return -1
+  // In such case we need to set dtube to 0, otherwise we may get wrong negative answers
+  vecCore__MaskedAssignFunc(dtube, dtube < 0., Real_v(0.));
   vecCore__MaskedAssignFunc(dtube, dexit < dtube, InfinityLength<Real_v>());
   vecCore__MaskedAssignFunc(distance, !done && (dtube + dplanes) < stepMax, dtube + dplanes);
 // The line below is needed for the convention
@@ -286,8 +289,8 @@ void CutTubeImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
   TubeImplementation<TubeTypes::UniversalTube>::DistanceToOut<Real_v>(unplaced.GetTubeStruct(), point, direction,
                                                                       stepMax, dtube);
   vecCore::MaskedAssign(distance, dtube < distance, dtube);
-  // The line below is needed for the start on boundary convention
-  //  vecCore__MaskedAssignFunc(distance, vecCore::math::Abs(distance) < Real_v(kTolerance), Real_v(0.));
+  // The line below is needed to avoid din=dout=0 when starting from a boundary
+  vecCore__MaskedAssignFunc(distance, distance >= Real_v(0.) && distance < Real_v(kTolerance), Real_v(kTolerance));
 }
 
 //______________________________________________________________________________
