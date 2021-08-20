@@ -8,19 +8,6 @@ Planes::Planes(int size) : fNormals(size), fDistances(size)
 {
 }
 
-#ifdef VECCORE_CUDA
-VECCORE_ATT_DEVICE
-Planes::Planes() : fNormals(), fDistances()
-{
-}
-
-VECCORE_ATT_DEVICE
-Planes::Planes(Precision *a, Precision *b, Precision *c, Precision *d, int size)
-    : fNormals(a, b, c, size), fDistances(d, size)
-{
-}
-#endif
-
 VECCORE_ATT_HOST_DEVICE
 Planes::~Planes()
 {

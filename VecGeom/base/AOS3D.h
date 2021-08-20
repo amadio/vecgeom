@@ -35,6 +35,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   AOS3D(Vector3D<T> *data, size_t size);
 
+  VECCORE_ATT_HOST_DEVICE
   AOS3D(size_t size);
 
   VECCORE_ATT_HOST_DEVICE
@@ -141,6 +142,7 @@ AOS3D<T>::AOS3D(Vector3D<T> *in_content, size_t in_size)
 }
 
 template <typename T>
+VECCORE_ATT_HOST_DEVICE
 AOS3D<T>::AOS3D(size_t sz) : fAllocated(true), fSize(sz), fCapacity(sz), fContent(NULL)
 {
   reserve(fCapacity);

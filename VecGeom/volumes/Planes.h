@@ -35,11 +35,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Planes(int size);
 
-#ifdef VECCORE_CUDA
-  VECCORE_ATT_DEVICE Planes();
-  VECCORE_ATT_DEVICE Planes(Precision *a, Precision *b, Precision *c, Precision *d, int size);
-#endif
-
   VECCORE_ATT_HOST_DEVICE
   ~Planes();
 

@@ -7,32 +7,12 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifdef VECCORE_CUDA
-// NVCC does not seem to handle array initialization yet.
-//    cuda_src/Rectangles.cu(9): internal error: assertion failed: adjust_cleanup_state_for_aggregate_init: NULL dip
-//    (/dvs/p4/build/sw/rel/gpu_drv/r340/r340_00/drivers/compiler_CUREL/edg/EDG_4.8/src/lower_init.c, line 7369)
-
 VECCORE_ATT_HOST_DEVICE
-Quadrilaterals::Quadrilaterals(int size) : fPlanes(size)
-{
-  if (size > 0) {
-    fSideVectors[0].reserve(size);
-    fSideVectors[1].reserve(size);
-    fSideVectors[2].reserve(size);
-    fSideVectors[3].reserve(size);
-
-    fCorners[0].reserve(size);
-    fCorners[1].reserve(size);
-    fCorners[2].reserve(size);
-    fCorners[3].reserve(size);
-  }
-}
-#else
 Quadrilaterals::Quadrilaterals(int size)
-    : fPlanes(size), fSideVectors{size, size, size, size}, fCorners{size, size, size, size}
+    : fPlanes(size), fSideVectors{{size}, {size}, {size}, {size}},
+      fCorners{{(size_t)size}, {(size_t)size}, {(size_t)size}, {(size_t)size}}
 {
 }
-#endif
 
 VECCORE_ATT_HOST_DEVICE
 Quadrilaterals::~Quadrilaterals()
