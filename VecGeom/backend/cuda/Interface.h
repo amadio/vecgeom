@@ -48,7 +48,7 @@ __global__ void ConstructArrayOnGpu(DataClass *gpu_ptr, size_t nElements, ArgsTy
  * \param params    Array(s) of constructor parameters for each object.
  */
 template <typename DataClass, typename... ArgsTypes>
-__global__ void ConstructManyOnGpu(size_t nElements, DataClass **gpu_ptrs, const ArgsTypes *... params)
+__global__ void ConstructManyOnGpu_kernel(size_t nElements, DataClass **gpu_ptrs, const ArgsTypes *... params)
 {
   const size_t tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -476,7 +476,7 @@ void ConstructManyOnGpu(std::size_t nElement, const DevPtr_t *gpu_ptrs, const Ar
                  [](const DevPtr_t &ptr) { return static_cast<DataClass *>(ptr.GetPtr()); });
   allocateAndCopyToGpu(cpuToGpuMem, nElement, raw_gpu_ptrs.data(), params...);
 
-  ConstructManyOnGpu<<<128, 32>>>(raw_gpu_ptrs.size(),
+  ConstructManyOnGpu_kernel<<<128, 32>>>(raw_gpu_ptrs.size(),
                                   static_cast<decltype(raw_gpu_ptrs.data())>(cpuToGpuMem[raw_gpu_ptrs.data()]),
                                   static_cast<decltype(params)>(cpuToGpuMem[params])...);
 
