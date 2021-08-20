@@ -184,6 +184,7 @@ AOS3D<T> &AOS3D<T>::operator=(AOS3D<T> const &rhs)
 }
 
 template <typename T>
+VECCORE_ATT_HOST_DEVICE
 AOS3D<T>::~AOS3D()
 {
   Deallocate();

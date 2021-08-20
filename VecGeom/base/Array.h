@@ -112,6 +112,7 @@ Array<Type>::Array(Type *data, int initSize) : fData(data), fSize(initSize), fAl
 }
 
 template <typename Type>
+VECCORE_ATT_HOST_DEVICE
 Array<Type>::~Array()
 {
 #ifndef VECCORE_CUDA_DEVICE_COMPILATION
