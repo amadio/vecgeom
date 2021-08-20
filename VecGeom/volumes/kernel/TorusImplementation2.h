@@ -339,8 +339,8 @@ struct TorusImplementation2 {
     // check if second call to Abs is compiled away
     // and it can anyway not be vectorized
     /* rmax */
-    using Bool_v            = vecCore::Mask_v<Real_v>;
-    constexpr Precision tol = 100. * vecgeom::kTolerance;
+    using Bool_v                = vecCore::Mask_v<Real_v>;
+    VECGEOM_CONST Precision tol = 100. * vecgeom::kTolerance;
 
     Real_v rxy   = Sqrt(point[0] * point[0] + point[1] * point[1]);
     Real_v radsq = (rxy - torus.rtor()) * (rxy - torus.rtor()) + point[2] * point[2];
@@ -396,8 +396,8 @@ struct TorusImplementation2 {
     // to the torus is decreasing while moving along the given direction.
 
     // Compute coeficients of the quartic
-    Real_v s             = vecgeom::kInfLength;
-    constexpr Real_v tol = 100. * vecgeom::kTolerance;
+    Real_v s                 = vecgeom::kInfLength;
+    VECGEOM_CONST Real_v tol = 100. * vecgeom::kTolerance;
     Real_v r0sq          = pt[0] * pt[0] + pt[1] * pt[1] + pt[2] * pt[2];
     Real_v rdotn         = pt[0] * dir[0] + pt[1] * dir[1] + pt[2] * dir[2];
     Real_v rsumsq        = torus.rtor2() + radius * radius;

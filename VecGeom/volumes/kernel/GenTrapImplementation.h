@@ -249,8 +249,8 @@ void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t c
                                                               vecCore::Mask_v<Real_v> &completelyoutside)
 {
 
-  using Bool_v                    = vecCore::Mask_v<Real_v>;
-  constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
+  using Bool_v                        = vecCore::Mask_v<Real_v>;
+  VECGEOM_CONST Precision tolerancesq = 10000. * kTolerance * kTolerance;
   // Local point has to be translated in the bbox local frame.
   Vector3D<Real_v> halfsize(unplaced.fBBdimensions[0], unplaced.fBBdimensions[1], unplaced.fBBdimensions[2]);
   BoxImplementation::GenericKernelForContainsAndInside<Real_v, ForInside>(halfsize, point - unplaced.fBBorigin,

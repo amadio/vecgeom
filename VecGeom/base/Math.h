@@ -56,7 +56,6 @@ template <template <typename, typename> class ImplementationType, typename T, ty
 struct Tiny<ImplementationType<T, Q>> {
   static constexpr typename ImplementationType<T, Q>::value_type kValue = 1.e-30;
 };
-#undef VECGEOM_CONST
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
 

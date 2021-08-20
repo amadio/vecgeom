@@ -407,7 +407,7 @@ struct TrapezoidImplementation {
                                        typename vecCore::Mask_v<Real_v> &valid)
   {
 
-    constexpr Precision delta = 1000. * kTolerance;
+    VECGEOM_CONST Precision delta = 1000. * kTolerance;
     Vector3D<Real_v> normal(0.);
     Real_v safety = -InfinityLength<Real_v>();
 

@@ -135,8 +135,8 @@ public:
                    vecCore::Mask_v<Real_v> &completelyoutside, vecCore::Mask_v<Real_v> &onsurf) const
   {
 
-    using Bool_v                    = vecCore::Mask_v<Real_v>;
-    constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
+    using Bool_v                        = vecCore::Mask_v<Real_v>;
+    VECGEOM_CONST Precision tolerancesq = 10000. * kTolerance * kTolerance;
 
     onsurf            = Bool_v(false);
     completelyinside  = (Abs(point.z()) < Real_v(MakeMinusTolerant<true>(fDz)));
@@ -417,8 +417,8 @@ public:
   Real_v SafetyToOut(Vector3D<Real_v> const &point, Real_v const &safmax) const
   {
 
-    using Bool_v            = vecCore::Mask_v<Real_v>;
-    constexpr Precision eps = 100. * kTolerance;
+    using Bool_v                = vecCore::Mask_v<Real_v>;
+    VECGEOM_CONST Precision eps = 100. * kTolerance;
 
     Real_v safety = safmax;
     Bool_v done   = (Abs(safety) < eps);
@@ -464,8 +464,8 @@ public:
   Real_v SafetyToIn(Vector3D<Real_v> const &point, Real_v const &safmax) const
   {
 
-    using Bool_v            = vecCore::Mask_v<Real_v>;
-    constexpr Precision eps = 100. * kTolerance;
+    using Bool_v                = vecCore::Mask_v<Real_v>;
+    VECGEOM_CONST Precision eps = 100. * kTolerance;
 
     Real_v safety = safmax;
     Bool_v done   = (Abs(safety) < eps);
