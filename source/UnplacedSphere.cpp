@@ -60,6 +60,7 @@ void UnplacedSphere::DetectConvexity()
 
 #if (0)
 // Simplest Implementation of Extent
+VECCORE_ATT_HOST_DEVICE
 void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // Returns the full 3D cartesian extent of the solid.
@@ -71,6 +72,7 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
 //#ifndef VECCORE_CUDA
 #if (1)
 // Sophisticated Implementation taking into account the PHI and THETA cut also.
+VECCORE_ATT_HOST_DEVICE
 void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // most general case
@@ -294,6 +296,7 @@ UnplacedSphere *Maker<UnplacedSphere>::MakeInstance(Precision pRmin, Precision p
   return new UnplacedSphere(pRmin, pRmax, pSPhi, pDPhi, pSTheta, pDTheta);
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedSphere::Print() const
 {
   printf("UnplacedSphere {%.2f , %.2f , %.2f , %.2f , %.2f , %.2f}", GetInnerRadius(), GetOuterRadius(),

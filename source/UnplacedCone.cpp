@@ -49,6 +49,7 @@ G4VSolid const *UnplacedCone::ConvertToGeant4(char const *label) const
 #endif
 #endif
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCone::Print() const
 {
   printf("UnplacedCone {rmin1 %.2f, rmax1 %.2f, rmin2 %.2f, "

@@ -442,6 +442,7 @@ void TransformedExtent(VPlacedVolume const *pvol, Vector3D<Precision> &aMin, Vec
 }
 
 template <>
+VECCORE_ATT_HOST_DEVICE
 void UnplacedBooleanVolume<kSubtraction>::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;
@@ -457,6 +458,7 @@ void UnplacedBooleanVolume<kSubtraction>::Extent(Vector3D<Precision> &aMin, Vect
 }
 
 template <>
+VECCORE_ATT_HOST_DEVICE
 void UnplacedBooleanVolume<kUnion>::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;
@@ -474,6 +476,7 @@ void UnplacedBooleanVolume<kUnion>::Extent(Vector3D<Precision> &aMin, Vector3D<P
 }
 
 template <>
+VECCORE_ATT_HOST_DEVICE
 void UnplacedBooleanVolume<kIntersection>::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;

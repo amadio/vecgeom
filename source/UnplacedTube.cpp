@@ -16,6 +16,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTube::Print() const
 {
   printf("UnplacedTube {%.2f, %.2f, %.2f, %.2f, %.2f}", rmin(), rmax(), z(), sphi(), dphi());
@@ -174,6 +175,7 @@ Vector3D<Precision> UnplacedTube::SamplePointOnSurface() const
   return Vector3D<Precision>(xVal, yVal, zVal);
 }
 
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
 {
   bool valid = true;
@@ -206,6 +208,7 @@ void UnplacedTube::DetectConvexity()
   }
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTube::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // most general case

@@ -9,6 +9,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
 UnplacedAssembly::UnplacedAssembly() : fLogicalVolume(nullptr), fLowerCorner(-kInfLength), fUpperCorner(kInfLength)
 {
   fIsAssembly = true;
@@ -33,6 +34,7 @@ void UnplacedAssembly::Print(std::ostream &os) const
 }
 
 //______________________________________________________________________________
+VECCORE_ATT_HOST_DEVICE
 void UnplacedAssembly::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
 #ifndef VECCORE_CUDA

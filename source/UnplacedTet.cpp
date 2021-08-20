@@ -126,6 +126,7 @@ std::ostream &UnplacedTet::StreamInfo(std::ostream &os) const
   return os;
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTet::Print() const {}
 
 void UnplacedTet::Print(std::ostream &os) const {}

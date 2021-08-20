@@ -94,6 +94,7 @@ BVH::BVH(LogicalVolume const *volume, int depth, int *dPrimId, AABB *dAABBs, int
 }
 #endif
 
+VECCORE_ATT_HOST_DEVICE
 void BVH::Print() const
 {
   printf("BVH(%u): addr: %p, depth: %d, nodes: %d, children: %lu\n", fLV.id(), this, fDepth, (2 << fDepth) - 1,
@@ -206,6 +207,7 @@ void BVH::ComputeNodes(unsigned int id, int *first, int *last, unsigned int node
  * sum of children in the left+right child nodes will be less than for the current node.
  */
 
+VECCORE_ATT_HOST_DEVICE
 void BVH::CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
                                      VPlacedVolume const *last, VPlacedVolume const *&hitcandidate) const
 {
@@ -257,6 +259,7 @@ void BVH::CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Pr
   } while (ptr > stack);
 }
 
+VECCORE_ATT_HOST_DEVICE
 void BVH::ApproachNextDaughter(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
                                VPlacedVolume const *last) const
 {
@@ -313,6 +316,7 @@ void BVH::ApproachNextDaughter(Vector3D<Precision> localpoint, Vector3D<Precisio
  * computes only the safety instead of the intersection using a ray, so the logic is a bit simpler.
  */
 
+VECCORE_ATT_HOST_DEVICE
 Precision BVH::ComputeSafety(Vector3D<Precision> localpoint, Precision safety) const
 {
   int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
@@ -351,6 +355,7 @@ Precision BVH::ComputeSafety(Vector3D<Precision> localpoint, Precision safety) c
   return safety;
 }
 
+VECCORE_ATT_HOST_DEVICE
 bool BVH::LevelLocate(Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                       Vector3D<Precision> &daughterlocalpoint) const
 {
@@ -382,6 +387,7 @@ bool BVH::LevelLocate(Vector3D<Precision> const &localpoint, VPlacedVolume const
   return false;
 }
 
+VECCORE_ATT_HOST_DEVICE
 bool BVH::LevelLocate(Vector3D<Precision> const &localpoint, NavigationState &state,
                       Vector3D<Precision> &daughterlocalpoint) const
 {
@@ -413,6 +419,7 @@ bool BVH::LevelLocate(Vector3D<Precision> const &localpoint, NavigationState &st
   return false;
 }
 
+VECCORE_ATT_HOST_DEVICE
 bool BVH::LevelLocate(VPlacedVolume const *exclvol, Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                       Vector3D<Precision> &daughterlocalpoint) const
 {
@@ -444,6 +451,7 @@ bool BVH::LevelLocate(VPlacedVolume const *exclvol, Vector3D<Precision> const &l
   return false;
 }
 
+VECCORE_ATT_HOST_DEVICE
 bool BVH::LevelLocate(VPlacedVolume const *exclvol, Vector3D<Precision> const &localpoint,
                       Vector3D<Precision> const &localdirection, VPlacedVolume const *&pvol,
                       Vector3D<Precision> &daughterlocalpoint) const

@@ -39,6 +39,7 @@ bool UnplacedScaledShape::Normal(Vector3D<Precision> const &point, Vector3D<Prec
 }
 
 //______________________________________________________________________________
+VECCORE_ATT_HOST_DEVICE
 void UnplacedScaledShape::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // Returns the full 3D cartesian extent of the solid.

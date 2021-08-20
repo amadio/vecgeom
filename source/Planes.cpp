@@ -57,6 +57,7 @@ void Planes::Set(int index, Vector3D<Precision> const &normal, Precision distanc
   fDistances[index] = distance;
 }
 
+VECCORE_ATT_HOST_DEVICE
 void Planes::FlipSign(int index)
 {
   fNormals.set(index, -fNormals[index]);

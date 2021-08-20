@@ -254,6 +254,7 @@ std::ostream &UnplacedEllipsoid::StreamInfo(std::ostream &os) const
   return os;
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedEllipsoid::Print() const
 {
   printf("Ellipsoid {%.2f, %.2f, %.2f, %.2f, %.2f}", fEllipsoid.fDx, fEllipsoid.fDy, fEllipsoid.fDz,

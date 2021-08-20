@@ -19,6 +19,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCutTube::Print() const
 {
   printf("UnplacedCutTube {rmin=%.2f, rmax=%.2f, z=%.2f, sphi=%.2f, dphi=%.2f bottom=(%f, %f, %f)  top=(%f, %f, %f)}",

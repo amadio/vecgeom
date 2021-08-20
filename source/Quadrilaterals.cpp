@@ -39,6 +39,7 @@ Quadrilaterals::~Quadrilaterals()
 {
 }
 
+VECCORE_ATT_HOST_DEVICE
 Quadrilaterals &Quadrilaterals::operator=(Quadrilaterals const &other)
 {
   fPlanes = other.fPlanes;
@@ -136,6 +137,7 @@ void Quadrilaterals::Set(int index, Vector3D<Precision> const &corner0, Vector3D
   ComputeSideVector(fSideVectors[3], corner3, corner0);
 }
 
+VECCORE_ATT_HOST_DEVICE
 void Quadrilaterals::FlipSign(int index)
 {
   fPlanes.FlipSign(index);

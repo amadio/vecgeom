@@ -60,6 +60,7 @@ SolidMesh *UnplacedParallelepiped::CreateMesh3D(Transformation3D const &trans, s
 #endif
 
 //______________________________________________________________________________
+VECCORE_ATT_HOST_DEVICE
 void UnplacedParallelepiped::Print() const
 {
   printf("UnplacedParallelepiped {%.2f, %.2f, %.2f, %.2f, %.2f, %.2f}", GetX(), GetY(), GetZ(), GetTanAlpha(),

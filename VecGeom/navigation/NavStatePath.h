@@ -495,6 +495,7 @@ public:
   // Transformation3D const * GetGlobalMatrixFromPath() const;
 }; // end of class
 
+VECCORE_ATT_HOST_DEVICE
 NavStatePath &NavStatePath::operator=(NavStatePath const &rhs)
 {
   if (this != &rhs) {
@@ -524,6 +525,7 @@ NavStatePath::NavStatePath( NavStatePath const & rhs ) :
 */
 
 // private implementation of standard constructor
+VECCORE_ATT_HOST_DEVICE
 NavStatePath::NavStatePath(size_t nvalues) : fCurrentLevel(0), fCache(-1), fOnBoundary(false), fPath(nvalues)
 {
   // clear the buffer
@@ -533,6 +535,7 @@ NavStatePath::NavStatePath(size_t nvalues) : fCurrentLevel(0), fCache(-1), fOnBo
 VECCORE_ATT_HOST_DEVICE
 NavStatePath::~NavStatePath() {}
 
+VECCORE_ATT_HOST_DEVICE
 void NavStatePath::Pop()
 {
   if (fCurrentLevel > 0) {
@@ -546,6 +549,7 @@ void NavStatePath::Pop()
   }
 }
 
+VECCORE_ATT_HOST_DEVICE
 void NavStatePath::Clear()
 {
   fCurrentLevel = 0;
@@ -556,6 +560,7 @@ void NavStatePath::Clear()
 #endif
 }
 
+VECCORE_ATT_HOST_DEVICE
 void NavStatePath::Push(VPlacedVolume const *v)
 {
 #ifdef DEBUG
@@ -568,6 +573,7 @@ void NavStatePath::Push(VPlacedVolume const *v)
 }
 
 // Allow pushing by child index
+VECCORE_ATT_HOST_DEVICE
 void NavStatePath::Push(unsigned short child)
 {
   if (fCurrentLevel > 0) {
@@ -582,6 +588,7 @@ void NavStatePath::Push(unsigned short child)
   }
 }
 
+VECCORE_ATT_HOST_DEVICE
 void NavStatePath::PushIndexType(NavStateIndex_t v)
 {
 #ifdef DEBUG
@@ -593,6 +600,7 @@ void NavStatePath::PushIndexType(NavStateIndex_t v)
 #endif
 }
 
+VECCORE_ATT_HOST_DEVICE
 VPlacedVolume const *NavStatePath::Top() const
 {
   return (fCurrentLevel > 0) ? ToPlacedVolume(fPath[fCurrentLevel - 1]) : nullptr;

@@ -46,12 +46,14 @@ void Plane::Transform(Transformation3D const &tr)
   fDist -= fNorm.Dot(tr.Translation());
 }
 
+VECCORE_ATT_HOST_DEVICE
 Polygon::Polygon(size_t n, vector_t<Vec_t> &vertices, bool convex)
     : fN(n), fConvex(convex), fNorm(), fVert(vertices), fInd(n), fSides(n)
 {
   assert(fN > 2);
 }
 
+VECCORE_ATT_HOST_DEVICE
 Polygon::Polygon(size_t n, vector_t<Vec_t> &vertices, Vec_t const &normal)
     : fN(n), fConvex(true), fHasNorm(true), fNorm(normal), fVert(vertices), fInd(n), fSides(n)
 {

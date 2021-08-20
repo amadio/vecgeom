@@ -64,6 +64,7 @@ void VUnplacedVolume::DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precis
 
 // ---------------- SafetyToOut functions -----------------------------------------------------
 // an explicit SIMD interface
+VECCORE_ATT_HOST_DEVICE
 Real_v VUnplacedVolume::SafetyToOutVec(Vector3D<Real_v> const &p) const
 {
 #ifndef VECCORE_CUDA
@@ -93,6 +94,7 @@ Real_v VUnplacedVolume::DistanceToInVec(Vector3D<Real_v> const &position, Vector
 
 // ---------------- SafetyToIn functions -------------------------------------------------------
 // explicit SIMD interface
+VECCORE_ATT_HOST_DEVICE
 Real_v VUnplacedVolume::SafetyToInVec(Vector3D<Real_v> const &p) const
 {
 #ifndef VECCORE_CUDA

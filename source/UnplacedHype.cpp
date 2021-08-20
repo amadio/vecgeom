@@ -230,6 +230,7 @@ std::ostream &UnplacedHype::StreamInfo(std::ostream &os) const
   return os;
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::Print() const
 {
   printf("UnplacedHype {%.2f, %.2f, %.2f, %.2f, %.2f}", fHype.fRmin, fHype.fRmax, fHype.fStIn, fHype.fStOut, fHype.fDz);

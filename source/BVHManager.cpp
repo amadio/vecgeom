@@ -48,6 +48,7 @@ void BVHManager::DeviceInit()
 }
 #endif
 
+VECCORE_ATT_HOST_DEVICE
 BVH const *BVHManager::GetBVH(int id)
 {
 #ifndef VECCORE_CUDA_DEVICE_COMPILATION

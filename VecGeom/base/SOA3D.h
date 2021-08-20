@@ -262,6 +262,7 @@ size_t SOA3D<T>::capacity() const
 }
 
 template <typename T>
+VECCORE_ATT_HOST_DEVICE
 void SOA3D<T>::resize(size_t newSize)
 {
   assert(newSize <= fCapacity);

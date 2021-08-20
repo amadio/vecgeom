@@ -129,6 +129,7 @@ std::ostream &UnplacedEllipticalTube::StreamInfo(std::ostream &os) const
   return os;
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedEllipticalTube::Print() const
 {
   printf("EllipticalTube {%.2f, %.2f, %.2f}", fEllipticalTube.fDx, fEllipticalTube.fDy, fEllipticalTube.fDz);

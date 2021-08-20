@@ -9,6 +9,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTorus2::Print() const
 {
   printf("UnplacedTorus2 {%.2f, %.2f, %.2f, %.2f, %.2f}", rmin(), rmax(), rtor(), sphi(), dphi());
@@ -196,6 +197,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTorus2::CopyToGpu() const
 // Return unit normal of surface closest to p
 // - note if point on z axis, ignore phi divided sides
 // - unsafe if point close to z axis a rmin=0 - no explicit checks
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedTorus2::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
 {
 

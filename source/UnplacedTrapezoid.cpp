@@ -425,6 +425,7 @@ UnplacedTrapezoid *UnplacedTrapezoid::Clone() const
   return new UnplacedTrapezoid(*this);
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTrapezoid::Print() const
 {
   // Note: units printed out chosen such that same numbers can be used as arguments to full constructor

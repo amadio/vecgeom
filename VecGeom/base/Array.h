@@ -120,6 +120,7 @@ Array<Type>::~Array()
 }
 
 template <typename Type>
+VECCORE_ATT_HOST_DEVICE
 void Array<Type>::Allocate(const unsigned initSize)
 {
   Deallocate();
@@ -132,6 +133,7 @@ void Array<Type>::Allocate(const unsigned initSize)
 }
 
 template <typename Type>
+VECCORE_ATT_HOST_DEVICE
 void Array<Type>::Deallocate()
 {
   if (fAllocated) {

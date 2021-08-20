@@ -157,6 +157,7 @@ G4VSolid const *UnplacedPolycone::ConvertToGeant4(char const *label) const
 #endif
 #endif
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedPolycone::Reset()
 {
   Precision phiStart = fPolycone.fOriginal_parameters->fHStart_angle;

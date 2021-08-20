@@ -442,6 +442,7 @@ private:
 #ifdef SPECIALIZE
 
 template <>
+VECCORE_ATT_HOST_DEVICE
 inline bool PlanarPolygon::ContainsConvex(Vector3D<Precision> const &point) const
 {
   const size_t S     = fVertices.size();
@@ -454,6 +455,7 @@ inline bool PlanarPolygon::ContainsConvex(Vector3D<Precision> const &point) cons
 }
 
 template <>
+VECCORE_ATT_HOST_DEVICE
 inline bool PlanarPolygon::Contains(Vector3D<Precision> const &point) const
 {
 
@@ -507,6 +509,7 @@ inline bool PlanarPolygon::Contains(Vector3D<Precision> const &point) const
 }
 
 template <>
+VECCORE_ATT_HOST_DEVICE
 inline Inside_t PlanarPolygon::InsideConvex(Vector3D<Precision> const &point) const
 {
   const size_t S = fVertices.size();
@@ -523,6 +526,7 @@ inline Inside_t PlanarPolygon::InsideConvex(Vector3D<Precision> const &point) co
 
 // template specialization for convex safety
 template <>
+VECCORE_ATT_HOST_DEVICE
 inline Precision PlanarPolygon::SafetyConvex(Vector3D<Precision> const &point, bool inside) const
 {
   const size_t S = fVertices.size();
@@ -538,6 +542,7 @@ inline Precision PlanarPolygon::SafetyConvex(Vector3D<Precision> const &point, b
 
 // template specialization for scalar safety
 template <>
+VECCORE_ATT_HOST_DEVICE
 inline Precision PlanarPolygon::SafetySqr(Vector3D<Precision> const &point, int &closestid) const
 {
   using Real_v = vecgeom::VectorBackend::Real_v;

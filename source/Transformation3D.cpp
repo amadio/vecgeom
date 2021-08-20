@@ -29,6 +29,7 @@ const Transformation3D Transformation3D::kIdentity = Transformation3D();
 //  SetProperties();
 //}
 
+VECCORE_ATT_HOST_DEVICE
 Transformation3D::Transformation3D(const Precision tx, const Precision ty, const Precision tz, const Precision phi,
                                    const Precision theta, const Precision psi)
     : fIdentity(false), fHasRotation(true), fHasTranslation(true)
@@ -38,6 +39,7 @@ Transformation3D::Transformation3D(const Precision tx, const Precision ty, const
   SetProperties();
 }
 
+VECCORE_ATT_HOST_DEVICE
 Transformation3D::Transformation3D(const Precision tx, const Precision ty, const Precision tz, const Precision r0,
                                    const Precision r1, const Precision r2, const Precision r3, const Precision r4,
                                    const Precision r5, const Precision r6, const Precision r7, const Precision r8)
@@ -48,6 +50,7 @@ Transformation3D::Transformation3D(const Precision tx, const Precision ty, const
   SetProperties();
 }
 
+VECCORE_ATT_HOST_DEVICE
 Transformation3D::Transformation3D(const Vector3D<Precision> &axis, bool inverse)
 {
   SetTranslation(0, 0, 0);

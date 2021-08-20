@@ -147,6 +147,7 @@ Vector3D<Precision> UnplacedGenericPolycone::SamplePointOnSurface() const
   return coneUnplaced->SamplePointOnSurface();
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedGenericPolycone::Print() const
 {
   // Provided Elliptical Cone Parameters as done for Tube below

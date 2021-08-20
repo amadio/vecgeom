@@ -31,6 +31,7 @@ std::ostream &UnplacedCoaxialCones::StreamInfo(std::ostream &os) const
   return os;
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCoaxialCones::Print() const
 {
   printf("CoaxialCones");

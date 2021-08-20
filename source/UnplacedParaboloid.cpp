@@ -138,6 +138,7 @@ std::ostream &UnplacedParaboloid::StreamInfo(std::ostream &os) const
   return os;
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedParaboloid::Print() const
 {
   // printf("UnplacedParaboloid {%.2f}", GetRadius());

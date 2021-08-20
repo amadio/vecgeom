@@ -300,6 +300,7 @@ public:
 #ifdef SPECIALIZATION
 // template specialization for Distance functions
 template <>
+VECCORE_ATT_HOST_DEVICE
 inline Precision PolygonalShell::DistanceToOutConvex(Vector3D<Precision> const &point,
                                                      Vector3D<Precision> const &dir) const
 {
@@ -327,6 +328,7 @@ inline Precision PolygonalShell::DistanceToOutConvex(Vector3D<Precision> const &
 
 // template specialization for Distance functions
 template <>
+VECCORE_ATT_HOST_DEVICE
 inline Precision PolygonalShell::DistanceToInConvex(Vector3D<Precision> const &point,
                                                     Vector3D<Precision> const &dir) const
 {

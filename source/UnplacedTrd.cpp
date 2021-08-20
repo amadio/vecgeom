@@ -86,6 +86,7 @@ UnplacedTrd *Maker<UnplacedTrd>::MakeInstance(const Precision x1, const Precisio
 #endif
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTrd::Print() const
 {
   printf("UnplacedTrd {%.2f, %.2f, %.2f, %.2f, %.2f}", dx1(), dx2(), dy1(), dy2(), dz());
@@ -272,6 +273,7 @@ Vector3D<Precision> UnplacedTrd::SamplePointOnSurface() const
   return A + r1 * (B - A) + r2 * (C - A);
 }
 
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedTrd::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
 {
   using vecCore::math::Abs;
