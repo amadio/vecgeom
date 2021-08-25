@@ -211,7 +211,7 @@ VECCORE_ATT_HOST_DEVICE
 void BVH::CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
                                      VPlacedVolume const *last, VPlacedVolume const *&hitcandidate) const
 {
-  int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+  unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
 
   /* Calculate and reuse inverse direction to save on divisions */
   Vector3D<Precision> invdir(1.0 / NonZero(localdir[0]), 1.0 / NonZero(localdir[1]), 1.0 / NonZero(localdir[2]));
@@ -263,7 +263,7 @@ VECCORE_ATT_HOST_DEVICE
 void BVH::ApproachNextDaughter(Vector3D<Precision> point, Vector3D<Precision> dir, Precision &step,
                                VPlacedVolume const *last) const
 {
-  int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+  unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
 
   /* Calculate and reuse inverse direction to save on divisions */
   Vector3D<Precision> invdir(1.0 / NonZero(dir[0]), 1.0 / NonZero(dir[1]), 1.0 / NonZero(dir[2]));
@@ -324,7 +324,7 @@ void BVH::ApproachNextDaughter(Vector3D<Precision> point, Vector3D<Precision> di
 VECCORE_ATT_HOST_DEVICE
 Precision BVH::ComputeSafety(Vector3D<Precision> localpoint, Precision safety) const
 {
-  int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+  unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
 
   do {
     unsigned int id = *--ptr;
@@ -385,7 +385,7 @@ VECCORE_ATT_HOST_DEVICE
 bool BVH::LevelLocate(VPlacedVolume const *exclvol, Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                       Vector3D<Precision> &daughterlocalpoint) const
 {
-  int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+  unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
 
   do {
     unsigned int id = *--ptr;
@@ -418,7 +418,7 @@ bool BVH::LevelLocate(VPlacedVolume const *exclvol, Vector3D<Precision> const &l
                       Vector3D<Precision> const &localdirection, VPlacedVolume const *&pvol,
                       Vector3D<Precision> &daughterlocalpoint) const
 {
-  int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+  unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
 
   do {
     unsigned int id = *--ptr;
