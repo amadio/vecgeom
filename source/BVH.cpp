@@ -364,64 +364,21 @@ VECCORE_ATT_HOST_DEVICE
 bool BVH::LevelLocate(Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                       Vector3D<Precision> &daughterlocalpoint) const
 {
-  int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
-
-  do {
-    unsigned int id = *--ptr;
-
-    if (fNChild[id] >= 0) {
-      for (int i = 0; i < fNChild[id]; ++i) {
-        int prim = fPrimId[fOffset[id] + i];
-        if (fAABBs[prim].Contains(localpoint)) {
-          auto vol = fLV.GetDaughters()[prim];
-          if (vol->Contains(localpoint, daughterlocalpoint)) {
-            pvol = vol;
-            return true;
-          }
-        }
-      }
-    } else {
-      unsigned int childL = 2 * id + 1;
-      if (fNodes[childL].Contains(localpoint)) *ptr++ = childL;
-
-      unsigned int childR = 2 * id + 2;
-      if (fNodes[childR].Contains(localpoint)) *ptr++ = childR;
-    }
-  } while (ptr > stack);
-
-  return false;
+  VPlacedVolume const *exclvol = nullptr;
+  return LevelLocate(exclvol, localpoint, pvol, daughterlocalpoint);
 }
 
 VECCORE_ATT_HOST_DEVICE
 bool BVH::LevelLocate(Vector3D<Precision> const &localpoint, NavigationState &state,
                       Vector3D<Precision> &daughterlocalpoint) const
 {
-  int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
-
-  do {
-    unsigned int id = *--ptr;
-
-    if (fNChild[id] >= 0) {
-      for (int i = 0; i < fNChild[id]; ++i) {
-        int prim = fPrimId[fOffset[id] + i];
-        if (fAABBs[prim].Contains(localpoint)) {
-          auto vol = fLV.GetDaughters()[prim];
-          if (vol->Contains(localpoint, daughterlocalpoint)) {
-            state.Push(vol);
-            return true;
-          }
-        }
-      }
-    } else {
-      unsigned int childL = 2 * id + 1;
-      if (fNodes[childL].Contains(localpoint)) *ptr++ = childL;
-
-      unsigned int childR = 2 * id + 2;
-      if (fNodes[childR].Contains(localpoint)) *ptr++ = childR;
-    }
-  } while (ptr > stack);
-
-  return false;
+  VPlacedVolume const *exclvol = nullptr;
+  VPlacedVolume const *pvol = nullptr;
+  bool Result = LevelLocate(exclvol, localpoint, pvol, daughterlocalpoint);
+  if (Result) {
+    state.Push(pvol);
+  }
+  return Result;
 }
 
 VECCORE_ATT_HOST_DEVICE
