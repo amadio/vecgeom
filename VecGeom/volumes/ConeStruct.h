@@ -195,20 +195,20 @@ struct ConeStruct {
 
     pRMin   = rho - p.z() * fTanRMin;
     widRMin = fRmin2 - fDz * fTanRMin;
-    if (vecCore::math::Abs(_frmin1 - _frmin2) < kHalfTolerance)
+    if (vecCore::math::Abs(_frmin1 - _frmin2) < fInnerTolerance)
       distRMin = (rho - _frmin2);
     else
       distRMin = (pRMin - widRMin) / fSecRMin;
 
     pRMax   = rho - p.z() * fTanRMax;
     widRMax = fRmax2 - fDz * fTanRMax;
-    if (vecCore::math::Abs(_frmax1 - _frmax2) < kHalfTolerance)
+    if (vecCore::math::Abs(_frmax1 - _frmax2) < fOuterTolerance)
       distRMax = (rho - _frmax2);
     else
       distRMax = (pRMax - widRMax) / fSecRMax;
 
-    bool inside = distZ < kTolerance && distRMax < kTolerance;
-    if (fRmin1 || fRmin2) inside &= distRMin > -kTolerance;
+    bool inside = distZ < kTolerance && distRMax < fOuterTolerance;
+    if (fRmin1 || fRmin2) inside &= distRMin > -fInnerTolerance;
 
     distZ    = std::fabs(distZ);
     distRMax = std::fabs(distRMax);
@@ -258,7 +258,7 @@ struct ConeStruct {
         sumnorm.Set(0, 0, -1.);
     }
 
-    if (inside && distRMax <= kHalfTolerance) {
+    if (inside && distRMax <= fOuterTolerance) {
       noSurfaces++;
       sumnorm += nR;
     } else if (noSurfaces == 0 && distRMax < distNearest) {
@@ -267,7 +267,7 @@ struct ConeStruct {
     }
 
     if (fRmin1 || fRmin2) {
-      if (inside && distRMin <= kHalfTolerance) {
+      if (inside && distRMin <= fInnerTolerance) {
         noSurfaces++;
         sumnorm += nr;
       } else if (noSurfaces == 0 && distRMin < distNearest) {
@@ -300,7 +300,14 @@ struct ConeStruct {
       norm = sumnorm;
     else
       norm = sumnorm.Unit();
-    return noSurfaces != 0;
+
+    bool valid = noSurfaces != 0;
+    if (noSurfaces > 2) {
+      // return valid=false for noSurfaces > 2
+      valid = false;
+    }
+
+    return valid;
   }
 
   VECCORE_ATT_HOST_DEVICE

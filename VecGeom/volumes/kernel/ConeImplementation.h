@@ -174,16 +174,25 @@ struct ConeImplementation {
     Bool_t isOnZPlaneAndMovingInside(false);
 
     Bool_t isGoingUp          = dir.z() > zero;
+    Bool_t isGoingDown        = dir.z() < zero;
     isOnZPlaneAndMovingInside = ((isGoingUp && point.z() < zero && Abs(distz) < kHalfTolerance) ||
-                                 (!isGoingUp && point.z() > zero && Abs(distz) < kHalfTolerance));
-    vecCore__MaskedAssignFunc(distz, !done && isOnZPlaneAndMovingInside, zero);
+                                 (isGoingDown && point.z() > zero && Abs(distz) < kHalfTolerance));
+    vecCore__MaskedAssignFunc(distz, !done && isOnZPlaneAndMovingInside, distz);
+
 
 #ifdef EDGE_POINTS
-    Bool_t newCond = (IsOnRing<Backend, false, true>(cone, point)) || (IsOnRing<Backend, true, true>(cone, point)) ||
-                     (IsOnRing<Backend, false, false>(cone, point)) || (IsOnRing<Backend, true, false>(cone, point));
-
-    vecCore::MaskedAssign(distz, newCond, kInfLength);
+    Bool_t onZsurf  = (Abs(point.z()) - cone.fDz) < Real_v(kHalfTolerance);
+    Bool_t onLoZSrf = onZsurf && point.z() < zero;
+    Bool_t onHiZSrf = onZsurf && point.z() > zero;
+    Bool_t loZcond  = onLoZSrf && (IsOnRing<Real_v, false, true>(cone, point));
+    Bool_t hiZcond  = onHiZSrf && (IsOnRing<Real_v, false,false>(cone, point));
+    if (checkRminTreatment<coneTypeT>(cone)) {
+       loZcond |= onLoZSrf && IsOnRing<Real_v, true, true>(cone, point);
+       hiZcond |= onHiZSrf && IsOnRing<Real_v, true,false>(cone, point);
+    }
+    vecCore::MaskedAssign(distz, loZcond || hiZcond, zero);
 #endif
+
 
     Float_t hitx = point.x() + distz * dir.x();
     Float_t hity = point.y() + distz * dir.y();
@@ -296,14 +305,17 @@ struct ConeImplementation {
     }
     done |= outside;
     if (vecCore::MaskFull(done)) return;
+
+
     Bool_t isGoingUp   = direction.z() > zero;
     Bool_t isGoingDown = direction.z() < zero;
     Bool_t isOnZPlaneAndMovingOutside(false);
     isOnZPlaneAndMovingOutside = !outside && ((isGoingUp && point.z() > zero && Abs(distz) < kHalfTolerance) ||
-                                              (!isGoingUp && point.z() < zero && Abs(distz) < kHalfTolerance));
-    vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingOutside, zero);
+                                              (isGoingDown && point.z() < zero && Abs(distz) < kHalfTolerance));
+    vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingOutside, distz);
     done |= isOnZPlaneAndMovingOutside;
     if (vecCore::MaskFull(done)) return;
+
 
     //=== Next step: check if z-plane is the right entry point (both r,phi
     // should be valid at z-plane crossing)
