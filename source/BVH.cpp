@@ -260,13 +260,13 @@ void BVH::CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Pr
 }
 
 VECCORE_ATT_HOST_DEVICE
-void BVH::ApproachNextDaughter(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
+void BVH::ApproachNextDaughter(Vector3D<Precision> point, Vector3D<Precision> dir, Precision &step,
                                VPlacedVolume const *last) const
 {
   int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
 
   /* Calculate and reuse inverse direction to save on divisions */
-  Vector3D<Precision> invdir(1.0 / NonZero(localdir[0]), 1.0 / NonZero(localdir[1]), 1.0 / NonZero(localdir[2]));
+  Vector3D<Precision> invdir(1.0 / NonZero(dir[0]), 1.0 / NonZero(dir[1]), 1.0 / NonZero(dir[2]));
 
   do {
     unsigned int id = *--ptr; /* pop next node id to be checked from the stack */
@@ -276,9 +276,14 @@ void BVH::ApproachNextDaughter(Vector3D<Precision> localpoint, Vector3D<Precisio
       for (int i = 0; i < fNChild[id]; ++i) {
         int prim = fPrimId[fOffset[id] + i];
         /* Check AABB first, then the volume itself if needed */
-        if (fAABBs[prim].IntersectInvDir(localpoint, invdir, step)) {
+        if (fAABBs[prim].IntersectInvDir(point, invdir, step)) {
           auto vol  = fLV.GetDaughters()[prim];
-          auto dist = vol->GetUnplacedVolume()->ApproachSolid(localpoint, invdir);
+          // Convert point/direction to daughter frame
+          Transformation3D const *tr     = vol->GetTransformation();
+          Vector3D<Precision> localpoint = tr->Transform(point);
+          Vector3D<Precision> localdir   = tr->TransformDirection(dir);
+          Vector3D<Precision> invlocaldir(1.0 / NonZero(localdir[0]), 1.0 / NonZero(localdir[1]), 1.0 / NonZero(localdir[2]));
+          auto dist = vol->GetUnplacedVolume()->ApproachSolid(localpoint, invlocaldir);
           /* If distance to current child is smaller than current step, update step and hitcandidate */
           if (dist < step && !(dist <= 0.0 && vol == last)) step = dist;
         }
@@ -290,8 +295,8 @@ void BVH::ApproachNextDaughter(Vector3D<Precision> localpoint, Vector3D<Precisio
       /* For internal nodes, check AABBs to know if we need to traverse left and right children */
       Precision tminL = kInfLength, tmaxL = -kInfLength, tminR = kInfLength, tmaxR = -kInfLength;
 
-      fNodes[childL].ComputeIntersectionInvDir(localpoint, invdir, tminL, tmaxL);
-      fNodes[childR].ComputeIntersectionInvDir(localpoint, invdir, tminR, tmaxR);
+      fNodes[childL].ComputeIntersectionInvDir(point, invdir, tminL, tmaxL);
+      fNodes[childR].ComputeIntersectionInvDir(point, invdir, tminR, tmaxR);
 
       bool traverseL = tminL <= tmaxL && tmaxL >= 0.0 && tminL < step;
       bool traverseR = tminR <= tmaxR && tmaxR >= 0.0 && tminR < step;
