@@ -72,7 +72,6 @@ public:
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   void SafetyToOut(Vector3D<Real_v> const &point, Real_v &distance) const;
-
 }; // class CutPlanes
 
 std::ostream &operator<<(std::ostream &os, CutPlanes const &planes);
@@ -132,7 +131,11 @@ void CutPlanes::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> con
   // has to be taken
   Real_v d0, d1;
   fCutPlanes[0].DistanceToIn(point, direction, d0);
+  vecCore::MaskedAssign(d0, direction.Dot(Vector3D<Real_v>(fCutPlanes[0].GetNormal())) > Real_v(0.),
+                        Real_v(-kInfLength));
   fCutPlanes[1].DistanceToIn(point, direction, d1);
+  vecCore::MaskedAssign(d1, direction.Dot(Vector3D<Real_v>(fCutPlanes[1].GetNormal())) > Real_v(0.),
+                        Real_v(-kInfLength));
   distance = vecCore::math::Max(d0, d1);
 }
 

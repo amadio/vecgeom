@@ -200,15 +200,19 @@ void CutTubeImplementation::DistanceToInKernel(UnplacedStruct_t const &unplaced,
 #endif
 
   Bool_v inside;
-  Real_v dplanes;
+  Real_v dplanes, safplanes;
   // Compute distance to cut planes
   unplaced.GetCutPlanes().DistanceToIn<Real_v>(point, direction, dplanes);
+  // We need the safety to cut out points already inside the cut planes.
+  // Unfortunately there is no easy way to get the right normal in vector mode to avoid safety calculation
+  unplaced.GetCutPlanes().SafetyToIn<Real_v>(point, safplanes);
+
   // Mark tracks hitting the planes
-  Bool_v hitplanes = dplanes < stepMax && dplanes > Real_v(-kTolerance);
+  Bool_v hitplanes = vecCore::math::Abs(dplanes) < stepMax && safplanes > Real_v(-kTolerance);
 
 #if USE_CONV_WRONG_SIDE == 1
   if (vecCore::EarlyReturnAllowed()) {
-    if (vecCore::MaskFull((inside_cutplanes == EInside::kOutside) && !hitplanes)) // No particles are hitting
+    if (vecCore::MaskFull((inside_cutplanes != EInside::kInside) && !hitplanes)) // No particles are hitting
       return;
   }
 #endif
@@ -241,7 +245,7 @@ void CutTubeImplementation::DistanceToInKernel(UnplacedStruct_t const &unplaced,
   // All propagated points not yet marked as done should now lie between the cut planes
   // Check now which of the propagated points already entering the solid
   TubeImplementation<TubeTypes::UniversalTube>::Inside<Real_v>(unplaced.GetTubeStruct(), propagated, instart);
-  inside = instart == EInside::kInside;
+  inside = hitplanes && (instart != EInside::kOutside);
   vecCore::MaskedAssign(distance, inside && !done, dplanes);
   done |= inside;
 

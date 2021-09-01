@@ -288,7 +288,7 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
     Real_v hity = pos.y() + dist * dir.y();
     Real_v hitz = pos.z() + dist * dir.z();
     Real_v r2   = hitx * hitx + hity * hity;
-    ok &= Abs(hitz) <= tube.fTolIz && (r2 >= tube.fTolIrmin2) && (r2 <= tube.fTolIrmax2);
+    ok &= Abs(hitz) <= tube.fTolOz && (r2 >= tube.fTolOrmin2) && (r2 <= tube.fTolOrmax2);
 
     // GL: tested with this if(PosDirPhiVec) around if(insector), so
     // if(insector){} requires PosDirPhiVec==true to run
@@ -312,11 +312,9 @@ typename vecCore::Mask_v<Real_v> IsOnTubeSurface(UnplacedStruct_t const &tube, V
 {
   const Real_v rho = point.Perp2();
   if (ForInnerSurface) {
-    return (rho >= (tube.fRmin2 - kTolerance * tube.fRmin)) && (rho <= (tube.fRmin2 + kTolerance * tube.fRmin)) &&
-           (Abs(point.z()) < (tube.fZ + kTolerance));
+    return (rho >= tube.fTolOrmin2) && (rho <= tube.fTolIrmin2) && (Abs(point.z()) < (tube.fZ + kTolerance));
   } else {
-    return (rho >= (tube.fRmax2 - kTolerance * tube.fRmax)) && (rho <= (tube.fRmax2 + kTolerance * tube.fRmax)) &&
-           (Abs(point.z()) < (tube.fZ + kTolerance));
+    return (rho >= tube.fTolIrmax2) && (rho <= tube.fTolOrmax2) && (Abs(point.z()) < (tube.fZ + kTolerance));
   }
 }
 
@@ -709,14 +707,14 @@ struct TubeImplementation {
     Real_v crmin = rsq;
 
     // if outside of Rmax, return -1
-    done |= crmax > kTolerance * tube.fRmax;
+    done |= crmax > 2. * kTolerance * tube.fRmax;
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     if (checkRminTreatment<tubeTypeT>(tube)) {
       // if point is within inner-hole of a hollow tube, it is outside of the
       // tube --> return -1
       crmin -= tube.fRmin2; // avoid a division for now
-      done |= crmin < -kTolerance * tube.fRmin;
+      done |= crmin < -2. * kTolerance * tube.fRmin;
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
     }
 

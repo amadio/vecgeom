@@ -321,33 +321,37 @@ bool TestTubs()
   // std::cout<<"Dist=t5.DistanceToIn((30.0,-20.0,0),vxy) = "<<Dist<<std::endl;
   assert(ApproxEqual<Precision>(Dist, 28.284271));
 
+  // This ray is passing through an edge, may or may not hit depending on rounding
   Dist = t5.DistanceToIn(Vec_t(30.0, -70.0, 0), vxy);
   // std::cout<<"Dist=t5.DistanceToIn((30.0,-70.0,0),vxy) = "<<Dist<<std::endl;
-  assert(ApproxEqual<Precision>(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength) || ApproxEqual<Precision>(Dist, 70. * std::sqrt(2.)));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -20.0, 0), vmxmy);
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-20.0,0),vmxmy) = "<<Dist<<std::endl;
   assert(ApproxEqual<Precision>(Dist, 42.426407));
 
+  // This ray is passing through an edge, may or may not hit depending on rounding
   Dist = t5.DistanceToIn(Vec_t(30.0, -70.0, 0), vmxmy);
   // std::cout<<"Dist=t5.DistanceToIn((30.0,-70.0,0),vmxmy) = "<<Dist<<std::endl;
-  assert(ApproxEqual<Precision>(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength) || ApproxEqual<Precision>(Dist, 30. * std::sqrt(2.)));
 
   Dist = t5.DistanceToIn(Vec_t(50.0, -20.0, 0), vy);
   // std::cout<<"Dist=t5.DistanceToIn((50.0,-20.0,0),vy) = "<<Dist<<std::endl;
   assert(ApproxEqual<Precision>(Dist, 20));
 
+  // This ray is passing through an edge, may or may not hit depending on rounding
   Dist = t5.DistanceToIn(Vec_t(100.0, -20.0, 0), vy);
   // std::cout<<"Dist=t5.DistanceToIn((100.0,-20.0,0),vy) = "<<Dist<<std::endl;
-  assert(ApproxEqual<Precision>(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength) || ApproxEqual<Precision>(Dist, 20.));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -50.0, 0), vmx);
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-50.0,0),vmx) = "<<Dist<<std::endl;
   assert(ApproxEqual<Precision>(Dist, 30));
 
+  // This ray is passing through an edge, may or may not hit depending on rounding
   Dist = t5.DistanceToIn(Vec_t(30.0, -100.0, 0), vmx);
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-100.0,0),vmx) = "<<Dist<<std::endl;
-  assert(ApproxEqual<Precision>(Dist, kInfLength));
+  assert(ApproxEqual<Precision>(Dist, kInfLength) || ApproxEqual<Precision>(Dist, 30.));
 
   // ********************************
 
