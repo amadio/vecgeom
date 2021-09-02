@@ -17,12 +17,14 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 #ifdef VECGEOM_FLOAT_PRECISION
 using Precision                        = float;
 VECGEOM_CONST Precision kTolerance     = 1e-3;
+VECGEOM_CONST Precision kSqrtTolerance = 3.1622777e-2;
 VECGEOM_CONST Precision kAngTolerance  = 1e-2;
 VECGEOM_CONST Precision kConeTolerance = 1e-3;
 VECGEOM_CONST Precision kFarAway       = 1e5;
 #else
 using Precision                        = double;
 VECGEOM_CONST Precision kTolerance     = 1e-9;
+VECGEOM_CONST Precision kSqrtTolerance = 3.1622777e-5;
 VECGEOM_CONST Precision kAngTolerance  = 1e-9;
 VECGEOM_CONST Precision kConeTolerance = 1e-7;
 VECGEOM_CONST Precision kFarAway       = 1e10;

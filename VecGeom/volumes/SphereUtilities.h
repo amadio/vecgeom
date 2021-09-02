@@ -146,18 +146,18 @@ typename vecCore::Mask_v<Real_v> IsPointOnRadialSurfaceAndMovingOut(UnplacedStru
                                                                     Vector3D<Real_v> const &point,
                                                                     Vector3D<Real_v> const &dir)
 {
-
+  // Rays from rmax+tolerance or rmin-tolerance can be moving out even if not going fully "backward"
   if (MovingOut) {
     if (ForInnerRadius) {
-      return IsPointOnInnerRadius<Real_v>(unplaced, point) && (dir.Dot(-point) > Real_v(0.));
+      return IsPointOnInnerRadius<Real_v>(unplaced, point) && (dir.Dot(-point) > Real_v(kSqrtTolerance));
     } else {
-      return IsPointOnOuterRadius<Real_v>(unplaced, point) && (dir.Dot(point) > Real_v(0.));
+      return IsPointOnOuterRadius<Real_v>(unplaced, point) && (dir.Dot(point) > Real_v(kSqrtTolerance));
     }
   } else {
     if (ForInnerRadius) {
-      return IsPointOnInnerRadius<Real_v>(unplaced, point) && (dir.Dot(-point) < Real_v(0.));
+      return IsPointOnInnerRadius<Real_v>(unplaced, point) && (dir.Dot(-point) < Real_v(-kSqrtTolerance));
     } else
-      return IsPointOnOuterRadius<Real_v>(unplaced, point) && (dir.Dot(point) < Real_v(0.));
+      return IsPointOnOuterRadius<Real_v>(unplaced, point) && (dir.Dot(point) < Real_v(-kSqrtTolerance));
   }
 }
 
