@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
   tester.SetTestBoundaryErrors(false);
+  tester.SetSolidTolerance(2.e-7);
   int errCode = tester.Run(poly2);
 
   std::cout << "Final Error count for Shape *** " << poly2->GetName() << "*** = " << errCode << "\n";

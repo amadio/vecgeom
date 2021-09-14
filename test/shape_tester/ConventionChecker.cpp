@@ -141,8 +141,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
 
     // Point on Surface and moving inside
     Vec_t normal(0., 0., 0.);
-    // bool valid =
-    fVolume->Normal(point, normal);
+    bool validNormal = fVolume->Normal(point, normal);
 
     Precision Dist = fVolume->DistanceToIn(point, direction);
     // if (Dist >= kInfLength) Dist = kInfLength;
@@ -155,7 +154,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     if (direction.Dot(normal) < 0. && Dist < kInfLength) // particle is entering into the shape
     {
       bool ok = fabs(Dist * direction.Dot(normal)) <= fSolidTolerance;
-      if (!ok) {
+      if (validNormal && !ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
         ReportError(
@@ -206,11 +205,11 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     }
 
     indx = 3;
-    if (direction.Dot(normal) < 0.) // particle is entering from the shape
+    if (direction.Dot(normal) < 0.) // particle is entering the shape
     {
       if (!(Dist > 0.)) {
-        // Double-check if we are not on an edge
-        if (fVolume->DistanceToIn(point, direction) < fSolidTolerance) {
+        // validNormal: ignore points on corners (edges are still ok)
+        if (validNormal) {
           ReportError(&nError, point, direction, Dist,
                       "DistanceToOut for Surface Point entering into the Shape should be > 0.");
 
