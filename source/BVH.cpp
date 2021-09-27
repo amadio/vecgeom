@@ -259,6 +259,13 @@ void BVH::CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Pr
   } while (ptr > stack);
 }
 
+/*
+ * BVH::ApproachNextDaughter is very similar to CheckDaughterIntersections but computes the first
+ * hit daughter bounding box instead of the next hit shape. This lighter computation is used to 
+ * first approach the next hit solid before computing the actual distance, in the attempt to
+ * reduce the numerical rounding error due to propagation to boundary.
+ */
+
 VECCORE_ATT_HOST_DEVICE
 void BVH::ApproachNextDaughter(Vector3D<Precision> point, Vector3D<Precision> dir, Precision &step,
                                VPlacedVolume const *last) const

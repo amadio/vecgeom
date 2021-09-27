@@ -77,6 +77,15 @@ public:
   void CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
                                   VPlacedVolume const *last, VPlacedVolume const *&hitcandidate) const;
 
+  /**
+   * Check ray defined by <tt>localpoint + t * localdir</tt> for intersections with bounding
+   * boxes of children of the logical volume associated with the BVH, and within a maximum
+   * distance of @p step along the ray. Returns the distance to the first crossed box.
+   * @param[in] localpoint Point in the local coordinates of the logical volume.
+   * @param[in] localdir Direction in the local coordinates of the logical volume.
+   * @param[in,out] step Maximum step distance for which intersections should be considered.
+   * @param[in] last Last volume. This volume is ignored when reporting intersections.
+   */ 
   VECCORE_ATT_HOST_DEVICE
   void ApproachNextDaughter(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
                             VPlacedVolume const *last) const;
