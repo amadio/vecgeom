@@ -724,6 +724,17 @@ add_library(vecgeom
   ${VECGEOM_COMMON_SRCS}
   ${VECGEOM_CPPONLY_SRCS})
 target_compile_features(vecgeom PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
+
+# Add compile options that vecgeom clients must compile their code using Vecgeom
+# with.
+# NB: We've already added them to CMAKE_CXX_FLAGS above, as they have to be in
+# CMAKE_CXX_FLAGS for the current CUDA build... This means we get some duplication
+# of flags on the command line, but this should not have side effects for the
+# flags that can be used.
+set(__VECGEOM_COMPILE_OPTIONS "${VECGEOM_COMPILATION_FLAGS}")
+separate_arguments(__VECGEOM_COMPILE_OPTIONS)
+target_compile_options(vecgeom PUBLIC ${__VECGEOM_COMPILE_OPTIONS})
+
 target_include_directories(vecgeom PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>

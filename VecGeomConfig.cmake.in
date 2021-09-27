@@ -1,5 +1,43 @@
-# - Config file for the VecGeom package
-# Defines the following variables
+# VecGeomConfig.cmake
+# -------------------
+#
+# Config file for the VecGeom package
+#
+# IMPORTED Targets
+# ^^^^^^^^^^^^^^^^
+#
+# This module defines the following `IMPORTED` targets:
+#
+# - VecGeom::vecgeom     - Core VecGeom library (static)
+# - VecGeom::vgdml       - Present if the GDML parser component was built
+# - VecGeom::vecgeomcuda - Present if the CUDA backend was built
+#
+# Result Variables
+# ^^^^^^^^^^^^^^^^
+#
+# This module defines the following variables either directly, or automatically
+# though CMake's find_package command
+#
+# - VecGeom_FOUND           - True if VecGeom was found
+# - VecGeom_BUILTIN_VECCORE - True if VecGeom was built with an internal version on VecCore
+# - VecGeom_GDML_FOUND      - True if VecGeom was built with the GDML parser component
+# - VecGeom_CUDA_FOUND      - True if VecGeom was built with CUDA support
+#
+# - VecGeom_scalar_backend_FOUND  - True if the VecGeom backend is scalar
+# - VecGeom_vector_backend_FOUND  - True if the VecGeom backend is vector
+# - VecGeom_VECTOR_ISA            - String holding the Instruction Set Architecture VecGeom
+#                                   was compiled against (e.g. "sse4.2"). The empty string
+#                                   if no explicit flag was used.
+# - VecGeom_umesimd_backend_FOUND - True if the VecGeom vector backend in UMESIMD
+# - VecGeom_vc_backend_FOUND      - True if the VecGeom vector backend is Vc
+#
+# Deprecated Variables
+# ^^^^^^^^^^^^^^^^^^^^
+#
+# The following variables are retained for backward compatibility for clients.
+# They should no longer be used, and any use migrated to the above IMPORTED targets
+# or Result Variables
+#
 #   VECGEOM_FOUND             - Found the VECGEOM library
 #   VECGEOM_INCLUDE_DIRS      - include directories for VecGeom
 #   VECGEOM_LIBRARIES         - libraries to link against
@@ -9,6 +47,7 @@
 #   VECGEOM_EXTERNAL_INCLUDES - external include paths used during vecgeom compilation (for automatic "discovery" of dependencies)
 #   VECGEOM_C_COMPILER        - the C compiler used to compile VecGeom
 #   VECGEOM_CXX_COMPILER      - the CXX compiler used to compile VecGeom
+#
 
 @PACKAGE_INIT@
 
@@ -22,9 +61,23 @@ if(VecGeom_BUILTIN_VECCORE)
   find_dependency(VecCore @VecCore_VERSION@ NO_DEFAULT_PATH PATHS "@PACKAGE_VECCORE_PREFIX@" COMPONENTS @VecCore_COMPONENTS@ )
 else()
   find_dependency(VecCore @VecCore_VERSION@ COMPONENTS @VecCore_COMPONENTS@)
-endif(
+endif()
 
-)
+# Scalar/Vector Backend, Backend Implementation, and ISA
+set(VecGeom_scalar_backend_FOUND @VECGEOM_SCALAR@)
+set(VecGeom_umesimd_backend_FOUND @VECGEOM_UMESIMD@)
+set(VecGeom_vc_backend_FOUND @VECGEOM_VC@)
+
+if(VecGeom_umesimd_FOUND OR VecGeom_vc_FOUND)
+  set(VecGeom_vector_backend_FOUND ON)
+endif()
+
+# Take default, but clear if it's "empty" as this is an internal "no flag supplied" case
+set(VecGeom_VECTOR_ISA "@VECGEOM_VECTOR@")
+if(VecGeom_VECTOR_ISA STREQUAL "empty")
+  unset(VecGeom_VECTOR_ISA)
+endif()
+
 # Optional CUDA (no dependency?)
 set(VecGeom_CUDA_FOUND @VECGEOM_ENABLE_CUDA@)
 set(VECGEOM_CUDA_ARCH "@CUDA_ARCH@")
