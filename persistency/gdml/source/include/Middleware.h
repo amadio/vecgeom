@@ -113,6 +113,8 @@ private:
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTrapezoid(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processGenTrap(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processParaboloid(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processHype(

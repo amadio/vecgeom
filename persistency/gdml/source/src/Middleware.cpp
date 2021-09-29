@@ -25,6 +25,7 @@
 #include "VecGeom/volumes/UnplacedTrd.h"
 #include "VecGeom/volumes/UnplacedParaboloid.h"
 #include "VecGeom/volumes/UnplacedTrapezoid.h"
+#include "VecGeom/volumes/UnplacedGenTrap.h"
 #include "VecGeom/volumes/UnplacedHype.h"
 #include "VecGeom/volumes/UnplacedCutTube.h"
 #include "VecGeom/volumes/UnplacedBooleanVolume.h"
@@ -609,6 +610,8 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processTrd(aDOMNode);
     } else if (name == "trap") {
       return processTrapezoid(aDOMNode);
+    } else if (name == "arb8") {
+      return processGenTrap(aDOMNode);
     } else if (name == "paraboloid") {
       return processParaboloid(aDOMNode);
     } else if (name == "intersection") {
@@ -977,6 +980,57 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processTrape
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTrapezoid>(
           halfz, theta, phi, halfy1, halfx1, halfx2, alpha1, halfy2, halfx3, halfx4, alpha2);
   return anUnplacedTrapezoidPtr;
+}
+
+vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processGenTrap(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  using vecgeom::Precision;
+  if (debug) {
+    std::cout << "Middleware::processGenTrap: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *const attributes = aDOMNode->getAttributes();
+  auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
+  DECLAREANDGETPLAINVAR(v1x)
+  DECLAREANDGETPLAINVAR(v1y)
+  DECLAREANDGETPLAINVAR(v2x)
+  DECLAREANDGETPLAINVAR(v2y)
+  DECLAREANDGETPLAINVAR(v3x)
+  DECLAREANDGETPLAINVAR(v3y)
+  DECLAREANDGETPLAINVAR(v4x)
+  DECLAREANDGETPLAINVAR(v4y)
+  DECLAREANDGETPLAINVAR(v5x)
+  DECLAREANDGETPLAINVAR(v5y)
+  DECLAREANDGETPLAINVAR(v6x)
+  DECLAREANDGETPLAINVAR(v6y)
+  DECLAREANDGETPLAINVAR(v7x)
+  DECLAREANDGETPLAINVAR(v7y)
+  DECLAREANDGETPLAINVAR(v8x)
+  DECLAREANDGETPLAINVAR(v8y)
+  DECLAREANDGETLENGTVAR(dz)
+
+  std::vector<Precision> verticesx;
+  std::vector<Precision> verticesy;
+  verticesx.push_back(v1x);
+  verticesx.push_back(v2x);
+  verticesx.push_back(v3x);
+  verticesx.push_back(v4x);
+  verticesx.push_back(v5x);
+  verticesx.push_back(v6x);
+  verticesx.push_back(v7x);
+  verticesx.push_back(v8x);
+  verticesy.push_back(v1y);
+  verticesy.push_back(v2y);
+  verticesy.push_back(v3y);
+  verticesy.push_back(v4y);
+  verticesy.push_back(v5y);
+  verticesy.push_back(v6y);
+  verticesy.push_back(v7y);
+  verticesy.push_back(v8y);
+  auto const anUnplacedGenTrapPtr =
+      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedGenTrap>(
+          verticesx.data() , verticesy.data() , dz);
+  return anUnplacedGenTrapPtr;
 }
 
 const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processParaboloid(
