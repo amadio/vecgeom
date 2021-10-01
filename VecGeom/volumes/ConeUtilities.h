@@ -160,16 +160,16 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
                                            Vector3D<Real_v> const &dir, Real_v &dist,
                                            typename vecCore::Mask_v<Real_v> &ok)
 {
-
+  const Real_v zero(0.0);
   dist = kInfLength;
 
   // approaching phi plane from the right side?
   // this depends whether we use it for DistanceToIn or DistanceToOut
   // Note: wedge normals poing towards the wedge inside, by convention!
   if (insectorCheck)
-    ok = ((dir.x() * normalX) + (dir.y() * normalY) > Real_v(0.)); // DistToIn  -- require tracks entering volume
+    ok = ((dir.x() * normalX) + (dir.y() * normalY) > zero); // DistToIn  -- require tracks entering volume
   else
-    ok = ((dir.x() * normalX) + (dir.y() * normalY) < Real_v(0.)); // DistToOut -- require tracks leaving volume
+    ok = ((dir.x() * normalX) + (dir.y() * normalY) < zero); // DistToOut -- require tracks leaving volume
 
   // if( /*Backend::early_returns &&*/ vecCore::MaskEmpty(ok) ) return;
 
@@ -192,13 +192,13 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
     // if(insector){} requires PosDirPhiVec==true to run
     //  --> shapeTester still finishes OK (no mismatches) (some cycles saved...)
     if (PositiveDirectionOfPhiVector) {
-      ok = ok && ((hitx * alongX) + (hity * alongY)) > Real_v(0.);
+      ok = ok && ((hitx * alongX) + (hity * alongY)) > zero;
     }
   } else {
     if (PositiveDirectionOfPhiVector) {
       Real_v hitx = pos.x() + dist * dir.x();
       Real_v hity = pos.y() + dist * dir.y();
-      ok          = ok && ((hitx * alongX) + (hity * alongY)) >= Real_v(0.);
+      ok          = ok && ((hitx * alongX) + (hity * alongY)) >= zero;
     }
   }
 }
@@ -331,7 +331,7 @@ static typename vecCore::Mask_v<Real_v> IsOnZPlaneAndMovingOutside(UnplacedStruc
   } else {
     return (rho > (cone.fSqRmin1 - kHalfConeTolerance)) && (rho < (cone.fSqRmax1 + kHalfConeTolerance)) &&
            (point.z() < (-fDz + kHalfConeTolerance)) && (point.z() > (-fDz - kHalfConeTolerance)) &&
-           (direction.z() < 0.);
+           (direction.z() < Real_v(0.));
   }
 }
 
@@ -356,26 +356,26 @@ public:
     using namespace ConeTypes;
     typedef typename vecCore::Mask_v<Real_v> Bool_t;
     Bool_t done(false);
+    const Real_v zero(0.0);
 
     distance                = kInfLength;
     Bool_t onConicalSurface = IsOnConicalSurface<Real_v, ForInnerSurface>(cone, point);
     done                    = onConicalSurface &&
-           (direction.Dot(ConeUtilities::GetNormal<Real_v, ForInnerSurface>(cone, point)) == Real_v(0.));
+           (direction.Dot(ConeUtilities::GetNormal<Real_v, ForInnerSurface>(cone, point)) == zero);
     if (vecCore::MaskFull(done)) return Bool_t(false);
 
-    Bool_t ok(false);
     if (ForDistToIn) {
       Bool_t isOnSurfaceAndMovingInside =
           !done && ConeUtilities::IsMovingInsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
 
       if (!checkPhiTreatment<coneTypeT>(cone)) {
-        vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingInside, Real_v(0.));
+        vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingInside, zero);
         done |= isOnSurfaceAndMovingInside;
         if (vecCore::MaskFull(done)) return done;
       } else {
         Bool_t insector(false);
         ConeUtilities::PointInCyclicalSector<Real_v, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
-        vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingInside, Real_v(0.));
+        vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingInside, zero);
         done |= (insector && isOnSurfaceAndMovingInside);
         if (vecCore::MaskFull(done)) return done;
       }
@@ -385,13 +385,13 @@ public:
           !done && IsMovingOutsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
 
       if (!checkPhiTreatment<coneTypeT>(cone)) {
-        vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingOutside, Real_v(0.));
+        vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingOutside, zero);
         done |= isOnSurfaceAndMovingOutside;
         if (vecCore::MaskFull(done)) return done;
       } else {
         Bool_t insector(false);
         ConeUtilities::PointInCyclicalSector<Real_v, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
-        vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingOutside, Real_v(0.));
+        vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingOutside, zero);
         done |= (insector && isOnSurfaceAndMovingOutside);
         if (vecCore::MaskFull(done)) return done;
       }
@@ -400,6 +400,7 @@ public:
     Real_v pDotV2D = point.x() * direction.x() + point.y() * direction.y();
 
     Real_v a(0.), b(0.), c(0.);
+    Bool_t ok(false);
     Precision fDz = cone.fDz;
     if (ForInnerSurface) {
 
@@ -432,14 +433,14 @@ public:
 
       Real_v delta = Sqrt(vecCore::math::Abs(d2));
       if (ForDistToIn) {
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b >= Real_v(0.)), (c / NonZero(-b - delta)));
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b < Real_v(0.)), (-b + delta) / NonZero(a));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= zero && (b >= zero), (c / NonZero(-b - delta)));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= zero && (b < zero), (-b + delta) / NonZero(a));
       } else {
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b >= Real_v(0.)), (-b - delta) / NonZero(a));
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b < Real_v(0.)), (c / NonZero(-b + delta)));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= zero && (b >= zero), (-b - delta) / NonZero(a));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= zero && (b < zero), (c / NonZero(-b + delta)));
       }
 
-      if (vecCore::MaskFull(distance < Real_v(0.))) return Bool_t(false);
+      if (vecCore::MaskFull(distance < zero)) return Bool_t(false);
       Real_v newZ = point.z() + (direction.z() * distance);
       ok          = (Abs(newZ) < fDz);
 
@@ -471,21 +472,21 @@ public:
       Real_v delta = Sqrt(vecCore::math::Abs(d2));
 
       if (ForDistToIn) {
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b > Real_v(0.)), (-b - delta) / NonZero(a));
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b < Real_v(0.)), (c / NonZero(-b + delta)));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= zero && (b > zero), (-b - delta) / NonZero(a));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= zero && (b < zero), (c / NonZero(-b + delta)));
       } else {
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b < Real_v(0.)), (-b + delta) / NonZero(a));
-        vecCore__MaskedAssignFunc(distance, !done && d2 >= Real_v(0.) && (b >= Real_v(0.)), (c / NonZero(-b - delta)));
-        ok = distance > Real_v(0.);
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= zero && (b < zero), (-b + delta) / NonZero(a));
+        vecCore__MaskedAssignFunc(distance, !done && d2 >= zero && (b >= zero), (c / NonZero(-b - delta)));
+        ok = distance > zero;
       }
 
-      if (vecCore::MaskFull(distance < Real_v(0.))) return Bool_t(false);
+      if (vecCore::MaskFull(distance < zero)) return Bool_t(false);
       if (ForDistToIn) {
         Real_v newZ = point.z() + (direction.z() * distance);
         ok          = (Abs(newZ) < cone.fDz + kHalfTolerance);
       }
     }
-    vecCore__MaskedAssignFunc(distance, distance < Real_v(0.), Real_v(kInfLength));
+    vecCore__MaskedAssignFunc(distance, distance < zero, Real_v(kInfLength));
 
     if (checkPhiTreatment<coneTypeT>(cone)) {
       Real_v hitx(0), hity(0), hitz(0);
@@ -598,8 +599,6 @@ public:
     if (onConicalSurface && direction.Dot(ConeUtilities::GetNormal<Precision, ForInnerSurface>(cone, point)) == 0.)
       return false;
 
-    bool ok(false);
-
     if (ForDistToIn) {
       bool isOnSurfaceAndMovingInside =
           ConeUtilities::IsMovingInsideConicalSurface<Precision, ForInnerSurface>(cone, point, direction);
@@ -637,6 +636,7 @@ public:
       }
     }
 
+    bool ok(false);
     Precision pDotV2D = point.x() * direction.x() + point.y() * direction.y();
 
     Precision a(kInfLength), b(kInfLength), c(kInfLength);
@@ -744,7 +744,6 @@ public:
       if (distance < kInfLength) {
         hitx = point.x() + distance * direction.x();
         hity = point.y() + distance * direction.y();
-        // hitz = point.z() + distance * direction.z();
       }
 
       ConeUtilities::PointInCyclicalSector<Precision, coneTypeT, false, true>(cone, hitx, hity, insector);
