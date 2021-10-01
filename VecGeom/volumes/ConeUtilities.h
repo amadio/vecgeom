@@ -253,6 +253,7 @@ static typename vecCore::Mask_v<Real_v> IsOnConicalSurface(UnplacedStruct_t cons
          (Abs(point.z()) < (cone.fDz + kConeTolerance));
 }
 
+// precondition: point is on cone surface - as returned from IsOnConicalSurface()
 template <typename Real_v, bool ForInnerSurface>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
@@ -260,10 +261,10 @@ static typename vecCore::Mask_v<Real_v> IsMovingOutsideConicalSurface(UnplacedSt
                                                                       Vector3D<Real_v> const &point,
                                                                       Vector3D<Real_v> const &direction)
 {
-  return IsOnConicalSurface<Real_v, ForInnerSurface>(cone, point) &&
-         (direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) >= Real_v(0.));
+  return direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) >= Real_v(0.);
 }
 
+// precondition: point is on cone surface - as returned from IsOnConicalSurface()
 template <typename Real_v, bool ForInnerSurface>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
@@ -271,8 +272,7 @@ static typename vecCore::Mask_v<Real_v> IsMovingInsideConicalSurface(UnplacedStr
                                                                      Vector3D<Real_v> const &point,
                                                                      Vector3D<Real_v> const &direction)
 {
-  return IsOnConicalSurface<Real_v, ForInnerSurface>(cone, point) &&
-         (direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) <= Real_v(0.));
+  return direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) <= Real_v(0.);
 }
 
 template <typename Real_v>
@@ -355,45 +355,49 @@ public:
     using namespace ConeUtilities;
     using namespace ConeTypes;
     typedef typename vecCore::Mask_v<Real_v> Bool_t;
-    Bool_t done(false);
     const Real_v zero(0.0);
 
     distance                = kInfLength;
     Bool_t onConicalSurface = IsOnConicalSurface<Real_v, ForInnerSurface>(cone, point);
-    done                    = onConicalSurface &&
-           (direction.Dot(ConeUtilities::GetNormal<Real_v, ForInnerSurface>(cone, point)) == zero);
+    Vector3D<Real_v> normal = ConeUtilities::GetNormal<Real_v, ForInnerSurface>(cone, point);
+    Bool_t tangentToSurface = vecCore::math::Abs(direction.Dot(normal)) == zero;
+    Bool_t done             = onConicalSurface && tangentToSurface;
     if (vecCore::MaskFull(done)) return Bool_t(false);
 
-    if (ForDistToIn) {
-      Bool_t isOnSurfaceAndMovingInside =
-          !done && ConeUtilities::IsMovingInsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
+    // if precond is all false, save some CPU
+    const Bool_t precond = !done & onConicalSurface;
+    if (!vecCore::MaskEmpty(precond)) {
+      if (ForDistToIn) {
+        Bool_t isOnSurfaceAndMovingInside = precond
+          & ConeUtilities::IsMovingInsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
 
-      if (!checkPhiTreatment<coneTypeT>(cone)) {
-        vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingInside, zero);
-        done |= isOnSurfaceAndMovingInside;
-        if (vecCore::MaskFull(done)) return done;
+        if (!checkPhiTreatment<coneTypeT>(cone)) {
+          vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingInside, zero);
+          done |= isOnSurfaceAndMovingInside;
+          if (vecCore::MaskFull(done)) return done;
+        } else {
+          Bool_t insector(false);
+          ConeUtilities::PointInCyclicalSector<Real_v, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
+          vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingInside, zero);
+          done |= (insector && isOnSurfaceAndMovingInside);
+          if (vecCore::MaskFull(done)) return done;
+        }
+
       } else {
-        Bool_t insector(false);
-        ConeUtilities::PointInCyclicalSector<Real_v, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
-        vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingInside, zero);
-        done |= (insector && isOnSurfaceAndMovingInside);
-        if (vecCore::MaskFull(done)) return done;
-      }
+	Bool_t isOnSurfaceAndMovingOutside = precond
+          & ConeUtilities::IsMovingOutsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
 
-    } else {
-      Bool_t isOnSurfaceAndMovingOutside =
-          !done && IsMovingOutsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
-
-      if (!checkPhiTreatment<coneTypeT>(cone)) {
-        vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingOutside, zero);
-        done |= isOnSurfaceAndMovingOutside;
-        if (vecCore::MaskFull(done)) return done;
-      } else {
-        Bool_t insector(false);
-        ConeUtilities::PointInCyclicalSector<Real_v, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
-        vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingOutside, zero);
-        done |= (insector && isOnSurfaceAndMovingOutside);
-        if (vecCore::MaskFull(done)) return done;
+        if (!checkPhiTreatment<coneTypeT>(cone)) {
+          vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingOutside, zero);
+          done |= isOnSurfaceAndMovingOutside;
+          if (vecCore::MaskFull(done)) return done;
+        } else {
+          Bool_t insector(false);
+          ConeUtilities::PointInCyclicalSector<Real_v, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
+          vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingOutside, zero);
+          done |= (insector && isOnSurfaceAndMovingOutside);
+          if (vecCore::MaskFull(done)) return done;
+        }
       }
     }
 
@@ -596,43 +600,48 @@ public:
     using namespace ConeTypes;
     distance              = kInfLength;
     bool onConicalSurface = IsOnConicalSurface<Precision, ForInnerSurface>(cone, point);
-    if (onConicalSurface && direction.Dot(ConeUtilities::GetNormal<Precision, ForInnerSurface>(cone, point)) == 0.)
+    Vector3D<Precision> normal = ConeUtilities::GetNormal<Precision, ForInnerSurface>(cone, point);
+    bool tangentToSurface = vecCore::math::Abs(direction.Dot(normal)) == 0.;
+    if (onConicalSurface && tangentToSurface) {
       return false;
+    }
 
-    if (ForDistToIn) {
-      bool isOnSurfaceAndMovingInside =
-          ConeUtilities::IsMovingInsideConicalSurface<Precision, ForInnerSurface>(cone, point, direction);
+    if (onConicalSurface) {
+      if (ForDistToIn) {
+	bool isMovingInside = IsMovingInsideConicalSurface<Precision, ForInnerSurface>(cone, point, direction);
 
-      if (!checkPhiTreatment<coneTypeT>(cone)) {
-        if (isOnSurfaceAndMovingInside) {
-          distance = 0.;
-          return true;
-        }
-      } else {
-        bool insector(false);
-        ConeUtilities::PointInCyclicalSector<Precision, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
-        if (insector && isOnSurfaceAndMovingInside) {
-          distance = 0.;
-          return true;
-        }
+	if (!checkPhiTreatment<coneTypeT>(cone)) {
+	  if (isMovingInside) { // && onConicalSurface
+	    distance = 0.;
+	    return true;
+	  }
+	} else {
+	  bool insector(false);
+	  ConeUtilities::PointInCyclicalSector<Precision, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
+	  if (insector && isMovingInside) { // && onConicalSurface
+	    distance = 0.;
+	    return true;
+	  }
+	}
       }
-    } else {
-      bool isOnSurfaceAndMovingOutside =
-          IsMovingOutsideConicalSurface<Precision, ForInnerSurface>(cone, point, direction);
 
-      if (!checkPhiTreatment<coneTypeT>(cone)) {
-        if (isOnSurfaceAndMovingOutside) {
-          distance = 0.;
-          return true;
-        }
-      } else {
-        bool insector(false);
-        ConeUtilities::PointInCyclicalSector<Precision, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
+      else {  // !ForDistToIn
+	bool isMovingOutside = IsMovingOutsideConicalSurface<Precision, ForInnerSurface>(cone, point, direction);
 
-        if (insector && isOnSurfaceAndMovingOutside) {
-          distance = 0.;
-          return true;
-        }
+	if (!checkPhiTreatment<coneTypeT>(cone)) {
+	  if (isMovingOutside) { // && onConicalSurface
+	    distance = 0.;
+	    return true;
+	  }
+	} else {
+	  bool insector(false);
+	  ConeUtilities::PointInCyclicalSector<Precision, coneTypeT, false, true>(cone, point.x(), point.y(), insector);
+
+	  if (insector && isMovingOutside) {  // && onConicalSurface
+	    distance = 0.;
+	    return true;
+	  }
+	}
       }
     }
 
