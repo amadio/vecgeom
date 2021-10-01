@@ -184,17 +184,15 @@ public:
   VECCORE_ATT_HOST_DEVICE
   typename vecCore::Mask_v<Real_v> IsOnSurfaceGeneric(Vector3D<Real_v> const &point) const
   {
-
-    Real_v rho2 = point.Perp2();
     Real_v rhs(0.);
     if (ForStartTheta) {
-      rhs = tanSTheta * point.z();
+      rhs = Abs(tanSTheta * point.z());
     } else {
-      rhs = tanETheta * point.z();
+      rhs = Abs(tanETheta * point.z());
     }
-    Real_v rhs2 = rhs * rhs;
-    return rho2 >= MakeMinusTolerantSquare<true>(Abs(rhs), rhs2) &&
-           rho2 <= MakePlusTolerantSquare<true>(Abs(rhs), rhs2);
+    Real_v rho2 = point.Perp2();
+    return rho2 >= MakeMinusTolerantSquare<true>(rhs) &&
+           rho2 <= MakePlusTolerantSquare<true>(rhs);
   }
 
   /* Function Name : IsPointOnSurfaceAndMovingOut<Real_v, ForStartTheta, MovingOut>

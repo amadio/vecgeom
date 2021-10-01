@@ -528,11 +528,10 @@ public:
       rmax = Real_v(cone.fOriginalRmax1);
     else
       rmax = cone.fOuterSlope * point.z() + cone.fOuterOffset;
-    Real_v rmax2 = rmax * rmax;
 
-    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
+    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, cone.fOuterTolerance);
     if (ForInside) {
-      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
+      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(rmax, cone.fOuterTolerance);
     }
     if (vecCore::MaskFull(completelyoutside)) {
       return;
@@ -541,11 +540,10 @@ public:
     // check on RMIN
     if (ConeTypes::checkRminTreatment<coneTypeT>(cone)) {
       Real_v rmin  = cone.fInnerSlope * point.z() + cone.fInnerOffset;
-      Real_v rmin2 = rmin * rmin;
 
-      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(rmin, rmin2, cone.fInnerTolerance);
+      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(rmin, cone.fInnerTolerance);
       if (ForInside) {
-        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(rmin, rmin2, cone.fInnerTolerance);
+        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(rmin, cone.fInnerTolerance);
       }
       if (vecCore::MaskFull(completelyoutside)) {
         return;
@@ -779,22 +777,19 @@ public:
     else
       rmax = cone.fOuterSlope * point.z() + cone.fOuterOffset;
 
-    Precision rmax2 = rmax * rmax;
-
-    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
+    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, cone.fOuterTolerance);
     if (ForInside) {
-      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
+      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(rmax, cone.fOuterTolerance);
     }
     if (completelyoutside) return;
 
     // check on RMIN
     if (ConeTypes::checkRminTreatment<coneTypeT>(cone)) {
       Precision rmin  = cone.fInnerSlope * point.z() + cone.fInnerOffset;
-      Precision rmin2 = rmin * rmin;
 
-      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(rmin, rmin2, cone.fInnerTolerance);
+      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(rmin, cone.fInnerTolerance);
       if (ForInside) {
-        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(rmin, rmin2, cone.fInnerTolerance);
+        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(rmin, cone.fInnerTolerance);
       }
       if (completelyoutside) return;
     }

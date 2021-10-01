@@ -58,25 +58,27 @@ T MakeMinusTolerantCrossProduct(T const &x,  T const &length, decltype(kHalfTole
   return (tolerant) ? x - length * halftol : x;
 }
 
+/// @brief Utility to compute (x + tol)^2 for proper account of tolerances when comparing squares.
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-T MakePlusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kTolerance)
+T MakePlusTolerantSquare(T const &x, decltype(kTolerance) tol = kTolerance)
 {
   // calculate (x + halftol) * (x + halftol) which should always >= 0;
   // in order to be fast, we neglect the + tol * tol term (since it should be negligible)
-  return (tolerant) ? xsq + 2. * tol * x : xsq;
+  return (tolerant) ? x * (x + 2. * tol) : x * x;
 }
 
+/// @brief Utility to compute (x - tol)^2 for proper account of tolerances when comparing squares.
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-T MakeMinusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kTolerance)
+T MakeMinusTolerantSquare(T const &x, decltype(kTolerance) tol = kTolerance)
 {
   // calculate (x - halftol) * (x - halftol) which should always >= 0;
   // in order to be fast, we neglect the + tol * tol term (since it should be negligible)
   // but we make sure that there is never a negative sign (hence the Abs)
-  return (tolerant) ? Abs(xsq - 2. * tol * x) : xsq;
+  return (tolerant) ? Abs(x * (x - 2. * tol)) : x * x;
 }
 
 template <bool treatSurfaceT, class Backend>

@@ -55,18 +55,18 @@ template <class Real_v>
 VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> IsPointOnInnerRadius(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point)
 {
-
-  return point.Mag2() <= MakePlusTolerantSquare<true>(unplaced.fRmin, unplaced.fRmin * unplaced.fRmin) &&
-         point.Mag2() >= MakeMinusTolerantSquare<true>(unplaced.fRmin, unplaced.fRmin * unplaced.fRmin);
+  auto mag2 = point.Mag2();
+  return mag2 <= MakePlusTolerantSquare<true>(unplaced.fRmin) &&
+         mag2 >= MakeMinusTolerantSquare<true>(unplaced.fRmin);
 }
 
 template <class Real_v>
 VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> IsPointOnOuterRadius(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point)
 {
-
-  return point.Mag2() <= MakePlusTolerantSquare<true>(unplaced.fRmax, unplaced.fRmax * unplaced.fRmax) &&
-         point.Mag2() >= MakeMinusTolerantSquare<true>(unplaced.fRmax, unplaced.fRmax * unplaced.fRmax);
+  auto mag2 = point.Mag2();
+  return mag2 <= MakePlusTolerantSquare<true>(unplaced.fRmax) &&
+         mag2 >= MakeMinusTolerantSquare<true>(unplaced.fRmax);
 }
 
 template <class Real_v>

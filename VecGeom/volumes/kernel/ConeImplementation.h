@@ -74,19 +74,19 @@ struct ConeImplementation {
 
     if (ForLowerZ) {
       if (ForInnerSurface) {
-        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin1, cone.fRmin1 * cone.fRmin1)) &&
-                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin1, cone.fRmin1 * cone.fRmin1));
+        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin1)) &&
+                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin1));
       } else {
-        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax1, cone.fRmax1 * cone.fRmax1)) &&
-                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax1, cone.fRmax1 * cone.fRmax1));
+	onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax1)) &&
+                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax1));
       }
     } else {
       if (ForInnerSurface) {
-        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin2, cone.fRmin2 * cone.fRmin2)) &&
-                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin2, cone.fRmin2 * cone.fRmin2));
+        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin2)) &&
+                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin2));
       } else {
-        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax2, cone.fRmax2 * cone.fRmax2)) &&
-                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax2, cone.fRmax2 * cone.fRmax2));
+        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax2)) &&
+                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax2));
       }
     }
 
@@ -137,28 +137,24 @@ struct ConeImplementation {
     done |= outZAndGoingOut;
     if (vecCore::MaskFull(done)) return;
 
-    // outside of outer cone and going away?
-    Float_t outerRadIrTol  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) - cone.fOuterTolerance;
-    Float_t outerRadIrTol2 = outerRadIrTol * outerRadIrTol;
+    // outside or *on* outer cone and going away?
+    Float_t outerRad  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
     Float_t rsq            = point.Perp2(); // point.x()*point.x() + point.y()*point.y();
-
-    done |= rsq > outerRadIrTol2 && (dir.Dot(GetNormal<Real_v, false>(cone, point)) >= Real_v(0.));
+    done |= (rsq > MakeMinusTolerantSquare<true>(outerRad, cone.fOuterTolerance))
+      && (dir.Dot(GetNormal<Real_v, false>(cone, point)) >= Real_v(0.0));
     if (vecCore::MaskFull(done)) return;
 
-    //=== Next, check all dimensions of the cone, whether points are inside -->
-    // return -1
-
+    //=== Next, check all dimensions of the cone: for points inside --> return -1
     vecCore__MaskedAssignFunc(distance, !done, Float_t(-1.0));
 
     // For points inside z-range, return -1
     Bool_t inside = distz < -kHalfConeTolerance;
 
-    inside &= rsq < outerRadIrTol2;
+    inside &= rsq < MakeMinusTolerantSquare<true>(outerRad, cone.fOuterTolerance);
 
     if (checkRminTreatment<coneTypeT>(cone)) {
-      Float_t innerRadIrTol  = GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) + cone.fInnerTolerance;
-      Float_t innerRadIrTol2 = innerRadIrTol * innerRadIrTol;
-      inside &= rsq > innerRadIrTol2;
+      Float_t innerRad = GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z());
+      inside &= rsq > MakePlusTolerantSquare<true>(innerRad, cone.fInnerTolerance);
     }
     if (checkPhiTreatment<coneTypeT>(cone)) { // && !vecCore::MaskEmpty(inside)) {
       Bool_t insector;
@@ -273,24 +269,21 @@ struct ConeImplementation {
 
     // Using this logic will improve performance of Scalar code
     Real_v distz         = Abs(point.z()) - cone.fDz;
-    Real_v rsq           = point.Perp2();
-    Real_v outerRadOrTol = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) + cone.fOuterTolerance;
-    Real_v outerRadOrTol2 = outerRadOrTol * outerRadOrTol;
 
-    //=== Next, check all dimensions of the cone, whether points are inside -->
-    // return -1
+    //=== Next, check all dimensions of the cone: for points outside --> return -1
     vecCore__MaskedAssignFunc(distance, !done, Real_v(-1.0));
 
-    // For points inside z-range, return -1
-    Bool_t outside = distz > Real_v(kHalfConeTolerance) || rsq > outerRadOrTol2;
+    Bool_t outside = distz > Real_v(kHalfConeTolerance);
+
+    Real_v rsq           = point.Perp2();
+    Real_v outerRad = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
+    outside |=  rsq > MakePlusTolerantSquare<true>(outerRad, cone.fOuterTolerance);
     done |= outside;
     if (vecCore::MaskFull(done)) return;
 
     if (checkRminTreatment<coneTypeT>(cone) && !vecCore::MaskFull(outside)) {
-      Real_v innerRadOrTol =
-          ConeUtilities::GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) - cone.fInnerTolerance;
-      Real_v innerRadOrTol2 = innerRadOrTol * innerRadOrTol;
-      outside |= rsq < innerRadOrTol2;
+      Real_v innerRad = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z());
+      outside |= rsq < MakeMinusTolerantSquare<true>(innerRad, cone.fInnerTolerance);
       done |= outside;
       if (vecCore::MaskFull(done)) return;
     }
@@ -388,17 +381,15 @@ struct ConeImplementation {
     // For points inside z-range, return -1
     Bool_t inside = distz < -kHalfConeTolerance;
 
-    // This logic to check if the point is inside is far better then
+    // This logic to check if the point is inside is far better than
     // using GenericKernel and will improve performance.
-    Float_t outerRadIrTol  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) - kTolerance;
-    Float_t outerRadIrTol2 = outerRadIrTol * outerRadIrTol;
-    Float_t rsq            = point.Perp2();
-    inside &= rsq < outerRadIrTol2;
+    Float_t outerRad = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
+    Float_t rsq      = point.Perp2();
+    inside &= rsq < MakeMinusTolerantSquare<true>(outerRad, cone.fOuterTolerance);
 
     if (checkRminTreatment<coneTypeT>(cone)) {
-      Float_t innerRadIrTol  = GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) + kTolerance;
-      Float_t innerRadIrTol2 = innerRadIrTol * innerRadIrTol;
-      inside &= rsq > innerRadIrTol2;
+      Float_t innerRad = GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z());
+      inside &= rsq > MakePlusTolerantSquare<true>(innerRad, cone.fInnerTolerance);
     }
     if (checkPhiTreatment<coneTypeT>(cone) && !vecCore::MaskEmpty(inside)) {
       Bool_t insector;
@@ -451,24 +442,19 @@ struct ConeImplementation {
     Float_t distz = Abs(point.z()) - cone.fDz;
     Float_t rsq   = point.Perp2();
 
-    // This logic to check if the point is outside is far better then
-    // using GenericKernel and will improve performance.
-    Float_t outerRadOrTol  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) + kTolerance;
-    Float_t outerRadOrTol2 = outerRadOrTol * outerRadOrTol;
-
-    //=== Next, check all dimensions of the cone, whether points are inside -->
-    // return -1
+    //=== Next, check all dimensions of the cone --> for points outside z-range, return -1
     vecCore__MaskedAssignFunc(safety, !done, Float_t(-1.0));
 
-    // For points outside z-range, return -1
+    // This logic to check if the point is outside is far better then
+    // using GenericKernel and will improve performance.
     Bool_t outside = distz > Real_v(kHalfConeTolerance);
 
-    outside |= rsq > outerRadOrTol2;
+    Float_t outerRad  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
+    outside |= rsq > MakePlusTolerantSquare<true>(outerRad, cone.fOuterTolerance);
 
     if (checkRminTreatment<coneTypeT>(cone)) {
-      Float_t innerRadOrTol  = GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) - kTolerance;
-      Float_t innerRadOrTol2 = innerRadOrTol * innerRadOrTol;
-      outside |= rsq < innerRadOrTol2;
+      Float_t innerRad = GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z());
+      outside |= rsq < MakeMinusTolerantSquare<true>(innerRad, cone.fInnerTolerance);
     }
 
     if (checkPhiTreatment<coneTypeT>(cone) && !vecCore::MaskEmpty(outside)) {

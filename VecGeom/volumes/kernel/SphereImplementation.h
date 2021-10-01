@@ -97,16 +97,16 @@ struct SphereImplementation {
     // Check radial surfaces
     // Radial check for GenericKernel Start
     if (sphere.fRmin)
-      completelyinside = rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmax, sphere.fRmax * sphere.fRmax) &&
-                         rad2 >= MakePlusTolerantSquare<true>(sphere.fRmin, sphere.fRmin * sphere.fRmin);
+      completelyinside = rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmax) &&
+                         rad2 >= MakePlusTolerantSquare<true>(sphere.fRmin);
     else
-      completelyinside = rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmax, sphere.fRmax * sphere.fRmax);
+      completelyinside = rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmax);
 
     if (sphere.fRmin)
-      completelyoutside = rad2 >= MakePlusTolerantSquare<true>(sphere.fRmax, sphere.fRmax * sphere.fRmax) ||
-                          rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmin, sphere.fRmin * sphere.fRmin);
+      completelyoutside = rad2 >= MakePlusTolerantSquare<true>(sphere.fRmax) ||
+                          rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmin);
     else
-      completelyoutside = rad2 >= MakePlusTolerantSquare<true>(sphere.fRmax, sphere.fRmax * sphere.fRmax);
+      completelyoutside = rad2 >= MakePlusTolerantSquare<true>(sphere.fRmax);
 
     // Phi boundaries  : Do not check if it has no phi boundary!
     if (!sphere.fFullPhiSphere) {

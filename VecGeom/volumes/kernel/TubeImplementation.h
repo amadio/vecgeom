@@ -410,9 +410,9 @@ struct TubeImplementation {
     Real_v r2 = point.x() * point.x() + point.y() * point.y();
     // calculate cone radius at the z-height of position
 
-    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(tube.fRmax, tube.fRmax2);
+    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(tube.fRmax);
     if (ForInside) {
-      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(tube.fRmax, tube.fRmax2);
+      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(tube.fRmax);
     }
     if (vecCore::EarlyReturnAllowed()) {
       if (vecCore::MaskFull(completelyoutside)) {
@@ -422,9 +422,9 @@ struct TubeImplementation {
 
     // check on RMIN
     if (checkRminTreatment<tubeTypeT>(tube)) {
-      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(tube.fRmin, tube.fRmin2);
+      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(tube.fRmin);
       if (ForInside) {
-        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(tube.fRmin, tube.fRmin2);
+        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(tube.fRmin);
       }
       if (vecCore::EarlyReturnAllowed()) {
         if (vecCore::MaskFull(completelyoutside)) {
