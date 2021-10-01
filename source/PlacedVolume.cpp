@@ -125,7 +125,6 @@ Precision VPlacedVolume::Capacity()
 VECCORE_ATT_HOST_DEVICE
 bool VPlacedVolume::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
-#ifndef VECCORE_CUDA
   // transform point to local space 
   const Transformation3D *tr = GetTransformation();
   Vector3D<Precision> lp = tr->Transform(point);
@@ -135,9 +134,6 @@ bool VPlacedVolume::Normal(Vector3D<Precision> const &point, Vector3D<Precision>
   // transform normal to master space
   GetTransformation()->InverseTransformDirection(ln, normal);
   return valid;
-#else
-  return false;
-#endif
 }
 
 VECCORE_ATT_HOST_DEVICE
