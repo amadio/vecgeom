@@ -707,14 +707,14 @@ struct TubeImplementation {
     Real_v crmin = rsq;
 
     // if outside of Rmax, return -1
-    done |= crmax > 2. * kTolerance * tube.fRmax;
+    done |= crmax > Precision(2) * kTolerance * tube.fRmax;
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     if (checkRminTreatment<tubeTypeT>(tube)) {
       // if point is within inner-hole of a hollow tube, it is outside of the
       // tube --> return -1
       crmin -= tube.fRmin2; // avoid a division for now
-      done |= crmin < -2. * kTolerance * tube.fRmin;
+      done |= crmin < Precision(-2) * kTolerance * tube.fRmin;
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
     }
 

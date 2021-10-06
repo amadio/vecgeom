@@ -23,7 +23,7 @@ struct GenericKernels {
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-T MakePlusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfTolerance)
+T MakePlusTolerant(T const &x, vecCore::Scalar<T> halftol = kHalfTolerance)
 {
   return (tolerant) ? x + halftol : x;
 }
@@ -31,7 +31,7 @@ T MakePlusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfTolerance
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-T MakeMinusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfTolerance)
+T MakeMinusTolerant(T const &x, vecCore::Scalar<T> halftol = kHalfTolerance)
 {
   return (tolerant) ? x - halftol : x;
 }
@@ -45,7 +45,7 @@ T MakeMinusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfToleranc
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-T MakePlusTolerantCrossProduct(T const &x, T const &length, decltype(kHalfTolerance) halftol = kHalfTolerance)
+T MakePlusTolerantCrossProduct(T const &x, T const &length, vecCore::Scalar<T> halftol = kHalfTolerance)
 {
   return (tolerant) ? x + length * halftol : x;
 }
@@ -53,7 +53,7 @@ T MakePlusTolerantCrossProduct(T const &x, T const &length, decltype(kHalfTolera
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-T MakeMinusTolerantCrossProduct(T const &x,  T const &length, decltype(kHalfTolerance) halftol = kHalfTolerance)
+T MakeMinusTolerantCrossProduct(T const &x,  T const &length, vecCore::Scalar<T> halftol = kHalfTolerance)
 {
   return (tolerant) ? x - length * halftol : x;
 }
@@ -62,23 +62,23 @@ T MakeMinusTolerantCrossProduct(T const &x,  T const &length, decltype(kHalfTole
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-T MakePlusTolerantSquare(T const &x, decltype(kTolerance) tol = kTolerance)
+T MakePlusTolerantSquare(T const &x, vecCore::Scalar<T> tol = kTolerance)
 {
   // calculate (x + halftol) * (x + halftol) which should always >= 0;
   // in order to be fast, we neglect the + tol * tol term (since it should be negligible)
-  return (tolerant) ? x * (x + 2. * tol) : x * x;
+  return (tolerant) ? x * (x + vecCore::Scalar<T>(2.) * tol) : x * x;
 }
 
 /// @brief Utility to compute (x - tol)^2 for proper account of tolerances when comparing squares.
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-T MakeMinusTolerantSquare(T const &x, decltype(kTolerance) tol = kTolerance)
+T MakeMinusTolerantSquare(T const &x, vecCore::Scalar<T> tol = kTolerance)
 {
   // calculate (x - halftol) * (x - halftol) which should always >= 0;
   // in order to be fast, we neglect the + tol * tol term (since it should be negligible)
   // but we make sure that there is never a negative sign (hence the Abs)
-  return (tolerant) ? Abs(x * (x - 2. * tol)) : x * x;
+  return (tolerant) ? Abs(x * (x - vecCore::Scalar<T>(2.) * tol)) : x * x;
 }
 
 template <bool treatSurfaceT, class Backend>

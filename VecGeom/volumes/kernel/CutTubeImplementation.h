@@ -268,7 +268,7 @@ void CutTubeImplementation::DistanceToInKernel(UnplacedStruct_t const &unplaced,
                                                                            direction, stepMax, dtube);
   // A.G Propagation to cut planes can put the point inside the tube, so DistanceToIn may return -1
   // In such case we need to set dtube to 0, otherwise we may get wrong negative answers
-  vecCore__MaskedAssignFunc(dtube, dtube < 0., Real_v(0.));
+  vecCore__MaskedAssignFunc(dtube, dtube < Real_v(0.), Real_v(0.));
   vecCore__MaskedAssignFunc(dtube, dexit < dtube, InfinityLength<Real_v>());
   vecCore__MaskedAssignFunc(distance, !done && (dtube + dplanes) < stepMax, dtube + dplanes);
 // The line below is needed for the convention

@@ -286,7 +286,7 @@ struct ParaboloidImplementation {
     vecCore__MaskedAssignFunc(distance, !done, InfinityLength<Real_v>());
 
     Real_v distZ   = InfinityLength<Real_v>();
-    Real_v dirZinv = Real_v(1. / NonZero(direction.z()));
+    Real_v dirZinv = Real_v(1.) / NonZero(direction.z());
 
     Bool_v dir_mask = direction.z() < 0;
     vecCore__MaskedAssignFunc(distZ, dir_mask, -(paraboloid.fDz + point.z()) * dirZinv);
