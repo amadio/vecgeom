@@ -374,11 +374,15 @@ message(STATUS "Compiling for ${_arch_up} SIMD architecture")
 
 ################################################################################
 # - CUDA compiler flags
+if(FAST_MATH)
+  set(NVCC_FAST_MATH "-use_fast_math")
+endif()
+
 if(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
   set(VECGEOM_NVCC_COMPILATION_FLAGS -g -lineinfo ${VECGEOM_NVCC_COMPILATION_FLAGS})
 endif()
 if(CMAKE_BUILD_TYPE MATCHES MinSizeRel)
-  set(VECGEOM_NVCC_COMPILATION_FLAGS -use_fast_math ${VECGEOM_NVCC_COMPILATION_FLAGS})
+  set(VECGEOM_NVCC_COMPILATION_FLAGS ${NVCC_FAST_MATH} ${VECGEOM_NVCC_COMPILATION_FLAGS})
 endif()
 
 if(VECGEOM_ENABLE_CUDA)
@@ -398,9 +402,9 @@ if(VECGEOM_ENABLE_CUDA)
 
   set(VECGEOM_NVCC_CONFIGS
     DEBUG -g -G -O0
-    RELEASE  -O3 -use_fast_math
-    RELWITHDEBINFO -g -lineinfo -O3 -use_fast_math
-    MINSIZEREL -use_fast_math)
+    RELEASE  -O3 ${NVCC_FAST_MATH}
+    RELWITHDEBINFO -g -lineinfo -O3 ${NVCC_FAST_MATH}
+    MINSIZEREL ${NVCC_FAST_MATH})
 
   # FindCUDA.mk generate cmake file for each .o file using
   # the cmake command:
