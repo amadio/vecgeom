@@ -33,7 +33,7 @@ Vector3D<Precision> random_unit_vector()
   Precision z = uniform(-1.0f, 1.0f);
   Precision r = sqrt(1.0f - z * z);
   Precision t = uniform(0.0f, 6.2831853f);
-  return {r * cos(t), r * sin(t), z};
+  return {r * vecCore::math::Cos<Precision>(t), r * vecCore::math::Sin<Precision>(t), z};
 }
 
 bool nearly_equal(double x, double y)
@@ -84,10 +84,11 @@ bool navigate(Vector3D<Precision> p, Vector3D<Precision> dir, bool verbose = tru
   while (!curr->IsOutside()) {
     curr_volume = curr->Top()->GetLogicalVolume();
 
-    double ref_step = ref_navigator.ComputeStepAndPropagatedState(p, dir, kInfLength, *curr, *next);
-    double step     = curr_volume->GetNavigator()->ComputeStepAndPropagatedState(p, dir, kInfLength, *curr, *next);
+    Precision ref_step = ref_navigator.ComputeStepAndPropagatedState(p, dir, kInfLength, *curr, *next);
+    Precision step     = curr_volume->GetNavigator()->ComputeStepAndPropagatedState(p, dir, kInfLength, *curr, *next);
 
     if (!nearly_equal(step, ref_step)) return false;
+    step = vecCore::math::Max(step, kTolerance);
 
     p = p + step * dir;
 
