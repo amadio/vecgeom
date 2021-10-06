@@ -365,7 +365,7 @@ public:
     if (vecCore::MaskFull(done)) return Bool_t(false);
 
     // if precond is all false, save some CPU
-    const Bool_t precond = !done & onConicalSurface;
+    const Bool_t precond = !done && onConicalSurface;
     if (!vecCore::MaskEmpty(precond)) {
       if (ForDistToIn) {
         Bool_t isOnSurfaceAndMovingInside = precond
