@@ -68,7 +68,7 @@ struct ParallelepipedStruct {
   void SetAlpha(const T alpha)
   {
     fAlpha    = alpha;
-    fTanAlpha = tan(alpha);
+    fTanAlpha = vecCore::math::Tan(alpha);
     ComputeNormals();
   }
 

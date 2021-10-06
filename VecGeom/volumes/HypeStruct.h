@@ -61,8 +61,8 @@ struct HypeStruct {
   void CalculateCached()
   {
 
-    fTIn   = tan(fStIn);    // Tangent of the Inner stereo angle  (*kDegToRad);
-    fTOut  = tan(fStOut);   // Tangent of the Outer stereo angle
+    fTIn   = vecCore::math::Tan(fStIn);    // Tangent of the Inner stereo angle  (*kDegToRad);
+    fTOut  = vecCore::math::Tan(fStOut);   // Tangent of the Outer stereo angle
     fTIn2  = fTIn * fTIn;   // squared value of fTIn
     fTOut2 = fTOut * fTOut; // squared value of fTOut
 
@@ -75,9 +75,9 @@ struct HypeStruct {
 
     fEndInnerRadius2       = fTIn2 * fDz2 + fRmin2;
     fEndOuterRadius2       = fTOut2 * fDz2 + fRmax2;
-    fEndInnerRadius        = Sqrt(fEndInnerRadius2);
-    fEndOuterRadius        = Sqrt(fEndOuterRadius2);
-    fInSqSide              = Sqrt(2.) * fRmin;
+    fEndInnerRadius        = vecCore::math::Sqrt(fEndInnerRadius2);
+    fEndOuterRadius        = vecCore::math::Sqrt(fEndOuterRadius2);
+    fInSqSide              = vecCore::math::Sqrt(2.) * fRmin;
     zToleranceLevel        = kTolerance * fDz;
     innerRadToleranceLevel = kTolerance * fEndInnerRadius; // GetEndInnerRadius();
     outerRadToleranceLevel = kTolerance * fEndOuterRadius; // GetEndOuterRadius();
