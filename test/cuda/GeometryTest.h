@@ -18,8 +18,10 @@ struct GeometryInfo {
   decltype(std::declval<vecgeom::VPlacedVolume>().GetCopyNo()) copyNo   = 0;
   decltype(std::declval<vecgeom::LogicalVolume>().id()) logicalId       = 0;
   vecgeom::Transformation3D trans;
-  vecgeom::Vector3D<vecgeom::Precision> amin;
-  vecgeom::Vector3D<vecgeom::Precision> amax;
+  // Don't use Vector3D which changes layout from device to host in vector mode
+  // so cudaMemcpy gets wrong data
+  vecgeom::Precision amin[3];
+  vecgeom::Precision amax[3];
 
   GeometryInfo() = default;
 
@@ -29,14 +31,21 @@ struct GeometryInfo {
       : depth(theDepth), id(vol.id()), childId(vol.GetChildId()), copyNo(vol.GetCopyNo()),
         logicalId(vol.GetLogicalVolume()->id()), trans{*vol.GetTransformation()}
   {
-    vol.GetUnplacedVolume()->GetBBox(amin, amax);
-    assert((amax - amin).Mag() > 0 && "Bounding box size must be positive");
+    vecgeom::Vector3D<vecgeom::Precision> aminv, amaxv;
+    vol.GetUnplacedVolume()->GetBBox(aminv, amaxv);
+    assert((amaxv - aminv).Mag() > 0 && "Bounding box size must be positive");
+    for (auto i = 0; i < 3; ++i) {
+      amin[i] = aminv[i];
+      amax[i] = amaxv[i];
+    }
   }
 
   bool operator==(const GeometryInfo &rhs)
   {
+    bool same_bbox = amin[0] == rhs.amin[0] && amin[1] == rhs.amin[1] && amin[2] == rhs.amin[2] &&
+                     amax[0] == rhs.amax[0] && amax[1] == rhs.amax[1] && amax[2] == rhs.amax[2];
     return depth == rhs.depth && id == rhs.id && childId == rhs.childId && copyNo == rhs.copyNo &&
-           logicalId == rhs.logicalId && trans == rhs.trans && amin == rhs.amin && amax == rhs.amax;
+           logicalId == rhs.logicalId && trans == rhs.trans && same_bbox;
   }
 };
 
