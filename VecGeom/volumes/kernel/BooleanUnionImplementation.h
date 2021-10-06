@@ -136,7 +136,7 @@ struct BooleanImplementation<kUnion> {
     VPlacedVolume const *const ptrSolidB = unplaced.fRightVolume;
 
     Real_v dist = 0.;
-    Real_v pushdist(1E-6);
+    Real_v pushdist(kPushTolerance);
     // size_t push          = 0;
     const auto positionA = ptrSolidA->Inside(point);
     Vector3D<Real_v> nextp(point);

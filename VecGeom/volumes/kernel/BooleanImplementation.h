@@ -144,7 +144,7 @@ struct BooleanImplementation<kSubtraction> {
     // check if inside '-'
     auto insideRight = unplaced.fRightVolume->Contains(p);
     //  // epsilon is used to push across boundaries
-    Precision epsil(1E-6);
+    Precision epsil(kPushTolerance);
     //
     //  // we should never subtract a volume such that B - A > 0
     //
