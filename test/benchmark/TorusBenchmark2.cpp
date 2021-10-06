@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
   tester.SetVerbosity(3);
-  tester.SetTolerance(1E-8);
+  tester.SetTolerance(10. * vecgeom::kTolerance);
   tester.SetPoolMultiplier(1);
   tester.SetRepetitions(nrep);
   tester.SetPointCount(npoints);

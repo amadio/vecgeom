@@ -211,22 +211,22 @@ struct TorusImplementation2 {
     Bool_v done = Bool_v(false);
     distance    = kInfLength;
 
-    if (vecCore::EarlyReturnAllowed()) {
-      // very simple calculations -- only if can save some time
-      Real_v distz = Abs(point.z()) - torus.rmax();
-      done |= distz > kHalfTolerance;
+    // very simple calculations -- only if can save some time
+    Real_v distz = Abs(point.z()) - torus.rmax();
+    done |= distz > kHalfTolerance;
 
-      // outside of bounding tube?
-      Real_v rsq = point.x() * point.x() + point.y() * point.y();
-      // Real_v rdotv = point.x()*dir.x() + point.y()*dir.y();
-      Precision outerExclRadius = torus.rtor() + torus.rmax() + kHalfTolerance;
-      done |= rsq > outerExclRadius * outerExclRadius;
-      Precision innerExclRadius = torus.rtor() - torus.rmax() - kHalfTolerance;
-      done |= rsq < innerExclRadius * innerExclRadius;
+    // outside of bounding tube?
+    Real_v rsq = point.x() * point.x() + point.y() * point.y();
+    // Real_v rdotv = point.x()*dir.x() + point.y()*dir.y();
+    Precision outerExclRadius = torus.rtor() + torus.rmax() + kHalfTolerance;
+    done |= rsq > outerExclRadius * outerExclRadius;
+    Precision innerExclRadius = torus.rtor() - torus.rmax() - kHalfTolerance;
+    done |= rsq < innerExclRadius * innerExclRadius;
+    vecCore__MaskedAssignFunc(distance, done, Real_v(-1.));
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) {
       vecCore__MaskedAssignFunc(distance, done, Real_v(-1.));
-      if (vecCore::MaskFull(done)) return;
+      return;
     }
-
     //=== Use InsideKernel() for a quick check, and if outside --> return -1
     // Bool_t inside=false, outside=false;
     // GenericKernelForContainsAndInside<Backend,true,true>(torus, point, inside, outside);
@@ -236,8 +236,10 @@ struct TorusImplementation2 {
     TorusImplementation2::InsideKernel<Real_v, Inside_v>(torus, point, locus);
     vecCore__MaskedAssignFunc(distance, locus == EInside::kOutside, Real_v(-1.));
     done |= locus == EInside::kOutside;
-    vecCore__MaskedAssignFunc(distance, done, Real_v(-1.));
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) {
+      vecCore__MaskedAssignFunc(distance, done, Real_v(-1.));
+      return;
+    }
 
     Real_v dout = ToBoundary<Real_v, false>(torus, point, dir, torus.rmax(), true);
     // ToBoundary<Backend, false, true>(torus, point, dir, torus.rmax());
@@ -288,7 +290,7 @@ struct TorusImplementation2 {
       }
     }
 
-    vecCore__MaskedAssignFunc(distance, distance >= kInfLength, Real_v(-1.));
+    vecCore__MaskedAssignFunc(distance, done || distance >= kInfLength, Real_v(-1.));
   }
 
   template <typename Real_v, typename Bool_v, bool notForDisk>
