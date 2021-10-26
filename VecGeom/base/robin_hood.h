@@ -135,7 +135,7 @@
 #ifndef __has_cpp_attribute // For backwards compatibility
 #define __has_cpp_attribute(x) 0
 #endif
-#if __has_cpp_attribute(clang::fallthrough)
+#if __has_cpp_attribute(clang::fallthrough) && !defined(__INTEL_COMPILER)
 #define ROBIN_HOOD_PRIVATE_DEFINITION_FALLTHROUGH() [[clang::fallthrough]]
 #elif __has_cpp_attribute(gnu::fallthrough)
 #define ROBIN_HOOD_PRIVATE_DEFINITION_FALLTHROUGH() [[gnu::fallthrough]]
@@ -1802,7 +1802,7 @@ private:
     }
   }
 
-  ROBIN_HOOD(NOINLINE) void throwOverflowError() const
+  void throwOverflowError() const
   {
 #if ROBIN_HOOD(HAS_EXCEPTIONS)
     throw std::overflow_error("robin_hood::map overflow");
