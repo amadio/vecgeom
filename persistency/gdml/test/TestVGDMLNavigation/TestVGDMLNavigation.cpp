@@ -38,6 +38,8 @@ Vector3D<Precision> random_unit_vector()
 
 bool nearly_equal(double x, double y)
 {
+  using std::abs;
+
   if (x == y)
     return true;
   else if (x * y == 0.0)
