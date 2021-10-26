@@ -530,6 +530,7 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
       }
     }
     printf("%i / %i mismatches detected.\n", mismatches, fPointCount);
+    printf("%i / %i worse safeties detected.\n", worse, fPointCount);
   }
 
   return mismatches;

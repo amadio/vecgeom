@@ -241,6 +241,7 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol)
   }
   assert(index == size);
   assert(assignedscalarvectors == 2 * ndaughters);
+  (void) assignedscalarvectors; // silence compiler warnings
 }
 
 void ABBoxManager::RemoveABBoxes(LogicalVolume const *lvol)
