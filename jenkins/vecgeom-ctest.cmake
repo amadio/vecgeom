@@ -57,10 +57,15 @@ endif()
 
 ################################################################################
 # Use multiple CPU cores to build
-include(ProcessorCount)
-ProcessorCount(N)
-if(NOT N EQUAL 0)
-  set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${N})
+
+cmake_host_system_information(RESULT NCORES QUERY NUMBER_OF_PHYSICAL_CORES)
+
+if(NOT DEFINED ENV{CMAKE_BUILD_PARALLEL_LEVEL})
+  set(ENV{CMAKE_BUILD_PARALLEL_LEVEL} ${NCORES})
+endif()
+
+if(NOT DEFINED ENV{CTEST_PARALLEL_LEVEL})
+  set(ENV{CTEST_PARALLEL_LEVEL} ${NCORES})
 endif()
 
 ################################################################################
@@ -75,7 +80,6 @@ set(CTEST_SOURCE_DIRECTORY "$ENV{CMAKE_SOURCE_DIR}")
 set(CTEST_BINARY_DIRECTORY "$ENV{CMAKE_BINARY_DIR}")
 set(CTEST_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}")
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
-set(CTEST_BUILD_FLAGS "-j${N}")
 ################################################################################
 # Fixed set of CMake options
 set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX}
@@ -176,7 +180,6 @@ ctest_build(BUILD ${CTEST_BINARY_DIRECTORY}
 ctest_submit(PARTS Build)
 
 ctest_test(BUILD ${CTEST_BINARY_DIRECTORY}
-          ${ctest_test_args}
           APPEND)
 ctest_submit(PARTS Test)
 
