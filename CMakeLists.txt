@@ -101,7 +101,7 @@ enum_option(VECGEOM_VECTOR DOC "Vector instruction set to be used"
   CASE_INSENSITIVE)
 
 # - ISA Backend
-set(VECGEOM_BACKENDS scalar umesimd vc)
+set(VECGEOM_BACKENDS scalar vc)
 enum_option(BACKEND DOC "Vector backend API to be used"
   TYPE STRING
   VALUES ${VECGEOM_BACKENDS}
@@ -110,8 +110,6 @@ enum_option(BACKEND DOC "Vector backend API to be used"
 # Case adjustment because pass to VecCore components is
 if(BACKEND STREQUAL "scalar")
   set(BACKEND "Scalar")
-elseif(BACKEND STREQUAL "umesimd")
-  set(BACKEND "UMESIMD")
 elseif(BACKEND STREQUAL "vc")
   set(BACKEND "Vc")
 endif()
@@ -121,7 +119,7 @@ string(TOUPPER "${BACKEND}" _BACKEND_UP)
 set(VECGEOM_${_BACKEND_UP} True)
 message(STATUS "Configuring with ${BACKEND} vector backend")
 
-if("${BACKEND}" MATCHES "Vc|UMESIMD")
+if("${BACKEND}" MATCHES "Vc")
   set(VecCore_COMPONENTS ${VecCore_COMPONENTS} ${BACKEND})
 endif()
 

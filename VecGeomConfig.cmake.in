@@ -28,7 +28,6 @@
 # - VecGeom_VECTOR_ISA            - String holding the Instruction Set Architecture VecGeom
 #                                   was compiled against (e.g. "sse4.2"). The empty string
 #                                   if no explicit flag was used.
-# - VecGeom_umesimd_backend_FOUND - True if the VecGeom vector backend in UMESIMD
 # - VecGeom_vc_backend_FOUND      - True if the VecGeom vector backend is Vc
 #
 # Deprecated Variables
@@ -65,10 +64,9 @@ endif()
 
 # Scalar/Vector Backend, Backend Implementation, and ISA
 set(VecGeom_scalar_backend_FOUND @VECGEOM_SCALAR@)
-set(VecGeom_umesimd_backend_FOUND @VECGEOM_UMESIMD@)
 set(VecGeom_vc_backend_FOUND @VECGEOM_VC@)
 
-if(VecGeom_umesimd_FOUND OR VecGeom_vc_FOUND)
+if(VecGeom_vc_FOUND)
   set(VecGeom_vector_backend_FOUND ON)
 endif()
 

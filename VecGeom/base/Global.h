@@ -108,8 +108,6 @@ struct UseIfSameType<DataType, DataType> {
 // trying to set some sort of default scalar and vector backend
 #if defined(VECGEOM_VC) && !defined(VECCORE_CUDA)
 using VectorBackend = vecCore::backend::VcVectorT<Precision>;
-#elif defined(VECGEOM_UMESIMD) && !defined(VECCORE_CUDA)
-using VectorBackend                   = vecCore::backend::UMESimd;
 #else
 using VectorBackend = vecCore::backend::ScalarT<Precision>;
 #endif

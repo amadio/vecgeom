@@ -56,10 +56,6 @@ if(VECGEOM_VC)
   set(Vc_LIBRARY ${VecCore_ROOTDIR}/lib${LIB_SUFFIX}/${Vc_LIBNAME})
 endif()
 
-if(DEFINED UMESIMD_DIR AND NOT DEFINED UMESIMD_ROOT)
-  set(UMESIMD_ROOT ${UMESIMD_DIR})
-endif()
-
 build_external_project(${VecCore_PROJECT}
   "${VecCore_ROOTDIR}/include/VecCore/*.h;${VecCore_ROOTDIR}/include/VecCore/VecCore;${VecCore_ROOTDIR}/include/VecCore/Backend/*.h"
   "URL \"${VecCore_SRC_URI}/VecCore-${VecCore_VERSION}.tar.gz\"
@@ -74,7 +70,7 @@ build_external_project(${VecCore_PROJECT}
   LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
   CMAKE_ARGS -G \"${CMAKE_GENERATOR}\"
              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DBUILD_TESTING=OFF
-             -DCUDA=${CUDA} -DVC=${VECGEOM_VC} -DUMESIMD=${VECGEOM_UMESIMD}
+             -DCUDA=${CUDA} -DVC=${VECGEOM_VC}
              -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
            \"-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}\"
              -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -82,7 +78,6 @@ build_external_project(${VecCore_PROJECT}
              -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
            \"-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}\"
            \"-DVc_DIR=${Vc_DIR}\"
-           \"-DUMESIMD_ROOT=${UMESIMD_ROOT}\"
   INSTALL_COMMAND env DESTDIR=${VecCore_DESTDIR} ${CMAKE_COMMAND} --build . --target install"
 )
 

@@ -6,7 +6,6 @@
 
 // Scalar/Vector Backend (only one can be defined)
 #cmakedefine VECGEOM_SCALAR
-#cmakedefine VECGEOM_UMESIMD
 #cmakedefine VECGEOM_VC
 #cmakedefine VECGEOM_FLOAT_PRECISION
 

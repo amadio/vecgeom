@@ -113,13 +113,6 @@ int main()
   TestType<backend::VcSimdArray<32>>("VcSimdArray<32>");
 #endif
 
-#ifdef VECCORE_ENABLE_UMESIMD
-  TestType<backend::UMESimd>("UME::SIMD");
-  TestType<backend::UMESimdArray<8>>("UME::SIMD<8>");
-  TestType<backend::UMESimdArray<16>>("UME::SIMD<16>");
-  TestType<backend::UMESimdArray<32>>("UME::SIMD<32>");
-#endif
-
 #endif
 
   std::cout << "TestEarlyReturns: passed\n";
