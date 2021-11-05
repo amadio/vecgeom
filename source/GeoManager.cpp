@@ -42,7 +42,8 @@ void GeoManager::RegisterPlacedVolume(VPlacedVolume *const placed_volume)
   if (!fIsClosed)
     fPlacedVolumesMap[placed_volume->id()] = placed_volume;
   else {
-    std::cerr << "PlacedVolume created after geometry is closed --> will not be registered\n";
+    // std::cerr << "PlacedVolume " // << placed_volume->GetName()
+    //          << " created after geometry is closed --> will not be registered\n";
   }
 }
 

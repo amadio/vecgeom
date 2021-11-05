@@ -1,0 +1,94 @@
+
+Version 1.1.18       5th November 2021
+======================================
+Overview: 
+- Further implementation of functions needed for inclusion of VecGeom Navigation into Geant4.
+- Moved included version of VecCore to 0.8.0
+- Use precision-dependent push rather than fixed one.
+- Fix for GeometryTest in CUDA + vector mode
+- More improvements and fixes to multiple shapes for improved test results in single precision mode
+- Fixes for single-precision mode on GPU.
+
+Migration / configuration / behaviour change(s):
+- Added arb8 to gdml reader
+- Export required flags for VecGeom as compile options
+- Disable usage of fast math for nvcc unless requested via FAST_MATH option.
+
+Details:
+- VNavigators (HybridNavigator2, NewSimpleNavigator) improved
+- VolumeUtilities::FillUncontainedPoints revised to cope with no uncontained volume
+- Improvements for different compilers: Intel, LLVM, Clang 13.0
+- Type consistency fixes.
+- More robust type casting for utility methods.
+- Compilation fixes for single-precision vector mode.
+- Use vecCore::math function rather than standard ones, for consistent host/device behaviour.
+- Improved cone performance: avoid a few redundant IsOnConicalSurface(...) function calls
+- Add Normal() CPU implementation also to GPU
+- Added doxygen docs for ApproachNextDaughter
+- BVH: Declare stacks as unsigned int and reduced code duplication of LevelLocate
+
+Version 1.1.17    3rd September 2021
+===================================
+
+Overview:
+- Improvements and fixes to multiple shapes to enable tests to pass in single precision mode
+- Fixes for BVH
+- Added accessors for navigation state index.
+
+Migration - configuration or interface changes:
+- Removed navigation index setter since the state should rather be recomputed for consistency.
+
+Details:
+- Fix for on surface and moving out condition for grazing rays on sphere.
+- Fix for BVH::ApproachNextDaughter: point/dir conversion to checked daughter frame.
+- Fixes for cut tube DistanceToIn. Precision fixes for the cut tubes.
+- Fixed cone shape tester. Consistent Inside tolerance check for cone.
+- Fixed approaching bbox and removed leftover debug checks.
+- Fixed convention checking for points on edges.
+- Fixed formula for MakePlus/MinuTolerantSquare.
+- More precision fixes in the ShapeTester, improved use of ApproachSolid
+- Tolerance-related fixes for Tet to pass the ShapeTester.
+
+
+- Introduce standalone kFarAway in ShapeTester and further reduce errors
+- Fix types in ConventionChecker and ApproxEqual
+
+- Unify construction of Quadrilaterals
+- Consistently mark functions & destructors with VECCORE_ATT_HOST_DEVICE
+
+- Use VECGEOM_CONST for constants of kTolerance
+- Rename kernel function for ConstructManyOnGpu
+- UnplacedTrd now exposes interface 'normal' on GPU. Value is computed even if point not exactly on surface..
+- Transformation3D::Set copies from memory only if has_trans or has_rot are set.
+- Added new method to approach the next daughter to its bounding box.
+- Fixes for navigation index table in single precision mode.
+- Add GPU transfer testing for cms2018 geometry
+- (upstream/fix_bboxes_gpu) Fix bounding boxes on GPU by copying the values calculated on host.
+- Fix per solid tolerances and change types from double to Precision
+
+
+- Add bounding box tests to ctest
+- Implement ApproachSolid utility and store BBox in UnplacedVolume
+- Fix Polyhedron::Contains() around phi tolerance
+- Remove unused ScalarSegmentContainsKernel
+- Activate bulk copying of PlacedVolume and Transformation3D to the GPU.
+- Implement functions for bulk copying Transformation3D instances to GPU.
+- Implement functions for bulk-copying of placed volumes to GPU.
+- Improve const correctness in CudaManager.
+- Move verbose printouts to cout instead of cerr in CudaManager.
+- Add "Testing/" to .gitignore, which is created by ctest.
+
+- Reduce HOST_DEVICE attribute for PlacedVolume::GetName().
+- Add geometry test that compares CPU and GPU geometries.
+- [CMake] Remove -G from RelWithDebInfo.
+- [clang-format] Prevent clang-format from breaking doxygen comments.
+- [git] Extend git ignore to "build*" instead of build.
+- [NFC] Make detailed BVH description show up in doxygen.
+- [NFC] Add docstring for VECGEOM_DEVICE_INST_PLACED_VOLUME.
+- Fix failing test by creating new utility function
+- Fix failing tests in single precision
+- Change kTolerance to kHalfTolerance
+- [VECGEOM-578] Fix an FP comparison that was failing on the GPU
+- Fix a typo in debugging printout
+- [CMake] Fix doxygen search path.
+- Fix TestOrb unit test when using single precision

@@ -120,6 +120,7 @@ public:
                                           Vector3D<Precision> const & /*localdir*/, VPlacedVolume const * /*blocked*/,
                                           Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const
   {
+    assert(false); // Not implemented --- notify of failure !!
     return false;
   }
 

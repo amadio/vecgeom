@@ -242,35 +242,39 @@ public:
                                  [&](HybridManager2::BoxIdDistancePair_t hitbox) {
                                    // only consider those hitboxes which are within potential reach of this step
                                    if (!(step < hitbox.second)) {
+                                     vecgeom::Vector3D<double>
+                                         normal; // To reuse in printing below - else move it into 'if'
                                      VPlacedVolume const *candidate = LookupDaughter(lvol, hitbox.first);
                                      if (candidate == blocked) {
-                                       return false; // return early and go on in the looper
+                                       // return false; // return early and go on in the looper
+                                       candidate->Normal(localpoint, normal);
+                                       if (normal.Dot(localdir) >= 0.0) {
+                                         std::cerr << "HybridNav2> blocked " << candidate
+                                                   << " has normal.dir = " << normal.Dot(localdir) << " and distToIn = "
+                                                   << candidate->DistanceToIn(localpoint, localdir, step) << "\n";
+                                       }
                                      }
                                      const Precision ddistance = candidate->DistanceToIn(localpoint, localdir, step);
-                                     const auto valid          = !IsInf(ddistance) && ddistance < step;
+                                     const auto valid          = !IsInf(ddistance) && ddistance < step &&
+                                                        !((ddistance <= 0.) &&
+                                                          blocked == candidate); // && normal.Dot(localdir) > 0.0);
                                      hitcandidate              = valid ? candidate : hitcandidate;
                                      step                      = valid ? ddistance : step;
 #if 0 // enable for debugging
         if ( ddistance<=0 ) {
-           std::cerr << "negative distance found for " << candidate->GetName() << "\n"; 
+           std::cerr << "HybridNav2> negative distance found for " << candidate->GetName() << "\n"; 
            auto inside = candidate->Inside(localpoint);
-           if (inside == kSurface) {
-             std::cerr << "on surface\n";
-           }
-           if (inside == kOutside) {
-             std::cerr << "outside\n";
-           }
-           if (inside == kInside) {
-             std::cerr << "inside\n";
-           }
+           static std::string InsideCode[4] = { "N/A", "Inside", "Surface", "Outside" } ;
+           std::cerr << InsideCode[inside];
            const auto transf = candidate->GetTransformation();
            const auto unpl = candidate->GetUnplacedVolume();
-           Vector3D<Precision> normal;
+           Vector3D<Precision> normalDg;
            const auto testdaughterlocal = transf->Transform(localpoint);      
-           auto valid = unpl->Normal(testdaughterlocal, normal);
+           auto valid = unpl->Normal(testdaughterlocal, normalDg);
            
            const auto directiondaughterlocal = transf->TransformDirection(localdir);
-           const auto dot = normal.Dot(directiondaughterlocal);
+           const auto dot = normalDg.Dot(directiondaughterlocal);
+           std::cerr << " normal.dir = " << dot;
            if (dot >= 0) {
              std::cerr << " exiting " << valid << "\n";
            }

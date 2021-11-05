@@ -103,7 +103,15 @@ public:
       const int *safetycandidates{nullptr};
 
       int length{0};
-      safetycandidates = structure->fVoxelToCandidate->getProperties(lp, length);
+      auto voxelHashMap = structure->fVoxelToCandidate;
+      if (voxelHashMap == nullptr) {
+        std::cerr << "ERROR> VoxelSafetyEstimator::ComputeSafetyForLocalPoint call# " << counter
+                  << " no structure VoxelToCandidate structure found for volume "
+                  << " phys: " << pvol->GetName() << "  physvol id = " << pvol->id() << " log : " << lvol->GetName()
+                  << "  log vol id = " << lvol->id() << std::endl;
+        return 0.0;
+      }
+      safetycandidates = voxelHashMap->getProperties(lp, length);
       if (length > 0) {
         const bool needmother        = true; //(safetycandidates[0] == -1);
         const Precision safetymother = needmother ? lvol->GetUnplacedVolume()->SafetyToOut(localpoint) : 0.;
@@ -146,14 +154,16 @@ public:
         }
 #endif
 
-        if (returnvalue < 0) {
-          std::cerr << "returning negative value " << safetyToDaughters << " " << safetymother << "\n";
+        if (returnvalue < -1.0e-10) {
+          std::cerr << "VoxelSafetyEstimator: returning negative value.  saf-to-daughters= " << safetyToDaughters
+                    << " saf-to-mother = " << safetymother << "\n";
         }
 
         return returnvalue;
       } else {
         // no information for this voxel present
-        std::cerr << counter << " no information for this voxel present " << localpoint << " at key "
+        std::cerr << "Warning> ComputeSafetyForLocalPoint call# " << counter
+                  << " no information for this voxel present " << localpoint << " at key "
                   << structure->fVoxelToCandidate->getKey(lp.x(), lp.y(), lp.z()) << " \n ";
         return 0.;
       }

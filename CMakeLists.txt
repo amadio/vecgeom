@@ -249,7 +249,7 @@ endif()
 
 ################################################################################
 # Minimum version of VecCore we need.
-set(VecCore_VERSION "0.5.2")
+set(VecCore_VERSION "0.8.0")
 
 # Let's see if we can find VecCore
 if(NOT BUILTIN_VECCORE)
@@ -468,7 +468,6 @@ endif()
 if(VECGEOM_ROOT)
   # ROOT install may be relying on ROOTSYS
   list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-
   find_package(ROOT REQUIRED COMPONENTS Geom Graf3d)
 
   #---setup ROOT include + lib dirs

@@ -17,6 +17,9 @@
 #include "VecGeom/navigation/VNavigator.h"
 #include "VecGeom/navigation/GlobalLocator.h"
 #include "VecGeom/management/GeoManager.h"
+
+#include "VecGeom/management/GeoManager.h"
+
 #include <cstdio>
 #include <random>
 #include <vector>
@@ -309,19 +312,18 @@ Precision UncontainedCapacity(VPlacedVolume const &volume)
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
+VECGEOM_FORCE_INLINE bool FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
 {
   static double lastUncontCap = 0.0;
   double uncontainedCapacity  = UncontainedCapacity(volume);
   if (uncontainedCapacity != lastUncontCap) {
-    printf("Uncontained capacity for %s: %g units\n", volume.GetLabel().c_str(), uncontainedCapacity);
+    std::cout << "Uncontained capacity for " << volume.GetLabel() << ":" << uncontainedCapacity << " units\n";
     lastUncontCap = uncontainedCapacity;
   }
   if (uncontainedCapacity <= 1000 * kTolerance) {
-    std::cout << "\nVolUtil: FillUncontPts: ERROR: Volume provided <" << volume.GetLabel()
-              << "> does not have uncontained capacity!  Aborting.\n";
-    assert(false);
+    std::cout << "\nVolUtil: FillUncontPts: WARNING: Volume provided <" << volume.GetLabel()
+              << "> does not have uncontained capacity!  Method returns false.\n";
+    return false;
   }
 
   const int size = points.capacity();
@@ -332,18 +334,25 @@ void FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
   offset                        = 0.5 * (upper + lower);
   const Vector3D<Precision> dim = 0.5 * (upper - lower);
 
-  int tries = 0;
+  int totaltries = 0;
   for (int i = 0; i < size; ++i) {
     bool contained;
     Vector3D<Precision> point;
-    tries = 0;
+    totaltries = 0;
     do {
       // ensure that point is contained in mother volume
+      int onego = 0;
       do {
-        ++tries;
-        if (tries % 1000000 == 0) {
+        ++totaltries;
+        ++onego;
+        if (totaltries % 10000 == 0) {
           printf("%s line %i: Warning: %i tries to find uncontained points... volume=%s.  Please check.\n", __FILE__,
-                 __LINE__, tries, volume.GetLabel().c_str());
+                 __LINE__, totaltries, volume.GetLabel().c_str());
+        }
+        if (totaltries % 5000000 == 0) {
+          double ratio = 1.0 * i / totaltries;
+          printf("Progress : %i tries ( succeeded = %i , ratio %f %% ) to find uncontained points... volume=%s.\n",
+                 totaltries, i, 100. * ratio, volume.GetLabel().c_str());
         }
 
         point = offset + SamplePoint(dim);
@@ -361,15 +370,17 @@ void FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
       }
     } while (contained);
   }
+  return true;
 }
 
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillUncontainedPoints(LogicalVolume const &volume, TrackContainer &points)
+VECGEOM_FORCE_INLINE bool FillUncontainedPoints(LogicalVolume const &volume, TrackContainer &points)
 {
   VPlacedVolume const *const placed = volume.Place();
-  FillUncontainedPoints(*placed, points);
+  bool good                         = FillUncontainedPoints(*placed, points);
   delete placed;
+
+  return good;
 }
 
 // *** The following functions allow to give an external generator
@@ -384,8 +395,8 @@ void FillUncontainedPoints(LogicalVolume const &volume, TrackContainer &points)
  * @param points is the output container, provided by the caller.
  */
 template <typename RandomEngine, typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillUncontainedPoints(VPlacedVolume const &volume, RandomEngine &rngengine, TrackContainer &points)
+VECGEOM_FORCE_INLINE bool FillUncontainedPoints(VPlacedVolume const &volume, RandomEngine &rngengine,
+                                                TrackContainer &points)
 {
   static double lastUncontCap = 0.0;
   double uncontainedCapacity  = UncontainedCapacity(volume);
@@ -393,10 +404,22 @@ void FillUncontainedPoints(VPlacedVolume const &volume, RandomEngine &rngengine,
     printf("Uncontained capacity for %s: %g units\n", volume.GetLabel().c_str(), uncontainedCapacity);
     lastUncontCap = uncontainedCapacity;
   }
+  double totalcapacity = const_cast<VPlacedVolume &>(volume).Capacity();
+
+  std::cout << "\nVolUtil: FillUncontPts: Volume <" << volume.GetLabel() << "  capacities: total =  " << totalcapacity
+            << " uncontained = " << uncontainedCapacity << "\n";
+
   if (uncontainedCapacity <= 1000 * kTolerance) {
+    // double checkUC= UncontainedCapacity(volume); // Rerun - for debugging ...
     std::cout << "\nVolUtil: FillUncontPts: ERROR: Volume provided <" << volume.GetLabel()
-              << "> does not have uncontained capacity!  Aborting.\n";
-    assert(false);
+              << "> does not have uncontained capacity!  "
+              << "    Value = " << uncontainedCapacity << " \n"
+              << "      contained = " << totalcapacity
+        // << "    check = " << checkUC << " \n"
+        ;
+    // if( checkUC < 0 ) { assert(false); }
+    return false;
+    // TODO --- try to find points anyway, and decide if real points were found
   }
 
   const int size = points.capacity();
@@ -407,18 +430,28 @@ void FillUncontainedPoints(VPlacedVolume const &volume, RandomEngine &rngengine,
   offset                        = 0.5 * (upper + lower);
   const Vector3D<Precision> dim = 0.5 * (upper - lower);
 
-  int tries = 0;
-  for (int i = 0; i < size; ++i) {
+  const int maxtries = 100 * 1000 * 1000;
+
+  int tries = 0; // count total trials ...
+  int i;
+  for (i = 0; i < size; ++i) {
     bool contained;
     Vector3D<Precision> point;
-    tries = 0;
     do {
       // ensure that point is contained in mother volume
+      int onego = 0;
       do {
         ++tries;
-        if (tries % 1000000 == 0) {
-          printf("%s line %i: Warning: %i tries to find uncontained points... volume=%s.  Please check.\n", __FILE__,
-                 __LINE__, tries, volume.GetLabel().c_str());
+        onego++;
+        if (onego % 100000 == 0) {
+          printf("%s line %i: Warning: %i tries ( success = %i ) to find uncontained points... volume=%s.  Please "
+                 "check.\n",
+                 __FILE__, __LINE__, tries, i, volume.GetLabel().c_str());
+        }
+        if (tries % 5000000 == 0) {
+          double ratio = 1.0 * i / tries;
+          printf("Progress : %i tries ( succeeded = %i , ratio %f %% ) to find uncontained points... volume=%s.\n",
+                 tries, i, 100.0 * ratio, volume.GetLabel().c_str());
         }
 
         point = offset + SamplePoint(dim, rngengine);
@@ -434,17 +467,24 @@ void FillUncontainedPoints(VPlacedVolume const &volume, RandomEngine &rngengine,
           break;
         }
       }
-    } while (contained);
+    } while (contained && tries < maxtries);
+
+    if (tries >= maxtries) break;
   }
+  std::cout << " FillUncontained:  trials " << tries << " for num points = " << i << " ( out of " << size
+            << " requested - "  << " success ratio = " << (i * 1.0) / tries << "\n";
+  return (i > 0);
 }
 
 template <typename RandomEngine, typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillUncontainedPoints(LogicalVolume const &volume, RandomEngine &rngengine, TrackContainer &points)
+VECGEOM_FORCE_INLINE bool FillUncontainedPoints(LogicalVolume const &volume, RandomEngine &rngengine,
+                                                TrackContainer &points)
 {
   VPlacedVolume const *const placed = volume.Place();
-  FillUncontainedPoints(*placed, rngengine, points);
+  bool good                         = FillUncontainedPoints(*placed, rngengine, points);
   delete placed;
+
+  return good;
 }
 
 /**
@@ -571,16 +611,16 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
 
   // remove contained points to reduce bias as needed
   int i     = 0;
-  int tries = 0;
+  int totaltries = 0;
   while (static_cast<double>(insideCount) / static_cast<double>(size) > bias) {
     while (!insideVector[i])
       ++i;
     bool contained;
     do {
-      ++tries;
-      if (tries % 1000000 == 0) {
-        printf("%s line %i: Warning: %i tries to reduce bias... volume=%s.  Please check.\n", __FILE__, __LINE__, tries,
-               volume.GetLabel().c_str());
+      ++totaltries;
+      if (totaltries % 1000000 == 0) {
+        printf("%s line %i: Warning: %i totaltries to reduce bias... volume=%s.  Please check.\n", __FILE__, __LINE__,
+               totaltries, volume.GetLabel().c_str());
       }
 
       points.set(i, offset + SamplePoint(dim));
@@ -595,11 +635,12 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
       }
     } while (contained);
     insideVector[i] = false;
-    tries           = 0;
+    // tries           = 0;
     --insideCount;
     ++i;
   }
 
+  int tries;
   // add contained points to increase bias as needed
   i     = 0;
   tries = 0;
@@ -747,7 +788,12 @@ inline void FillGlobalPointsAndDirectionsForLogicalVolume(LogicalVolume const *l
     VPlacedVolume const *pvol = allpaths.front()->Top();
 
     // generate points which are in lvol but not in its daughters
-    FillUncontainedPoints(*pvol, localpoints);
+    bool good = FillUncontainedPoints(*pvol, localpoints);
+    // assert(good);
+    if (!good) {
+      std::cerr << "FATAL ERROR> FillUncontainedPoints failed for volume " << pvol->GetName() << std::endl;
+      exit(1);
+    }
 
     // now have the points in the local reference frame of the logical volume
     FillBiasedDirections(*lvol, localpoints, fraction, directions);
@@ -857,7 +903,12 @@ inline void FillGlobalPointsForLogicalVolume(LogicalVolume const *lvol, TrackCon
       FillContainedPoints(*pvol, localpoints);
     } else {
       // generate points which are in lvol but not in its daughters
-      FillUncontainedPoints(*pvol, localpoints);
+      bool good = FillUncontainedPoints(*pvol, localpoints);
+      // assert(good);
+      if (!good) {
+        std::cerr << "FATAL ERROR> FillUncontainedPoints failed for volume " << pvol->GetName() << std::endl;
+        exit(1);
+      }
     }
 
     // transform points to global frame
