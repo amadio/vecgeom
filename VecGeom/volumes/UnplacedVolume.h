@@ -272,13 +272,11 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision ApproachSolid(Vector3D<Precision> const &point, Vector3D<Precision> const &invDir) const
   {
-    Vector3D<int> sign;
-    sign[0] = invDir.x() < 0;
-    sign[1] = invDir.y() < 0;
-    sign[2] = invDir.z() < 0;
-
-    return BoxImplementation::IntersectCachedKernel2<Precision, Precision>(fBBox, point, invDir, sign.x(), sign.y(),
-                                                                           sign.z(), 0, kInfLength);
+    return BoxImplementation::IntersectCachedKernel2<Precision, Precision>(fBBox, point, invDir,
+                                                                           invDir.x() < 0,
+                                                                           invDir.y() < 0,
+                                                                           invDir.z() < 0,
+                                                                           0, kInfLength);
   }
 
   /*!
