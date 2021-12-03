@@ -77,6 +77,8 @@ BVH::BVH(LogicalVolume const &volume, int depth) : fLV(volume)
   fNChild = new int[nodes];
   fOffset = new int[nodes];
   fNodes  = new AABB[nodes];
+  std::fill(fNChild, fNChild+nodes, 0);
+  std::fill(fOffset, fOffset+nodes, -1);
 
   /* Recursively initialize BVH nodes starting at the root node */
   ComputeNodes(0, fPrimId, fPrimId + n, nodes);
@@ -171,15 +173,19 @@ void BVH::ComputeNodes(unsigned int id, int *first, int *last, unsigned int node
 {
   const Vector3D<Precision> basis[] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
 
-  if (id >= nodes || first == last) return;
+  if (id >= nodes) return;
 
   fNChild[id] = std::distance(first, last);
   fOffset[id] = std::distance(fPrimId, first);
+
+  // Node without children. Stop recursing here.
+  if (first == last) return;
 
   fNodes[id] = fAABBs[*first];
   for (auto it = std::next(first); it != last; ++it)
     fNodes[id] = AABB::Union(fNodes[id], fAABBs[*it]);
 
+  // Only one child. No need to continue
   if (std::next(first) == last) return;
 
   Vector3D<Precision> p = fNodes[id].Center();
