@@ -19,6 +19,7 @@ constexpr int BVH::BVH_MAX_DEPTH;
 
 enum class BVH::ConstructionAlgorithm : unsigned int {
   SplitLongestAxis = 0,
+  LargestDistanceAlongAxis = 1,
 };
 
 /**
@@ -185,11 +186,34 @@ int * splitAlongLongestAxis(const AABB * primitiveBoxes,
   return std::partition(begin, end, [&](size_t i) { return Vector3D<Precision>::Dot(primitiveBoxes[i].Center() - p, v) < 0.0; });
 }
 
-int * (*splittingFunction[])(const AABB * /*primitveBoxes*/,
+int * largestDistanceAlongAxis(const AABB * primitiveBoxes,
+                               int * begin, int * end,
+                               const AABB & /*currentBVHNode*/) {
+  // Compute maximum extension of lower-left front corners along all axes
+  float extension[3][2] = {{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}};
+  for (int axis = 0; axis <= 2; ++axis) {
+    auto minMaxIt = std::minmax_element(begin, end, [=](size_t a, size_t b){
+      return primitiveBoxes[a].Min()[axis] < primitiveBoxes[b].Min()[axis];
+    });
+    extension[axis][0] = primitiveBoxes[*minMaxIt.first].Min()[axis];
+    extension[axis][1] = primitiveBoxes[*minMaxIt.second].Min()[axis];
+  }
+
+  const int splitAxis = std::distance(extension, std::max_element(extension, extension+3, [](float a[], float b[]){
+    return a[1]-a[0] < b[1]-b[0];
+  }));
+  const float middlePoint = (extension[splitAxis][1] + extension[splitAxis][0]) / 2.;
+  return std::partition(begin, end, [=](size_t i) {
+    return primitiveBoxes[i].Min()[splitAxis] < middlePoint;
+  });
+}
+
+int * (*splittingFunction[])(const AABB * /*primitiveBoxes*/,
                             int * /*firstPrimitive*/, int * /*lastPrimitive*/,
                             const AABB & /*currentBVHNode*/) = {
   &splitAlongLongestAxis,
-  };
+  &largestDistanceAlongAxis,
+};
 
 }
 
