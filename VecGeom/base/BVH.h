@@ -148,12 +148,14 @@ public:
                    Vector3D<Precision> &daughterlocalpoint) const;
 
 private:
+  enum class ConstructionAlgorithm : unsigned int;
   /**
    * Compute internal nodes of the BVH recursively.
    * @param[in] id Node id of node to be computed.
    * @param[in] first Iterator pointing to the position of this node's first volume in @c fPrimId.
    * @param[in] last Iterator pointing to the position of this node's last volume in @c fPrimId.
    * @param[in] nodes Number of nodes for this BVH.
+   * @param[in] constructionAlgorithm Index of the splitting function to use.
    *
    * @remark This function computes the bounding box of a node, then chooses a split plane and reorders
    * the elements of @c fPrimId within the first,last range such that volumes for its left child all come
@@ -161,7 +163,8 @@ private:
    * Recursion stops when all children lie on one side of the splitting plane, or when the current node
    * contains only a single child volume.
    */
-  void ComputeNodes(unsigned int id, int *first, int *last, unsigned int nodes);
+  void ComputeNodes(unsigned int id, int *first, int *last, unsigned int nodes,
+                    ConstructionAlgorithm);
 
   LogicalVolume const &fLV; ///< Logical volume this BVH was constructed for
   int *fPrimId;             ///< Child volume ids for each BVH node

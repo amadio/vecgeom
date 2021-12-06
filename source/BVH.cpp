@@ -17,11 +17,9 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 constexpr int BVH::BVH_MAX_DEPTH;
 
-static int ClosestAxis(Vector3D<Precision> v)
-{
-  v = v.Abs();
-  return v[0] > v[2] ? (v[0] > v[1] ? 0 : 1) : (v[1] > v[2] ? 1 : 2);
-}
+enum class BVH::ConstructionAlgorithm : unsigned int {
+  SplitLongestAxis = 0,
+};
 
 /**
  * \class BVH
@@ -81,7 +79,7 @@ BVH::BVH(LogicalVolume const &volume, int depth) : fLV(volume)
   std::fill(fOffset, fOffset+nodes, -1);
 
   /* Recursively initialize BVH nodes starting at the root node */
-  ComputeNodes(0, fPrimId, fPrimId + n, nodes);
+  ComputeNodes(0, fPrimId, fPrimId + n, nodes, ConstructionAlgorithm::SplitLongestAxis);
 
   /* Mark internal nodes with a negative number of children to simplify traversal */
   for (unsigned int id = 0; id < nodes / 2; ++id)
@@ -170,6 +168,31 @@ BVH::~BVH()
 #endif
 }
 
+namespace {
+int ClosestAxis(Vector3D<Precision> v)
+{
+  v = v.Abs();
+  return v[0] > v[2] ? (v[0] > v[1] ? 0 : 1) : (v[1] > v[2] ? 1 : 2);
+}
+
+int * splitAlongLongestAxis(const AABB * primitiveBoxes,
+                            int * begin, int * end,
+                            const AABB & currentBVHNode) {
+  const Vector3D<Precision> basis[] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
+  Vector3D<Precision> p = currentBVHNode.Center();
+  Vector3D<Precision> v = basis[ClosestAxis(currentBVHNode.Size())];
+
+  return std::partition(begin, end, [&](size_t i) { return Vector3D<Precision>::Dot(primitiveBoxes[i].Center() - p, v) < 0.0; });
+}
+
+int * (*splittingFunction[])(const AABB * /*primitveBoxes*/,
+                            int * /*firstPrimitive*/, int * /*lastPrimitive*/,
+                            const AABB & /*currentBVHNode*/) = {
+  &splitAlongLongestAxis,
+  };
+
+}
+
 /*
  * BVH::ComputeNodes() initializes nodes of the BVH. It first computes the number of children that
  * belong to the current node based on the iterator range that is passed as input, as well as the
@@ -184,10 +207,9 @@ BVH::~BVH()
  * same side of the splitting plane), or if the node contains only a single volume.
  */
 
-void BVH::ComputeNodes(unsigned int id, int *first, int *last, unsigned int nodes)
+void BVH::ComputeNodes(unsigned int id, int *first, int *last, unsigned int nodes,
+                       BVH::ConstructionAlgorithm constructionAlgorithm)
 {
-  const Vector3D<Precision> basis[] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
-
   if (id >= nodes) return;
 
   fNChild[id] = std::distance(first, last);
@@ -203,14 +225,14 @@ void BVH::ComputeNodes(unsigned int id, int *first, int *last, unsigned int node
   // Only one child. No need to continue
   if (std::next(first) == last) return;
 
-  Vector3D<Precision> p = fNodes[id].Center();
-  Vector3D<Precision> v = basis[ClosestAxis(fNodes[id].Size())];
+  const auto algo = static_cast<unsigned int>(constructionAlgorithm);
+  assert(algo < sizeof(splittingFunction));
 
-  auto mid =
-      std::partition(first, last, [&](size_t i) { return Vector3D<Precision>::Dot(fAABBs[i].Center() - p, v) < 0.0; });
+  int * pivot = splittingFunction[algo](fAABBs, first, last, fNodes[id]);
+  assert(first <= pivot && pivot <= last);
 
-  ComputeNodes(2 * id + 1, first, mid, nodes);
-  ComputeNodes(2 * id + 2, mid, last, nodes);
+  ComputeNodes(2 * id + 1, first, pivot, nodes, constructionAlgorithm);
+  ComputeNodes(2 * id + 2, pivot, last,  nodes, constructionAlgorithm);
 }
 
 /*
