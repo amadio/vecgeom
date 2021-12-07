@@ -8,7 +8,7 @@
 foreach(_vgdml_test TestXercesBackend TestXercesFrontend TestXercesMiddleware ReadMiddlewareData
                     TestVGDMLAuxiliary TestVGDMLNavigation TestVGDMLVolumeAuxiliaryInfo)
   add_executable(${_vgdml_test} ${_vgdml_test}/${_vgdml_test}.cpp)
-  target_link_libraries(${_vgdml_test} PUBLIC vgdml $<$<BOOL:${VECGEOM_ENABLE_CUDA}>:vecgeomcuda>)
+  target_link_libraries(${_vgdml_test} PUBLIC vgdml)
 endforeach()
 
 # Tests of VGDML's types for the GDML schema and translations
