@@ -79,7 +79,7 @@ public:
     static const double kMinExitingCos = 1.e-3;
     VPlacedVolume const *excludedVol   = nullptr;
     if (blocked) {
-      UVector3 normal;
+      Vector3D<Precision> normal;
       blocked->Normal(localpoint, normal);
       if (normal.Dot(localdir) >= kMinExitingCos) {
         excludedVol = blocked;

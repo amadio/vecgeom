@@ -242,8 +242,8 @@ public:
                                  [&](HybridManager2::BoxIdDistancePair_t hitbox) {
                                    // only consider those hitboxes which are within potential reach of this step
                                    if (!(step < hitbox.second)) {
-                                     vecgeom::Vector3D<double>
-                                         normal; // To reuse in printing below - else move it into 'if'
+                                     // To reuse in printing below - else move it into 'if'
+                                     Vector3D<Precision> normal;
                                      VPlacedVolume const *candidate = LookupDaughter(lvol, hitbox.first);
                                      if (candidate == blocked) {
                                        // return false; // return early and go on in the looper

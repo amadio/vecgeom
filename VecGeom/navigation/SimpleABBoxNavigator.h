@@ -193,7 +193,7 @@ public:
         //              }
         //          }
         Precision ddistance = candidate->DistanceToIn(localpoint, localdir, step);
-        vecgeom::Vector3D<double> normal; // To reuse in printing below - else move it into 'if'
+        Vector3D<Precision> normal; // To reuse in printing below - else move it into 'if'
 #ifdef VERBOSE
         std::cerr << " . Distance to " << candidate->GetLabel() << " is " << ddistance;
 #endif
