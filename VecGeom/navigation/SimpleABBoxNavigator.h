@@ -96,8 +96,6 @@ public:
                                           NavigationState * /*out_state*/, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const override
   {
-    static size_t counter = 0;
-    counter++;
     // The following construct reserves stackspace for objects
     // of type IdDistPair_t WITHOUT initializing those objects
     using IdDistPair_t = ABBoxManager::BoxIdDistancePair_t;
@@ -152,8 +150,6 @@ public:
                                           Vector3D<Precision> const &localdir, VPlacedVolume const *blocked,
                                           Precision &step, VPlacedVolume const *&hitcandidate) const override
   {
-    static size_t counter = 0;
-    counter++;
     // The following construct reserves stackspace for objects
     // of type IdDistPair_t WITHOUT initializing those objects
     using IdDistPair_t = ABBoxManager::BoxIdDistancePair_t;
