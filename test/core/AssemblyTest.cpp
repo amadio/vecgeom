@@ -54,13 +54,22 @@ int main()
     Vector3D<Precision> p2(20., 0., 0.);
     Vector3D<Precision> lp(0., 0., 0.);
     NavigationState *state = NavigationState::MakeInstance(10);
+    // State must point to assembly parent (none in this case)
+    state->Clear();
     std::cerr << pa->Contains(p, lp, *state) << "\n";
+    state->Clear();
     assert(!pa->Contains(p, lp, *state));
+    state->Clear();
     std::cerr << pa->Contains(p2, lp, *state) << "\n";
+    state->Clear();
     assert(pa->Contains(p2, lp, *state));
+    state->Clear();
     std::cerr << pa->Contains(p) << "\n";
+    state->Clear();
     assert(!pa->Contains(p));
+    state->Clear();
     std::cerr << pa->Contains(p2) << "\n";
+    state->Clear();
     assert(pa->Contains(p2));
 
     assert(pa->SafetyToIn(Vector3D<Precision>(-10, 0, 0)) == 0.);
