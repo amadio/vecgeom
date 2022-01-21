@@ -61,7 +61,7 @@ public:
 
   /** Print a summary of BVH contents */
   VECCORE_ATT_HOST_DEVICE
-  void Print() const;
+  void Print(bool verbose = false) const;
 
   /**
    * Check ray defined by <tt>localpoint + t * localdir</tt> for intersections with children

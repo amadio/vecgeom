@@ -97,10 +97,25 @@ BVH::BVH(LogicalVolume const *volume, int depth, int *dPrimId, AABB *dAABBs, int
 #endif
 
 VECCORE_ATT_HOST_DEVICE
-void BVH::Print() const
+void BVH::Print(bool verbose) const
 {
   printf("BVH(%u): addr: %p, depth: %d, nodes: %d, children: %lu\n", fLV.id(), this, fDepth, (2 << fDepth) - 1,
          fLV.GetDaughters().size());
+  if (verbose) {
+    constexpr auto width = 4;
+    int nChildToPad = 1;
+    for (int depth = fDepth; depth >= 0; --depth) {
+      const auto begin = (1 << depth) - 1;
+      const auto end   = (2 << depth) - 1;
+      for (int node = begin; node < end; ++node) {
+        if (nChildToPad > 1) printf("%*c", (nChildToPad-1)*width/2, ' ');
+        printf("%3d ", fNChild[node]);
+        if (nChildToPad > 1) printf("%*c", (nChildToPad-1)*width/2, ' ');
+      }
+      printf("\n");
+      nChildToPad *= 2;
+    }
+  }
 }
 
 #ifdef VECGEOM_CUDA_INTERFACE
