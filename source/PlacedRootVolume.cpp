@@ -82,14 +82,6 @@ void PlacedRootVolume::SafetyToIn(SOA3D<Precision> const &position, Precision *c
   }
 }
 
-void PlacedRootVolume::SafetyToInMinimize(SOA3D<Precision> const &position, Precision *const safeties) const
-{
-  for (int i = 0, iMax = position.size(); i < iMax; ++i) {
-    Precision result = PlacedRootVolume::SafetyToIn(position[i]);
-    safeties[i]      = (result < safeties[i]) ? result : safeties[i];
-  }
-}
-
 void PlacedRootVolume::SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const
 {
   for (int i = 0, iMax = position.size(); i < iMax; ++i) {

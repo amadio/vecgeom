@@ -293,13 +293,6 @@ public:
                                                                               points, output);
   }
 
-  virtual void SafetyToInMinimize(SOA3D<Precision> const & /* points */, Precision *const /* safeties */) const override
-  {
-    throw std::runtime_error("SafetyToInMinimize unimplemented");
-    // we do no longer need this (probably)
-    // SafetyToInMinimizeTemplate(points, safeties);
-  }
-
   virtual void DistanceToIn(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                             Precision const *const stepMax, Precision *const output) const override
   {
@@ -442,13 +435,6 @@ public:
     auto transf = this->GetTransformation();
     SafetyToInLoopKernel<Specialization, vecgeom::ScalarBackend::Real_v, transC, rotC>(*shape, *transf, 0,
                                                                                        points.size(), points, output);
-  }
-
-  virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
-  {
-    (void)points;
-    (void)safeties;
-    throw std::runtime_error("SafetyToInMinimize unimplemented");
   }
 
   virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override

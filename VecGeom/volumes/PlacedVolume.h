@@ -403,9 +403,6 @@ public:
   /// to be deprecated
   virtual void SafetyToIn(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
 
-  /// to be deprecated
-  virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;
-
   /**
    * Like similar function in VUnplacedVolume. Here position is supposed to be
    * in the frame of the placed volume.

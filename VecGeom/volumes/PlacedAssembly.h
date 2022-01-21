@@ -179,11 +179,6 @@ public:
     throw std::runtime_error("unimplemented function called");
   }
 
-  virtual void SafetyToInMinimize(SOA3D<Precision> const & /*position*/, Precision *const /*safeties*/) const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-
   // the SIMD vector interfaces (not implemented)
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const & /*position*/, Vector3D<Real_v> const & /*direction*/,
                                  Real_v const /*step_max*/ = kInfLength) const override
