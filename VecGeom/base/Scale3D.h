@@ -96,10 +96,11 @@ public:
   {
     assert(((fScale[0] != 0) && (fScale[1] != 0) && (fScale[2] != 0)));
     fInvScale.Set(1. / fScale[0], 1. / fScale[1], 1. / fScale[2]);
-    fSclLocal  = Min(fInvScale[0], fInvScale[1]);
-    fSclLocal  = Min(fSclLocal, fInvScale[2]);
-    fSclMaster = Min(fScale[0], fScale[1]);
-    fSclMaster = Min(fSclMaster, fScale[2]);
+    // Keep into account that scale components may be negative for reflections
+    fSclLocal  = Min(Abs(fInvScale[0]), Abs(fInvScale[1]));
+    fSclLocal  = Min(fSclLocal, Abs(fInvScale[2]));
+    fSclMaster = Min(Abs(fScale[0]), Abs(fScale[1]));
+    fSclMaster = Min(fSclMaster, Abs(fScale[2]));
   }
 
   /**
