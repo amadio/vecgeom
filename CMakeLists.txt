@@ -125,6 +125,15 @@ endif()
 
 # - Core
 option(BUILTIN_VECCORE "Build VecCore and its dependencies from source" OFF)
+# Check/Store an internal variable to check if we switch between builtin/external
+# - If we switch from builtin -> external, then we must reset VecCore_DIR later.
+# State might have changed...
+if(NOT (__BUILTIN_VECCORE_LAST STREQUAL BUILTIN_VECCORE))
+  if(NOT BUILTIN_VECCORE)
+    set(__BUILTIN_VECCORE_DISABLED ON)
+  endif()
+endif()
+set(__BUILTIN_VECCORE_LAST ${BUILTIN_VECCORE} CACHE INTERNAL "Builtin VecCore marker")
 
 # - Precision
 option(SINGLE_PRECISION "Use single precision throughout the package" OFF)
@@ -251,26 +260,19 @@ endif()
 # Minimum version of VecCore we need.
 set(VecCore_VERSION "0.8.0")
 
-# Let's see if we can find VecCore
-if(NOT BUILTIN_VECCORE)
-  # Find VecCore with selected components turned on (CUDA and backend)
-  find_package(VecCore ${VecCore_VERSION} QUIET COMPONENTS ${VecCore_COMPONENTS})
-  if(NOT VecCore_FOUND)
-    # This is forced because otherwise re-cmake will setup non-builtin VecCore
-    set(BUILTIN_VECCORE ON CACHE BOOL "Build VecCore and its dependencies from source" FORCE)
-  endif()
-endif()
-
-# Have to recheck because the above may re-set the variable
+# Enable/Disable build/use of builtin veccore
 if(BUILTIN_VECCORE)
   include(BuiltinVecCore)
+elseif(__BUILTIN_VECCORE_DISABLED)
+  # Unset VecCore_DIR if it points inside our build directory
+  string(FIND "${VecCore_DIR}" "${PROJECT_BINARY_DIR}" __vcd_is_builtin)
+  if(__vcd_is_builtin EQUAL 0)
+    unset(VecCore_DIR CACHE)
+  endif()
 endif()
 
 # Find VecCore with selected components turned on (CUDA and backend)
 find_package(VecCore ${VecCore_VERSION} REQUIRED COMPONENTS ${VecCore_COMPONENTS})
-
-# Should no longer need this as VecCore provides usage requirements
-#include_directories(${VecCore_INCLUDE_DIRS})
 set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} VecCore::VecCore)
 
 ################################################################################
