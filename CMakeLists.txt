@@ -149,9 +149,6 @@ if(VECGEOM_ENABLE_CUDA)
     set(VECGEOM_CUDA_VOLUME_SPECIALIZATION ON)
   endif()
 
-  set(CUDA_ARCH 30 CACHE STRING "CUDA device architecture.")
-  set(CUDA_ARCH "-arch=sm_${CUDA_ARCH}")
-
   set(VecCore_COMPONENTS ${VecCore_COMPONENTS} "CUDA")
 endif()
 
