@@ -2,18 +2,21 @@
 ## TESTING
 ################################################################################
 # Helper Macros/Functions
+
+# Define the correct library to link against. When CUDA is enabled, the best is
+# to use the shared cuda library, because this creates the smallest executables.
+# Note that tests that include CUDA kernels, however, must use the static library.
+if(VECGEOM_ENABLE_CUDA)
+  set(testlibs vecgeomcuda_shared)
+else()
+  set(testlibs vecgeom)
+endif()
+
 macro(build_executables EXECUTABLES)
   foreach(EXECUTABLE ${EXECUTABLES})
     get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
     add_executable(${TARGET_NAME} ${EXECUTABLE})
-    # Link to CMAKE_DL_LIBS needed for globalbenchmarks/NavigationKernelBenchmarker.cpp
-    # - No cost to link to others.
-    target_link_libraries(${TARGET_NAME} 
-      vecgeom 
-      $<$<BOOL:${GDML}>:vgdml>
-      $<$<BOOL:${VECGEOM_ENABLE_CUDA}>:vecgeomcuda> 
-      ${USERKERNELLIB}
-      ${CMAKE_DL_LIBS})
+    target_link_libraries(${TARGET_NAME} PUBLIC ${testlibs})
   endforeach()
 endmacro()
 
@@ -258,7 +261,7 @@ endif()
 # - CUDA tests
 if(VECGEOM_ENABLE_CUDA)
   add_executable(MapTest cuda/MapTest.cpp cuda/MapTest.cu)
-  target_link_libraries(MapTest vecgeom)
+  target_link_libraries(MapTest PUBLIC vecgeomcuda_shared)
   add_test(NAME MapTest COMMAND MapTest)
 
   if(VECGEOM_GDML)
@@ -266,9 +269,9 @@ if(VECGEOM_ENABLE_CUDA)
     add_executable(MapTestClass cuda/MapTestClass.cpp cuda/MapTestClass.cu)
     add_executable(GeometryTest cuda/GeometryTest.cpp cuda/GeometryTest.cu)
 
-    target_link_libraries(BVHTest      PUBLIC vecgeom vgdml vecgeomcuda_static)
-    target_link_libraries(MapTestClass PUBLIC vecgeom vgdml vecgeomcuda_static)
-    target_link_libraries(GeometryTest PUBLIC vecgeom vgdml vecgeomcuda_static)
+    target_link_libraries(BVHTest      PUBLIC vecgeomcuda_static vgdml)
+    target_link_libraries(MapTestClass PUBLIC vecgeomcuda_static vgdml)
+    target_link_libraries(GeometryTest PUBLIC vecgeomcuda_static vgdml)
 
     add_test(NAME BVHTest      COMMAND $<TARGET_FILE:BVHTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
     add_test(NAME GeometryTest COMMAND $<TARGET_FILE:GeometryTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
@@ -277,7 +280,7 @@ if(VECGEOM_ENABLE_CUDA)
 
   if(VECGEOM_ROOT)
     add_executable(TestNavigationStatePool core/TestNavigationStatePool.cpp ../userexamples/src/TestNavigationStatePool.cu)
-    target_link_libraries(TestNavigationStatePool vecgeom vecgeomcuda_static)
+    target_link_libraries(TestNavigationStatePool vecgeomcuda_static)
     add_test(NAME TestNavigationStatePool COMMAND $<TARGET_FILE:TestNavigationStatePool>)
   endif()
 endif()
