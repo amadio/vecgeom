@@ -375,71 +375,24 @@ endif()
 message(STATUS "Compiling for ${_arch_up} SIMD architecture")
 
 ################################################################################
-# - CUDA compiler flags
-if(FAST_MATH)
-  set(NVCC_FAST_MATH "-use_fast_math")
-endif()
-
-if(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
-  set(VECGEOM_NVCC_COMPILATION_FLAGS -g -lineinfo ${VECGEOM_NVCC_COMPILATION_FLAGS})
-endif()
-if(CMAKE_BUILD_TYPE MATCHES MinSizeRel)
-  set(VECGEOM_NVCC_COMPILATION_FLAGS ${NVCC_FAST_MATH} ${VECGEOM_NVCC_COMPILATION_FLAGS})
-endif()
-
+# - Configure CUDA
 if(VECGEOM_ENABLE_CUDA)
+  set(CMAKE_CUDA_SEPARABLE_COMPILATION On)
+
+  string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -G")
+  string(APPEND CMAKE_CUDA_FLAGS_RELWITHDEBINFO " -line-info")
+
+  if(FAST_MATH)
+    string(APPEND CMAKE_CUDA_FLAGS " --use_fast_math")
+  endif()
+
   if(NOT DEFINED CMAKE_CUDA_STANDARD)
     set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
   endif()
-  set(VECGEOM_NVCC_COMPILATION_FLAGS ${VECGEOM_NVCC_COMPILATION_FLAGS}
-    -std=c++${CMAKE_CUDA_STANDARD}
-    -Xcompiler -Wno-unused-function
-    -Xcudafe "--diag_suppress=code_is_unreachable"
-    -Xcudafe "--diag_suppress=initialization_not_reachable")
 
   if(NOT NO_SPECIALIZATION)
-    set(VECGEOM_NVCC_COMPILATION_FLAGS ${VECGEOM_NVCC_COMPILATION_FLAGS}
-      -Xptxas --disable-optimizer-constants)
+    string(APPEND CMAKE_CUDA_FLAGS " -Xptxas --disable-optimizer-constants")
   endif()
-
-  set(VECGEOM_NVCC_CONFIGS
-    DEBUG -g -G -O0
-    RELEASE  -O3 ${NVCC_FAST_MATH}
-    RELWITHDEBINFO -g -lineinfo -O3 ${NVCC_FAST_MATH}
-    MINSIZEREL ${NVCC_FAST_MATH})
-
-  # FindCUDA.mk generate cmake file for each .o file using
-  # the cmake command:
-  #   file(GENERATE
-  #      OUTPUT "${custom_target_script}"
-  #      INPUT "${custom_target_script_pregen}"
-  #      )
-  # However this fails to register the output as a 'BYPRODUCTS'
-  # and thus, since the .o file depends on it, trigger the CMP0058
-  # warning (when using Ninja).
-  # Using a add_custom_target/command does not work there as
-  # neither the OUTPUT not the BYPRODUCTS parameter supports
-  # generator expression (and ${custom_target_script} is a
-  # generator expression depending on the configuration type).
-  # Consequently there is no (known to the author) way of
-  # correctly adding the correct information at the moment.
-  # So let's just use the old policy (even-though it is
-  # deprecated ... )
-  # Note: this is a feature introduced in CMake 3.6 to
-  # support  generator expressions in CUDA_NVCC_FLAGS
-  # and since we imported that version's FindCUDA.cmake
-  # it applies to all cmake that support CMP0058.
-  if(NOT (CMAKE_VERSION LESS 3.3))
-    cmake_policy(SET CMP0058 OLD)
-  endif()
-
-  # Even-though VecCore (if enabled) has already enabled CUDA, if we do not do it a second time,
-  # the compilation flags are incorrectly set.  The symptoms is that cuda_add_library for vecgeomcuda
-  # misinterpret the ${VECGEOM_NVCC_CONFIGS} flag and rather than splitting in configurations, pass it as is
-  # to the NVCC command line ...
-  find_package(CUDA REQUIRED)
-
-  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${VECGEOM_NVCC_COMPILATION_FLAGS})
 endif()
 
 ### Set CXXFLAGS early, so that VECGEOM_GEANT4 and VECGEOM_ROOT are already defined when compiling benchmarks, or it breaks
@@ -456,7 +409,7 @@ string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 message(STATUS "Compiling with C++ flags: ${CMAKE_CXX_FLAGS}")
 if(VECGEOM_ENABLE_CUDA)
-  message(STATUS "Compiling with NVCC flags: ${CUDA_NVCC_FLAGS}")
+  message(STATUS "Compiling with NVCC flags: '${CMAKE_CUDA_FLAGS}' '${CMAKE_CUDA_FLAGS_${_build_type}}'")
 endif()
 
 if(VECGEOM_ROOT)
@@ -651,11 +604,8 @@ if(VECGEOM_ENABLE_CUDA)
     source/BVHManager.cu
     source/CudaManager.cu
     source/CudaGlobalSymbols.cu
-    # ?? Test code get compiled into vecgeomcuda ??
-    test/cuda/BVHTest.cu
-    test/cuda/GeometryTest.cu
-    test/cuda/MapTest.cu
-    test/cuda/MapTestClass.cu)
+    source/backend/cuda/Interface.cpp
+    )
 
   # Filter file prefixes that won't be compiled for CUDA
   set(NOT_FOR_CUDA
@@ -678,11 +628,7 @@ if(VECGEOM_ENABLE_CUDA)
     PlacedExtruded
     SolidMesh)
 
-  # NB: addition of cuda/Interface.cpp here is temporary. It will eventually
-  # become part of the modern CUDA build. Critical thing is that is it only
-  # compiled in CUDA lib, and current FindCUDA system will only understand it
-  # and compile it properly as a .cu.
-  foreach(SRC_FILE ${VECGEOM_COMMON_SRCS} source/backend/cuda/Interface.cpp)
+  foreach(SRC_FILE ${VECGEOM_COMMON_SRCS})
     get_filename_component(SRC_FILENAME ${SRC_FILE} NAME_WE)
     list(FIND NOT_FOR_CUDA ${SRC_FILENAME} _index)
 
@@ -763,42 +709,21 @@ endif()
 
 # build the CUDA version of the library
 if(VECGEOM_ENABLE_CUDA)
-  # This is a hack to force the project include dirs as the first in
-  # the list passed to nvcc. Due to FindCUDA not respecting CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE
-  # Will disappear once migration to native CMake CUDA support is done.
-  cuda_include_directories("${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+  add_library(vecgeomcuda_objlib OBJECT ${VECGEOM_CUDA_SRCS})
+  set_target_properties(vecgeomcuda_objlib PROPERTIES POSITION_INDEPENDENT_CODE On)
+  target_include_directories(vecgeomcuda_objlib PUBLIC . $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}> )
+  target_link_libraries(vecgeomcuda_objlib PRIVATE VecCore::VecCore)
 
-  cuda_add_library(vecgeomcuda ${VECGEOM_CUDA_SRCS} SHARED
-    OPTIONS ${CUDA_ARCH}
-    # For debug information we might need
-    #    -O0 -g -G -lineinfo
-    ${VECGEOM_NVCC_CONFIGS})
+  add_library(vecgeomcuda_shared SHARED $<TARGET_OBJECTS:vecgeomcuda_objlib>)
+  target_link_libraries(vecgeomcuda_shared PUBLIC VecCore::VecCore)
+  target_link_libraries(vecgeomcuda_shared PRIVATE vecgeom)
 
-  target_link_libraries(vecgeomcuda vecgeom)
+  add_library(vecgeomcuda_static STATIC $<TARGET_OBJECTS:vecgeomcuda_objlib>)
+  target_link_libraries(vecgeomcuda_static PUBLIC VecCore::VecCore)
 
-  if(VECGEOM_BENCHMARK AND VECGEOM_ROOT)
-    # Benchmark stuff needs TVersionCheck
-    target_link_libraries(vecgeomcuda ROOT::Core)
-  endif()
-
-  # build the CUDA user-code library
-  cuda_add_library(cudauserlib userexamples/src/TestNavigationStatePool.cu SHARED
-    OPTIONS ${CUDA_ARCH})
-  
-  # Note: the repeat below is due the author of  cuda_add_library_depend
-  # not knowing how to automatically go from the target to the real
-  # file in add_custom_command
-  cuda_add_library_depend(cudauserlib vecgeomcuda_static libvecgeomcuda_static.a)
-  target_link_libraries(cudauserlib vecgeom vecgeomcuda)
-  set(USERKERNELLIB cudauserlib)
-endif()
-
-# Make sure we build VecCore before building VecGeom
-if(BUILTIN_VECCORE)
-  add_dependencies(vecgeom VecCore)
-  if(VECGEOM_ENABLE_CUDA)
-    add_dependencies(vecgeomcuda VecCore)
-  endif()
+  # If somebody links against the cuda libraries, ensure that vecgeom is also present:
+  target_link_libraries(vecgeomcuda_static INTERFACE vecgeom)
+  target_link_libraries(vecgeomcuda_shared INTERFACE vecgeom)
 endif()
 
 if(VECGEOM_ROOT)
@@ -828,7 +753,7 @@ install(FILES ${PROJECT_BINARY_DIR}/VecGeom/base/Config.h
 install(TARGETS vecgeom EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
 if(VECGEOM_ENABLE_CUDA)
-  install(TARGETS vecgeomcuda EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+  install(TARGETS vecgeomcuda_shared EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
   install(TARGETS vecgeomcuda_static EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif()
 

@@ -10,7 +10,15 @@
 #
 # - VecGeom::vecgeom     - Core VecGeom library (static)
 # - VecGeom::vgdml       - Present if the GDML parser component was built
-# - VecGeom::vecgeomcuda - Present if the CUDA backend was built
+# - VecGeom::vecgeomcuda_shared - Present if the CUDA backend was built.
+#                                 This library contains all cuda-related parts of VecGeom. It automatically
+#                                 provides the dependency to the vecgeom library.
+#                                 Link against this library if you don't write your own kernels.
+# - VecGeom::vecgeomcuda_static - Present if the CUDA backend was built.
+#                                 This library contains device code that can be linked against.
+#                                 If any vecgeom device functions are used anywhere in an external
+#                                 project, one *must* link against the static cuda library. The shared
+#                                 version does not contain the necessary device functions.
 #
 # Result Variables
 # ^^^^^^^^^^^^^^^^
@@ -110,8 +118,8 @@ set(VECGEOM_EXTERNAL_INCLUDES "@VECGEOM_EXTERNAL_INCLUDES@")
 set(VECGEOM_INCLUDE_DIRS ${VECGEOM_INCLUDE_DIR} ${VECGEOM_EXTERNAL_INCLUDES})
 
 set(VECGEOM_LIBRARIES VecGeom::vecgeom)
-if(TARGET VecGeom::vecgeomcuda)
-  list(APPEND VECGEOM_LIBRARIES VecGeom::vecgeomcuda)
+if(TARGET VecGeom::vecgeomcuda_shared)
+  list(APPEND VECGEOM_LIBRARIES VecGeom::vecgeomcuda_shared)
 endif()
 if(TARGET VecGeom::vecgeomcuda_static)
   set(VECGEOM_CUDA_STATIC_LIBRARY VecGeom::vecgeomcuda_static)
