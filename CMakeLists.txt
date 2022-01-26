@@ -740,13 +740,23 @@ target_compile_features(vecgeom PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 
 # Add compile options that vecgeom clients must compile their code using Vecgeom
 # with.
-# NB: We've already added them to CMAKE_CXX_FLAGS above, as they have to be in
-# CMAKE_CXX_FLAGS for the current CUDA build... This means we get some duplication
-# of flags on the command line, but this should not have side effects for the
-# flags that can be used.
-set(__VECGEOM_COMPILE_OPTIONS "${VECGEOM_COMPILATION_FLAGS}")
+# 1. We've already added them to CMAKE_CXX_FLAGS above, as they have to be in
+#    CMAKE_CXX_FLAGS for the current CUDA build... This means we get some duplication
+#    of flags on the command line, but this should not have side effects for the
+#    flags that can be used.
+# 2. We have to use slightly awkward genexs when CUDA is enabled because VecGeom's
+#    CUDA library links to the C++ version. Thus its compile options are used by
+#    nvcc and may be unknown to it. CUDA 11 and newer support the -forward-unknown-to-host-compiler
+#    argument which CMake will apply automatically. CUDA 10 requires explicit forwarding
+#    of flags using -Xcompiler=. This argument is also supported by newer CUDA,
+#    so we use this form until VecGeom explicitly requires CUDA 11 as the minimum. 
+string(STRIP "${VECGEOM_COMPILATION_FLAGS}" __VECGEOM_COMPILE_OPTIONS)
 separate_arguments(__VECGEOM_COMPILE_OPTIONS)
-target_compile_options(vecgeom PUBLIC ${__VECGEOM_COMPILE_OPTIONS})
+target_compile_options(vecgeom PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${__VECGEOM_COMPILE_OPTIONS}>)
+if(VECGEOM_ENABLE_CUDA)
+  string(REPLACE ";" "," __VECGEOM_CUDA_COMPILE_OPTIONS "${__VECGEOM_COMPILE_OPTIONS}")
+  target_compile_options(vecgeom PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=${__VECGEOM_CUDA_COMPILE_OPTIONS}>)
+endif()
 
 target_include_directories(vecgeom PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
