@@ -66,13 +66,6 @@ endif()
 # - Dedicated Benchmark tests
 if(VECGEOM_BENCHMARK)
   add_subdirectory(benchmark)
-  build_executables("${TEST_EXECUTABLES_BENCHMARK}")
-  add_to_ctest("${CTESTS_BENCHMARK}")
-
-  target_link_libraries(TestNavIndex PUBLIC vgdml)
-  if(VECGEOM_ENABLE_CUDA)
-    target_link_libraries(NavigationBenchmark PUBLIC vecgeomcuda_static)
-  endif()
 endif()
 
 ################################################################################

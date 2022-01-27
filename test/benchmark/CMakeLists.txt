@@ -37,9 +37,18 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${PROJECT_SOURCE_DIR}/test/benchmark/MultiUnionBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/benchmark/UnionFlatteningBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
-  ${PROJECT_SOURCE_DIR}/test/benchmark/TestNavIndex.cpp
-  PARENT_SCOPE
 )
+
+build_executables("${TEST_EXECUTABLES_BENCHMARK}")
+
+if(VECGEOM_ENABLE_CUDA)
+  target_link_libraries(NavigationBenchmark PUBLIC vecgeomcuda_static)
+endif()
+
+if(GDML)
+  build_executables(${PROJECT_SOURCE_DIR}/test/benchmark/TestNavIndex.cpp)
+  target_link_libraries(TestNavIndex PUBLIC vgdml)
+endif()
 
 #define which ones should be run under ctest
 set(THISCTESTS
@@ -72,5 +81,4 @@ set(THISCTESTS
   ${PROJECT_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
 )
 
-# set the variable use in the parent cmake
-set(CTESTS_BENCHMARK ${THISCTESTS} PARENT_SCOPE)
+add_to_ctest("${CTESTS_BENCHMARK}")
