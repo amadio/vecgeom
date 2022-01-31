@@ -20,6 +20,7 @@ constexpr int BVH::BVH_MAX_DEPTH;
 enum class BVH::ConstructionAlgorithm : unsigned int {
   SplitLongestAxis = 0,
   LargestDistanceAlongAxis = 1,
+  SurfaceAreaHeuristic = 2,
 };
 
 /**
@@ -208,14 +209,111 @@ int * largestDistanceAlongAxis(const AABB * primitiveBoxes,
   });
 }
 
-int * (*splittingFunction[])(const AABB * /*primitiveBoxes*/,
+/**
+ * Compute the surface area of bounding box that surrounds the given primitives.
+ * @param primitveBoxes Array of bounding boxes of primitives.
+ * @param begin Index of first primitive to be considered.
+ * @param end   Past-the-end index of primitives to be considered.
+ */
+double surfaceArea(const AABB * primitiveBoxes, int const * begin, int const * end) {
+  if (begin >= end) return 0.;
+
+  AABB box = primitiveBoxes[*begin];
+  for (int const * obj = std::next(begin); obj < end; ++obj) {
+    box = AABB::Union(box, primitiveBoxes[*obj]);
+  }
+  const auto size = box.Size();
+  const auto result = size[0] * size[1] * size[2];
+  return result;
+}
+
+/**
+ * In order to achieve stable splitting for the BVH, we cannot only sort by one axis. There needs
+ * to be a strict order, so elements are not silently considered equal by the STL algorithms.
+ * @param left,right Compute `left < right`.
+ * @param sortAxis Principal axis to sort by.
+ */
+template<typename T>
+bool less3D(const T & left, const T & right, const int sortAxis) {
+  return left[sortAxis] < right[sortAxis] ||
+    ( left[sortAxis] == right[sortAxis] &&
+      ( left[(sortAxis+1)%3] < right[(sortAxis+1)%3] ||
+        ( left[(sortAxis+1)%3] == right[(sortAxis+1)%3] && left[(sortAxis+2)%3] < right[(sortAxis+2)%3] )
+      )
+    );
+}
+
+/**
+ * Use the surface area heuristic to construct a BVH tree.
+ * This algorithm tries to split the primitives such that they form clusters that have a minimal surface
+ * area, as this decreases the likelihood that a BVH node is intersected by a ray.
+ * Contrary to what's used in standard graphics, the cost function has an additional term that prevents
+ * very large clusters. For the conventional SAH, a long line of equally spaced primitives would does not
+ * yield an obvious splitting point, as all splits lead to the same total surface area for both child nodes.
+ * To prevent this, there is an extra term, which will encourage a 50:50 split.
+ * @param primitveBoxes Array of bounding boxes of primitives.
+ * @param begin Index of first primitive to be considered.
+ * @param end   Past-the-end index of primitives to be considered.
+ * @return Index of the first element of the second group. If this is `end`, no good split was found.
+ */
+int * surfaceAreaHeuristic(const AABB * primitiveBoxes,
+                          int * begin, int * end,
+                          const AABB & /*currentBVHNode*/) {
+  int bestSplitAxis = -1;
+  const auto totSurfArea = surfaceArea(primitiveBoxes, begin, end);
+  double bestTraversalMetric = std::distance(begin, end);
+  int bestSplitObject = -1;
+  const auto nObj = std::distance(begin, end);
+
+  for (int axis = 0; axis <= 2; ++axis) {
+    // Sort centroids along axis
+    auto sorter = [=](int a, int b){
+      return less3D(primitiveBoxes[a].Center(), primitiveBoxes[b].Center(), axis);
+    };
+    std::sort(begin, end, sorter);
+
+
+    for (int * splitObject = begin; splitObject < end; ++splitObject) {
+      // No use splitting off single objects. Could directly test their boxes.
+      const auto left  = surfaceArea(primitiveBoxes, begin, splitObject)/totSurfArea;
+      const auto right = surfaceArea(primitiveBoxes, splitObject, end)/totSurfArea;
+      const auto metric =
+            left * std::distance(begin, splitObject)
+          + right * std::distance(splitObject, end)
+          + 0.1 * abs(nObj/2 - std::distance(begin, splitObject) / nObj); // Prefer balanced splits
+
+      if (metric < bestTraversalMetric) {
+        bestTraversalMetric = metric;
+        bestSplitAxis = axis;
+        bestSplitObject = *splitObject;
+      }
+    }
+  }
+
+  if (bestSplitAxis == -1)
+    return end;
+
+  const auto splittingPoint = primitiveBoxes[bestSplitObject].Center();
+  auto result = std::partition(begin, end, [=](size_t i) {
+    return less3D(primitiveBoxes[i].Center(), splittingPoint, bestSplitAxis);
+  });
+
+  return result;
+}
+
+/**
+ * Array of splitting functions that can be used to construct the BVH tree.
+ * @see BVH::ConstructionAlgorithm
+ */
+int * (*splittingFunction[])(const AABB * /*primitveAABBs*/,
                             int * /*firstPrimitive*/, int * /*lastPrimitive*/,
                             const AABB & /*currentBVHNode*/) = {
   &splitAlongLongestAxis,
   &largestDistanceAlongAxis,
+  &surfaceAreaHeuristic,
 };
 
-}
+} // anonymous namespace
 
 /*
  * BVH::ComputeNodes() initializes nodes of the BVH. It first computes the number of children that
