@@ -140,15 +140,10 @@ if (SINGLE_PRECISION)
 endif()
 
 option(VECGEOM_ENABLE_CUDA "Enable compilation for CUDA." OFF)
-cmake_dependent_option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF "VECGEOM_ENABLE_CUDA" OFF)
-cmake_dependent_option(CUDA_USE_STATIC_CUDA_RUNTIME "Use the static version of the CUDA runtime library if available" OFF "VECGEOM_ENABLE_CUDA" OFF)
+cmake_dependent_option(VECGEOM_CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF "VECGEOM_ENABLE_CUDA" OFF)
 
 if(VECGEOM_ENABLE_CUDA)
   enable_language(CUDA)
-  if(CUDA_VOLUME_SPECIALIZATION)
-    set(VECGEOM_CUDA_VOLUME_SPECIALIZATION ON)
-  endif()
-
   set(VecCore_COMPONENTS ${VecCore_COMPONENTS} "CUDA")
 endif()
 
