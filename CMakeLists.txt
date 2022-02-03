@@ -724,6 +724,16 @@ if(VECGEOM_ENABLE_CUDA)
   # If somebody links against the cuda libraries, ensure that vecgeom is also present:
   target_link_libraries(vecgeomcuda_static INTERFACE vecgeom)
   target_link_libraries(vecgeomcuda_shared INTERFACE vecgeom)
+
+  # - Suppress stack size warnings from a couple of functions
+  # NB: currently identified as needed at device link step, but this only works on 
+  # CMake 3.18 and newer (target_link_options 3.13, DEVICE_LINK from 3.18)
+  # TODO: find workaround for earlier versions
+  # TODO: Check at CUDA compilation step
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.18.0)
+    target_link_options(vecgeomcuda_shared PRIVATE "$<DEVICE_LINK:SHELL: -Xnvlink --suppress-stack-size-warning>")
+    target_link_options(vecgeomcuda_static INTERFACE "$<DEVICE_LINK:SHELL: -Xnvlink --suppress-stack-size-warning>")
+  endif()
 endif()
 
 if(VECGEOM_ROOT)
