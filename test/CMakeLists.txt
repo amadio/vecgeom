@@ -156,7 +156,7 @@ if(VECGEOM_ROOT)
     core/TestNavigationStatePool.cpp
     $<$<BOOL:VECGEOM_ENABLE_CUDA>:core/TestNavigationStatePool.cu>)
   target_link_libraries(TestNavigationStatePool PRIVATE $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>)
-  add_test(NAME TestNavigationStatePool COMMAND $<TARGET_FILE:TestNavigationStatePool>)
+  add_test(NAME TestNavigationStatePool COMMAND TestNavigationStatePool)
 
   # - separate list for ROOT UNIT tests
   set(TEST_UNITTESTEXECUTABLES_ROOT
@@ -266,9 +266,9 @@ if(VECGEOM_ENABLE_CUDA)
     target_link_libraries(MapTestClass PUBLIC vecgeomcuda_static vgdml)
     target_link_libraries(GeometryTest PUBLIC vecgeomcuda_static vgdml)
 
-    add_test(NAME BVHTest      COMMAND $<TARGET_FILE:BVHTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
-    add_test(NAME GeometryTest COMMAND $<TARGET_FILE:GeometryTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
-    add_test(NAME cms2018-Test COMMAND $<TARGET_FILE:GeometryTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/cms2018.gdml)
+    add_test(NAME BVHTest      COMMAND BVHTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
+    add_test(NAME GeometryTest COMMAND GeometryTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
+    add_test(NAME cms2018-Test COMMAND GeometryTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/cms2018.gdml)
   endif()
 endif()
 
