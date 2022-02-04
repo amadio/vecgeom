@@ -19,14 +19,16 @@ add_library(vgdml
   src/Middleware.cpp
 )
 
-# Don't force this yet
-#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH true)
-
 target_include_directories(vgdml PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-target_link_libraries(vgdml PUBLIC ${VECGEOM_LIBRARIES} XercesC::XercesC)
+target_link_libraries(vgdml PUBLIC XercesC::XercesC vecgeom)
+
+if(GDMLDEBUG)
+  # Only used in Middleware.cpp, and to set a constant
+  target_compile_definitions(vgdml PRIVATE GDMLDEBUG)
+endif()
 
 install(TARGETS vgdml EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 install(DIRECTORY include/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/VecGeom/gdml"

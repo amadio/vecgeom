@@ -8,7 +8,12 @@ macro(build_executables EXECUTABLES)
     add_executable(${TARGET_NAME} ${EXECUTABLE})
     # Link to CMAKE_DL_LIBS needed for globalbenchmarks/NavigationKernelBenchmarker.cpp
     # - No cost to link to others.
-    target_link_libraries(${TARGET_NAME} ${VECGEOM_LIBRARIES} ${USERKERNELLIB} ${CMAKE_DL_LIBS})
+    target_link_libraries(${TARGET_NAME} 
+      vecgeom 
+      $<$<BOOL:${GDML}>:vgdml>
+      $<$<BOOL:${VECGEOM_ENABLE_CUDA}>:vecgeomcuda> 
+      ${USERKERNELLIB}
+      ${CMAKE_DL_LIBS})
   endforeach()
 endmacro()
 

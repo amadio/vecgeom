@@ -80,6 +80,12 @@ endif()
 set(VecGeom_CUDA_FOUND @VECGEOM_ENABLE_CUDA@)
 set(VECGEOM_CUDA_ARCH "@CUDA_ARCH@")
 
+# When built with ROOT
+set(VecGeom_ROOT_FOUND @VECGEOM_ROOT@)
+if(VecGeom_ROOT_FOUND)
+  find_dependency(ROOT)
+endif()
+
 # Optional GDML (Xerces-C)
 set(VecGeom_GDML_FOUND @GDML@)
 if(VecGeom_GDML_FOUND)

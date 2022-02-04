@@ -1,13 +1,10 @@
 # - Setup the project
-cmake_minimum_required(VERSION 3.8...3.19)
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-endif()
+cmake_minimum_required(VERSION 3.12...3.22)
 
 include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
 
-project(VecGeom VERSION 1.1.18)
+project(VecGeom VERSION 1.1.18 LANGUAGES C CXX)
 
 ################################################################################
 # - Core CMake settings
@@ -470,13 +467,7 @@ endif()
 if(VECGEOM_ROOT)
   # ROOT install may be relying on ROOTSYS
   list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-  find_package(ROOT REQUIRED COMPONENTS Geom Graf3d)
-
-  #---setup ROOT include + lib dirs
-  include_directories(AFTER SYSTEM ${ROOT_INCLUDE_DIRS})
-  link_directories(${ROOT_LIBRARY_DIR})
-  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${ROOT_LIBRARIES})
-  set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${ROOT_INCLUDE_DIRS}")
+  find_package(ROOT REQUIRED COMPONENTS Core Geom Graf3d Tree)
 endif()
 
 # Intel Embree
@@ -763,17 +754,11 @@ target_include_directories(vecgeom PUBLIC
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(vecgeom
-  PUBLIC ${VECGEOM_LIBRARIES} ${VECGEOM_LIBRARIES_EXTERNAL}
+  PUBLIC ${VECGEOM_LIBRARIES_EXTERNAL}
   PRIVATE ${CMAKE_DL_LIBS})
 
 if(VGM)
   add_dependencies(vecgeom VGM)
-endif()
-
-set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeom)
-
-if(GDML)
-  set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vgdml)
 endif()
 
 # build the CUDA version of the library
@@ -789,18 +774,22 @@ if(VECGEOM_ENABLE_CUDA)
     #    -O0 -g -G -lineinfo
     ${VECGEOM_NVCC_CONFIGS})
 
-  target_link_libraries(vecgeomcuda ${VECGEOM_LIBRARIES})
-  set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeomcuda)
+  target_link_libraries(vecgeomcuda vecgeom)
+
+  if(VECGEOM_BENCHMARK AND VECGEOM_ROOT)
+    # Benchmark stuff needs TVersionCheck
+    target_link_libraries(vecgeomcuda ROOT::Core)
+  endif()
 
   # build the CUDA user-code library
   cuda_add_library(cudauserlib userexamples/src/TestNavigationStatePool.cu SHARED
     OPTIONS ${CUDA_ARCH})
-
+  
   # Note: the repeat below is due the author of  cuda_add_library_depend
   # not knowing how to automatically go from the target to the real
   # file in add_custom_command
   cuda_add_library_depend(cudauserlib vecgeomcuda_static libvecgeomcuda_static.a)
-  target_link_libraries(cudauserlib ${VECGEOM_LIBRARIES})
+  target_link_libraries(cudauserlib vecgeom vecgeomcuda)
   set(USERKERNELLIB cudauserlib)
 endif()
 
@@ -810,6 +799,10 @@ if(BUILTIN_VECCORE)
   if(VECGEOM_ENABLE_CUDA)
     add_dependencies(vecgeomcuda VecCore)
   endif()
+endif()
+
+if(VECGEOM_ROOT)
+  target_link_libraries(vecgeom PUBLIC ROOT::Graf3d ROOT::Tree ROOT::Geom)
 endif()
 
 # build the libraries for GDML persistency
