@@ -42,7 +42,7 @@ set(TEST_EXECUTABLES_BENCHMARK
 build_executables("${TEST_EXECUTABLES_BENCHMARK}")
 
 if(VECGEOM_ENABLE_CUDA)
-  target_link_libraries(NavigationBenchmark PUBLIC vecgeomcuda_static)
+  target_link_libraries(NavigationBenchmark PUBLIC vecgeomcuda)
 endif()
 
 if(GDML)
