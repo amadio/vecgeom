@@ -648,9 +648,10 @@ if(VECGEOM_ENABLE_CUDA)
 
   list(APPEND VECGEOM_CPPONLY_SRCS
     source/CudaManager.cpp
-    source/backend/cuda/Interface.cpp)
+    )
 
-  # some CUDA kernel code in "userspace" and test
+  # Pure CUDA source files, which will be compiled together with the ones generated
+  # from the dual-use .cpp files
   set(VECGEOM_CUDA_SRCS
     source/BVHManager.cu
     source/CudaManager.cu
@@ -682,7 +683,11 @@ if(VECGEOM_ENABLE_CUDA)
     PlacedExtruded
     SolidMesh)
 
-  foreach(SRC_FILE ${VECGEOM_COMMON_SRCS})
+  # NB: addition of cuda/Interface.cpp here is temporary. It will eventually
+  # become part of the modern CUDA build. Critical thing is that is it only
+  # compiled in CUDA lib, and current FindCUDA system will only understand it
+  # and compile it properly as a .cu.
+  foreach(SRC_FILE ${VECGEOM_COMMON_SRCS} source/backend/cuda/Interface.cpp)
     get_filename_component(SRC_FILENAME ${SRC_FILE} NAME_WE)
     list(FIND NOT_FOR_CUDA ${SRC_FILENAME} _index)
 

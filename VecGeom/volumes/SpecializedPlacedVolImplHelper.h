@@ -402,7 +402,6 @@ public:
 
     ConstructManyOnGpu<CudaType_t<ThisClass_t>>(in_gpu_ptrs.size(), in_gpu_ptrs.data(), logical_volumes.data(),
                                                 transforms.data(), ids.data(), copyNos.data(), childIds.data());
-    CudaCheckError();
   }
 
 #endif // VECGEOM_CUDA_INTERFACE
@@ -542,7 +541,6 @@ public:
 
     ConstructManyOnGpu<CudaType_t<ThisClass_t>>(in_gpu_ptrs.size(), in_gpu_ptrs.data(), logical_volumes.data(),
                                                 transforms.data(), ids.data(), copyNos.data(), childIds.data());
-    CudaCheckError();
   }
 #endif // VECGEOM_CUDA_INTERFACE
 

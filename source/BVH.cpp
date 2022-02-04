@@ -114,21 +114,21 @@ DevicePtr<cuda::BVH> BVH::CopyToGpu(void *addr) const
 
   int n = fLV.GetDaughters().size();
 
-  CudaCheckError(cudaMalloc((void **)&dPrimId, n * sizeof(int)));
-  CudaCheckError(cudaMalloc((void **)&dAABBs, n * sizeof(AABB)));
+  CudaCheckError(CudaMalloc((void **)&dPrimId, n * sizeof(int)));
+  CudaCheckError(CudaMalloc((void **)&dAABBs, n * sizeof(AABB)));
 
-  CudaCheckError(cudaMemcpy((void *)dPrimId, (void *)fPrimId, n * sizeof(int), cudaMemcpyHostToDevice));
-  CudaCheckError(cudaMemcpy((void *)dAABBs, (void *)fAABBs, n * sizeof(AABB), cudaMemcpyHostToDevice));
+  CudaCheckError(CudaCopyToDevice((void *)dPrimId, (void *)fPrimId, n * sizeof(int)));
+  CudaCheckError(CudaCopyToDevice((void *)dAABBs, (void *)fAABBs, n * sizeof(AABB)));
 
   int nodes = (2 << fDepth) - 1;
 
-  CudaCheckError(cudaMalloc((void **)&dOffset, nodes * sizeof(int)));
-  CudaCheckError(cudaMalloc((void **)&dNChild, nodes * sizeof(int)));
-  CudaCheckError(cudaMalloc((void **)&dNodes, nodes * sizeof(AABB)));
+  CudaCheckError(CudaMalloc((void **)&dOffset, nodes * sizeof(int)));
+  CudaCheckError(CudaMalloc((void **)&dNChild, nodes * sizeof(int)));
+  CudaCheckError(CudaMalloc((void **)&dNodes, nodes * sizeof(AABB)));
 
-  CudaCheckError(cudaMemcpy((void *)dOffset, (void *)fOffset, nodes * sizeof(int), cudaMemcpyHostToDevice));
-  CudaCheckError(cudaMemcpy((void *)dNChild, (void *)fNChild, nodes * sizeof(int), cudaMemcpyHostToDevice));
-  CudaCheckError(cudaMemcpy((void *)dNodes, (void *)fNodes, nodes * sizeof(AABB), cudaMemcpyHostToDevice));
+  CudaCheckError(CudaCopyToDevice((void *)dOffset, (void *)fOffset, nodes * sizeof(int)));
+  CudaCheckError(CudaCopyToDevice((void *)dNChild, (void *)fNChild, nodes * sizeof(int)));
+  CudaCheckError(CudaCopyToDevice((void *)dNodes, (void *)fNodes, nodes * sizeof(AABB)));
 
   cuda::LogicalVolume const *dvolume = CudaManager::Instance().LookupLogical(&fLV).GetPtr();
 

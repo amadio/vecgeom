@@ -55,9 +55,19 @@ cudaError_t CudaCopyFromDevice(void *tgt, void const *src, unsigned size)
   return cudaMemcpy(tgt, src, size, cudaMemcpyDeviceToHost);
 }
 
+cudaError_t CudaCopyFromDeviceAsync(void *dst, void const * src, unsigned size, cudaStream_t stream)
+{
+  return cudaMemcpyAsync(dst, src, size, cudaMemcpyDeviceToHost, stream);
+}
+
 cudaError_t CudaFree(void *ptr)
 {
   return cudaFree(ptr);
+}
+
+cudaError_t CudaDeviceSetStackLimit(unsigned size)
+{
+  return cudaDeviceSetLimit(cudaLimitStackSize, size);
 }
 
 } // End namespace cuda

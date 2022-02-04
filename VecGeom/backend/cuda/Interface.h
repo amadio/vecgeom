@@ -109,7 +109,11 @@ cudaError_t CudaCopyToDevice(void *tgt, void const *src, unsigned size);
 
 cudaError_t CudaCopyFromDevice(void *tgt, void const *src, unsigned size);
 
+cudaError_t CudaCopyFromDeviceAsync(void *tgt, void const * src, unsigned size, cudaStream_t stream);
+
 cudaError_t CudaFree(void *ptr);
+
+cudaError_t CudaDeviceSetStackLimit(unsigned size);
 
 template <typename Type>
 Type *AllocateOnDevice()
@@ -186,12 +190,12 @@ protected:
 
   void MemcpyToDevice(const void *what, unsigned long nbytes)
   {
-    if (nbytes) vecgeom::cxx::CudaAssertError(cudaMemcpy(fPtr, what, nbytes, cudaMemcpyHostToDevice));
+    if (nbytes) vecgeom::cxx::CudaAssertError(vecgeom::cxx::CudaCopyToDevice(fPtr, what, nbytes));
   }
 
   void MemcpyToHostAsync(void *where, unsigned long nbytes, cudaStream_t stream)
   {
-    vecgeom::cxx::CudaAssertError(cudaMemcpyAsync(where, fPtr, nbytes, cudaMemcpyDeviceToHost, stream));
+    vecgeom::cxx::CudaAssertError(vecgeom::cxx::CudaCopyFromDeviceAsync(where, fPtr, nbytes, stream));
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -483,6 +487,8 @@ void ConstructManyOnGpu(std::size_t nElement, const DevPtr_t *gpu_ptrs, const Ar
   for (const auto &memCpu_memGpu : cpuToGpuMem) {
     FreeFromGpu(memCpu_memGpu.second);
   }
+
+  CudaCheckError();
 }
 #else
     ;
