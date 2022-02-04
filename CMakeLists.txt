@@ -713,6 +713,11 @@ if(VECGEOM_ENABLE_CUDA)
   target_link_libraries(vecgeomcuda_shared PUBLIC VecCore::VecCore)
   target_link_libraries(vecgeomcuda_shared PRIVATE vecgeom)
 
+  if(VECGEOM_BENCHMARK AND VECGEOM_ROOT)
+    # Benchmark stuff needs TVersionCheck
+    target_link_libraries(vecgeomcuda_shared PUBLIC ROOT::Core)
+  endif()
+
   add_library(vecgeomcuda_static STATIC $<TARGET_OBJECTS:vecgeomcuda_objlib>)
   target_link_libraries(vecgeomcuda_static PUBLIC VecCore::VecCore)
 
