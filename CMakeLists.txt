@@ -385,7 +385,7 @@ if(VECGEOM_ENABLE_CUDA)
     set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
   endif()
 
-  if(NOT NO_SPECIALIZATION)
+  if(NOT VECGEOM_NO_SPECIALIZATION)
     string(APPEND CMAKE_CUDA_FLAGS " -Xptxas --disable-optimizer-constants")
   endif()
 endif()
