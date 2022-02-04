@@ -152,6 +152,12 @@ if(VECGEOM_ROOT)
     list(APPEND TEST_EXECUTABLES_ROOT core/EmbreeManagerTest.cpp)
   endif()
 
+  add_executable(TestNavigationStatePool
+    core/TestNavigationStatePool.cpp
+    $<$<BOOL:VECGEOM_ENABLE_CUDA>:core/TestNavigationStatePool.cu>)
+  target_link_libraries(TestNavigationStatePool PRIVATE $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>)
+  add_test(NAME TestNavigationStatePool COMMAND $<TARGET_FILE:TestNavigationStatePool>)
+
   # - separate list for ROOT UNIT tests
   set(TEST_UNITTESTEXECUTABLES_ROOT
     root/complex_test1.cpp
@@ -263,12 +269,6 @@ if(VECGEOM_ENABLE_CUDA)
     add_test(NAME BVHTest      COMMAND $<TARGET_FILE:BVHTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
     add_test(NAME GeometryTest COMMAND $<TARGET_FILE:GeometryTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
     add_test(NAME cms2018-Test COMMAND $<TARGET_FILE:GeometryTest> ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/cms2018.gdml)
-  endif()
-
-  if(VECGEOM_ROOT)
-    add_executable(TestNavigationStatePool core/TestNavigationStatePool.cpp ../userexamples/src/TestNavigationStatePool.cu)
-    target_link_libraries(TestNavigationStatePool vecgeomcuda_static)
-    add_test(NAME TestNavigationStatePool COMMAND $<TARGET_FILE:TestNavigationStatePool>)
   endif()
 endif()
 
