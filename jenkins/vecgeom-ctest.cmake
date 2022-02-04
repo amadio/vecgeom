@@ -88,14 +88,13 @@ set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX}
                    -DBUILTIN_VECCORE=OFF
                    -DBENCHMARK=ON
                    -DROOT=ON
-                   -DCUDA_VOLUME_SPECIALIZATION=OFF
+                   -DVECGEOM_CUDA_VOLUME_SPECIALIZATION=OFF
                    $ENV{ExtraCMakeOptions})
 
 ################################################################################
 # Options depending on compiler/label/etc.
 if("$ENV{LABEL}" MATCHES cuda)
   list(APPEND config_options -DVECGEOM_ENABLE_CUDA=ON)
-  list(APPEND config_options -DCUDA_VOLUME_SPECIALIZATION=OFF)
   list(APPEND config_options -DCMAKE_CUDA_STANDARD=14)
 endif()
 
