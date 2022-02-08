@@ -85,7 +85,7 @@ public:
    * @param[in] localdir Direction in the local coordinates of the logical volume.
    * @param[in,out] step Maximum step distance for which intersections should be considered.
    * @param[in] last Last volume. This volume is ignored when reporting intersections.
-   */ 
+   */
   VECCORE_ATT_HOST_DEVICE
   void ApproachNextDaughter(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
                             VPlacedVolume const *last) const;
@@ -153,6 +153,7 @@ private:
    * @param[in] id Node id of node to be computed.
    * @param[in] first Iterator pointing to the position of this node's first volume in @c fPrimId.
    * @param[in] last Iterator pointing to the position of this node's last volume in @c fPrimId.
+   * @param[in] nodes Number of nodes for this BVH.
    *
    * @remark This function computes the bounding box of a node, then chooses a split plane and reorders
    * the elements of @c fPrimId within the first,last range such that volumes for its left child all come
