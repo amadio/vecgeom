@@ -19,6 +19,17 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedExtruded::PrintType() const
+{
+  printf("PlacedExtruded");
+}
+
+void PlacedExtruded::PrintType(std::ostream &s) const
+{
+  s << "PlacedExtruded";
+}
+
 #ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedExtruded::ConvertToUnspecialized() const

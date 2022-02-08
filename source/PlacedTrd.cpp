@@ -10,6 +10,17 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedTrd::PrintType() const
+{
+  printf("PlacedTrd");
+}
+
+void PlacedTrd::PrintType(std::ostream &s) const
+{
+  s << "PlacedTrd";
+}
+
 #ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedTrd::ConvertToUnspecialized() const

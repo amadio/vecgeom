@@ -44,6 +44,10 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedTorus2() {}
 
+  VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &s) const override;
+
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 

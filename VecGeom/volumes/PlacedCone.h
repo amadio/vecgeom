@@ -49,6 +49,10 @@ public:
   virtual ~PlacedCone() {}
 
   VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &s) const override;
+
+  VECCORE_ATT_HOST_DEVICE
   UnplacedCone const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedCone const *>(GetLogicalVolume()->GetUnplacedVolume());

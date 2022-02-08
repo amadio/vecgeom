@@ -8,6 +8,17 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedSphere::PrintType() const
+{
+  printf("PlacedSphere");
+}
+
+void PlacedSphere::PrintType(std::ostream &s) const
+{
+  s << "PlacedSphere";
+}
+
 #ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedSphere::ConvertToUnspecialized() const

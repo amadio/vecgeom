@@ -16,6 +16,17 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedMultiUnion::PrintType() const
+{
+  printf("PlacedMultiUnion");
+}
+
+void PlacedMultiUnion::PrintType(std::ostream &s) const
+{
+  s << "PlacedMultiUnion";
+}
+
 #ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedMultiUnion::ConvertToUnspecialized() const

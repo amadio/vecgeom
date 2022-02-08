@@ -40,8 +40,10 @@ public:
 
   virtual int MemorySize() const override { return sizeof(*this); }
 
+  VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override;
   virtual void PrintType(std::ostream &) const override;
+
   virtual void PrintImplementationType(std::ostream &) const override;
   virtual void PrintUnplacedType(std::ostream &) const override;
 

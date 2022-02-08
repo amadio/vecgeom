@@ -14,6 +14,17 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedTorus2::PrintType() const
+{
+  printf("PlacedTorus2");
+}
+
+void PlacedTorus2::PrintType(std::ostream &s) const
+{
+  s << "PlacedTorus2";
+}
+
 #ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedTorus2::ConvertToUnspecialized() const

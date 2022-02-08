@@ -20,6 +20,17 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedCone::PrintType() const
+{
+  printf("PlacedCone");
+}
+
+void PlacedCone::PrintType(std::ostream &s) const
+{
+  s << "PlacedCone";
+}
+
 #ifndef VECCORE_CUDA
 VPlacedVolume const *PlacedCone::ConvertToUnspecialized() const
 {

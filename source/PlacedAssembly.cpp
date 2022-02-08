@@ -8,5 +8,16 @@ PlacedAssembly::~PlacedAssembly()
 {
 }
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedAssembly::PrintType() const
+{
+  printf("PlacedAssembly");
+}
+
+void PlacedAssembly::PrintType(std::ostream &s) const
+{
+  s << "PlacedAssembly";
+}
+
 } // End impl namespace
 } // End namespace vecgeom

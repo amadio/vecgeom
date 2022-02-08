@@ -17,6 +17,17 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedTube::PrintType() const
+{
+  printf("PlacedTube");
+}
+
+void PlacedTube::PrintType(std::ostream &s) const
+{
+  s << "PlacedTube";
+}
+
 #ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedTube::ConvertToUnspecialized() const

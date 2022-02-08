@@ -70,6 +70,10 @@ public:
     return static_cast<UnplacedTrd const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
+  VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &s) const override;
+
   /// Getter for half-length along x at -dz
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE

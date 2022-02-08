@@ -34,6 +34,82 @@
 
 namespace vecgeom {
 
+
+template <>
+VECCORE_ATT_HOST_DEVICE
+void PlacedBooleanVolume<kUnion>::PrintType() const
+{
+  VPlacedVolume const *pleft  = GetUnplacedVolume()->GetLeft();
+  VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
+  printf("PlacedBooleanVolume<kUnion>(");
+  pleft->PrintType();
+  printf(",");
+  pright->PrintType();
+  printf(")");
+}
+
+template <>
+VECCORE_ATT_HOST_DEVICE
+void PlacedBooleanVolume<kIntersection>::PrintType() const
+{
+  VPlacedVolume const *pleft  = GetUnplacedVolume()->GetLeft();
+  VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
+  printf("PlacedBooleanVolume<kIntersection>(");
+  pleft->PrintType();
+  printf(",");
+  pright->PrintType();
+  printf(")");
+}
+
+template <>
+VECCORE_ATT_HOST_DEVICE
+void PlacedBooleanVolume<kSubtraction>::PrintType() const
+{
+  VPlacedVolume const *pleft  = GetUnplacedVolume()->GetLeft();
+  VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
+  printf("PlacedBooleanVolume<kSubtraction>(");
+  pleft->PrintType();
+  printf(",");
+  pright->PrintType();
+  printf(")");
+}
+
+template <>
+void PlacedBooleanVolume<kUnion>::PrintType(std::ostream &s) const
+{
+  VPlacedVolume const *pleft  = GetUnplacedVolume()->GetLeft();
+  VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
+  s << "PlacedBooleanVolume<kUnion>(";
+  pleft->PrintType(s);
+  s <<",";
+  pright->PrintType(s);
+  s <<")";
+}
+
+template <>
+void PlacedBooleanVolume<kIntersection>::PrintType(std::ostream &s) const
+{
+  VPlacedVolume const *pleft  = GetUnplacedVolume()->GetLeft();
+  VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
+  s << "PlacedBooleanVolume<kIntersection>(";
+  pleft->PrintType(s);
+  s <<",";
+  pright->PrintType(s);
+  s <<")";
+}
+
+template <>
+void PlacedBooleanVolume<kSubtraction>::PrintType(std::ostream &s) const
+{
+  VPlacedVolume const *pleft  = GetUnplacedVolume()->GetLeft();
+  VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
+  s << "PlacedBooleanVolume<kSubtraction>(";
+  pleft->PrintType();
+  s <<",";
+  pright->PrintType();
+  s <<")";
+}
+
 #ifdef VECGEOM_ROOT
 template <>
 TGeoShape const *PlacedBooleanVolume<kUnion>::ConvertToRoot() const

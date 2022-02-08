@@ -18,6 +18,17 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedHype::PrintType() const
+{
+  printf("PlacedHype");
+}
+
+void PlacedHype::PrintType(std::ostream &s) const
+{
+  s << "PlacedHype";
+}
+
 #ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedHype::ConvertToUnspecialized() const

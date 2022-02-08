@@ -62,9 +62,8 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  void PrintType() const override{};
-
-  void PrintType(std::ostream &) const override{};
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &) const override;
 
   // CUDA specific
   virtual int MemorySize() const override { return sizeof(*this); }

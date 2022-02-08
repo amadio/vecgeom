@@ -57,6 +57,10 @@ public:
     return static_cast<UnplacedPolycone const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
+  VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &s) const override;
+
   bool IsOpen() const { return (GetUnplacedVolume()->GetDeltaPhi() < kTwoPi); }
   Precision GetStartPhi() const { return GetUnplacedVolume()->GetStartPhi(); }
   Precision GetEndPhi() const { return GetUnplacedVolume()->GetEndPhi(); }

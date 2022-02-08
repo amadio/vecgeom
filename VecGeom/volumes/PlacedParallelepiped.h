@@ -69,6 +69,10 @@ public:
     return static_cast<UnplacedParallelepiped const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
+  VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &s) const override;
+
   /// Accessor for dimensions
   VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> const &GetDimensions() const { return GetUnplacedVolume()->GetDimensions(); }

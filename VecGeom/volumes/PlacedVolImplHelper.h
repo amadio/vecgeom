@@ -28,6 +28,7 @@ struct PlacedVolumeImplHelper : public BaseVol {
 public:
   using BaseVol::BaseVol;
   using BaseVol::GetLogicalVolume;
+  using BaseVol::PrintType;
 
   // destructor
   VECCORE_ATT_HOST_DEVICE
@@ -43,6 +44,10 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   Struct_t const *GetUnplacedStruct() const { return static_cast<Struct_t const *>(&GetUnplacedVolume()->GetStruct()); }
+
+  // VECCORE_ATT_HOST_DEVICE
+  // virtual void PrintType() const override;
+  // virtual void PrintType(std::ostream &s) const override;
 
 #if !defined(VECCORE_CUDA)
   virtual Precision Capacity() override { return const_cast<UnplacedShape_t *>(GetUnplacedVolume())->Capacity(); }

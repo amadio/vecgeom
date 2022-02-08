@@ -19,6 +19,17 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECCORE_ATT_HOST_DEVICE
+void PlacedParallelepiped::PrintType() const
+{
+  printf("PlacedParallelepiped");
+}
+
+void PlacedParallelepiped::PrintType(std::ostream &s) const
+{
+  s << "PlacedParallelepiped";
+}
+
 #ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedParallelepiped::ConvertToUnspecialized() const
