@@ -7,9 +7,6 @@ macro(build_executables EXECUTABLES)
   foreach(EXECUTABLE ${EXECUTABLES})
     get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
     add_executable(${TARGET_NAME} ${EXECUTABLE})
-    # Define the correct library to link against. When CUDA is enabled, the best is
-    # to use the shared cuda library, because this creates the smallest executables.
-    # Note that tests that include CUDA kernels, however, must use the static library.
     target_link_libraries(${TARGET_NAME} PUBLIC $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda,vecgeom>)
   endforeach()
 endmacro()
