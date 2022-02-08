@@ -81,7 +81,7 @@ BVH::BVH(LogicalVolume const &volume, int depth) : fLV(volume)
   std::fill(fOffset, fOffset+nodes, -1);
 
   /* Recursively initialize BVH nodes starting at the root node */
-  ComputeNodes(0, fPrimId, fPrimId + n, nodes, ConstructionAlgorithm::SplitLongestAxis);
+  ComputeNodes(0, fPrimId, fPrimId + n, nodes, ConstructionAlgorithm::SurfaceAreaHeuristic);
 
   /* Mark internal nodes with a negative number of children to simplify traversal */
   for (unsigned int id = 0; id < nodes / 2; ++id)
