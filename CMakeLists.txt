@@ -372,7 +372,33 @@ message(STATUS "Compiling for ${_arch_up} SIMD architecture")
 ################################################################################
 # - Configure CUDA
 if(VECGEOM_ENABLE_CUDA)
-  set(CMAKE_CUDA_SEPARABLE_COMPILATION On)
+  set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
+
+  # Pre CMake 3.18, we have to manually manage architecture flags, and can only
+  # really support Nvidia compiler. Don't handle any other case
+  if(CMAKE_VERSION VERSION_LESS "3.18" AND CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA")
+    # Take default using FindCUDA, likely a cleaner way with try_compile
+    find_package(CUDA REQUIRED)
+    cuda_select_nvcc_arch_flags(_DEFAULT_CUDA_ARCH_FLAGS Auto)
+    string(REGEX MATCH "[0-9][0-9]" _DEFAULT_CUDA_ARCH ${_DEFAULT_CUDA_ARCH_FLAGS})
+    
+    # Duplicate as far as possible CMake >= 3.18 behaviour
+    # NB: does *not* support -real or -virtual extensions
+    set(CMAKE_CUDA_ARCHITECTURES ${_DEFAULT_CUDA_ARCH} CACHE STRING "List of CUDA Architectures")
+    string(REPLACE " " ";" CMAKE_CUDA_ARCHITECTURES "${CMAKE_CUDA_ARCHITECTURES}")
+    list(FILTER CMAKE_CUDA_ARCHITECTURES EXCLUDE REGEX "^ *$")
+
+    # Only apply flags in "NOT non-empty false" case
+    if(CMAKE_CUDA_ARCHITECTURES)
+      foreach(_arch ${CMAKE_CUDA_ARCHITECTURES})
+        if(_arch MATCHES "(real|virtual)$")
+          message(FATAL_ERROR "real/virtual keyword specifier in CMAKE_CUDA_ARCHITECTURES (argument '${_arch}') requires CMake 3.18 or newer")
+        endif()
+        # Should be equivalent to old VecGeom behaviour of "-arch=sm_${CUDA_ARCH}", but allowing multiple arches
+        string(APPEND CMAKE_CUDA_FLAGS " --generate-code=code=[sm_${_arch},compute_${_arch}],arch=compute_${_arch}")
+      endforeach()
+    endif()
+  endif()
 
   string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -G")
   string(APPEND CMAKE_CUDA_FLAGS_RELWITHDEBINFO " -line-info")
@@ -401,11 +427,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}} ${VECG
 # The line below is necessary to allow passing extra options
 # via -DCMAKE_CXX_FLAGS or CXXFLAGS environment variable.
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-
-message(STATUS "Compiling with C++ flags: ${CMAKE_CXX_FLAGS}")
-if(VECGEOM_ENABLE_CUDA)
-  message(STATUS "Compiling with NVCC flags: '${CMAKE_CUDA_FLAGS}' '${CMAKE_CUDA_FLAGS_${_build_type}}'")
-endif()
 
 if(VECGEOM_ROOT)
   # ROOT install may be relying on ROOTSYS
