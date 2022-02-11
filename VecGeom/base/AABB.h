@@ -46,6 +46,14 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> Size() const { return fMax - fMin; }
 
+  /** Returns the surface area of the box. */
+  VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const
+  {
+    const auto extent = Size();
+    return 2. * (extent[0]*extent[1] + extent[1]*extent[2] + extent[2]*extent[0]);
+  }
+
   /** Expand AABB. @param s Amount by which to expand in each direction. */
   VECCORE_ATT_HOST_DEVICE
   void Expand(Precision s)
