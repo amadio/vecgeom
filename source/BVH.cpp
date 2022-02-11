@@ -222,9 +222,7 @@ double surfaceArea(const AABB * primitiveBoxes, int const * begin, int const * e
   for (int const * obj = std::next(begin); obj < end; ++obj) {
     box = AABB::Union(box, primitiveBoxes[*obj]);
   }
-  const auto size = box.Size();
-  const auto result = size[0] * size[1] * size[2];
-  return result;
+  return box.SurfaceArea();
 }
 
 /**
