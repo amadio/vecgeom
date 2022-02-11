@@ -297,6 +297,8 @@ template <typename T>
 VECCORE_ATT_HOST_DEVICE
 void SOA3D<T>::Allocate()
 {
+  if (fCapacity == 0) return;
+
   fX         = AlignedAllocate<T>(fCapacity);
   fY         = AlignedAllocate<T>(fCapacity);
   fZ         = AlignedAllocate<T>(fCapacity);

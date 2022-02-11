@@ -120,6 +120,8 @@ void Array<Type>::Allocate(const unsigned initSize)
 {
   Deallocate();
   fSize = initSize;
+  if (initSize == 0) return;
+
 #ifndef VECCORE_CUDA
   fData = static_cast<Type *>(vecCore::AlignedAlloc(kAlignmentBoundary, fSize * sizeof(Type)));
 #else
@@ -136,11 +138,10 @@ void Array<Type>::Deallocate()
 #ifndef VECCORE_CUDA
     vecCore::AlignedFree(fData);
 #else
-    free(fData);                                             // delete fData;
+    free(fData);
 #endif
-  } else {
-    fData = NULL;
   }
+  fData      = nullptr;
   fSize      = 0;
   fAllocated = false;
 }
