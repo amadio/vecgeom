@@ -16,14 +16,14 @@ template <typename Type>
 class Array : public AlignedBase {
 
 private:
-  Type *fData;
-  int fSize;
-  bool fAllocated;
+  Type *fData = nullptr;
+  int fSize = 0;
+  bool fAllocated = false;
 
 public:
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Array();
+  Array() = default;
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -86,19 +86,13 @@ public:
 
 template <typename Type>
 VECCORE_ATT_HOST_DEVICE
-Array<Type>::Array() : fData(NULL), fSize(0), fAllocated(false)
-{
-}
-
-template <typename Type>
-VECCORE_ATT_HOST_DEVICE
-Array<Type>::Array(const unsigned initSize) : fData(NULL), fAllocated(true)
+Array<Type>::Array(const unsigned initSize)
 {
   Allocate(initSize);
 }
 
 template <typename Type>
-Array<Type>::Array(Array<Type> const &other) : fData(NULL), fAllocated(true)
+Array<Type>::Array(Array<Type> const &other)
 {
   Allocate(other.fSize);
   copy(other.fData, other.fData + other.fSize, fData);
@@ -131,6 +125,7 @@ void Array<Type>::Allocate(const unsigned initSize)
 #else
   fData = static_cast<Type *>(malloc(fSize * sizeof(Type))); // new Type[fSize];
 #endif
+  fAllocated = true;
 }
 
 template <typename Type>

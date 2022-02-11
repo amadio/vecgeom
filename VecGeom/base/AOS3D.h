@@ -23,9 +23,9 @@ template <typename T>
 class AOS3D : Container3D<AOS3D<T>> {
 
 private:
-  bool fAllocated;
-  size_t fSize, fCapacity;
-  Vector3D<T> *fContent;
+  bool fAllocated = false;
+  size_t fSize = 0, fCapacity = 0;
+  Vector3D<T> *fContent = nullptr;
 
   typedef Vector3D<T> Vec_t;
 
@@ -39,7 +39,7 @@ public:
   AOS3D(size_t size);
 
   VECCORE_ATT_HOST_DEVICE
-  AOS3D();
+  AOS3D() = default;
 
   AOS3D(AOS3D<T> const &other);
 
@@ -137,26 +137,20 @@ private:
 template <typename T>
 VECCORE_ATT_HOST_DEVICE
 AOS3D<T>::AOS3D(Vector3D<T> *in_content, size_t in_size)
-    : fAllocated(false), fSize(in_size), fCapacity(fSize), fContent(in_content)
+    : fSize(in_size), fCapacity(fSize), fContent(in_content)
 {
 }
 
 template <typename T>
 VECCORE_ATT_HOST_DEVICE
-AOS3D<T>::AOS3D(size_t sz) : fAllocated(true), fSize(sz), fCapacity(sz), fContent(NULL)
+AOS3D<T>::AOS3D(size_t sz) : fSize(sz), fCapacity(sz)
 {
   reserve(fCapacity);
 }
 
 template <typename T>
-VECCORE_ATT_HOST_DEVICE
-AOS3D<T>::AOS3D() : fAllocated(false), fSize(0), fCapacity(0), fContent(NULL)
-{
-}
-
-template <typename T>
 AOS3D<T>::AOS3D(AOS3D<T> const &rhs)
-    : fAllocated(rhs.fAllocated), fSize(rhs.fSize), fCapacity(rhs.fCapacity), fContent(NULL)
+    : fSize(rhs.fSize), fCapacity(rhs.fCapacity)
 {
   *this = rhs;
 }

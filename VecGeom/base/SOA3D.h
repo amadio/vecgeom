@@ -35,9 +35,9 @@ template <typename T>
 class SOA3D : Container3D<SOA3D<T>> {
 
 private:
-  bool fAllocated;
-  size_t fSize, fCapacity;
-  T *fX, *fY, *fZ;
+  bool fAllocated = false;
+  size_t fSize = 0, fCapacity = 0;
+  T *fX = nullptr, *fY = nullptr, *fZ = nullptr;
 
 public:
   typedef T value_type;
@@ -51,7 +51,7 @@ public:
   SOA3D(SOA3D<T> const &other);
 
   VECCORE_ATT_HOST_DEVICE
-  SOA3D();
+  SOA3D() = default;
 
   VECCORE_ATT_HOST_DEVICE
   SOA3D &operator=(SOA3D<T> const &other);
@@ -182,14 +182,14 @@ SOA3D<T>::SOA3D(T *xval, T *yval, T *zval, size_t sz)
 
 template <typename T>
 VECCORE_ATT_HOST_DEVICE
-SOA3D<T>::SOA3D(size_t sz) : fAllocated(true), fSize(sz), fCapacity(sz), fX(NULL), fY(NULL), fZ(NULL)
+SOA3D<T>::SOA3D(size_t sz) : fSize(sz), fCapacity(sz)
 {
   Allocate();
 }
 
 template <typename T>
 SOA3D<T>::SOA3D(SOA3D<T> const &rhs)
-    : fAllocated(false), fSize(rhs.fSize), fCapacity(rhs.fCapacity), fX(NULL), fY(NULL), fZ(NULL)
+    : fAllocated(false), fSize(rhs.fSize), fCapacity(rhs.fCapacity)
 {
   if (rhs.fAllocated) {
     Allocate();
@@ -201,12 +201,6 @@ SOA3D<T>::SOA3D(SOA3D<T> const &rhs)
     fY = rhs.fY;
     fZ = rhs.fZ;
   }
-}
-
-template <typename T>
-VECCORE_ATT_HOST_DEVICE
-SOA3D<T>::SOA3D() : fAllocated(false), fSize(0), fCapacity(0), fX(NULL), fY(NULL), fZ(NULL)
-{
 }
 
 template <typename T>
