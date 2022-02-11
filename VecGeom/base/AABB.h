@@ -67,7 +67,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool Contains(Vector3D<Precision> p) const
   {
-    return p[0] >= fMin[0] && p[0] < fMax[0] && p[1] >= fMin[1] && p[1] < fMax[1] && p[2] >= fMin[2] && p[2] < fMax[2];
+    return p[0] >= fMin[0] && p[0] <= fMax[0] && p[1] >= fMin[1] && p[1] <= fMax[1] && p[2] >= fMin[2] && p[2] <= fMax[2];
   }
 
   /**
