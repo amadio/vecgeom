@@ -25,7 +25,7 @@ Tested to compile with Vc >= 1.3.3.
 #### CUDA
 
 For CUDA support, an nVIDIA GPU with [compute capability](http://en.wikipedia.org/wiki/CUDA#Supported_GPUs) >= 3.0 must be available,
-and the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) must be installed.
+and the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) 10.0 or newer must be installed.
 
 Tested to compile with CUDA >= 10.0.
 
@@ -50,10 +50,7 @@ The table below shows some options you may want to customise:
 |BUILD_TESTING|ON|Enable build of tests and integration with CTest|
 |BUILTIN_VECCORE|OFF|Build VecCore and its dependencies from source|
 |COVERAGE_TESTING|OFF|Enable coverage testing flags|
-|CUDA|OFF|Enable compilation for CUDA|
-|CUDA_ARCH|30|Default CUDA device architecture|
-|CUDA_USE_STATIC_CUDA_RUNTIME|OFF|Use the static version of the CUDA runtime library if available|
-|CUDA_VOLUME_SPECIALIZATION|OFF|Use specialized volumes for CUDA|
+|CMAKE_CUDA_ARCHITECTURES|CUDA Compiler's Default (CMake >= 3.18) or Host GPU (CMake < 3.18)|Default CUDA device architecture|
 |DATA_DOWNLOAD|OFF|Enable downloading of data for tests|
 |DISTANCE_DEBUG|OFF|Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes|
 |EMBREE|OFF|Enable Intel Embree|
@@ -71,4 +68,6 @@ The table below shows some options you may want to customise:
 |USE_INDEXEDNAVSTATES|ON|Use indices rather than volume pointers in NavigationState objects|
 |USE_NAVINDEX|OFF|Use navigation index table and states|
 |VALIDATION|OFF|Enable validation tests from CMS geometry|
+|VECGEOM_CUDA_VOLUME_SPECIALIZATION|OFF|Use specialized volumes for CUDA|
+|VECGEOM_ENABLE_CUDA|OFF|Enable compilation for CUDA|
 |VECGEOM_VECTOR|sse2|Vector instruction set to be used|
