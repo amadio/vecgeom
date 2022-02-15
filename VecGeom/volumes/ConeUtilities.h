@@ -94,18 +94,18 @@ static void PointInCyclicalSector(UnplacedStruct_t const &volume, Real_v const &
 
   if (onSurfaceT) {
     // in this case, includeSurface is irrelevant
-    ret = (Abs(startCheck) <= kHalfConeTolerance) | (Abs(endCheck) <= kHalfConeTolerance);
+    ret = (Abs(startCheck) <= kConeTolerance) | (Abs(endCheck) <= kConeTolerance);
   } else {
     if (smallerthanpi) {
       if (includeSurface)
-        ret = (startCheck >= -kHalfConeTolerance) & (endCheck >= -kHalfConeTolerance);
+        ret = (startCheck >= -kConeTolerance) & (endCheck >= -kConeTolerance);
       else
-        ret = (startCheck >= kHalfConeTolerance) & (endCheck >= kHalfConeTolerance);
+        ret = (startCheck >= kConeTolerance) & (endCheck >= kConeTolerance);
     } else {
       if (includeSurface)
-        ret = (startCheck >= -kHalfConeTolerance) | (endCheck >= -kHalfConeTolerance);
+        ret = (startCheck >= -kConeTolerance) | (endCheck >= -kConeTolerance);
       else
-        ret = (startCheck >= kHalfConeTolerance) | (endCheck >= kHalfConeTolerance);
+        ret = (startCheck >= kConeTolerance) | (endCheck >= kConeTolerance);
     }
   }
 }
@@ -175,7 +175,7 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
 
   Real_v dirDotXY = (dir.y() * alongX) - (dir.x() * alongY);
   vecCore__MaskedAssignFunc(dist, dirDotXY != 0, ((alongY * pos.x()) - (alongX * pos.y())) / NonZero(dirDotXY));
-  ok &= dist > -kHalfConeTolerance;
+  ok &= dist > -kConeTolerance;
   // if( /*Backend::early_returns &&*/ vecCore::MaskEmpty(ok) ) return;
 
   if (insectorCheck) {
@@ -304,12 +304,12 @@ static typename vecCore::Mask_v<Real_v> IsOnZPlaneAndMovingInside(UnplacedStruct
   Precision fDz = cone.fDz;
 
   if (ForTopPlane) {
-    return (rho > (cone.fSqRmin2 - kHalfConeTolerance)) && (rho < (cone.fSqRmax2 + kHalfConeTolerance)) &&
-           (point.z() < (fDz + kHalfConeTolerance)) && (point.z() > (fDz - kHalfConeTolerance)) &&
+    return (rho > (cone.fSqRmin2 - kConeTolerance)) && (rho < (cone.fSqRmax2 + kConeTolerance)) &&
+           (point.z() < (fDz + kConeTolerance)) && (point.z() > (fDz - kConeTolerance)) &&
            (direction.z() < Real_v(0.));
   } else {
-    return (rho > (cone.fSqRmin1 - kHalfConeTolerance)) && (rho < (cone.fSqRmax1 + kHalfConeTolerance)) &&
-           (point.z() < (-fDz + kHalfConeTolerance)) && (point.z() > (-fDz - kHalfConeTolerance)) &&
+    return (rho > (cone.fSqRmin1 - kConeTolerance)) && (rho < (cone.fSqRmax1 + kConeTolerance)) &&
+           (point.z() < (-fDz + kConeTolerance)) && (point.z() > (-fDz - kConeTolerance)) &&
            (direction.z() > Real_v(0.));
   }
 }
@@ -325,12 +325,12 @@ static typename vecCore::Mask_v<Real_v> IsOnZPlaneAndMovingOutside(UnplacedStruc
   Precision fDz = cone.fDz;
 
   if (ForTopPlane) {
-    return (rho > (cone.fSqRmin2 - kHalfConeTolerance)) && (rho < (cone.fSqRmax2 + kHalfConeTolerance)) &&
-           (point.z() < (fDz + kHalfConeTolerance)) && (point.z() > (fDz - kHalfConeTolerance)) &&
+    return (rho > (cone.fSqRmin2 - kConeTolerance)) && (rho < (cone.fSqRmax2 + kConeTolerance)) &&
+           (point.z() < (fDz + kConeTolerance)) && (point.z() > (fDz - kConeTolerance)) &&
            (direction.z() > Real_v(0.));
   } else {
-    return (rho > (cone.fSqRmin1 - kHalfConeTolerance)) && (rho < (cone.fSqRmax1 + kHalfConeTolerance)) &&
-           (point.z() < (-fDz + kHalfConeTolerance)) && (point.z() > (-fDz - kHalfConeTolerance)) &&
+    return (rho > (cone.fSqRmin1 - kConeTolerance)) && (rho < (cone.fSqRmax1 + kConeTolerance)) &&
+           (point.z() < (-fDz + kConeTolerance)) && (point.z() > (-fDz - kConeTolerance)) &&
            (direction.z() < Real_v(0.));
   }
 }
@@ -517,9 +517,9 @@ public:
 
     // very fast check on z-height
     Real_v absz       = Abs(point[2]);
-    completelyoutside = absz > MakePlusTolerant<ForInside>(cone.fDz, kHalfConeTolerance);
+    completelyoutside = absz > MakePlusTolerant<ForInside>(cone.fDz, kConeTolerance);
     if (ForInside) {
-      completelyinside = absz < MakeMinusTolerant<ForInside>(cone.fDz, kHalfConeTolerance);
+      completelyinside = absz < MakeMinusTolerant<ForInside>(cone.fDz, kConeTolerance);
     }
     if (vecCore::MaskFull(completelyoutside)) {
       return;

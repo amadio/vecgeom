@@ -33,7 +33,7 @@ int runTester(ImplT const *shape, int npoints, bool debug, bool stat)
 {
 
   ShapeTester<ImplT> tester;
-  tester.SetSolidTolerance(vecgeom::kHalfConeTolerance);
+  tester.SetSolidTolerance(vecgeom::kConeTolerance);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);

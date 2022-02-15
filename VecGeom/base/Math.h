@@ -50,7 +50,6 @@ VECGEOM_CONST Precision kRadToDeg          = 180. / kPi;
 VECGEOM_CONST Precision kRadTolerance      = 1e-9;
 VECGEOM_CONST Precision kTiny              = 1e-30;
 VECGEOM_CONST Precision kHalfTolerance     = 0.5 * kTolerance;
-VECGEOM_CONST Precision kHalfConeTolerance = 0.5 * kConeTolerance;
 VECGEOM_CONST Precision kToleranceSquared  = kTolerance * kTolerance;
 
 template <typename T>

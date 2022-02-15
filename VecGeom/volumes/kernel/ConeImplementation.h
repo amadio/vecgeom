@@ -133,8 +133,8 @@ struct ConeImplementation {
 
     // outside of Z range and going away?
     Float_t distz          = Abs(point.z()) - cone.fDz; // avoid a division for now
-    Bool_t outZAndGoingOut = (distz > kHalfConeTolerance && (point.z() * dir.z()) >= zero) ||
-                             (Abs(distz) < kHalfConeTolerance && (point.z() * dir.z()) > zero);
+    Bool_t outZAndGoingOut = (distz > kConeTolerance && (point.z() * dir.z()) >= zero) ||
+                             (Abs(distz) < kConeTolerance && (point.z() * dir.z()) > zero);
     done |= outZAndGoingOut;
     if (vecCore::MaskFull(done)) return;
 
@@ -149,7 +149,7 @@ struct ConeImplementation {
     vecCore__MaskedAssignFunc(distance, !done, Float_t(-1.0));
 
     // For points inside z-range, return -1
-    Bool_t inside = distz < -kHalfConeTolerance;
+    Bool_t inside = distz < -kConeTolerance;
 
     inside &= rsq < MakeMinusTolerantSquare<true>(outerRad, cone.fOuterTolerance);
 
@@ -173,7 +173,7 @@ struct ConeImplementation {
 
 
 #ifdef EDGE_POINTS
-    Bool_t onZsurf  = (Abs(point.z()) - cone.fDz) < Real_v(kHalfTolerance);
+    Bool_t onZsurf  = (Abs(point.z()) - cone.fDz) < Real_v(kConeTolerance);
     Bool_t onLoZSrf = onZsurf && point.z() < zero;
     Bool_t onHiZSrf = onZsurf && point.z() > zero;
     Bool_t loZcond  = onLoZSrf && (IsOnRing<Real_v, false, true>(cone, point));
@@ -276,7 +276,7 @@ struct ConeImplementation {
     //=== Next, check all dimensions of the cone: for points outside --> return -1
     vecCore__MaskedAssignFunc(distance, !done, Real_v(-1.0));
 
-    Bool_t outside = distz > Real_v(kHalfConeTolerance);
+    Bool_t outside = distz > Real_v(kConeTolerance);
 
     Real_v rsq           = point.Perp2();
     Real_v outerRad = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
@@ -302,8 +302,8 @@ struct ConeImplementation {
     Bool_t isGoingUp   = direction.z() > zero;
     Bool_t isGoingDown = direction.z() < zero;
     Bool_t isOnZPlaneAndMovingOutside(false);
-    isOnZPlaneAndMovingOutside = !outside && ((isGoingUp && point.z() > zero && Abs(distz) < kHalfTolerance) ||
-                                              (isGoingDown && point.z() < zero && Abs(distz) < kHalfTolerance));
+    isOnZPlaneAndMovingOutside = !outside && ((isGoingUp && point.z() > zero && Abs(distz) < kConeTolerance) ||
+                                              (isGoingDown && point.z() < zero && Abs(distz) < kConeTolerance));
     vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingOutside, distz);
     done |= isOnZPlaneAndMovingOutside;
     if (vecCore::MaskFull(done)) return;
@@ -385,7 +385,7 @@ struct ConeImplementation {
     vecCore__MaskedAssignFunc(safety, !done, Float_t(-1.0));
 
     // For points inside z-range, return -1
-    Bool_t inside = distz < -kHalfConeTolerance;
+    Bool_t inside = distz < -kConeTolerance;
 
     // This logic to check if the point is inside is far better than
     // using GenericKernel and will improve performance.
@@ -453,7 +453,7 @@ struct ConeImplementation {
 
     // This logic to check if the point is outside is far better then
     // using GenericKernel and will improve performance.
-    Bool_t outside = distz > Real_v(kHalfConeTolerance);
+    Bool_t outside = distz > Real_v(kConeTolerance);
 
     Float_t outerRad  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
     outside |= rsq > MakePlusTolerantSquare<true>(outerRad, cone.fOuterTolerance);
