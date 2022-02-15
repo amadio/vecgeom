@@ -171,14 +171,6 @@ struct ConeImplementation {
 
     distz /= NonZero(Abs(dir.z()));
 
-    Bool_t isOnZPlaneAndMovingInside(false);
-
-    Bool_t isGoingUp          = dir.z() > zero;
-    Bool_t isGoingDown        = dir.z() < zero;
-    isOnZPlaneAndMovingInside = ((isGoingUp && point.z() < zero && Abs(distz) < kHalfTolerance) ||
-                                 (isGoingDown && point.z() > zero && Abs(distz) < kHalfTolerance));
-    vecCore__MaskedAssignFunc(distz, !done && isOnZPlaneAndMovingInside, distz);
-
 
 #ifdef EDGE_POINTS
     Bool_t onZsurf  = (Abs(point.z()) - cone.fDz) < Real_v(kHalfTolerance);
