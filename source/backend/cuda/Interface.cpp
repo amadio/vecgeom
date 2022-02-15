@@ -15,7 +15,12 @@
 //#include <helper_functions.h> // helper utility functions
 
 namespace vecgeom {
+
+#ifdef VECCORE_CUDA
+namespace cxx {
+#else
 inline namespace cxx {
+#endif
 
 cudaError_t CudaCheckError(const cudaError_t err)
 {
