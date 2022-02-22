@@ -38,7 +38,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   AOS3D(size_t size);
 
-  VECCORE_ATT_HOST_DEVICE
   AOS3D() = default;
 
   AOS3D(AOS3D<T> const &other);

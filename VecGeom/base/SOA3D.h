@@ -50,7 +50,6 @@ public:
 
   SOA3D(SOA3D<T> const &other);
 
-  VECCORE_ATT_HOST_DEVICE
   SOA3D() = default;
 
   VECCORE_ATT_HOST_DEVICE

@@ -21,8 +21,6 @@ private:
   bool fAllocated = false;
 
 public:
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
   Array() = default;
 
   VECCORE_ATT_HOST_DEVICE
