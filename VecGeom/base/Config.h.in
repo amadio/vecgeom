@@ -38,7 +38,7 @@
 
 // When EMBREE is ON
 // API/ABI, though relatively localized to VecGeom/volumes/TessellatedStruct.h
-/#cmakedefine VECGEOM_EMBREE
+#cmakedefine VECGEOM_EMBREE
 
 // Volume related...
 // When INPLACE_TRANSFORMATIONS is ON
