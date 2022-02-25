@@ -237,13 +237,13 @@ VECCORE_ATT_HOST_DEVICE
 void UnplacedPolycone::Print() const
 {
   printf("UnplacedPolycone {%.2f, %.2f, %d}\n", fPolycone.fStartPhi, fPolycone.fDeltaPhi, fPolycone.fNz);
-  printf("have %lu size Z\n", fPolycone.fZs.size());
+  printf("have %zu size Z\n", fPolycone.fZs.size());
   printf("------- z planes follow ---------\n");
   for (size_t p = 0; p < fPolycone.fZs.size(); ++p) {
-    printf(" plane %lu at z pos %lf\n", p, fPolycone.fZs[p]);
+    printf(" plane %zu at z pos %lf\n", p, fPolycone.fZs[p]);
   }
 
-  printf("have %lu size fSections\n", fPolycone.fSections.size());
+  printf("have %zu size fSections\n", fPolycone.fSections.size());
   printf("------ sections follow ----------\n");
   for (int s = 0; s < fPolycone.GetNSections(); ++s) {
     printf("## section %d, shift %lf\n", s, fPolycone.fSections[s].fShift);

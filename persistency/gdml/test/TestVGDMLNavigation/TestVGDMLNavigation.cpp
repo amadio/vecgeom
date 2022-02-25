@@ -97,7 +97,7 @@ bool navigate(Vector3D<Precision> p, Vector3D<Precision> dir, bool verbose = tru
     std::swap(curr, next);
 
     if (verbose)
-      printf("%6lu [ % 14.8f, % 14.8f, % 14.8f ] % 14.8f % 14.8f %s\n", ++steps, p.x(), p.y(), p.z(), step, ref_step,
+      printf("%6zu [ % 14.8f, % 14.8f, % 14.8f ] % 14.8f % 14.8f %s\n", ++steps, p.x(), p.y(), p.z(), step, ref_step,
              curr_volume->GetLabel().c_str());
   }
 

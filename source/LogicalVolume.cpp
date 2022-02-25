@@ -175,7 +175,7 @@ void LogicalVolume::Print(const int indent) const
   for (int i = 0; i <= indent; ++i)
     printf("  ");
   if (fDaughters->size() > 0) {
-    printf("Contains %lu daughter", fDaughters->size());
+    printf("Contains %zu daughter", fDaughters->size());
     if (fDaughters->size() != 1) printf("s");
   }
 }

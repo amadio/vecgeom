@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
     hdispersion->Fill(dispersion);
     hblobs->Fill(nblobs);
   }
-  printf("Number of facets = %d/%lu\n", nfacetstot, tsl.fFacets.size());
+  printf("Number of facets = %d/%zu\n", nfacetstot, tsl.fFacets.size());
   TFile *file = TFile::Open("dispersion.root", "RECREATE");
   hdispersion->Write();
   hblobs->Write();

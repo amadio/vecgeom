@@ -99,7 +99,7 @@ BVH::BVH(LogicalVolume const *volume, int depth, int *dPrimId, AABB *dAABBs, int
 VECCORE_ATT_HOST_DEVICE
 void BVH::Print(bool verbose) const
 {
-  printf("\nBVH(%u): addr: %p, depth: %d, nodes: %d, children: %lu, name: %s\n",
+  printf("\nBVH(%u): addr: %p, depth: %d, nodes: %d, children: %zu, name: %s\n",
          fLV.id(), this, fDepth, (2 << fDepth) - 1, fLV.GetDaughters().size(),
          fLV.GetName() );
   if (verbose) {

@@ -13,7 +13,7 @@ __device__ void visitVolumes(const vecgeom::cuda::VPlacedVolume *volume, Geometr
 {
   if (volCounter >= nGeoData) {
     g_problemDuringVisit = true;
-    printf("Sorry, hard-coded buffer size exhausted after visiting %lu volumes. Please increase.\n", volCounter);
+    printf("Sorry, hard-coded buffer size exhausted after visiting %zu volumes. Please increase.\n", volCounter);
     return;
   }
   geoData[volCounter++] = GeometryInfo{depth, *volume};
@@ -60,7 +60,7 @@ std::vector<GeometryInfo> visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume
   cudaFree(geoDataGPU);
 
   geoDataCPU.resize(g_volumesVisited);
-  printf(" %lu visited.\n", g_volumesVisited);
+  printf(" %zu visited.\n", g_volumesVisited);
 
   return geoDataCPU;
 }

@@ -652,7 +652,7 @@ void NavStatePath::Dump() const
   const unsigned int *ptr = (const unsigned int *)this;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
-  printf("NavState::Dump(): data: %p(%lu) : %p(%lu) : %p(%lu)\n", (void *)&fCurrentLevel, sizeof(fCurrentLevel),
+  printf("NavState::Dump(): data: %p(%zu) : %p(%zu) : %p(%zu)\n", (void *)&fCurrentLevel, sizeof(fCurrentLevel),
          (void *)&fOnBoundary, sizeof(fOnBoundary), (void *)&fPath, sizeof(fPath));
   for (unsigned int i = 0; i < 20; ++i) {
     printf("%p: ", (void *)ptr);

@@ -13,7 +13,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 void UnplacedTessellated::Print() const
 {
-  printf("UnplacedTessellated {%lu facets}", fTessellated.fFacets.size());
+  printf("UnplacedTessellated {%zu facets}", fTessellated.fFacets.size());
 }
 
 void UnplacedTessellated::Print(std::ostream &os) const

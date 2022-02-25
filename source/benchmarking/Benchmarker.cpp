@@ -59,7 +59,7 @@ void Benchmarker::SetWorld(VPlacedVolume const *const world)
   if (!world) return;
   GenerateVolumePointers(fWorld);
   if (fVerbosity > 2) {
-    printf("Found %lu volumes in world volume to be used for benchmarking.\n", fVolumes.size());
+    printf("Found %zu volumes in world volume to be used for benchmarking.\n", fVolumes.size());
   }
 }
 

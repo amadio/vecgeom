@@ -40,7 +40,7 @@ void compareGeometries(const cxx::VPlacedVolume *hostVolume, std::size_t &volume
                        const std::vector<GeometryInfo> &deviceGeometry, unsigned int depth)
 {
   if (volumeCounter >= deviceGeometry.size()) {
-    errx(3, "No device volume corresponds to volume %lu", volumeCounter);
+    errx(3, "No device volume corresponds to volume %zu", volumeCounter);
   }
 
   GeometryInfo info{depth, *hostVolume};
@@ -56,7 +56,7 @@ void compareGeometries(const cxx::VPlacedVolume *hostVolume, std::size_t &volume
            deviceGeometry[volumeCounter].amin[1], deviceGeometry[volumeCounter].amin[2],
            deviceGeometry[volumeCounter].amax[0], deviceGeometry[volumeCounter].amax[1],
            deviceGeometry[volumeCounter].amax[2]);
-    errx(4, "Volume #%lu (id=%d label=%s logicalId=%d) differs from GPU volume (id=%d logicalId=%d)\n", volumeCounter,
+    errx(4, "Volume #%zu (id=%d label=%s logicalId=%d) differs from GPU volume (id=%d logicalId=%d)\n", volumeCounter,
          hostVolume->id(), hostVolume->GetLabel().c_str(), hostVolume->GetLogicalVolume()->id(),
          deviceGeometry[volumeCounter].id, deviceGeometry[volumeCounter].logicalId);
   }
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
   printf("Comparing to host geometry ... ");
   std::size_t volumeCounter = 0;
   compareGeometries(geoManager.GetWorld(), volumeCounter, deviceGeometry, 0);
-  printf("%lu volumes. Done.\n", volumeCounter);
+  printf("%zu volumes. Done.\n", volumeCounter);
 #endif
   return EXIT_SUCCESS;
 }
