@@ -149,7 +149,7 @@ public:
     if (t0[2] > t1[2]) swap(t0[2], t1[2]);
 
     tmin = t0.Max();
-    tmax = t1.Min();
+    tmax = t1.Min() * (Precision(1.) + 2*kEpsilon); // The 2 epsilon prevent false misses
   }
 
   /**
