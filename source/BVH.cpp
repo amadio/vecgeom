@@ -210,22 +210,6 @@ int * largestDistanceAlongAxis(const AABB * primitiveBoxes,
 }
 
 /**
- * Compute the surface area of bounding box that surrounds the given primitives.
- * @param primitveBoxes Array of bounding boxes of primitives.
- * @param begin Index of first primitive to be considered.
- * @param end   Past-the-end index of primitives to be considered.
- */
-double surfaceArea(const AABB * primitiveBoxes, int const * begin, int const * end) {
-  if (begin >= end) return 0.;
-
-  AABB box = primitiveBoxes[*begin];
-  for (int const * obj = std::next(begin); obj < end; ++obj) {
-    box = AABB::Union(box, primitiveBoxes[*obj]);
-  }
-  return box.SurfaceArea();
-}
-
-/**
  * In order to achieve stable splitting for the BVH, we cannot only sort by one axis. There needs
  * to be a strict order, so elements are not silently considered equal by the STL algorithms.
  * @param left,right Compute `left < right`.
@@ -239,6 +223,41 @@ bool less3D(const T & left, const T & right, const int sortAxis) {
         ( left[(sortAxis+1)%3] == right[(sortAxis+1)%3] && left[(sortAxis+2)%3] < right[(sortAxis+2)%3] )
       )
     );
+}
+
+/**
+ * Compute the surface areas of bounding boxes that surround the given primitives,
+ * sweeping from left to right and vice-versa.
+ *
+ * For three objects 0 1 2, the vector contains the following surface areas:
+ * ( | 0+1+2)  (0 | 1+2)   (0+1 | 2)
+ *
+ * That is, if the object N is intended to be the pivot object, the surface area of
+ * - everything left of N is `areas[N].first`
+ * - everything right of N + N itself is `areas[N].second`
+ *
+ * @param primitiveBoxes Array of bounding boxes of primitives.
+ * @param begin Index of first primitive to be considered.
+ * @param end   Past-the-end index of primitives to be considered.
+ */
+std::vector<std::pair<double, double>> sweepSurfaceArea(const AABB * primitiveBoxes, int const * begin, int const * end) {
+  if (begin >= end) return {};
+
+  std::vector<std::pair<double, double>> areas(std::distance(begin, end), {0., 0.});
+
+  AABB box{primitiveBoxes[*begin]};
+  for (auto it = begin+1; it < end; ++it) {
+    areas[it-begin].first = box.SurfaceArea();
+    box = AABB::Union(box, primitiveBoxes[*it]);
+  }
+
+  AABB box2{primitiveBoxes[*(end-1)]};
+  for (auto it = end - 1; it >= begin; --it) {
+    box2 = AABB::Union(box2, primitiveBoxes[*(it)]);
+    areas[it-begin].second = box2.SurfaceArea();
+  }
+
+  return areas;
 }
 
 /**
@@ -258,7 +277,6 @@ int * surfaceAreaHeuristic(const AABB * primitiveBoxes,
                           int * begin, int * end,
                           const AABB & /*currentBVHNode*/) {
   int bestSplitAxis = -1;
-  const auto totSurfArea = surfaceArea(primitiveBoxes, begin, end);
   double bestTraversalMetric = std::distance(begin, end);
   int bestSplitObject = -1;
   const auto nObj = std::distance(begin, end);
@@ -270,18 +288,22 @@ int * surfaceAreaHeuristic(const AABB * primitiveBoxes,
     };
     std::sort(begin, end, sorter);
 
+    // Sweep axis looking for best split
+    const std::vector<std::pair<double,double>> surfaceSweep = sweepSurfaceArea(primitiveBoxes, begin, end);
+    const auto totSurfArea = surfaceSweep.front().second;
 
     for (int * splitObject = begin; splitObject < end; ++splitObject) {
-      // No use splitting off single objects. Could directly test their boxes.
-      const auto left  = surfaceArea(primitiveBoxes, begin, splitObject)/totSurfArea;
-      const auto right = surfaceArea(primitiveBoxes, splitObject, end)/totSurfArea;
-      const auto metric =
+      const auto left  = surfaceSweep[splitObject-begin].first/totSurfArea;
+      const auto right = surfaceSweep[splitObject-begin].second/totSurfArea;
+      assert(left <= 1. && right <= 1.);
+
+      const auto splitMetric =
             left * std::distance(begin, splitObject)
           + right * std::distance(splitObject, end)
           + 0.1 * abs(nObj/2 - std::distance(begin, splitObject) / nObj); // Prefer balanced splits
 
-      if (metric < bestTraversalMetric) {
-        bestTraversalMetric = metric;
+      if (splitMetric < bestTraversalMetric) {
+        bestTraversalMetric = splitMetric;
         bestSplitAxis = axis;
         bestSplitObject = *splitObject;
       }
