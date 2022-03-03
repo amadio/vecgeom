@@ -835,10 +835,11 @@ write_basic_package_version_file(VecGeomConfigVersion.cmake COMPATIBILITY AnyNew
 
 # Build
 set(CONF_INCLUDE_DIR "${PROJECT_SOURCE_DIR}")
+set(PATH_VARS_ARG PATH_VARS CONF_INCLUDE_DIR)
 
 if(BUILTIN_VECCORE)
   set(VECCORE_PREFIX "${VecCore_ROOTDIR}")
-  set(PATH_VARS_ARG PATH_VARS VECCORE_PREFIX)
+  list(APPEND PATH_VARS_ARG VECCORE_PREFIX)
 endif()
 
 configure_package_config_file(VecGeomConfig.cmake.in
@@ -849,11 +850,12 @@ configure_package_config_file(VecGeomConfig.cmake.in
 export(EXPORT VecGeomTargets NAMESPACE VecGeom::)
 
 # Installation
-set(CONF_INCLUDE_DIR "\${THIS_DIR}/${INSTALL_INCLUDE_DIR_RELATIVE}")
+set(CONF_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}")
+set(PATH_VARS_ARG PATH_VARS CONF_INCLUDE_DIR)
 
 if(BUILTIN_VECCORE)
   set(VECCORE_PREFIX "${CMAKE_INSTALL_PREFIX}")
-  set(PATH_VARS_ARG PATH_VARS VECCORE_PREFIX)
+  list(APPEND PATH_VARS_ARG VECCORE_PREFIX)
 endif()
 
 configure_package_config_file(VecGeomConfig.cmake.in
@@ -865,6 +867,7 @@ configure_package_config_file(VecGeomConfig.cmake.in
 install(FILES "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake"
   "${PROJECT_BINARY_DIR}/VecGeomConfigVersion.cmake"
   DESTINATION "${CMAKE_INSTALL_CMAKEDIR}/VecGeom" COMPONENT dev)
+
 install(EXPORT VecGeomTargets
   NAMESPACE VecGeom::
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/VecGeom")

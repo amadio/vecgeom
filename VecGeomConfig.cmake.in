@@ -1,70 +1,70 @@
 # VecGeomConfig.cmake
 # -------------------
 #
-# Config file for the VecGeom package
+# Config mode file for the VecGeom includes and libraries
 #
 # IMPORTED Targets
 # ^^^^^^^^^^^^^^^^
 #
 # This module defines the following `IMPORTED` targets:
 #
-# - VecGeom::vecgeom     - Core VecGeom library (static)
-# - VecGeom::vgdml       - Present if the GDML parser component was built
-# - VecGeom::vecgeomcuda - Present if the CUDA backend was built.
-#                          This library contains all cuda-related parts of VecGeom and contains 
-#                          device code that can be linked against if client code uses these device
-#                          functions/kernels. It automatically provides the dependency to the 
-#                          vecgeom library. 
+# - VecGeom::vecgeom            - VecGeom library
+# - VecGeom::vgdml              - Present if the GDML parser component was built
+# - VecGeom::vecgeomcuda_static - Present if the CUDA backend was built.
+#                                 Static library containing all cuda-related parts of VecGeom with
+#                                 device code that can be linked/device-linked against if client code 
+#                                 uses VecGeom device functions/kernels. It automatically provides the 
+#                                 dependency to the vecgeom library.
+# - VecGeom::vecgeomcuda        - Present if the CUDA backend was built
+#                                 Shared library with same objects as VecGeom::vecgeomcuda_static and
+#                                 including a device link object. Non-CUDA using clients can link against
+#                                 this directly. CUDA using clients should prefer the static version.
 #
 # Result Variables
 # ^^^^^^^^^^^^^^^^
 #
 # This module defines the following variables either directly, or automatically
-# though CMake's find_package command
+# though CMake's find_package command.
 #
-# - VecGeom_FOUND           - True if VecGeom was found
-# - VecGeom_BUILTIN_VECCORE - True if VecGeom was built with an internal version on VecCore
-# - VecGeom_GDML_FOUND      - True if VecGeom was built with the GDML parser component
-# - VecGeom_CUDA_FOUND      - True if VecGeom was built with CUDA support
+# - VecGeom_FOUND                 - True if VecGeom was found.
+# - VecGeom_INCLUDE_DIRS          - Location of the VecGeom header files.
+# - VecGeom_LIBRARIES             - The VecGeom libraries
+#                                   Use of the ``IMPORTED`` targets described above should be preferred.
+# - VecGeom_shared_FOUND          - True if the VecGeom C++ library is shared.
+# - VecGeom_static_FOUND          - True if the VecGeom C++ library is static.
+# - VecGeom_GDML_FOUND            - True if the VecGeom GDML parser library is available.
+# - VecGeom_CUDA_FOUND            - True if VecGeom was built with CUDA support.
+# - VecGeom_scalar_backend_FOUND  - True if the VecGeom backend is scalar.
+# - VecGeom_vector_backend_FOUND  - True if the VecGeom backend is vector.
+# - VecGeom_vc_backend_FOUND      - True if the VecGeom vector backend is Vc.
 #
-# - VecGeom_scalar_backend_FOUND  - True if the VecGeom backend is scalar
-# - VecGeom_vector_backend_FOUND  - True if the VecGeom backend is vector
+# - VecGeom_BUILTIN_VECCORE       - True if VecGeom was built with an internal version on VecCore.
+# - VecGeom_CXX_STANDARD          - ISO C++ Standard used to compile VecGeom (e.g. "17").
 # - VecGeom_VECTOR_ISA            - String holding the Instruction Set Architecture VecGeom
 #                                   was compiled against (e.g. "sse4.2"). The empty string
 #                                   if no explicit flag was used.
-# - VecGeom_vc_backend_FOUND      - True if the VecGeom vector backend is Vc
+# - VecGeom_CUDA_STANDARD         - CUDA/C++ Standard used to compile VecGeom's CUDA library (e.g. "17")
+#                                   Unset unless ``VecGeom_CUDA_FOUND`` is ``TRUE``.
+# - VecGeom_CUDA_ARCHITECTURES    - Value of ``CMAKE_CUDA_ARCHITECTURES`` used to compile/link
+#                                   VecGeom's CUDA library. Unset unless ``VecGeom_CUDA_FOUND`` is ``TRUE``.
 #
-# Deprecated Variables
-# ^^^^^^^^^^^^^^^^^^^^
+# The ``VecGeom_<component>_FOUND`` variables provide support for component arguments 
+# to ``find_package``, allowing consumers to require that the found VecGeom supports the component
+# i.e.
 #
-# The following variables are retained for backward compatibility for clients.
-# They should no longer be used, and any use migrated to the above IMPORTED targets
-# or Result Variables
+# .. code-block:: cmake
 #
-#   VECGEOM_FOUND             - Found the VECGEOM library
-#   VECGEOM_INCLUDE_DIRS      - include directories for VecGeom
-#   VECGEOM_LIBRARIES         - libraries to link against
-#   VECGEOM_DEFINITIONS       - some core flags used to build the vecgeom library and which need to be reused
-#                               in projects using VecGeom
-#   VECGEOM_INSTALL_DIR       - the top level installation path
-#   VECGEOM_EXTERNAL_INCLUDES - external include paths used during vecgeom compilation (for automatic "discovery" of dependencies)
-#   VECGEOM_C_COMPILER        - the C compiler used to compile VecGeom
-#   VECGEOM_CXX_COMPILER      - the CXX compiler used to compile VecGeom
+#   find_package(VecGeom REQUIRED <component1> ... <componentN>)
 #
 
 @PACKAGE_INIT@
 
-# Refind required dependencies
-include(CMakeFindDependencyMacro)
+# Basic variables
+set_and_check(VECGEOM_INCLUDE_DIR "@PACKAGE_CONF_INCLUDE_DIR@")
+set(VECGEOM_INCLUDE_DIRS ${VECGEOM_INCLUDE_DIR})
 
-# Always VecCore
-set(VecGeom_BUILTIN_VECCORE @BUILTIN_VECCORE@)
-if(VecGeom_BUILTIN_VECCORE)
-  # Must find our builtin where we expect
-  find_dependency(VecCore @VecCore_VERSION@ NO_DEFAULT_PATH PATHS "@PACKAGE_VECCORE_PREFIX@" COMPONENTS @VecCore_COMPONENTS@ )
-else()
-  find_dependency(VecCore @VecCore_VERSION@ COMPONENTS @VecCore_COMPONENTS@)
-endif()
+# C++ Standard used in build
+set(VecGeom_CXX_STANDARD "@CMAKE_CXX_STANDARD@")
 
 # Scalar/Vector Backend, Backend Implementation, and ISA
 set(VecGeom_scalar_backend_FOUND @VECGEOM_SCALAR@)
@@ -80,39 +80,63 @@ if(VecGeom_VECTOR_ISA STREQUAL "empty")
   unset(VecGeom_VECTOR_ISA)
 endif()
 
-# Optional CUDA (no dependency?)
-set(VecGeom_CUDA_FOUND @VECGEOM_ENABLE_CUDA@)
-set(VECGEOM_CUDA_ARCH "@CUDA_ARCH@")
+# For refinding required dependencies
+include(CMakeFindDependencyMacro)
 
-# When built with ROOT
+# Always VecCore
+set(VecGeom_BUILTIN_VECCORE @BUILTIN_VECCORE@)
+if(VecGeom_BUILTIN_VECCORE)
+  # Must find our builtin where we expect
+  find_dependency(VecCore @VecCore_VERSION@ NO_DEFAULT_PATH PATHS "@PACKAGE_VECCORE_PREFIX@" COMPONENTS @VecCore_COMPONENTS@ )
+else()
+  find_dependency(VecCore @VecCore_VERSION@ COMPONENTS @VecCore_COMPONENTS@)
+endif()
+
+# CUDA, if built
+set(VecGeom_CUDA_FOUND @VECGEOM_ENABLE_CUDA@)
+if(VecGeom_CUDA_FOUND)
+  set(VecGeom_CUDA_STANDARD "@CMAKE_CUDA_STANDARD@")
+  set(VecGeom_CUDA_ARCHITECTURES "@CMAKE_CUDA_ARCHITECTURES@")
+  find_dependency(CUDAToolkit REQUIRED)
+endif()
+
+# GDML (Xerces-C), if built
+set(VecGeom_GDML_FOUND @VECGEOM_GDML@)
+if(VecGeom_GDML_FOUND)
+  find_dependency(XercesC)
+endif()
+
+# DEPRECATED - ROOT only used for testing/benchmarking
 set(VecGeom_ROOT_FOUND @VECGEOM_ROOT@)
 if(VecGeom_ROOT_FOUND)
   find_dependency(ROOT)
 endif()
 
-# Optional GDML (Xerces-C)
-set(VecGeom_GDML_FOUND @GDML@)
-if(VecGeom_GDML_FOUND)
-  find_dependency(XercesC)
+# DEPRECATED - Geant4 only used for testing/benchmarking
+set(VecGeom_Geant4_FOUND @VECGEOM_GEANT4@)
+if(VecGeom_Geant4_FOUND)
+  find_dependency(Geant4 @Geant4_VERSION@)
 endif()
-
-# To be reviewed - Geant4 may only be for testing/benchmarking
-set(VECGEOM_GEANT4 @VECGEOM_GEANT4@)
 
 # Include our target definitions
 include("${CMAKE_CURRENT_LIST_DIR}/VecGeomTargets.cmake")
 
-# Older variables/defs
-set(VECGEOM_C_COMPILER "@CMAKE_C_COMPILER@")
-set(VECGEOM_CXX_COMPILER "@CMAKE_CXX_COMPILER@")
-set(VECGEOM_CXX_FLAGS "${CMAKE_CXX_FLAGS} @VECGEOM_COMPILATION_FLAGS@")
-set(VECGEOM_COMPILE_OPTIONS @VECGEOM_COMPILATION_FLAGS@)
+# Static or Shared CPU found
+set(VecGeom_static_FOUND FALSE)
+set(VecGeom_shared_FOUND FALSE)
 
-get_filename_component(THIS_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(VECGEOM_INCLUDE_DIR "@CONF_INCLUDE_DIR@")
-set(VECGEOM_EXTERNAL_INCLUDES "@VECGEOM_EXTERNAL_INCLUDES@")
-set(VECGEOM_INCLUDE_DIRS ${VECGEOM_INCLUDE_DIR} ${VECGEOM_EXTERNAL_INCLUDES})
+get_target_property(__libvecgeom_type VecGeom::vecgeom TYPE)
 
+if(__libvecgeom_type STREQUAL "SHARED_LIBRARY")
+  set(VecGeom_shared_FOUND TRUE)
+endif()
+
+if(__libvecgeom_type STREQUAL "STATIC_LIBRARY")
+  set(VecGeom_shared_FOUND TRUE)
+endif()
+
+# Setup VECGEOM_LIBRARIES so that it should "work" for consumers
+# _not_ implementing their own kernels/device code.
 set(VECGEOM_LIBRARIES VecGeom::vecgeom)
 if(TARGET VecGeom::vecgeomcuda)
   list(APPEND VECGEOM_LIBRARIES VecGeom::vecgeomcuda)
