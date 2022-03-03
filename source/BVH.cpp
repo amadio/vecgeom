@@ -281,11 +281,19 @@ int * surfaceAreaHeuristic(const AABB * primitiveBoxes,
   int bestSplitObject = -1;
   const auto nObj = std::distance(begin, end);
 
+  int currentSortAxis = 0;
+  auto sorter = [primitiveBoxes, &currentSortAxis](int a, int b) {
+    const auto centroidA = primitiveBoxes[a].Center();
+    const auto centroidB = primitiveBoxes[b].Center();
+    constexpr double shift = 0.01;
+    return less3D(centroidA + shift*(centroidA - primitiveBoxes[a].Min()),
+                  centroidB + shift*(centroidB - primitiveBoxes[b].Min()),
+                  currentSortAxis);
+  };
+
   for (int axis = 0; axis <= 2; ++axis) {
     // Sort centroids along axis
-    auto sorter = [=](int a, int b){
-      return less3D(primitiveBoxes[a].Center(), primitiveBoxes[b].Center(), axis);
-    };
+    currentSortAxis = axis;
     std::sort(begin, end, sorter);
 
     // Sweep axis looking for best split
@@ -313,9 +321,9 @@ int * surfaceAreaHeuristic(const AABB * primitiveBoxes,
   if (bestSplitAxis == -1)
     return end;
 
-  const auto splittingPoint = primitiveBoxes[bestSplitObject].Center();
-  auto result = std::partition(begin, end, [=](size_t i) {
-    return less3D(primitiveBoxes[i].Center(), splittingPoint, bestSplitAxis);
+  currentSortAxis = bestSplitAxis;
+  auto result = std::partition(begin, end, [sorter,bestSplitObject](size_t i) {
+    return sorter(i, bestSplitObject);
   });
 
   return result;
