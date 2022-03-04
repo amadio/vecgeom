@@ -116,7 +116,7 @@ set(VECGEOM_INCLUDE_DIRS ${VECGEOM_INCLUDE_DIR} ${VECGEOM_EXTERNAL_INCLUDES})
 set(VECGEOM_LIBRARIES VecGeom::vecgeom)
 if(TARGET VecGeom::vecgeomcuda)
   list(APPEND VECGEOM_LIBRARIES VecGeom::vecgeomcuda)
-  set(VECGEOM_CUDA_STATIC_LIBRARY VecGeom::vecgeomcuda)
+  set(VECGEOM_CUDA_STATIC_LIBRARY VecGeom::vecgeomcuda_static)
 endif()
 
 check_required_components(VecGeom)

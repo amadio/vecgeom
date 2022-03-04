@@ -725,27 +725,69 @@ endif()
 
 # build the CUDA version of the library
 if(VECGEOM_ENABLE_CUDA)
-  add_library(vecgeomcuda STATIC ${VECGEOM_CUDA_SRCS})
-  target_include_directories(vecgeomcuda
-    PUBLIC
-      $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}> 
-      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-  target_link_libraries(vecgeomcuda PUBLIC VecCore::VecCore vecgeom)
+  # 1. OBJECT library to perform the actual (separable) compilation once
+  #    PIC so it can go into a shared lib
+  add_library(vecgeomcuda_obj OBJECT ${VECGEOM_CUDA_SRCS})
+  set_target_properties(vecgeomcuda_obj
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+      CUDA_SEPARABLE_COMPILATION ON)
 
-  if(VECGEOM_BENCHMARK AND VECGEOM_ROOT)
-    # Benchmark stuff needs TVersionCheck
-    target_link_libraries(vecgeomcuda PUBLIC ROOT::Core)
-  endif()
+  # 2. STATIC library composed of the object library objects
+  #    This is the library that consumers should link to unless they
+  #    have to use shared libs and know what they are doing
+  add_library(vecgeomcuda_static STATIC $<TARGET_OBJECTS:vecgeomcuda_obj>)
 
-  # - Suppress stack size warnings from a couple of functions
-  # NB: currently identified as needed at device link step, but this only works on 
-  # CMake 3.18 and newer (target_link_options 3.13, DEVICE_LINK from 3.18)
-  # TODO: find workaround for earlier versions
-  # TODO: Check at CUDA compilation step
-  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.18.0)
-    target_link_options(vecgeomcuda INTERFACE "$<DEVICE_LINK:SHELL: -Xnvlink --suppress-stack-size-warning>")
-  endif()
+  # 3. SHARED library composed of the object library objects
+  #    This is the same library as produced by the old, hacked, FindCUDA module
+  #    It is:
+  #    - Linked to the CUDA Shared runtime (so clients must also use this)
+  #    - Internally device linked so that non-CUDA consumers can, in principle,
+  #      link to this without needing to device-compile
+  #    - CUDA consumers (i.e. use __device__ code from VecGeom) can still link
+  #      to this library but must add `vecgeomcuda_static` to any device link step
+  #      for example:
+  #
+  #      ```cmake
+  #      add_library(MyLib MyLib.cu)
+  #      target_link_libraries(MyLib vecgeomcuda)
+  #      target_link_options(MyLib $<DEVICE_LINK:vecgeomcuda_static>)
+  #      ```
+  #
+  #      It is the consumer's responsibility to hide or forward any device linking
+  #      requirements. This is the case if `MyLib` exposes device code.
+  add_library(vecgeomcuda SHARED $<TARGET_OBJECTS:vecgeomcuda_obj>)
+  set_target_properties(vecgeomcuda
+    PROPERTIES
+      CUDA_RESOLVE_DEVICE_SYMBOLS ON
+      CUDA_RUNTIME_LIBRARY Shared)
+
+  # Apply usage requirements to OBJECT, STATIC, SHARED targets
+  # Required so that OBJECT library compiles correctly and that STATIC/SHARED
+  # forward Usage Requirements to their consumers. Can be simplified from CMake 3.21
+  # with support for linking OBJECT libraries.
+  foreach(__vg_cuda_target vecgeomcuda_obj vecgeomcuda_static vecgeomcuda)
+    target_include_directories(${__vg_cuda_target}
+      PUBLIC
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    target_link_libraries(${__vg_cuda_target} PUBLIC VecCore::VecCore vecgeom)
+
+    if(VECGEOM_BENCHMARK AND VECGEOM_ROOT)
+      # Benchmark stuff needs TVersionCheck
+      target_link_libraries(${__vg_cuda_target} PUBLIC ROOT::Core)
+    endif()
+
+    # - Suppress stack size warnings from a couple of functions
+    # NB: currently identified as needed at device link step, but this only works on 
+    # CMake 3.18 and newer (target_link_options 3.13, DEVICE_LINK from 3.18)
+    # TODO: find workaround for earlier versions
+    # TODO: Check at CUDA compilation step
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.18.0)
+      target_link_options(${__vg_cuda_target} PUBLIC "$<DEVICE_LINK:SHELL: -Xnvlink --suppress-stack-size-warning>")
+    endif()
+  endforeach()
 endif()
 
 if(VECGEOM_ROOT)
@@ -775,7 +817,7 @@ install(FILES ${PROJECT_BINARY_DIR}/VecGeom/base/Config.h
 install(TARGETS vecgeom EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
 if(VECGEOM_ENABLE_CUDA)
-  install(TARGETS vecgeomcuda EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+  install(TARGETS vecgeomcuda vecgeomcuda_static EXPORT VecGeomTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif()
 
 # CMake support files

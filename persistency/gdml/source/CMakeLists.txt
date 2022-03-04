@@ -24,9 +24,6 @@ target_include_directories(vgdml PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(vgdml PUBLIC XercesC::XercesC vecgeom)
-if(TARGET vecgeomcuda)
-  target_link_libraries(vgdml PRIVATE vecgeomcuda)
-endif()
 
 if(GDMLDEBUG)
   # Only used in Middleware.cpp, and to set a constant

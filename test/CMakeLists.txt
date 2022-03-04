@@ -7,7 +7,7 @@ macro(build_executables EXECUTABLES)
   foreach(EXECUTABLE ${EXECUTABLES})
     get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
     add_executable(${TARGET_NAME} ${EXECUTABLE})
-    target_link_libraries(${TARGET_NAME} PUBLIC $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda,vecgeom>)
+    target_link_libraries(${TARGET_NAME} PUBLIC $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>)
   endforeach()
 endmacro()
 
@@ -152,7 +152,7 @@ if(VECGEOM_ROOT)
   add_executable(TestNavigationStatePool
     core/TestNavigationStatePool.cpp
     $<$<BOOL:VECGEOM_ENABLE_CUDA>:core/TestNavigationStatePool.cu>)
-  target_link_libraries(TestNavigationStatePool PRIVATE $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda,vecgeom>)
+  target_link_libraries(TestNavigationStatePool PRIVATE $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>)
   add_test(NAME TestNavigationStatePool COMMAND TestNavigationStatePool)
 
   # - separate list for ROOT UNIT tests
@@ -251,7 +251,7 @@ endif()
 # - CUDA tests
 if(VECGEOM_ENABLE_CUDA)
   add_executable(MapTest cuda/MapTest.cpp cuda/MapTest.cu)
-  target_link_libraries(MapTest PUBLIC vecgeomcuda)
+  target_link_libraries(MapTest PUBLIC vecgeomcuda_static)
   add_test(NAME MapTest COMMAND MapTest)
 
   if(VECGEOM_GDML)
@@ -259,9 +259,9 @@ if(VECGEOM_ENABLE_CUDA)
     add_executable(MapTestClass cuda/MapTestClass.cpp cuda/MapTestClass.cu)
     add_executable(GeometryTest cuda/GeometryTest.cpp cuda/GeometryTest.cu)
 
-    target_link_libraries(BVHTest      PUBLIC vecgeomcuda vgdml)
-    target_link_libraries(MapTestClass PUBLIC vecgeomcuda vgdml)
-    target_link_libraries(GeometryTest PUBLIC vecgeomcuda vgdml)
+    target_link_libraries(BVHTest      PUBLIC vecgeomcuda_static vgdml)
+    target_link_libraries(MapTestClass PUBLIC vecgeomcuda_static vgdml)
+    target_link_libraries(GeometryTest PUBLIC vecgeomcuda_static vgdml)
 
     add_test(NAME BVHTest      COMMAND BVHTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
     add_test(NAME GeometryTest COMMAND GeometryTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
