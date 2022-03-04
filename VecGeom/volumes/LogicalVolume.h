@@ -212,7 +212,15 @@ public:
   unsigned int id() const { return fId; }
 
   /// Returns the name of this logical volume.
-  const char *GetName() const { return fLabel->c_str(); }
+  VECCORE_ATT_HOST_DEVICE
+  const char *GetName() const
+  {
+    #ifndef VECCORE_CUDA
+      return fLabel->c_str();
+    #else
+      return "- Names unavailable on GPU -";
+    #endif
+  }
   /// Returns the name of this logical volume as string.
   std::string const &GetLabel() const { return *fLabel; }
 
