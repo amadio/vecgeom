@@ -99,8 +99,9 @@ BVH::BVH(LogicalVolume const *volume, int depth, int *dPrimId, AABB *dAABBs, int
 VECCORE_ATT_HOST_DEVICE
 void BVH::Print(bool verbose) const
 {
-  printf("BVH(%u): addr: %p, depth: %d, nodes: %d, children: %lu\n", fLV.id(), this, fDepth, (2 << fDepth) - 1,
-         fLV.GetDaughters().size());
+  printf("\nBVH(%u): addr: %p, depth: %d, nodes: %d, children: %lu, name: %s\n",
+         fLV.id(), this, fDepth, (2 << fDepth) - 1, fLV.GetDaughters().size(),
+         fLV.GetName() );
   if (verbose) {
     constexpr auto width = 4;
     int nChildToPad = 1;
