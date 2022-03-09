@@ -150,9 +150,11 @@ Vector3D<Precision> UnplacedTube::SamplePointOnSurface() const
 
   switch (surface) {
   case 0:
+    rVal = sqrt(RNG::Instance().uniform(rmin()*rmin(), rmax()*rmax()));
     zVal = z();
     break;
   case 1:
+    rVal = sqrt(RNG::Instance().uniform(rmin()*rmin(), rmax()*rmax()));
     zVal = -z();
     break;
   case 2:
