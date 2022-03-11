@@ -1,46 +1,148 @@
 
+Version 1.1.19         11th March 2022
+======================================
+Overview:
+- Improvements and optimisations in BVH:
+  o Initialise memory in BVH nodes. Added tree printing to BVH.
+  o Added a new new splitting heuristic for BVH.
+  o Added surface area heuristic for BVH construction.
+    Make it the default for BVH construction.
+  o Added SurfaceArea() to AABB. Use AABB::SurfaceArea for BVH construction.
+  o Stabilised AABB::Contains().
+- Modernisation of CMake usage.
+
+Migration / behaviour change(s):
+- Allow for various construction algorithms in BVH.
+  Moved existing splitting algorithm into dedicated function.
+  By implementing an alternative function, one can easily adapt and
+  compare splitting algorithms.
+- [VECGEOM-307] Removed obsolete interface SafetyToInMinimize.
+- Updated README and INSTALL documents. Merged INSTALL into README.
+  Modernized the README, adding detailed requirements and notes on how
+  to use the VecGeom CUDA library.
+
+Configuration:
+- Small modernisation of CMake target usage in place of variables.
+- Use genexes to simplify library link choice.
+  CMake can resolve targets without genex.
+- Explicitly use builtin VecCore in GitLab CI; set BUILTIN_VECCORE to ON
+  explicitly in build jobs on GitLab.
+  Explicitly use system VecCore in Jenkins builds; add BUILTIN_VECCORE=OFF
+  to default build arguments to make this use case explicit.
+- Do not fallback to builtin VecCore if external not found.
+  Support switch between builtin/external in current build directory to
+  ensure consistent builds.
+- Only use VECGEOM_ prefix internally.
+- Streamlined variables/targets/components in VecGeomConfig.
+- Removed obsolete local cmake_parse_arguments function.
+  Removed the local implementation, relying on CMake's native support.
+- Simplified cmake config of gdml.
+- Moved creation of benchmark executables to test/benchmark.
+  TestNavIndex is now automatically disabled when GDML is not active.
+
+- Protect C++ compile options from direct use by NVCC.
+  Limit direct use of C++ compile options to C++ compilation consumers.
+  Wrap C++ compile options in `-Xcompiler=` flags for CUDA consumers to
+  forward these to the host compiler for both CUDA 10 and newer.
+  This can be dropped once VecGeom requires CUDA 11 or newer as the
+  minimum version.
+- Simplified VecGeom specific CUDA options. Removed no longer required option
+  for CUDA static/shared runtime; unified CUDA volume specialization under one
+  option.
+- Suppressed CUDA stack size warnings in device link.
+- Break a dependency from libvecgeom to libvecgeomcuda.
+- Removed CMake FindCUDA module.
+- Renamed the CMake option CUDA to VECGEOM_CUDA.
+- Unified VECGEOM_CUDA with VECGEOM_ENABLE_CUDA. Use VECGEOM_ENABLE_CUDA
+  as single CMake boolean to request/indicate use of CUDA.
+- Hand choice of cuda architecture over to CMake.
+- Provide static and shared variants of libvecgeomcuda.
+  Use native CMake CUDA support to build static and shared variants
+  of the vecgeomcuda library.
+  o The static variant is a "standard" CUDA library that consumers
+    can link/device link to.
+  o The shared variant includes a device link object so that non-CUDA
+    consumers can link to it without requiring an otherwise unneeded
+    device link.
+  o CUDA consumers can link to the shared variant provided they
+    device-link explicitly to the static vecgeomcuda.
+  Do not link the VGDML library to either CUDA variant of vecgeomcuda,
+  allowing clients to use the desired static/shared variant.   
+  Updated tests to use only static variant of vecgeomcuda when available.
+- Support CMAKE_CUDA_ARCHITECTURES for CMake<3.18.
+  Added flags to `CMAKE_CUDA_FLAGS` using same pattern as CMake >= 3.18's
+  native support, which is equivalent to the old `-arch=sm_<ARCH>` shorthand.
+- Modernised test dependencies.
+- Build TestNavigationStatePool for CPU/CUDA.
+- Fixed missing vecgeomcuda symbols in vgdml.
+
+- Fixed build with SINGLE_PRECISION.
+
+Details:
+- Use C++11 in-class initialisers for AOS, SOA and Array classes.
+  Small modernisation of initialisers and constructors for storage classes.
+- Suppressed allocation for zero-size AOS3D, SOA3D and Array.
+- [VECGEOM-522] Removed redundant lines (no side effects) in ConeImplementation.
+- [VECGEOM-512] Homogenized Placed<Shape>::PrintType() implementations.
+- [VECGEOM-597] Fixed uniformity issue in SamplePointOnSurface() for Tube.
+- Removed a useless Vector3D..
+- Removed unused static counter.
+- Removed __host__ __device__ specifiers from defaulted constructors.
+- Fixed conversion factors for safety in scale transformations in case of
+  reflections.
+- Fixed AssemblyTest.
+
 Version 1.1.18       5th November 2021
 ======================================
 Overview: 
-- Further implementation of functions needed for inclusion of VecGeom Navigation into Geant4.
+- Further implementation of functions needed for inclusion of VecGeom
+  Navigation into Geant4.
 - Moved included version of VecCore to 0.8.0
 - Use precision-dependent push rather than fixed one.
 - Fix for GeometryTest in CUDA + vector mode
-- More improvements and fixes to multiple shapes for improved test results in single precision mode
+- More improvements and fixes to multiple shapes for improved test results
+  in single precision mode
 - Fixes for single-precision mode on GPU.
 
 Migration / configuration / behaviour change(s):
-- Added arb8 to gdml reader
-- Export required flags for VecGeom as compile options
+- Added arb8 to gdml reader.
+- Export required flags for VecGeom as compile options.
 - Disable usage of fast math for nvcc unless requested via FAST_MATH option.
 
 Details:
-- VNavigators (HybridNavigator2, NewSimpleNavigator) improved
-- VolumeUtilities::FillUncontainedPoints revised to cope with no uncontained volume
+- VNavigators (HybridNavigator2, NewSimpleNavigator) improved.
+- VolumeUtilities::FillUncontainedPoints revised to cope with no uncontained
+  volume.
 - Improvements for different compilers: Intel, LLVM, Clang 13.0
 - Type consistency fixes.
 - More robust type casting for utility methods.
 - Compilation fixes for single-precision vector mode.
-- Use vecCore::math function rather than standard ones, for consistent host/device behaviour.
-- Improved cone performance: avoid a few redundant IsOnConicalSurface(...) function calls
-- Add Normal() CPU implementation also to GPU
-- Added doxygen docs for ApproachNextDaughter
-- BVH: Declare stacks as unsigned int and reduced code duplication of LevelLocate
+- Use vecCore::math function rather than standard ones, for consistent
+  host/device behaviour.
+- Improved cone performance: avoid a few redundant IsOnConicalSurface(...)
+  function calls.
+- Add Normal() CPU implementation also to GPU.
+- Added doxygen docs for ApproachNextDaughter.
+- BVH: Declare stacks as unsigned int and reduced code duplication of
+  LevelLocate.
 
-Version 1.1.17    3rd September 2021
-===================================
+Version 1.1.17      3rd September 2021
+======================================
 
 Overview:
-- Improvements and fixes to multiple shapes to enable tests to pass in single precision mode
-- Fixes for BVH
+- Improvements and fixes to multiple shapes to enable tests to pass in single
+  precision mode.
+- Fixes for BVH.
 - Added accessors for navigation state index.
 
 Migration - configuration or interface changes:
-- Removed navigation index setter since the state should rather be recomputed for consistency.
+- Removed navigation index setter since the state should rather be recomputed
+  for consistency.
 
 Details:
 - Fix for on surface and moving out condition for grazing rays on sphere.
-- Fix for BVH::ApproachNextDaughter: point/dir conversion to checked daughter frame.
+- Fix for BVH::ApproachNextDaughter: point/dir conversion to checked daughter
+  frame.
 - Fixes for cut tube DistanceToIn. Precision fixes for the cut tubes.
 - Fixed cone shape tester. Consistent Inside tolerance check for cone.
 - Fixed approaching bbox and removed leftover debug checks.
@@ -49,28 +151,28 @@ Details:
 - More precision fixes in the ShapeTester, improved use of ApproachSolid
 - Tolerance-related fixes for Tet to pass the ShapeTester.
 
+- Introduce standalone kFarAway in ShapeTester and further reduce errors.
+- Fix types in ConventionChecker and ApproxEqual.
 
-- Introduce standalone kFarAway in ShapeTester and further reduce errors
-- Fix types in ConventionChecker and ApproxEqual
+- Unify construction of Quadrilaterals.
+- Consistently mark functions & destructors with VECCORE_ATT_HOST_DEVICE.
 
-- Unify construction of Quadrilaterals
-- Consistently mark functions & destructors with VECCORE_ATT_HOST_DEVICE
-
-- Use VECGEOM_CONST for constants of kTolerance
-- Rename kernel function for ConstructManyOnGpu
-- UnplacedTrd now exposes interface 'normal' on GPU. Value is computed even if point not exactly on surface..
+- Use VECGEOM_CONST for constants of kTolerance.
+- Rename kernel function for ConstructManyOnGpu.
+- UnplacedTrd now exposes interface 'normal' on GPU. Value is computed even
+  if point not exactly on surface.
 - Transformation3D::Set copies from memory only if has_trans or has_rot are set.
 - Added new method to approach the next daughter to its bounding box.
 - Fixes for navigation index table in single precision mode.
-- Add GPU transfer testing for cms2018 geometry
-- (upstream/fix_bboxes_gpu) Fix bounding boxes on GPU by copying the values calculated on host.
-- Fix per solid tolerances and change types from double to Precision
+- Add GPU transfer testing for cms2018 geometry.
+- (upstream/fix_bboxes_gpu) Fix bounding boxes on GPU by copying the values
+  calculated on host.
+- Fix per solid tolerances and change types from double to Precision.
 
-
-- Add bounding box tests to ctest
-- Implement ApproachSolid utility and store BBox in UnplacedVolume
-- Fix Polyhedron::Contains() around phi tolerance
-- Remove unused ScalarSegmentContainsKernel
+- Add bounding box tests to ctest.
+- Implement ApproachSolid utility and store BBox in UnplacedVolume.
+- Fix Polyhedron::Contains() around phi tolerance.
+- Remove unused ScalarSegmentContainsKernel.
 - Activate bulk copying of PlacedVolume and Transformation3D to the GPU.
 - Implement functions for bulk copying Transformation3D instances to GPU.
 - Implement functions for bulk-copying of placed volumes to GPU.
@@ -85,10 +187,10 @@ Details:
 - [git] Extend git ignore to "build*" instead of build.
 - [NFC] Make detailed BVH description show up in doxygen.
 - [NFC] Add docstring for VECGEOM_DEVICE_INST_PLACED_VOLUME.
-- Fix failing test by creating new utility function
-- Fix failing tests in single precision
-- Change kTolerance to kHalfTolerance
-- [VECGEOM-578] Fix an FP comparison that was failing on the GPU
-- Fix a typo in debugging printout
+- Fix failing test by creating new utility function.
+- Fix failing tests in single precision.
+- Change kTolerance to kHalfTolerance.
+- [VECGEOM-578] Fix an FP comparison that was failing on the GPU.
+- Fix a typo in debugging printout.
 - [CMake] Fix doxygen search path.
-- Fix TestOrb unit test when using single precision
+- Fix TestOrb unit test when using single precision.
