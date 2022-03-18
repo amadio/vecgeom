@@ -56,6 +56,7 @@ void compareGeometries(const cxx::VPlacedVolume *hostVolume, std::size_t &volume
            deviceGeometry[volumeCounter].amin[1], deviceGeometry[volumeCounter].amin[2],
            deviceGeometry[volumeCounter].amax[0], deviceGeometry[volumeCounter].amax[1],
            deviceGeometry[volumeCounter].amax[2]);
+    printf("CPU safety: %f\nGPU safety: %f\n", info.unplacedSafety, deviceGeometry[volumeCounter].unplacedSafety);
     errx(4, "Volume #%zu (id=%d label=%s logicalId=%d) differs from GPU volume (id=%d logicalId=%d)\n", volumeCounter,
          hostVolume->id(), hostVolume->GetLabel().c_str(), hostVolume->GetLogicalVolume()->id(),
          deviceGeometry[volumeCounter].id, deviceGeometry[volumeCounter].logicalId);

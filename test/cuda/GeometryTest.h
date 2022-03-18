@@ -4,6 +4,7 @@
 #include "VecGeom/volumes/PlacedVolume.h"
 
 #include <vector>
+#include <limits>
 #include <cassert>
 
 namespace vecgeom {
@@ -22,6 +23,7 @@ struct GeometryInfo {
   // so cudaMemcpy gets wrong data
   vecgeom::Precision amin[3];
   vecgeom::Precision amax[3];
+  vecgeom::Precision unplacedSafety = 0.;
 
   GeometryInfo() = default;
 
@@ -31,21 +33,30 @@ struct GeometryInfo {
       : depth(theDepth), id(vol.id()), childId(vol.GetChildId()), copyNo(vol.GetCopyNo()),
         logicalId(vol.GetLogicalVolume()->id()), trans{*vol.GetTransformation()}
   {
+    const auto unplaced = vol.GetUnplacedVolume();
+    assert(unplaced);
+
     vecgeom::Vector3D<vecgeom::Precision> aminv, amaxv;
-    vol.GetUnplacedVolume()->GetBBox(aminv, amaxv);
+    unplaced->GetBBox(aminv, amaxv);
     assert((amaxv - aminv).Mag() > 0 && "Bounding box size must be positive");
     for (auto i = 0; i < 3; ++i) {
       amin[i] = aminv[i];
       amax[i] = amaxv[i];
     }
+
+    const vecgeom::Vector3D<Precision> testPoint{1., 2., -3.};
+    unplacedSafety = unplaced->Contains(testPoint) ? unplaced->SafetyToOut(testPoint) : unplaced->SafetyToIn(testPoint);
   }
 
-  bool operator==(const GeometryInfo &rhs)
+  bool operator==(const GeometryInfo &rhs) const
   {
     bool same_bbox = amin[0] == rhs.amin[0] && amin[1] == rhs.amin[1] && amin[2] == rhs.amin[2] &&
                      amax[0] == rhs.amax[0] && amax[1] == rhs.amax[1] && amax[2] == rhs.amax[2];
+    const bool correctSafety = (unplacedSafety == 0. && rhs.unplacedSafety == 0.)
+                            || (std::fabs(unplacedSafety - rhs.unplacedSafety)/unplacedSafety < 30. * std::numeric_limits<vecgeom::Precision>::epsilon());
     return depth == rhs.depth && id == rhs.id && childId == rhs.childId && copyNo == rhs.copyNo &&
-           logicalId == rhs.logicalId && trans == rhs.trans && same_bbox;
+           logicalId == rhs.logicalId && trans == rhs.trans
+           && same_bbox && correctSafety;
   }
 };
 
