@@ -413,6 +413,70 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUn
   return gpupolycon;
 }
 
+void UnplacedPolycone::CopyToGpu(std::vector<VUnplacedVolume const *> const & volumes,
+                                 std::vector<DevicePtr<cuda::VUnplacedVolume>> const & devicePointers)
+{
+  const auto size = volumes.size();
+  std::vector<Precision> startPhi, deltaPhi;
+  std::vector<int> argumentSize;
+  startPhi.reserve(size);
+  deltaPhi.reserve(size);
+  argumentSize.reserve(size);
+
+  struct VarLengthData {
+    std::vector<std::size_t> offsets;
+    std::vector<Precision>   z, rmin, rmax;
+  } vld;
+  struct RAIIDevPtr {
+    DevicePtr<Precision> devPtr;
+    RAIIDevPtr(std::size_t size) : devPtr()
+    {
+      devPtr.Allocate(size);
+    }
+    RAIIDevPtr(const RAIIDevPtr&) = delete;
+    ~RAIIDevPtr() { devPtr.Deallocate(); }
+  };
+
+  for (unsigned int i = 0; i < size; ++i) {
+    UnplacedPolycone const & polycone = static_cast<UnplacedPolycone const &>(*volumes[i]);
+    assert(dynamic_cast<UnplacedPolycone const *>(volumes[i]));
+
+    startPhi.push_back(polycone.fPolycone.fStartPhi);
+    deltaPhi.push_back(polycone.fPolycone.fDeltaPhi);
+
+    vld.offsets.push_back(vld.z.size());
+    polycone.ReconstructSectionArrays(vld.z, vld.rmin, vld.rmax);
+    argumentSize.push_back(vld.z.size()-vld.offsets.back());
+  }
+  // Assert that it's correct to have only one offset array for all variable-length arguments
+  assert(vld.z.size() == vld.rmin.size()
+      && vld.z.size() == vld.rmax.size()
+      && vld.offsets.back() < vld.z.size());
+  assert(startPhi.size() == size
+      && deltaPhi.size() == size
+      && argumentSize.size() == size);
+
+  RAIIDevPtr zGPU{vld.z.size()}, rminGPU{vld.rmin.size()}, rmaxGPU{vld.rmax.size()};
+  zGPU.devPtr.ToDevice(vld.z.data(), vld.z.size());
+  rminGPU.devPtr.ToDevice(vld.rmin.data(), vld.rmin.size());
+  rmaxGPU.devPtr.ToDevice(vld.rmax.data(), vld.rmax.size());
+
+  std::vector<Precision const *> zGPUPtrs{size}, rminGPUPtrs{size}, rmaxGPUPtrs{size};
+  std::transform(vld.offsets.begin(), vld.offsets.end(), zGPUPtrs.begin(),
+      [&zGPU](std::size_t offset){ return zGPU.devPtr.GetPtr() + offset; });
+  std::transform(vld.offsets.begin(), vld.offsets.end(), rminGPUPtrs.begin(),
+      [&rminGPU](std::size_t offset){ return rminGPU.devPtr.GetPtr() + offset; });
+  std::transform(vld.offsets.begin(), vld.offsets.end(), rmaxGPUPtrs.begin(),
+      [&rmaxGPU](std::size_t offset){ return rmaxGPU.devPtr.GetPtr() + offset; });
+
+  /* Constructor we are targeting:
+    UnplacedPolycone(Precision phistart, Precision deltaphi, int Nz, Precision const *z, Precision const *rmin,
+                     Precision const *rmax)
+   */
+  ConstructManyOnGpu<cuda::SUnplacedPolycone<cuda::ConeTypes::UniversalCone>>(size, devicePointers.data(),
+      startPhi.data(), deltaPhi.data(), argumentSize.data(), zGPUPtrs.data(), rminGPUPtrs.data(), rmaxGPUPtrs.data());
+}
+
 #endif // VECGEOM_CUDA_INTERFACE
 
 Precision UnplacedPolycone::SurfaceArea() const
@@ -972,6 +1036,10 @@ template size_t DevicePtr<cuda::SUnplacedPolycone<ConeTypes::UniversalCone>>::Si
 template void DevicePtr<cuda::SUnplacedPolycone<ConeTypes::UniversalCone>>::Construct(Precision, Precision, int,
                                                                                       Precision *, Precision *,
                                                                                       Precision *) const;
+template void vecgeom::cxx::ConstructManyOnGpu<SUnplacedPolycone<cuda::ConeTypes::UniversalCone>>(
+    std::size_t nElement, DevicePtr<cuda::VUnplacedVolume> const * gpu_ptrs,
+    Precision const * startPhi, Precision const * deltaPhi, int const * sizes,
+    Precision const * const * zGPUPtrs, Precision const * const * rminGPUPtrs, Precision const * const * rmaxGPUPtrs);
 
 } // namespace cxx
 

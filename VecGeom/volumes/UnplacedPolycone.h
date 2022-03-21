@@ -200,6 +200,7 @@ public:
   }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
+  static void CopyToGpu(std::vector<VUnplacedVolume const *> const & volumes, std::vector<DevicePtr<cuda::VUnplacedVolume>> const & devicePointers);
 #endif
 
 #ifndef VECCORE_CUDA
