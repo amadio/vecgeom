@@ -13,6 +13,10 @@
 #include "VecGeom/volumes/PlacedBooleanVolume.h"
 #include "VecGeom/volumes/PlacedScaledShape.h"
 
+#include "VecGeom/volumes/UnplacedVolume.h"
+#include "VecGeom/volumes/UnplacedPolyhedron.h"
+#include "VecGeom/volumes/UnplacedPolycone.h"
+
 #include <algorithm>
 #include <stdio.h>
 #include <iostream>
@@ -53,6 +57,47 @@ vecgeom::cuda::VPlacedVolume const *CudaManager::world_gpu() const
   return world_gpu_;
 }
 
+namespace {
+/**
+ * Bulk-copy unplaced volume instances to the GPU.
+ * Some of these volumes have very costly copy functions that have to allocate memory.
+ * This function sorts volumes by type, and calls a specialised bulk-copy function for the slowest
+ * volume types.
+ */
+void CopyUnplacedVolumes(std::vector<vecgeom::cxx::VUnplacedVolume const *> && volumesToCopy,
+    std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::VUnplacedVolume>> && devPtrs)
+{
+  using vecgeom::cxx::VUnplacedVolume;
+  assert(volumesToCopy.size() == devPtrs.size());
+
+  std::unordered_map<std::type_index,
+    std::pair<std::vector<VUnplacedVolume const *>,
+              std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::VUnplacedVolume>>>> typesToCopy;
+  for (auto i = 0u; i < volumesToCopy.size(); ++i) {
+    const std::type_index tidx{typeid(*volumesToCopy[i])};
+    typesToCopy[tidx].first.push_back(volumesToCopy[i]);
+    typesToCopy[tidx].second.push_back(std::move(devPtrs[i]));
+  }
+
+  for (auto const & typeAndVolumes : typesToCopy) {
+    const std::type_index & tid = typeAndVolumes.first;
+    const auto & volumeData = typeAndVolumes.second;
+
+    if (tid == std::type_index(typeid(UnplacedPolyhedron))) {
+      UnplacedPolyhedron::CopyToGpu(volumeData.first, volumeData.second);
+    } else if (tid == typeid(UnplacedPolycone) || tid == typeid(GenericUnplacedPolycone)) {
+      UnplacedPolycone::CopyToGpu(volumeData.first, volumeData.second);
+    }
+    else {
+      for (auto i = 0u; i < volumeData.first.size(); ++i) {
+        volumeData.first[i]->CopyToGpu(volumeData.second[i]);
+      }
+    }
+  }
+}
+
+}
+
 vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize()
 {
   Stopwatch timer, overalltimer;
@@ -90,10 +135,14 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
 
   if (verbose_ > 2) std::cout << "Copying unplaced volumes...";
   timer.Start();
-  for (std::set<VUnplacedVolume const *>::const_iterator i = unplaced_volumes_.begin(); i != unplaced_volumes_.end();
-       ++i) {
-
-    (*i)->CopyToGpu(LookupUnplaced(*i));
+  {
+    std::vector<VUnplacedVolume const *> volumesToCopy;
+    std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::VUnplacedVolume>> devPtrs;
+    for (VUnplacedVolume const * vol : unplaced_volumes_) {
+      volumesToCopy.emplace_back(vol);
+      devPtrs.emplace_back(LookupUnplaced(vol));
+    }
+    CopyUnplacedVolumes(std::move(volumesToCopy), std::move(devPtrs));
   }
   timer.Stop();
   if (verbose_ > 2) std::cout << " OK;\tTIME NEEDED " << timer.Elapsed() << "s \n";
