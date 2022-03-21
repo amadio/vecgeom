@@ -71,6 +71,7 @@ template <>
 int GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   auto const strAttribure = GetAttribute(attrName, theAttributes);
+  if (strAttribure.empty()) return 0;
   return std::stoi(strAttribure);
 };
 
