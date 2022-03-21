@@ -65,7 +65,8 @@ private:
   bool processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   bool processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   bool processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
-  bool processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode, vecgeom::LogicalVolume *motherLogical);
+  vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *processPhysicalVolume(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   bool processWorld(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   bool processConstant(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   bool processPosition(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);

@@ -80,7 +80,6 @@ public:
   }
 
   /**
-   * @brief Rotation followed by translation.
    * @param tx Translation in x-coordinate.
    * @param ty Translation in y-coordinate.
    * @param tz Translation in z-coordinate.
@@ -93,20 +92,6 @@ public:
                    const Precision theta, const Precision psi);
 
   /**
-   * @brief RScale followed by rotation followed by translation.
-   * @param tx Translation in x-coordinate.
-   * @param ty Translation in y-coordinate.
-   * @param tz Translation in z-coordinate.
-   * @param phi Rotation angle about z-axis.
-   * @param theta Rotation angle about new y-axis.
-   * @param psi Rotation angle about new z-axis.
-   */
-  VECCORE_ATT_HOST_DEVICE
-  Transformation3D(const Precision tx, const Precision ty, const Precision tz, const Precision phi,
-                   const Precision theta, const Precision psi, Precision sx, Precision sy, Precision sz);
-
-
-  /**
    * Constructor to manually set each entry. Used when converting from different
    * geometry.
    */
@@ -114,15 +99,6 @@ public:
   Transformation3D(const Precision tx, const Precision ty, const Precision tz, const Precision r0, const Precision r1,
                    const Precision r2, const Precision r3, const Precision r4, const Precision r5, const Precision r6,
                    const Precision r7, const Precision r8);
-
-  /**
-   * Constructor to manually set each entry. Used when converting from different
-   * geometry, supporting scaling.
-   */
-  VECCORE_ATT_HOST_DEVICE
-  Transformation3D(const Precision tx, const Precision ty, const Precision tz, const Precision r0, const Precision r1,
-                   const Precision r2, const Precision r3, const Precision r4, const Precision r5, const Precision r6,
-                   const Precision r7, const Precision r8, Precision sx, Precision sy, Precision sz);
 
   /**
    * Constructor copying the translation and rotation from memory
@@ -157,20 +133,6 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   ~Transformation3D() {}
-
-  VECCORE_ATT_HOST_DEVICE
-  void ApplyScale(const Precision sx, const Precision sy, const Precision sz)
-  {
-    fRotation[0] *= sx;
-    fRotation[1] *= sy;
-    fRotation[2] *= sz;
-    fRotation[3] *= sx;
-    fRotation[4] *= sy;
-    fRotation[5] *= sz;
-    fRotation[6] *= sx;
-    fRotation[7] *= sy;
-    fRotation[8] *= sz;    
-  }
 
   VECCORE_ATT_HOST_DEVICE
   void Clear()
@@ -212,19 +174,6 @@ public:
     return Vector3D<Precision>(fTranslation[0], fTranslation[1], fTranslation[2]);
   }
 
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Vector3D<Precision> Scale() const
-  {
-    Precision sx = std::sqrt(fRotation[0]*fRotation[0] + fRotation[3]*fRotation[3] + fRotation[6]*fRotation[6]);
-    Precision sy = std::sqrt(fRotation[1]*fRotation[1] + fRotation[4]*fRotation[4] + fRotation[7]*fRotation[7]);
-    Precision sz = std::sqrt(fRotation[2]*fRotation[2] + fRotation[5]*fRotation[5] + fRotation[8]*fRotation[8]);
-    
-    if (Determinant() < 0) sz = -sz;
-
-    return Vector3D<Precision>(sx, sy, sz);
-  }
-
   /**
    * No safety against faulty indexing.
    * @param index Index of translation entry in the range [0-2].
@@ -248,10 +197,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool IsIdentity() const { return fIdentity; }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  bool IsReflected() const { return Determinant() < 0; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -428,28 +373,6 @@ public:
     // not sure this compiles under CUDA
     copy(&rhs, &rhs + 1, this);
   }
-
-  VECCORE_ATT_HOST_DEVICE
-  double Determinant() const
-  {
-    // Computes determinant in double precision
-    double xx_ = fRotation[0];
-    double zz_ = fRotation[8];
-    double yy_ = fRotation[4];
-    double xy_ = fRotation[1];
-    double xz_ = fRotation[2];
-    double yx_ = fRotation[3];
-    double yz_ = fRotation[5];
-    double zx_ = fRotation[6];
-    double zy_ = fRotation[7];
-
-    double detxx = yy_ * zz_ - yz_ * zy_;
-    double detxy = yx_ * zz_ - yz_ * zx_;
-    double detxz = yx_ * zy_ - yy_ * zx_;
-    double det   = xx_ * detxx - xy_ * detxy + xz_ * detxz;
-    return det;
-  }
-
 
   // stores the inverse of this matrix into inverse
   // taken from CLHEP implementation

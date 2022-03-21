@@ -13,12 +13,10 @@ add_library(vgdml
   include/MaterialInfo.h
   include/RegionInfo.h
   include/Middleware.h
-  include/ReflFactory.h
   src/Backend.cpp
   src/Frontend.cpp
   src/Helper.cpp
   src/Middleware.cpp
-  src/ReflFactory.cpp
 )
 
 target_include_directories(vgdml PUBLIC

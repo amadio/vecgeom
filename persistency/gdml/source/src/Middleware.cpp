@@ -6,7 +6,6 @@
 
 #include "Middleware.h"
 #include "Helper.h"
-#include "ReflFactory.h"
 #include "xercesc/dom/DOMNode.hpp"
 #include "xercesc/dom/DOMNodeList.hpp"
 #include "xercesc/dom/DOMDocument.hpp"
@@ -1266,7 +1265,7 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
       }
     } else if (theChildNodeName == "materialref") {
       auto const materialName = GetAttribute("ref", aDOMElement->getAttributes());
-      if (debug) std::cout << "volume " << volumeName << " references material " << materialName << std::endl;
+      if (debug) std::cout << "volume " << volumeName << " refernces material " << materialName << std::endl;
 
       auto pairMaterial = materialMap.find(materialName);
       if (pairMaterial == materialMap.end()) {
@@ -1286,8 +1285,8 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
         }
       }
     } else if (theChildNodeName == "physvol") {
-      auto const success = processPhysicalVolume(aDOMElement, logicVolume);
-      if(!success) return false;     
+      auto daughterVolume = processPhysicalVolume(aDOMElement);
+      logicVolume->PlaceDaughter(daughterVolume);
     } else if (theChildNodeName == "auxiliary") {
       Auxiliary aux;
       auto const success = processAuxiliary(aDOMElement, aux);
@@ -1302,8 +1301,8 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
   return logicVolume;
 }
 
-bool Middleware::processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode,
-                                                          vecgeom::LogicalVolume *motherLogical)
+vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume *Middleware::processPhysicalVolume(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
     std::cout << "Middleware::processPhysicalVolume: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
@@ -1311,11 +1310,6 @@ bool Middleware::processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
   vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume *logicalVolume = nullptr;
   vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> position;
   vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> rotation;
-  vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> scale(1, 1, 1);
-  auto const *const attributes = aDOMNode->getAttributes();
-  auto const PVname            = GetAttribute("name", attributes);
-  DECLAREANDGETINTVAR(copynumber);
-
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
     auto aDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
     if (!aDOMElement) {
@@ -1335,7 +1329,7 @@ bool Middleware::processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
           vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::Instance().FindLogicalVolume(logicalVolumeName.c_str());
       if (!logicalVolume) {
         std::cout << "Middleware::processPhysicalVolume: could not find volume " << logicalVolumeName << std::endl;
-        return false;
+        return nullptr;
       } else {
         if (debug) std::cout << "Middleware::processPhysicalVolume: found volume " << logicalVolumeName << std::endl;
       }
@@ -1345,7 +1339,6 @@ bool Middleware::processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
         position = positionMap[positionName];
       } else {
         std::cout << "Middleware::processPhysicalVolume: could not process position " << positionName << std::endl;
-        return false;
       }
     } else if (theChildNodeName == "rotation") {
       auto const rotationName = GetAttribute("name", aDOMElement->getAttributes());
@@ -1353,19 +1346,7 @@ bool Middleware::processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
         rotation = rotationMap[rotationName];
       } else {
         std::cout << "Middleware::processPhysicalVolume: could not process rotation " << rotationName << std::endl;
-        return false;
       }
-    } else if (theChildNodeName == "scale") {
-      auto const scaleName = GetAttribute("name", aDOMElement->getAttributes());
-      if (processScale(aDOMElement)) {
-        scale = scaleMap[scaleName];
-      } else {
-        std::cout << "Middleware::processPhysicalVolume: could not process scale " << scaleName << std::endl;
-        return false;
-      }
-    } else if (theChildNodeName == "scaleref") {
-      auto const scaleName    = GetAttribute("ref", aDOMElement->getAttributes());
-      scale                   = scaleMap[scaleName];
     } else if (theChildNodeName == "positionref") {
       auto const positionName = GetAttribute("ref", aDOMElement->getAttributes());
       position                = positionMap[positionName];
@@ -1375,16 +1356,16 @@ bool Middleware::processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
     } else {
       if (debug) {
         std::cerr << "Middleware::processPhysicalVolume: tag not understood: " << theChildNodeName << std::endl;
-        return false;
       }
     }
   }
-  if (!logicalVolume) return false;
+  if (!logicalVolume) return nullptr;
   auto const r              = makeRotationMatrixFromCartesianAngles(rotation.x(), rotation.y(), rotation.z());
-  vecgeom::Transformation3D transformation(position.x(), position.y(), position.z(),
-                                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
-  bool success = ReflFactory::Instance().Place(transformation, scale, PVname, logicalVolume, motherLogical, copynumber);
-  return success;
+  auto const transformation = vecgeom::VECGEOM_IMPL_NAMESPACE::Transformation3D(
+      position.x(), position.y(), position.z(), r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
+  auto const placedVolume = logicalVolume->Place(&transformation); // TODO position, rotation, label
+  vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::Instance().RegisterPlacedVolume(placedVolume);
+  return placedVolume;
 }
 
 bool Middleware::processUserInfo(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
