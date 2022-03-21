@@ -40,6 +40,17 @@ Transformation3D::Transformation3D(const Precision tx, const Precision ty, const
 }
 
 VECCORE_ATT_HOST_DEVICE
+Transformation3D::Transformation3D(const Precision tx, const Precision ty, const Precision tz, const Precision phi,
+                                   const Precision theta, const Precision psi, Precision sx, Precision sy, Precision sz)
+    : fIdentity(false), fHasRotation(true), fHasTranslation(true)
+{
+  SetTranslation(tx, ty, tz);
+  SetRotation(phi, theta, psi);
+  ApplyScale(sx, sy, sz);
+  SetProperties();
+}
+
+VECCORE_ATT_HOST_DEVICE
 Transformation3D::Transformation3D(const Precision tx, const Precision ty, const Precision tz, const Precision r0,
                                    const Precision r1, const Precision r2, const Precision r3, const Precision r4,
                                    const Precision r5, const Precision r6, const Precision r7, const Precision r8)
@@ -47,6 +58,19 @@ Transformation3D::Transformation3D(const Precision tx, const Precision ty, const
 {
   SetTranslation(tx, ty, tz);
   SetRotation(r0, r1, r2, r3, r4, r5, r6, r7, r8);
+  SetProperties();
+}
+
+VECCORE_ATT_HOST_DEVICE
+Transformation3D::Transformation3D(const Precision tx, const Precision ty, const Precision tz, const Precision r0,
+                                   const Precision r1, const Precision r2, const Precision r3, const Precision r4,
+                                   const Precision r5, const Precision r6, const Precision r7, const Precision r8,
+                                   const Precision sx, const Precision sy, const Precision sz)
+    : fIdentity(false), fHasRotation(true), fHasTranslation(true)
+{
+  SetTranslation(tx, ty, tz);
+  SetRotation(r0, r1, r2, r3, r4, r5, r6, r7, r8);
+  ApplyScale(sx, sy, sz);
   SetProperties();
 }
 
