@@ -399,10 +399,6 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUn
   vecgeom::CopyToGpu(&rmin[0], rmin_gpu_ptr, sizeof(Precision) * rmin.size());
   vecgeom::CopyToGpu(&rmax[0], rmax_gpu_ptr, sizeof(Precision) * rmax.size());
 
-  vecgeom::CopyToGpu(&z[0], z_gpu_ptr, sizeof(Precision) * z.size());
-  vecgeom::CopyToGpu(&rmin[0], rmin_gpu_ptr, sizeof(Precision) * rmin.size());
-  vecgeom::CopyToGpu(&rmax[0], rmax_gpu_ptr, sizeof(Precision) * rmax.size());
-
   int s = z.size();
 
   // attention here z.size() might be different than fNz due to compactification during Reconstruction
