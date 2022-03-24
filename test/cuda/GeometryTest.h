@@ -58,6 +58,15 @@ struct GeometryInfo {
            logicalId == rhs.logicalId && trans == rhs.trans
            && same_bbox && correctSafety;
   }
+
+  void print() const {
+    printf("depth: %d, id: %d, childId: %d, copyNo: %d, logicalId: %d\n",
+        depth, id, childId, copyNo, logicalId);
+    trans.Print();
+    printf("\namin: (%12.10E, %12.10E, %12.10E)  amax: (%12.10E, %12.10E, %12.10E)\n", amin[0], amin[1], amin[2], amax[0],
+           amax[1], amax[2]);
+    printf("unplaced safety: %15.13f\n", unplacedSafety);
+  }
 };
 
 std::vector<GeometryInfo> visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume* volume, std::size_t numVols);

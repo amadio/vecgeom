@@ -43,23 +43,17 @@ void compareGeometries(const cxx::VPlacedVolume *hostVolume, std::size_t &volume
     errx(3, "No device volume corresponds to volume %zu", volumeCounter);
   }
 
-  GeometryInfo info{depth, *hostVolume};
-  if (!(info == deviceGeometry[volumeCounter])) {
-    printf("CPU transformation:\n");
-    info.trans.Print();
-    printf("\nGPU transformation\n");
-    deviceGeometry[volumeCounter].trans.Print();
-    printf("\n");
-    printf("CPU amin: (%g, %g, %g)  amax: (%g, %g, %g)\n", info.amin[0], info.amin[1], info.amin[2], info.amax[0],
-           info.amax[1], info.amax[2]);
-    printf("GPU amin: (%g, %g, %g)  amax: (%g, %g, %g)\n", deviceGeometry[volumeCounter].amin[0],
-           deviceGeometry[volumeCounter].amin[1], deviceGeometry[volumeCounter].amin[2],
-           deviceGeometry[volumeCounter].amax[0], deviceGeometry[volumeCounter].amax[1],
-           deviceGeometry[volumeCounter].amax[2]);
-    printf("CPU safety: %f\nGPU safety: %f\n", info.unplacedSafety, deviceGeometry[volumeCounter].unplacedSafety);
+  GeometryInfo host{depth, *hostVolume};
+  GeometryInfo const & device = deviceGeometry[volumeCounter];
+  if (!(host == device)) {
+    printf("\n** CPU:\n");
+    host.print();
+    printf("** GPU:\n");
+    device.print();
+
     errx(4, "Volume #%zu (id=%d label=%s logicalId=%d) differs from GPU volume (id=%d logicalId=%d)\n", volumeCounter,
          hostVolume->id(), hostVolume->GetLabel().c_str(), hostVolume->GetLogicalVolume()->id(),
-         deviceGeometry[volumeCounter].id, deviceGeometry[volumeCounter].logicalId);
+         device.id, device.logicalId);
   }
   volumeCounter++;
 

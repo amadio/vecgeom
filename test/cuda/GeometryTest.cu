@@ -6,30 +6,31 @@
 #include <err.h>
 
 __managed__ std::size_t g_volumesVisited;
-__managed__ bool g_problemDuringVisit;
-
-__device__ void visitVolumes(const vecgeom::cuda::VPlacedVolume *volume, GeometryInfo *geoData, std::size_t &volCounter,
-                             const std::size_t nGeoData, unsigned int depth)
-{
-  if (volCounter >= nGeoData) {
-    g_problemDuringVisit = true;
-    printf("Sorry, hard-coded buffer size exhausted after visiting %zu volumes. Please increase.\n", volCounter);
-    return;
-  }
-  geoData[volCounter++] = GeometryInfo{depth, *volume};
-
-  for (const vecgeom::cuda::VPlacedVolume *daughter : volume->GetDaughters()) {
-    visitVolumes(daughter, geoData, volCounter, nGeoData, depth + 1);
-    if (g_problemDuringVisit) break;
-  }
-}
+__device__ struct VolumeData {
+  vecgeom::cuda::VPlacedVolume const * vol;
+  unsigned int depth;
+} volumeStack[10000];
 
 __global__ void kernel_visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume *volume, GeometryInfo *geoData,
                                            const std::size_t nGeoData)
 {
-  g_volumesVisited     = 0;
-  g_problemDuringVisit = false;
-  visitVolumes(volume, geoData, g_volumesVisited, nGeoData, 0);
+  g_volumesVisited = 0;
+  auto stackp = volumeStack;
+  *(stackp++) = {volume, 0};
+
+  while (stackp > volumeStack) {
+    auto const current = *(--stackp);
+
+    assert(g_volumesVisited < nGeoData);
+    geoData[g_volumesVisited++] = GeometryInfo{current.depth, *current.vol};
+
+    // We push backwards in order to visit the first daughter first
+    for (int i = current.vol->GetDaughters().size() - 1; i >= 0; --i) {
+      auto daughter = current.vol->GetDaughters()[i];
+      *stackp++ = VolumeData{daughter, current.depth + 1};
+      assert(stackp - volumeStack < sizeof(volumeStack)/sizeof(VolumeData) && "Volume stack size exhausted");
+    }
+  }
 }
 
 std::vector<GeometryInfo> visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume *volume, std::size_t maxElem)
@@ -46,8 +47,6 @@ std::vector<GeometryInfo> visitDeviceGeometry(const vecgeom::cuda::VPlacedVolume
   err = cudaDeviceSynchronize();
   if (err != cudaSuccess) {
     errx(2, "Visiting device geometry failed with '%s'", cudaGetErrorString(err));
-  } else if (g_problemDuringVisit) {
-    errx(2, "Visiting device geometry reached depth limit.");
   }
 
   std::vector<GeometryInfo> geoDataCPU(maxElem);
