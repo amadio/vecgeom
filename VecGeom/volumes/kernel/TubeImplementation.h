@@ -122,7 +122,9 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
   dist = -b + delta;
   // ok &= vecCore::math::Abs(dist) <= kTolerance;
   // vecCore::MaskedAssign(dist,ok,Real_v(0.));
-  ok &= dist >= -kHalfTolerance;
+  // A.G There may be points propagated to Rmax+tolerance which get here and NEED to se a valid negative crossing
+  // at distance > tolerance, so we need to enlarge the tolerance
+  ok &= dist >= -2 * kTolerance;
   if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok)) return;
 
   if (insectorCheck) {
