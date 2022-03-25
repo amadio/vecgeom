@@ -294,7 +294,9 @@ void CutTubeImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
                                                                       stepMax, dtube);
   vecCore::MaskedAssign(distance, dtube < distance, dtube);
   // The line below is needed to avoid din=dout=0 when starting from a boundary
-  vecCore__MaskedAssignFunc(distance, distance >= Real_v(0.) && distance < Real_v(kTolerance), Real_v(kTolerance));
+  // A.G. There should be a dir.dot.norm check to avoid the condition above. Rounding to tolerance
+  //      prevents G4UnionSolid to exit correctly from the boundary crossing loop
+  //vecCore__MaskedAssignFunc(distance, distance >= Real_v(0.) && distance < Real_v(kTolerance), Real_v(kTolerance));
 }
 
 //______________________________________________________________________________
