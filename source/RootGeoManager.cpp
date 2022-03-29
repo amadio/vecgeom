@@ -116,7 +116,7 @@ bool RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::s
   TGeoManager::SetVerboseLevel(0);
   ::gGeoManager->SetTopVolume(world->GetVolume());
   ::gGeoManager->CloseGeometry();
-  ::gGeoManager->CheckOverlaps();
+  //::gGeoManager->CheckOverlaps();
   ::gGeoManager->Export(filename.c_str());
 
   // setup fast lookup table

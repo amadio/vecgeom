@@ -124,8 +124,16 @@ TGeoShape const *UnplacedPolycone::ConvertToRoot(char const *label) const
   std::vector<Precision> rmin;
   std::vector<Precision> rmax;
   std::vector<Precision> z;
-  // unplaced->ReconstructSectionArrays(z, rmin, rmax);
-  ReconstructSectionArrays(z, rmin, rmax);
+  auto original_param = fPolycone.fOriginal_parameters;
+  if (original_param) {
+    for (int i = 0; i < fPolycone.fNz; ++i) {
+      z.push_back(original_param->fHZ_values[i]);
+      rmin.push_back(original_param->fHRmin[i]);
+      rmax.push_back(original_param->fHRmax[i]);
+    }
+  } else {
+    ReconstructSectionArrays(z, rmin, rmax);
+  }
 
   TGeoPcon *rootshape = new TGeoPcon(fPolycone.fStartPhi * kRadToDeg, fPolycone.fDeltaPhi * kRadToDeg, z.size());
 
