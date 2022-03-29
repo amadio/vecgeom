@@ -2055,7 +2055,7 @@ int ShapeTester<ImplT>::TestMethodAll()
 template <typename ImplT>
 void ShapeTester<ImplT>::SetFolder(const string &newFolder)
 {
-  cout << "Checking for existance of " << newFolder << endl;
+  cout << "Checking for existence of " << newFolder << endl;
 
   if (!directoryExists(newFolder)) {
     string command;

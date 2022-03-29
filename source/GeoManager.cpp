@@ -302,7 +302,7 @@ VPlacedVolume *GeoManager::FindPlacedVolume(char const *const label)
       }
     }
   }
-  if (multiple) printf(". Returning first occurence.\n");
+  if (multiple) printf(". Returning first occurrence.\n");
   return output;
 }
 
@@ -336,7 +336,7 @@ LogicalVolume *GeoManager::FindLogicalVolume(char const *const label)
       }
     }
   }
-  if (multiple) printf(". Returning first occurence.\n");
+  if (multiple) printf(". Returning first occurrence.\n");
   return output;
 }
 
