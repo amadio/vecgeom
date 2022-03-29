@@ -85,6 +85,7 @@ set(TEST_EXECUTABLES_CORE
   core/BooleanConvexityTest.cpp
   unit_tests/TestEstimateSurfaceArea.cpp
   unit_tests/TestVecGeomPolycone.cpp
+  unit_tests/TestNavStateIndex.cpp
   core/TestSExtru.cpp
   # to be enabled when running cleanly
   unit_tests/TestBooleans.cpp

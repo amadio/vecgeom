@@ -43,9 +43,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   NavStateIndex(NavIndex_t nav_ind = 0) { fNavInd = nav_ind; }
 
-  VECCORE_ATT_HOST_DEVICE
-  ~NavStateIndex() {}
-
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   static unsigned char GetMaxLevel()
