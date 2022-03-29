@@ -79,7 +79,7 @@ EmbreeManager::EmbreeAccelerationStructure *EmbreeManager::BuildStructureFromBou
   structure->fNormals       = new Vector3D<float>[numberofdaughters * 6];
   structure->fNumberObjects = numberofdaughters;
 
-  for (int d = 0; d < numberofdaughters; ++d) {
+  for (size_t d = 0; d < numberofdaughters; ++d) {
     const auto pvol = daughters->operator[](d);
     // add each box as different geometry to the scene (will be able to obtain the geometryID and hence the object id)
     AddArbitraryBBoxToScene(*structure, pvol, fBuildMode);
@@ -112,7 +112,7 @@ EmbreeManager::EmbreeAccelerationStructure *EmbreeManager::BuildStructureFromBou
   structure->fNormals       = new Vector3D<float>[numberofdaughters * 6];
   structure->fNumberObjects = numberofdaughters;
 
-  for (int d = 0; d < numberofdaughters; ++d) {
+  for (size_t d = 0; d < numberofdaughters; ++d) {
     auto lower = abboxes[2 * d];
     auto upper = abboxes[2 * d + 1];
     // add each box as different geometry to the scene (will be able to obtain the geometryID and hence the object id)
