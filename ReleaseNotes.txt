@@ -1,3 +1,26 @@
+Version 1.1.20         30th March 2022
+======================================
+Overview:
+- [VECGEOM-540] Fixed stuck tracks during propagation for CutTubs reported in
+  CMS simulation. Increased tolerance for negative solutions of tube second
+  order solver.
+- Preventing false misses in AABB::Intersect().
+- Speed up BVH construction.
+  Improved BVH construction for concentric objects.
+
+Persistency:
+- Added support for physnode::scale tags with reflections.
+  Added support for scale in Transformation3D.
+
+GPU:
+- Added bulk copy functions for UnplacedPolyhedron and UnplacedPolycone.
+  Activate bulk copy of UnplacedVolumes in CudaManager, reducing the time
+  to construct instances on device.
+
+Miscellaneous:
+- Refactored GeometryTest to be non-recursive, extended to probe unplaced safety.
+- Fix for Embree support.
+- Fixes in printouts.
 
 Version 1.1.19         11th March 2022
 ======================================
