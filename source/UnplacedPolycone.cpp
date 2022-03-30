@@ -126,7 +126,7 @@ TGeoShape const *UnplacedPolycone::ConvertToRoot(char const *label) const
   std::vector<Precision> z;
   auto original_param = fPolycone.fOriginal_parameters;
   if (original_param) {
-    for (int i = 0; i < fPolycone.fNz; ++i) {
+    for (unsigned int i = 0; i < fPolycone.fNz; ++i) {
       z.push_back(original_param->fHZ_values[i]);
       rmin.push_back(original_param->fHRmin[i]);
       rmax.push_back(original_param->fHRmax[i]);
