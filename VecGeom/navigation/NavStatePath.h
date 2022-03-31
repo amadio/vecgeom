@@ -62,8 +62,8 @@ struct Index2PVolumeConverter {
 #ifdef VECCORE_CUDA_DEVICE_COMPILATION
     // checking here for NVCC_DEVICE since the global variable globaldevicegeomgata::gCompact...
     // is marked __device__ and can only be compiled within device compiler passes
-    assert(vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer() != nullptr);
-    return &vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer()[index];
+    assert(vecgeom::globaldevicegeomdata::gCompactPlacedVolBuffer != nullptr);
+    return &vecgeom::globaldevicegeomdata::gCompactPlacedVolBuffer[index];
 #else
 #ifndef VECCORE_CUDA
     assert(vecgeom::GeoManager::gCompactPlacedVolBuffer == nullptr ||

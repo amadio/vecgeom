@@ -8,41 +8,12 @@
 #include "VecGeom/backend/cuda/Backend.h"
 
 namespace vecgeom {
-
-// we put some global data into a separate namespace
-// this is done since CUDA does not support static const members in class definitions
-namespace globaldevicegeomdata {
-static __device__ VPlacedVolume *gCompactPlacedVolBuffer = nullptr;
-
-static __device__ NavIndex_t *gNavIndex = nullptr;
-
-static __device__ int gMaxDepth = 0;
-
-VECCORE_ATT_DEVICE
-VPlacedVolume *&GetCompactPlacedVolBuffer()
-{
-  return gCompactPlacedVolBuffer;
-}
-
-VECCORE_ATT_DEVICE
-NavIndex_t *&GetNavIndex()
-{
-  return gNavIndex;
-}
-
-VECCORE_ATT_DEVICE
-int GetMaxDepth()
-{
-  return gMaxDepth;
-}
-}
-
 inline namespace cuda {
 
 __global__ void InitDeviceCompactPlacedVolBufferPtrCudaKernel(void *gpu_ptr)
 {
   // gpu_ptr is some pointer on the device that was allocated by some other means
-  globaldevicegeomdata::GetCompactPlacedVolBuffer() = (vecgeom::cuda::VPlacedVolume *)gpu_ptr;
+  globaldevicegeomdata::gCompactPlacedVolBuffer = (vecgeom::cuda::VPlacedVolume *)gpu_ptr;
 }
 
 void InitDeviceCompactPlacedVolBufferPtr(void *gpu_ptr)
@@ -54,7 +25,7 @@ void InitDeviceCompactPlacedVolBufferPtr(void *gpu_ptr)
 __global__ void InitDeviceNavIndexPtrCudaKernel(void *gpu_ptr, int maxdepth)
 {
   // gpu_ptr is some pointer on the device that was allocated by some other means
-  globaldevicegeomdata::GetNavIndex() = (NavIndex_t *)gpu_ptr;
+  globaldevicegeomdata::gNavIndex = (NavIndex_t *)gpu_ptr;
   globaldevicegeomdata::gMaxDepth = maxdepth;
 }
 

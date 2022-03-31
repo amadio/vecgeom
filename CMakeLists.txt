@@ -624,7 +624,6 @@ if(VECGEOM_ENABLE_CUDA)
   set(VECGEOM_CUDA_SRCS
     source/BVHManager.cu
     source/CudaManager.cu
-    source/CudaGlobalSymbols.cu
     source/backend/cuda/Interface.cpp
     )
 

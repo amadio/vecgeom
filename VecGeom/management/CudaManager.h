@@ -27,14 +27,9 @@ VECGEOM_DEVICE_FORWARD_DECLARE(void InitDeviceCompactPlacedVolBufferPtr(void *);
 // we put some global data into a separate namespace
 // this is done since CUDA does not support static const members in class definitions
 namespace globaldevicegeomdata {
-VECCORE_ATT_DEVICE
-VPlacedVolume *&GetCompactPlacedVolBuffer();
-
-VECCORE_ATT_DEVICE
-NavIndex_t *&GetNavIndex();
-
-VECCORE_ATT_DEVICE
-int GetMaxDepth();
+inline VECCORE_ATT_DEVICE VPlacedVolume *gCompactPlacedVolBuffer = nullptr;
+inline VECCORE_ATT_DEVICE NavIndex_t *gNavIndex = nullptr; // address of navigation index table
+inline VECCORE_ATT_DEVICE int gMaxDepth = 0;
 } // namespace globaldevicegeomdata
 
 #ifndef VECCORE_CUDA
