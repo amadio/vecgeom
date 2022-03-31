@@ -21,9 +21,6 @@ BVH *GetDeviceBVH(int id);
 } // namespace cuda
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
-
-static std::vector<BVH*> hBVH;
-
 void BVHManager::Init()
 {
   auto lvmap = GeoManager::Instance().GetLogicalVolumesMap();
@@ -48,25 +45,6 @@ void BVHManager::DeviceInit()
 }
 #endif
 
-VECCORE_ATT_HOST_DEVICE
-BVH const *BVHManager::GetBVH(int id)
-{
-#ifndef VECCORE_CUDA_DEVICE_COMPILATION
-  return hBVH[id];
-#else
-  return GetDeviceBVH(id);
-#endif
-}
-
-VECCORE_ATT_HOST_DEVICE
-BVH const *BVHManager::GetBVH(LogicalVolume const *v)
-{
-#ifndef VECCORE_CUDA_DEVICE_COMPILATION
-  return hBVH[v->id()];
-#else
-  return GetDeviceBVH(v->id());
-#endif
-}
 
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

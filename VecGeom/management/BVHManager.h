@@ -13,6 +13,16 @@
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+inline std::vector<BVH *> hBVH;
+} // namespace VECGEOM_IMPL_NAMESPACE
+
+#ifdef VECGEOM_ENABLE_CUDA
+namespace cuda {
+inline VECCORE_ATT_HOST_DEVICE BVH *dBVH;
+}
+#endif
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 /**
  * @brief The @c BVHManager class is a singleton class to manage the association between
@@ -41,10 +51,17 @@ public:
 #endif
 
   VECCORE_ATT_HOST_DEVICE
-  static BVH const *GetBVH(int id);
+  static BVH const *GetBVH(int id)
+  {
+#ifdef VECCORE_CUDA_DEVICE_COMPILATION
+    return &cuda::dBVH[id];
+#else
+    return hBVH[id];
+#endif
+  }
 
   VECCORE_ATT_HOST_DEVICE
-  static BVH const *GetBVH(LogicalVolume const *v);
+  static BVH const *GetBVH(LogicalVolume const *v) { return GetBVH(v->id()); }
 };
 
 } // namespace VECGEOM_IMPL_NAMESPACE

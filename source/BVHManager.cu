@@ -8,9 +8,6 @@ using vecgeom::cxx::CudaCheckError;
 
 namespace vecgeom {
 inline namespace cuda {
-
-static __device__ BVH *dBVH;
-
 void *AllocateDeviceBVHBuffer(size_t n)
 {
   BVH *ptr = nullptr;
@@ -29,12 +26,5 @@ void FreeDeviceBVHBuffer()
   if (ptr)
     CudaCheckError(cudaFree(ptr));
 }
-
-__device__
-BVH *GetDeviceBVH(int id)
-{
-  return &dBVH[id];
-}
-
 } // namespace cuda
 } // namespace vecgeom
