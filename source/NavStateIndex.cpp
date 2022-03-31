@@ -22,23 +22,28 @@ VECCORE_ATT_HOST_DEVICE
 void NavStateIndex::TopMatrixImpl(NavIndex_t nav_ind, Transformation3D &trans)
 {
   constexpr unsigned int kOffsetHasm = 2 * sizeof(NavIndex_t) + 1;
-  // trans.Clear();
-  if (nav_ind == 0) return;
-  unsigned char hasm = *((unsigned char *)(NavIndAddr(nav_ind)) + kOffsetHasm);
-  bool has_matrix    = (hasm & 0x04) > 0;
-  if (has_matrix) {
-    if ((hasm & 0x03) == 0) return;
-    bool has_trans           = (hasm & 0x02) > 0;
-    bool has_rot             = (hasm & 0x01) > 0;
-    auto nd                  = GetNdaughtersImpl(nav_ind);
-    const Precision *address = (Precision *)(NavIndAddr(nav_ind + 3 + nd + ((nd + 1) & 1)));
-    trans.Set(address, address + 3, has_trans, has_rot);
-    return;
-  } else {
-    // Call recursively for the mother
-    TopMatrixImpl(NavInd(nav_ind), trans);
-    trans.MultiplyFromRight(*TopImpl(nav_ind)->GetTransformation());
+
+  unsigned char hasm;
+  while (true) {
+    if (nav_ind == 0) return;
+    hasm            = *((unsigned char *)(NavIndAddr(nav_ind)) + kOffsetHasm);
+    bool has_matrix = (hasm & 0x04) > 0;
+    if (has_matrix) break;
+    auto t = *TopImpl(nav_ind)->GetTransformation();
+    t.MultiplyFromRight(trans);
+    trans   = t;
+    nav_ind = NavInd(nav_ind);
   }
+
+  if ((hasm & 0x03) == 0) return;
+  bool has_trans           = (hasm & 0x02) > 0;
+  bool has_rot             = (hasm & 0x01) > 0;
+  auto nd                  = GetNdaughtersImpl(nav_ind);
+  const Precision *address = (Precision *)(NavIndAddr(nav_ind + 3 + nd + ((nd + 1) & 1)));
+  Transformation3D t;
+  t.Set(address, address + 3, has_trans, has_rot);
+  t.MultiplyFromRight(trans);
+  trans = t;
 }
 
 // returning a "delta" transformation that can transform
