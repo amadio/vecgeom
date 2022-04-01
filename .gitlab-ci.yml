@@ -44,7 +44,7 @@ with_ROOT:
      - ls /cvmfs/alice.cern.ch/
      - mkdir build && cd build
        # need C++17 since ROOT was built with C++17
-     - cmake .. -DBUILTIN_VECCORE=ON -DVc_DIR=${VC_ROOT}/lib/cmake -DROOT=ON -DGDML=OFF -DBACKEND=Vc -DCMAKE_CXX_STANDARD=17
+     - cmake .. -DBUILTIN_VECCORE=ON -DVc_DIR=${VC_ROOT}/lib/cmake -DROOT=ON -DGDML=OFF -DBACKEND=Vc
        # for the moment exclude the E03 test since downloading E03 root geometry has problems on the CI machine
      - make -j8 VERBOSE=ON && ctest --output-on-failure -j8 -E E03
    before_script:
@@ -65,7 +65,7 @@ with_NAVINDEX:
      - ls /cvmfs/alice.cern.ch/
      - mkdir build && cd build
        # need C++17 since ROOT was built with C++17
-     - cmake .. -DBUILTIN_VECCORE=ON -DVc_DIR=${VC_ROOT}/lib/cmake -DUSE_NAVINDEX=ON -DROOT=ON -DGDML=OFF -DBACKEND=Vc -DCMAKE_CXX_STANDARD=17
+     - cmake .. -DBUILTIN_VECCORE=ON -DVc_DIR=${VC_ROOT}/lib/cmake -DUSE_NAVINDEX=ON -DROOT=ON -DGDML=OFF -DBACKEND=Vc
        # for the moment exclude the E03 test since downloading E03 root geometry has problems on the CI machine
      - make -j8 VERBOSE=ON && ctest --output-on-failure -j8 -E E03
    before_script:

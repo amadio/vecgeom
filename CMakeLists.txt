@@ -46,8 +46,11 @@ if(NOT GNU AND NOT Clang AND NOT AppleClang AND NOT Intel AND NOT IntelLLVM)
 endif()
 
 # - C++ standard and extensions
+if (CMAKE_CXX_STANDARD LESS 17)
+  message(FATAL_ERROR "VecGeom requires at least C++17")
+endif()
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ ISO Standard")
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ ISO Standard")
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Use ccache if available ( to avoid recompilation on branch switches )

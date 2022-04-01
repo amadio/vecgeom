@@ -102,8 +102,6 @@ if (DEFINED ENV{BACKEND})
   list(APPEND config_options -DBACKEND=$ENV{BACKEND})
 endif()
 
-list(APPEND config_options -DCMAKE_CXX_STANDARD=17)
-
 if("$ENV{OPTION}" STREQUAL "SPEC")
   list(APPEND config_options -DNO_SPECIALIZATION=OFF)
 elseif("$ENV{OPTION}" STREQUAL "GDML")

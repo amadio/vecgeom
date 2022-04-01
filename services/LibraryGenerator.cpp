@@ -57,7 +57,7 @@ void GenerateCMakeFile(std::ostream &ss)
   ss << "project(navigatorlib)\n";
 
   ss << "enable_language(CXX)\n";
-  ss << "set(CMAKE_CXX_STANDARD 11 CACHE STRING \"C++ ISO Standard\")\n";
+  ss << "set(CMAKE_CXX_STANDARD 17 CACHE STRING \"C++ ISO Standard\")\n";
   ss << "set(CMAKE_CXX_STANDARD_REQUIRED True)\n";
 
   ss << "if (NOT CMAKE_BUILD_TYPE)\n";
