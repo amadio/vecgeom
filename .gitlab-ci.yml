@@ -18,19 +18,19 @@ clang-format:
 
 # performing the static analysis code check using a custom docker image with the llvm installation we need
 code_checks:
-   image: vecgeom/cc7-dev
    stage: build
    script:
      - mkdir build && cd build
-     - cmake3 .. -DBUILTIN_VECCORE=ON -DROOT=OFF -DGDML=OFF -DSTATIC_ANALYSIS=ON -DLLVM_DIR=${LLVM_BASE}/lib/cmake/llvm -DClang_DIR=${LLVM_BASE}/lib/cmake/clang -DCMAKE_C_COMPILER=${LLVM_BASE}/bin/clang -DCMAKE_CXX_COMPILER=${LLVM_BASE}/bin/clang++ -DBACKEND=Scalar 
+     - CXX=clang++-14 cmake .. -DBUILTIN_VECCORE=ON -DROOT=OFF -DGDML=OFF -DSTATIC_ANALYSIS=ON -DBACKEND=Scalar
      - make VERBOSE=ON && make test
    before_script:
-     - yum -y install centos-release-scl
-     - yum -y install devtoolset-7 cmake3
-     - source /opt/rh/devtoolset-7/enable
-   variables:
-     LLVM_BASE: /opt/llvm3.9_shared/
-     
+     - apt update -y
+     - apt install -y software-properties-common wget
+     - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add
+     - apt-add-repository -y "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main"
+     - apt-get update -y
+     - apt-get upgrade -y
+     - apt install -y clang-14 libclang-14-dev clang-tidy-14 python cmake
      
 # normal build against a recent ROOT; using the ALICE software stack
 # because it comes fully consistent on cvmfs (including compiler etc)

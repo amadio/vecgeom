@@ -15,27 +15,14 @@ clangtidybinary=$2
 script=$3
 # the build dir (where to find the compilations database)
 builddir=$4
-# path to the top level of the source tree.
-sourcedir=$5
 
 # obtain the source files changed in this request
 # an error reported outside of files changed might be discarded
-fileschanged=`cd ${sourcedir}; git diff origin/master... --name-only`
-
-PRELOAD="LD_PRELOAD"
-# determine OS type
-case $OSTYPE in darwin*)
-  PRELOAD="DYLD_INSERT_LIBRARIES"
-esac
-
-# a hack to set the LD_LIBRARY_PATH to libclangTidy
-# (easier than to modify the jenkins setup)
-LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:`dirname ${clangtidybinary}`/../lib
+fileschanged=`git diff origin/master... --name-only`
 
 LOGFILE=static_analysis_log
 # this is the way to hook our static analysis to clang-tidy
-eval ${PRELOAD}=${plugin} ${script} -clang-tidy-binary ${clangtidybinary} \
-  -checks=-*,vecgeom* -p ${builddir} | tee ${LOGFILE}
+eval ${script} -clang-tidy-binary ${clangtidybinary} -load=$plugin -checks=-*,vecgeom* -p ${builddir} | tee ${LOGFILE}
 grep "error:" ${LOGFILE}
 if [ "$?" == "0" ]; then
   # this means that the word "error:" was found in the log
