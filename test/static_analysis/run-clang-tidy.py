@@ -82,7 +82,7 @@ def make_absolute(f, directory):
 def get_tidy_invocation(f, clang_tidy_binary, checks, tmpdir, build_path,
                         header_filter, allow_enabling_alpha_checkers,
                         extra_arg, extra_arg_before, quiet, config,
-                        line_filter):
+                        line_filter, load):
   """Gets a command line for clang-tidy."""
   start = [clang_tidy_binary, '--use-color']
   if allow_enabling_alpha_checkers:
@@ -93,6 +93,8 @@ def get_tidy_invocation(f, clang_tidy_binary, checks, tmpdir, build_path,
     start.append('-line-filter=' + line_filter)
   if checks:
     start.append('-checks=' + checks)
+  for plugin in load:
+    start.append('-load=' + plugin)
   if tmpdir is not None:
     start.append('-export-fixes')
     # Get a temporary file. We immediately close the handle so clang-tidy can
@@ -168,7 +170,7 @@ def run_tidy(args, tmpdir, build_path, queue, lock, failed_files):
                                      tmpdir, build_path, args.header_filter,
                                      args.allow_enabling_alpha_checkers,
                                      args.extra_arg, args.extra_arg_before,
-                                     args.quiet, args.config, args.line_filter)
+                                     args.quiet, args.config, args.line_filter, args.load)
 
     proc = subprocess.Popen(invocation, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = proc.communicate()
@@ -243,6 +245,9 @@ def main():
                       'command line.')
   parser.add_argument('-quiet', action='store_true',
                       help='Run clang-tidy in quiet mode')
+  parser.add_argument('-load',
+                      action='append', default=[],
+                      help='Make clang-tidy load the specified plugin')
   args = parser.parse_args()
 
   db_path = 'compile_commands.json'
@@ -260,6 +265,8 @@ def main():
     invocation.append('-p=' + build_path)
     if args.checks:
       invocation.append('-checks=' + args.checks)
+    for plugin in args.load:
+      invocation.append('-load=' + plugin)
     invocation.append('-')
     if args.quiet:
       # Even with -quiet we still want to check if we can call clang-tidy.
