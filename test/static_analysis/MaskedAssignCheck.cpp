@@ -47,49 +47,51 @@ void MaskedAssignCheck::check(const MatchFinder::MatchResult &Result) {
   if (Callee) {
     auto str = MatchedCall->getDirectCallee()->getNameAsString();
     if (std::regex_match(str, Regex)) {
-      Expr const *expr = MatchedCall->getArg(2)->IgnoreCasts()->IgnoreParens();
+      Expr const *expr = MatchedCall->getArg(2)
+        ->IgnoreConversionOperatorSingleStep()
+        ->IgnoreParenLValueCasts()
+        ->IgnoreParenImpCasts()
+        ->IgnoreParenCasts();
 
       // third argument is simple variable reference; ok
-      if (dyn_cast<DeclRefExpr>(expr)) {
+      if (dyn_cast<DeclRefExpr>(expr))
         return;
-      }
+
+      // third argument is simple variable passed by value; ok
+      if (dyn_cast<StmtExpr>(expr))
+        return;
 
       // third argument is simple integer literal; ok
-      if (dyn_cast<IntegerLiteral>(expr)) {
+      if (dyn_cast<IntegerLiteral>(expr))
         return;
-      }
 
       // third argument is simple floating point literal; ok
-      if (dyn_cast<FloatingLiteral>(expr)) {
+      if (dyn_cast<FloatingLiteral>(expr))
         return;
-      }
 
       // third argument is a boolean literal; ok
-      if (dyn_cast<CXXBoolLiteralExpr>(expr)) {
+      if (dyn_cast<CXXBoolLiteralExpr>(expr))
         return;
-      }
 
       // third argument is simple operator call expr (usually inlined); ok
-      if (dyn_cast<CXXOperatorCallExpr>(expr)) {
+      if (dyn_cast<CXXOperatorCallExpr>(expr))
         return;
-      }
 
       // third argument is simple CXX constructor expression (usually inlined); ok
-      if (dyn_cast<CXXConstructExpr>(expr)) {
+      if (dyn_cast<CXXConstructExpr>(expr))
         return;
-      }
+
+      // third argument doesn't have non-trivial function call
+      if (!expr->hasNonTrivialCall(*Result.Context))
+        return;
 
       // check if this is due a macro expansion
       // FIXME: make sure this comes from vecCore__MaskedAssignFunc
-      if (Result.SourceManager->isMacroBodyExpansion(MatchedCall->getExprLoc())) {
+      if (Result.SourceManager->isMacroBodyExpansion(MatchedCall->getExprLoc()))
         return;
-      }
 
-      // FIXME: list is probably not complete
-      diag(MatchedCall->getExprLoc(), "found wrong (inefficient) use of MaskedAssign function "
-                                      "call -- please use "
-                                      "vecCore__MaskedAssignFunc",
-           DiagnosticIDs::Error);
+      diag(expr->getExprLoc(), "please use vecCore__MaskedAssignFunc"
+          " when third argument is non-trivial", DiagnosticIDs::Error);
     }
   }
 }
