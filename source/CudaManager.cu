@@ -48,6 +48,7 @@ __global__ void InitDeviceCompactPlacedVolBufferPtrCudaKernel(void *gpu_ptr)
 void InitDeviceCompactPlacedVolBufferPtr(void *gpu_ptr)
 {
   InitDeviceCompactPlacedVolBufferPtrCudaKernel<<<1, 1>>>(gpu_ptr);
+  vecgeom::cxx::CudaAssertError();
 }
 
 __global__ void InitDeviceNavIndexPtrCudaKernel(void *gpu_ptr, int maxdepth)

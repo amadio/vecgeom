@@ -363,11 +363,13 @@ bool CudaManager::AllocatePlacedVolumesOnCoproc()
 
   GpuAddress gpu_address;
   gpu_address.Allocate(totalSize);
+  CudaAssertError();
 
   // store this address for later access (on the host)
   fPlacedVolumeBufferOnDevice = DevicePtr<vecgeom::cuda::VPlacedVolume>(gpu_address);
   // this address has to be made known globally to the device side
   vecgeom::cuda::InitDeviceCompactPlacedVolBufferPtr(gpu_address.GetPtr());
+  CudaAssertError();
 
   allocated_memory_.push_back(gpu_address);
 
@@ -409,16 +411,20 @@ void CudaManager::AllocateGeometry()
   }
 
   AllocateCollectionOnCoproc("unplaced volumes", unplaced_volumes_);
+  CudaAssertError();
 
   // the allocation for placed volumes is a bit different (due to compact buffer treatment), so we call a specialized
   // function
   AllocatePlacedVolumesOnCoproc(); // for placed volumes
+  CudaAssertError();
 
   // allocate the navigation index table (if any) on the coprocessor
   AllocateNavIndexOnCoproc();
+  CudaAssertError();
 
   // this we should only do if not using inplace transformations
   AllocateCollectionOnCoproc("transformations", transformations_);
+  CudaAssertError();
 
   {
     if (verbose_ > 2) std::cout << "Allocating daughter lists...";
@@ -442,6 +448,8 @@ void CudaManager::AllocateGeometry()
 
     if (verbose_ > 2) std::cout << " OK\n";
   }
+
+  CudaAssertError();
 
   if (verbose_ > 2) {
     std::cout << " geometry OK: #elems in alloc_mem=" << allocated_memory_.size() << ", mem_map=" << memory_map_.size()
