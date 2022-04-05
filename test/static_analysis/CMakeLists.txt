@@ -18,11 +18,12 @@ include(AddClang)
 find_program(CLANG_TIDY "clang-tidy" HINTS ${LLVM_CMAKE_DIR}/../../../bin)
 
 # add a unit test which will check clang-tidy conformance
-add_test(static_code_test ${CMAKE_CURRENT_SOURCE_DIR}/RunChecks.sh
-    ${PROJECT_BINARY_DIR}/test/static_analysis/libclangTidyVecGeomModule.so
-    ${CLANG_TIDY}
+add_test(static_code_test
     ${CMAKE_CURRENT_SOURCE_DIR}/run-clang-tidy.py
-    ${PROJECT_BINARY_DIR}
+    -clang-tidy-binary ${CLANG_TIDY}
+    -load=${PROJECT_BINARY_DIR}/test/static_analysis/libclangTidyVecGeomModule.so
+    -checks=-*,vecgeom*
+    -p ${PROJECT_BINARY_DIR}
     )
 
 #
