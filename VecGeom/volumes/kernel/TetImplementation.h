@@ -138,9 +138,9 @@ struct TetImplementation {
     }
 
     for (int i = 0; i < 4; ++i) {
-      vecCore::MaskedAssign(distance, (cosa[i] < Real_v(0.)), vecCore::math::Max(distance, dist[i]));
-      vecCore::MaskedAssign(distanceOut, (cosa[i] > Real_v(0.)), vecCore::math::Min(distanceOut, dist[i]));
-      vecCore::MaskedAssign(absSafe, (cosa[i] > Real_v(0.)), vecCore::math::Min(absSafe, vecCore::math::Abs(safe[i])));
+      vecCore__MaskedAssignFunc(distance, (cosa[i] < Real_v(0.)), vecCore::math::Max(distance, dist[i]));
+      vecCore__MaskedAssignFunc(distanceOut, (cosa[i] > Real_v(0.)), vecCore::math::Min(distanceOut, dist[i]));
+      vecCore__MaskedAssignFunc(absSafe, (cosa[i] > Real_v(0.)), vecCore::math::Min(absSafe, vecCore::math::Abs(safe[i])));
     }
 
     vecCore::MaskedAssign(distance,
