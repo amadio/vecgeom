@@ -30,19 +30,34 @@ cudaError_t CudaCheckError(const cudaError_t err)
   return err;
 }
 
+/**
+ * Retrieve the last cuda error and print it in case of problems.
+ * This clears the error state of the cuda API.
+ * @return The cuda error state.
+ */
 cudaError_t CudaCheckError()
 {
   return CudaCheckError(cudaGetLastError());
 }
 
+/**
+ * Assert that `err == cudaSuccess` in debug builds.
+ * Print the error and terminate the program if it's not.
+ * The function is a no-op in release builds.
+ * @return The cuda error state.
+ */
 void CudaAssertError(const cudaError_t err)
 {
   assert(CudaCheckError(err) == cudaSuccess);
 }
 
+/**
+ * In debug builds, retrieve the last cuda error and assert that it is cudaSuccess.
+ * The error will not be cleared in release builds. Use CudaCheckError() for this.
+ */
 void CudaAssertError()
 {
-  CudaAssertError(cudaGetLastError());
+  assert(CudaCheckError(cudaGetLastError()) == cudaSuccess);
 }
 
 cudaError_t CudaMalloc(void **ptr, unsigned size)
