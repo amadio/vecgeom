@@ -95,7 +95,6 @@ set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX}
 # Options depending on compiler/label/etc.
 if("$ENV{LABEL}" MATCHES cuda)
   list(APPEND config_options -DVECGEOM_ENABLE_CUDA=ON)
-  list(APPEND config_options -DCMAKE_CUDA_STANDARD=14)
 endif()
 
 if (DEFINED ENV{BACKEND})
