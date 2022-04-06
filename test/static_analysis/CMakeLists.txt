@@ -33,20 +33,8 @@ set(LLVM_LINK_COMPONENTS support)
 
 add_clang_library(clangTidyVecGeomModule
   SHARED
-
   MaskedAssignCheck.cpp
   VecGeomTidyModule.cpp
-
-  LINK_LIBS
-  clangTidy
-  clangTidyUtils
   )
 target_include_directories(clangTidyVecGeomModule PRIVATE ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS})
-clang_target_link_libraries(clangTidyVecGeomModule
-  PRIVATE
-  clangAST
-  clangASTMatchers
-  clangBasic
-  clangLex
-  )
 target_compile_features(clangTidyVecGeomModule PUBLIC cxx_std_14)
