@@ -102,6 +102,9 @@ def init() {
 
 def buildAndTest() {
   sh label: 'build_and_test', script: """
+    if [[ ${LABEL} =~ cuda ]]; then
+        source /cvmfs/sft.cern.ch/lcg/contrib/cuda/11.4/x86_64-centos7/setup.sh
+    fi
     source /cvmfs/sft.cern.ch/lcg/views/${EXTERNALS}/x86_64-centos7-${COMPILER}-opt/setup.sh
     env | sort | sed 's/:/:?     /g' | tr '?' '\n'
     ctest -VV -S vecgeom/jenkins/vecgeom-ctest.cmake,$MODE
