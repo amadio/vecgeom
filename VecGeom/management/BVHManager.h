@@ -18,7 +18,7 @@ inline std::vector<BVH *> hBVH;
 
 #ifdef VECGEOM_ENABLE_CUDA
 namespace cuda {
-inline VECCORE_ATT_HOST_DEVICE BVH *dBVH;
+inline __device__ BVH *dBVH;
 }
 #endif
 
