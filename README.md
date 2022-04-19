@@ -68,6 +68,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |VALIDATION|OFF|Enable validation tests from CMS geometry|
 |VECGEOM_CUDA_VOLUME_SPECIALIZATION|OFF|Use specialized volumes for CUDA|
 |VECGEOM_ENABLE_CUDA|OFF|Enable compilation for CUDA|
+|VECGEOM_ENABLE_CUDA_DLTO|OFF|Enable device link-time optimizations|
 |VECGEOM_VECTOR|sse2|Vector instruction set to be used|
 
 ## Documentation
