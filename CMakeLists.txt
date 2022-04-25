@@ -179,8 +179,8 @@ option(VECGEOM_GDMLDEBUG "Enable additional debug information in GDML module" OF
 
 option(VECGEOM_EMBREE "Enable Intel Embree" OFF)
 
-option(USE_CACHED_TRANSFORMATIONS "Use cached transformations in navigation states" OFF)
-if(USE_CACHED_TRANSFORMATIONS)
+option(VECGEOM_USE_CACHED_TRANSFORMATIONS "Use cached transformations in navigation states" OFF)
+if(VECGEOM_USE_CACHED_TRANSFORMATIONS)
   set(VECGEOM_CACHED_TRANS ON)
 endif()
 
