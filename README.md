@@ -57,7 +57,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |GDMLDEBUG|OFF|Enable additional debug information in GDML module|
 |GEANT4|OFF|Build with support for Geant4 (https://geant4.web.cern.ch)|
 |INPLACE_TRANSFORMATIONS|ON|Put transformation as members rather than pointers into PlacedVolume objects|
-|NO_SPECIALIZATION|ON|Disable specialization of volumes|
+|VECGEOM_NO_SPECIALIZATION|ON|Disable specialization of volumes|
 |PLANESHELL|ON|Enable the use of PlaneShell class for the trapezoid|
 |QUADRILATERAL_ACCELERATION|ON|Enable SIMD vectorization when looping over quadrilaterals|
 |ROOT|OFF|Build with support for ROOT (https://root.cern)|

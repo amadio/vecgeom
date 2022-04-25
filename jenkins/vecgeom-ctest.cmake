@@ -102,7 +102,7 @@ if (DEFINED ENV{BACKEND})
 endif()
 
 if("$ENV{OPTION}" STREQUAL "SPEC")
-  list(APPEND config_options -DNO_SPECIALIZATION=OFF)
+  list(APPEND config_options -DVECGEOM_NO_SPECIALIZATION=OFF)
 elseif("$ENV{OPTION}" STREQUAL "GDML")
   list(APPEND config_options -DGDML=ON)
 elseif("$ENV{OPTION}" STREQUAL "AVX")

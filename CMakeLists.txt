@@ -150,10 +150,7 @@ if(VECGEOM_ENABLE_CUDA)
   set(VecCore_COMPONENTS ${VecCore_COMPONENTS} "CUDA")
 endif()
 
-option(NO_SPECIALIZATION "Disable specialization of volumes." ON)
-if(NO_SPECIALIZATION)
-  set(VECGEOM_NO_SPECIALIZATION ON)
-endif()
+option(VECGEOM_NO_SPECIALIZATION "Disable specialization of volumes." ON)
 
 option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
 if(NOT PLANESHELL)
