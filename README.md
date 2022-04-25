@@ -64,7 +64,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |VECGEOM_SINGLE_PRECISION|OFF|Use single precision throughout the package|
 |BUILD_TESTING|ON|Enable build of tests and integration with CTest|
 |BENCHMARK|OFF|Enable performance comparisons|
-|COVERAGE_TESTING|OFF|Enable coverage testing flags|
+|VECGEOM_TEST_COVERAGE|OFF|Enable coverage testing flags|
 |DATA_DOWNLOAD|OFF|Enable downloading of data for tests|
 |GEANT4|OFF|Build with support for Geant4 (https://geant4.web.cern.ch)|
 |ROOT|OFF|Build with support for ROOT (https://root.cern)|

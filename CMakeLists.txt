@@ -190,7 +190,7 @@ option(VECGEOM_FAST_MATH "Enable the -ffast-math compiler option in Release buil
 include(CTest)
 
 # TODO: not completely set up. Will build VG+tests with correct flags/links, but no report gen.
-cmake_dependent_option(COVERAGE_TESTING "Enable coverage testing flags" OFF "BUILD_TESTING" OFF)
+cmake_dependent_option(VECGEOM_TEST_COVERAGE "Enable coverage testing flags" OFF "BUILD_TESTING" OFF)
 
 # TODO: Check use of this option, not totally clear on use
 cmake_dependent_option(VALIDATION "Enable validation tests from CMS geometry" OFF "BUILD_TESTING" OFF)
@@ -317,7 +317,7 @@ elseif(Clang OR AppleClang)
 endif()
 
 # - Additional flags for coverage testing support
-if(COVERAGE_TESTING)
+if(VECGEOM_TEST_COVERAGE)
   if(GNU)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
     set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} gcov)
