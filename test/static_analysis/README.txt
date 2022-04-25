@@ -3,4 +3,4 @@ specific to VecGeom ... implemented as a clang-tidy
 module
 
 USAGE:
-  cmake -DSTATIC_ANALYSIS=ON -DLLVM_DIR=PATH_TO_LLVM/lib/cmake/llvm -DClang_DIR=PATH_TO_LLVM/lib/cmake/clang
+  cmake -DVECGEOM_TEST_STATIC_ANALYSIS=ON -DLLVM_DIR=PATH_TO_LLVM/lib/cmake/llvm -DClang_DIR=PATH_TO_LLVM/lib/cmake/clang

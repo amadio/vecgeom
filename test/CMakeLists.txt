@@ -61,7 +61,7 @@ endif()
 
 ################################################################################
 # - Static Analysis tests
-if(STATIC_ANALYSIS)
+if(VECGEOM_TEST_STATIC_ANALYSIS)
   add_subdirectory(static_analysis)
 endif()
 

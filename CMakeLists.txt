@@ -196,8 +196,8 @@ cmake_dependent_option(VECGEOM_TEST_COVERAGE "Enable coverage testing flags" OFF
 cmake_dependent_option(VECGEOM_TEST_VALIDATION "Enable validation tests from CMS geometry" OFF "BUILD_TESTING" OFF)
 
 # Static tests build/use clang-tidy, so require compile commands for VecGeom to be exported
-cmake_dependent_option(STATIC_ANALYSIS "Enable static analysis/testing on VecGeom" OFF "BUILD_TESTING" OFF)
-if(STATIC_ANALYSIS)
+cmake_dependent_option(VECGEOM_TEST_STATIC_ANALYSIS "Enable static analysis/testing on VecGeom" OFF "BUILD_TESTING" OFF)
+if(VECGEOM_TEST_STATIC_ANALYSIS)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
