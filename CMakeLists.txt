@@ -102,25 +102,25 @@ enum_option(VECGEOM_VECTOR DOC "Vector instruction set to be used"
 
 # - ISA Backend
 set(VECGEOM_BACKENDS scalar vc)
-enum_option(BACKEND DOC "Vector backend API to be used"
+enum_option(VECGEOM_BACKEND DOC "Vector backend API to be used"
   TYPE STRING
   VALUES ${VECGEOM_BACKENDS}
   CASE_INSENSITIVE)
 
 # Case adjustment because pass to VecCore components is
-if(BACKEND STREQUAL "scalar")
-  set(BACKEND "Scalar")
-elseif(BACKEND STREQUAL "vc")
-  set(BACKEND "Vc")
+if(VECGEOM_BACKEND STREQUAL "scalar")
+  set(VECGEOM_BACKEND "Scalar")
+elseif(VECGEOM_BACKEND STREQUAL "vc")
+  set(VECGEOM_BACKEND "Vc")
 endif()
 
 # Configure backend for export to VecGeom's Config.h and setting up VecCore
-string(TOUPPER "${BACKEND}" _BACKEND_UP)
+string(TOUPPER "${VECGEOM_BACKEND}" _BACKEND_UP)
 set(VECGEOM_${_BACKEND_UP} True)
-message(STATUS "Configuring with ${BACKEND} vector backend")
+message(STATUS "Configuring with ${VECGEOM_BACKEND} backend")
 
-if("${BACKEND}" MATCHES "Vc")
-  set(VecCore_COMPONENTS ${VecCore_COMPONENTS} ${BACKEND})
+if("${VECGEOM_BACKEND}" STREQUAL "Vc")
+  set(VecCore_COMPONENTS ${VecCore_COMPONENTS} ${VECGEOM_BACKEND})
 endif()
 
 # - Core

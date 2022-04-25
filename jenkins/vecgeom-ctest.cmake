@@ -98,7 +98,7 @@ if("$ENV{LABEL}" MATCHES cuda)
 endif()
 
 if (DEFINED ENV{BACKEND})
-  list(APPEND config_options -DBACKEND=$ENV{BACKEND})
+  list(APPEND config_options -DVECGEOM_BACKEND=$ENV{BACKEND})
 endif()
 
 if("$ENV{OPTION}" STREQUAL "SPEC")

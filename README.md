@@ -43,7 +43,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 
 |Option|Default|Description|
 |------|:-----:|-----------|
-|BACKEND|scalar|Vector backend API to be used|
+|VECGEOM_BACKEND|scalar|Vector backend API to be used|
 |BENCHMARK|OFF|Enable performance comparisons|
 |BUILD_TESTING|ON|Enable build of tests and integration with CTest|
 |BUILTIN_VECCORE|OFF|Build VecCore and its dependencies from source|
