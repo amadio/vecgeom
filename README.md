@@ -69,7 +69,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |GEANT4|OFF|Build with support for Geant4 (https://geant4.web.cern.ch)|
 |ROOT|OFF|Build with support for ROOT (https://root.cern)|
 |STATIC_ANALYSIS|OFF|Enable static analysis on VecGeom|
-|VALIDATION|OFF|Enable validation tests from CMS geometry|
+|VECGEOM_TEST_VALIDATION|OFF|Enable validation tests from CMS geometry|
 
 
 ## Documentation

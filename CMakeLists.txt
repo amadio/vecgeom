@@ -193,7 +193,7 @@ include(CTest)
 cmake_dependent_option(VECGEOM_TEST_COVERAGE "Enable coverage testing flags" OFF "BUILD_TESTING" OFF)
 
 # TODO: Check use of this option, not totally clear on use
-cmake_dependent_option(VALIDATION "Enable validation tests from CMS geometry" OFF "BUILD_TESTING" OFF)
+cmake_dependent_option(VECGEOM_TEST_VALIDATION "Enable validation tests from CMS geometry" OFF "BUILD_TESTING" OFF)
 
 # Static tests build/use clang-tidy, so require compile commands for VecGeom to be exported
 cmake_dependent_option(STATIC_ANALYSIS "Enable static analysis/testing on VecGeom" OFF "BUILD_TESTING" OFF)

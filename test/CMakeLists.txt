@@ -313,7 +313,7 @@ if(VECGEOM_BENCHMARK)
 endif()
 
 
-if(VALIDATION AND VECGEOM_ROOT)
+if(VECGEOM_TEST_VALIDATION AND VECGEOM_ROOT)
   macro(add_cmsshapevalidation_test TESTNAME SHAPEFILE)
     add_test(NAME ${TESTNAME} COMMAND bash -c "${PROJECT_SOURCE_DIR}/test/scripts/RunRandomValidation ${PROJECT_BINARY_DIR}/BenchmarkShapeFromROOTFile  ${CMAKE_CURRENT_BINARY_DIR}/cms2015.root  ${PROJECT_SOURCE_DIR}/test/cmstestdata/${SHAPEFILE}" )
   endmacro()
