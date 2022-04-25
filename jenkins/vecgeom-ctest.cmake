@@ -86,8 +86,8 @@ set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX}
                    -DBUILDTYPE=${CTEST_BUILD_CONFIGURATION}
                    -DBUILD_TESTING=ON
                    -DVECGEOM_BUILTIN_VECCORE=OFF
-                   -DBENCHMARK=ON
-                   -DROOT=ON
+                   -DVECGEOM_TEST_BENCHMARK=ON
+                   -DVECGEOM_ROOT=ON
                    -DVECGEOM_CUDA_VOLUME_SPECIALIZATION=OFF
                    $ENV{ExtraCMakeOptions})
 

@@ -189,6 +189,11 @@ option(VECGEOM_FAST_MATH "Enable the -ffast-math compiler option in Release buil
 # - Testing, unit, coverage, benchmarking, validation etc
 include(CTest)
 
+# ROOT/Geant4 options are strictly testing only, but the APIs they expose are in use in the wild.
+# We therefore retain names pending proper deprecation of the interfaces.
+cmake_dependent_option(VECGEOM_ROOT "Enable testing using ROOT" OFF "BUILD_TESTING" OFF)
+cmake_dependent_option(VECGEOM_GEANT4 "Enable testing using Geant4" OFF "BUILD_TESTING" OFF)
+
 # TODO: not completely set up. Will build VG+tests with correct flags/links, but no report gen.
 cmake_dependent_option(VECGEOM_TEST_COVERAGE "Enable coverage testing flags" OFF "BUILD_TESTING" OFF)
 
@@ -207,19 +212,8 @@ if(VECGEOM_TEST_VTUNE)
   set(VECGEOM_VTUNE ON)
 endif()
 
-# These are also testing only
-cmake_dependent_option(ROOT "Enable testing using ROOT" OFF "BUILD_TESTING" OFF)
-if(ROOT)
-  set(VECGEOM_ROOT ON)
-endif()
-
-cmake_dependent_option(GEANT4 "Enable testing using Geant4" OFF "BUILD_TESTING" OFF)
-if(GEANT4)
-  set(VECGEOM_GEANT4 ON)
-endif()
-
-cmake_dependent_option(BENCHMARK "Enable benchmark/performance tests" OFF "BUILD_TESTING" OFF)
-if(BENCHMARK)
+cmake_dependent_option(VECGEOM_TEST_BENCHMARK "Enable benchmark/performance tests" OFF "BUILD_TESTING" OFF)
+if(VECGEOM_TEST_BENCHMARK)
   set(VECGEOM_BENCHMARK ON)
 endif()
 
