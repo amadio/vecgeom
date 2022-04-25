@@ -46,7 +46,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |VECGEOM_BACKEND|scalar|Vector backend API to be used|
 |BENCHMARK|OFF|Enable performance comparisons|
 |BUILD_TESTING|ON|Enable build of tests and integration with CTest|
-|BUILTIN_VECCORE|OFF|Build VecCore and its dependencies from source|
+|VECGEOM_BUILTIN_VECCORE|OFF|Build VecCore and its dependencies from source|
 |COVERAGE_TESTING|OFF|Enable coverage testing flags|
 |CMAKE_CUDA_ARCHITECTURES|CUDA Compiler's Default (CMake >= 3.18) or Host GPU (CMake < 3.18)|Default CUDA device architecture|
 |DATA_DOWNLOAD|OFF|Enable downloading of data for tests|

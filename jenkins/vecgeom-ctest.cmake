@@ -85,7 +85,7 @@ set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX}
                    -DBUILDTYPE=${CTEST_BUILD_CONFIGURATION}
                    -DBUILD_TESTING=ON
-                   -DBUILTIN_VECCORE=OFF
+                   -DVECGEOM_BUILTIN_VECCORE=OFF
                    -DBENCHMARK=ON
                    -DROOT=ON
                    -DVECGEOM_CUDA_VOLUME_SPECIALIZATION=OFF

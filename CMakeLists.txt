@@ -124,16 +124,16 @@ if("${VECGEOM_BACKEND}" STREQUAL "Vc")
 endif()
 
 # - Core
-option(BUILTIN_VECCORE "Build VecCore and its dependencies from source" OFF)
+option(VECGEOM_BUILTIN_VECCORE "Build VecCore and its dependencies from source" OFF)
 # Check/Store an internal variable to check if we switch between builtin/external
 # - If we switch from builtin -> external, then we must reset VecCore_DIR later.
 # State might have changed...
-if(NOT (__BUILTIN_VECCORE_LAST STREQUAL BUILTIN_VECCORE))
-  if(NOT BUILTIN_VECCORE)
+if(NOT (__BUILTIN_VECCORE_LAST STREQUAL VECGEOM_BUILTIN_VECCORE))
+  if(NOT VECGEOM_BUILTIN_VECCORE)
     set(__BUILTIN_VECCORE_DISABLED ON)
   endif()
 endif()
-set(__BUILTIN_VECCORE_LAST ${BUILTIN_VECCORE} CACHE INTERNAL "Builtin VecCore marker")
+set(__BUILTIN_VECCORE_LAST ${VECGEOM_BUILTIN_VECCORE} CACHE INTERNAL "Builtin VecCore marker")
 
 # - Precision
 option(SINGLE_PRECISION "Use single precision throughout the package" OFF)
@@ -251,7 +251,7 @@ endif()
 set(VecCore_VERSION "0.8.0")
 
 # Enable/Disable build/use of builtin veccore
-if(BUILTIN_VECCORE)
+if(VECGEOM_BUILTIN_VECCORE)
   include(BuiltinVecCore)
 elseif(__BUILTIN_VECCORE_DISABLED)
   # Unset VecCore_DIR if it points inside our build directory
@@ -839,7 +839,7 @@ write_basic_package_version_file(VecGeomConfigVersion.cmake COMPATIBILITY AnyNew
 set(CONF_INCLUDE_DIR "${PROJECT_SOURCE_DIR}")
 set(PATH_VARS_ARG PATH_VARS CONF_INCLUDE_DIR)
 
-if(BUILTIN_VECCORE)
+if(VECGEOM_BUILTIN_VECCORE)
   set(VECCORE_PREFIX "${VecCore_ROOTDIR}")
   list(APPEND PATH_VARS_ARG VECCORE_PREFIX)
 endif()
@@ -855,7 +855,7 @@ export(EXPORT VecGeomTargets NAMESPACE VecGeom::)
 set(CONF_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}")
 set(PATH_VARS_ARG PATH_VARS CONF_INCLUDE_DIR)
 
-if(BUILTIN_VECCORE)
+if(VECGEOM_BUILTIN_VECCORE)
   set(VECCORE_PREFIX "${CMAKE_INSTALL_PREFIX}")
   list(APPEND PATH_VARS_ARG VECCORE_PREFIX)
 endif()

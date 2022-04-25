@@ -84,7 +84,7 @@ endif()
 include(CMakeFindDependencyMacro)
 
 # Always VecCore
-set(VecGeom_BUILTIN_VECCORE @BUILTIN_VECCORE@)
+set(VecGeom_BUILTIN_VECCORE @VECGEOM_BUILTIN_VECCORE@)
 if(VecGeom_BUILTIN_VECCORE)
   # Must find our builtin where we expect
   find_dependency(VecCore @VecCore_VERSION@ NO_DEFAULT_PATH PATHS "@PACKAGE_VECCORE_PREFIX@" COMPONENTS @VecCore_COMPONENTS@ )
