@@ -166,10 +166,7 @@ option(VECGEOM_DISTANCE_DEBUG "Enable comparison of calculated distances againt 
 
 option(VECGEOM_INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
 
-option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" ON)
-if(USE_INDEXEDNAVSTATES)
-  set(VECGEOM_USE_INDEXEDNAVSTATES ON)
-endif()
+option(VECGEOM_USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" ON)
 
 option(USE_NAVINDEX "Use navigation index table and states" OFF)
 if(NOT USE_NAVINDEX AND VECGEOM_ENABLE_CUDA)

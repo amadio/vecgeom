@@ -63,7 +63,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |ROOT|OFF|Build with support for ROOT (https://root.cern)|
 |STATIC_ANALYSIS|OFF|Enable static analysis on VecGeom|
 |USE_CACHED_TRANSFORMATIONS|OFF|Use cached transformations in navigation states|
-|USE_INDEXEDNAVSTATES|ON|Use indices rather than volume pointers in NavigationState objects|
+|VECGEOM_USE_INDEXEDNAVSTATES|ON|Use indices rather than volume pointers in NavigationState objects|
 |USE_NAVINDEX|OFF|Use navigation index table and states|
 |VALIDATION|OFF|Enable validation tests from CMS geometry|
 |VECGEOM_CUDA_VOLUME_SPECIALIZATION|OFF|Use specialized volumes for CUDA|

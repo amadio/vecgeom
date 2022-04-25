@@ -101,7 +101,7 @@ set(TEST_EXECUTABLES_CORE
   core/CreateExtruded.cpp
   core/TestGeoManager.cpp)
 
-if(USE_INDEXEDNAVSTATES)
+if(VECGEOM_USE_INDEXEDNAVSTATES)
   list(APPEND TEST_EXECUTABLES_CORE core/TestNavigationState.cpp)
 endif()
 
