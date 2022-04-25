@@ -152,8 +152,8 @@ endif()
 
 option(VECGEOM_NO_SPECIALIZATION "Disable specialization of volumes." ON)
 
-option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
-if(NOT PLANESHELL)
+option(VECGEOM_PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
+if(NOT VECGEOM_PLANESHELL)
   set(VECGEOM_PLANESHELL_DISABLE TRUE)
 endif()
 
