@@ -44,32 +44,33 @@ The table below shows the available CMake options for VecGeom that may be used t
 |Option|Default|Description|
 |------|:-----:|-----------|
 |VECGEOM_BACKEND|scalar|Vector backend API to be used|
-|BENCHMARK|OFF|Enable performance comparisons|
-|BUILD_TESTING|ON|Enable build of tests and integration with CTest|
 |VECGEOM_BUILTIN_VECCORE|OFF|Build VecCore and its dependencies from source|
-|COVERAGE_TESTING|OFF|Enable coverage testing flags|
 |CMAKE_CUDA_ARCHITECTURES|CUDA Compiler's Default (CMake >= 3.18) or Host GPU (CMake < 3.18)|Default CUDA device architecture|
-|DATA_DOWNLOAD|OFF|Enable downloading of data for tests|
 |VECGEOM_DISTANCE_DEBUG|OFF|Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes|
 |VECGEOM_EMBREE|OFF|Enable Intel Embree|
 |VECGEOM_FAST_MATH|OFF|Enable the -ffast-math compiler option in Release builds|
 |VECGEOM_GDML|OFF|Enable GDML persistency. Requres Xerces-C|
 |VECGEOM_GDMLDEBUG|OFF|Enable additional debug information in GDML module|
-|GEANT4|OFF|Build with support for Geant4 (https://geant4.web.cern.ch)|
 |VECGEOM_INPLACE_TRANSFORMATIONS|ON|Put transformation as members rather than pointers into PlacedVolume objects|
 |VECGEOM_NO_SPECIALIZATION|ON|Disable specialization of volumes|
 |VECGEOM_PLANESHELL|ON|Enable the use of PlaneShell class for the trapezoid|
 |VECGEOM_QUADRILATERAL_ACCELERATION|ON|Enable SIMD vectorization when looping over quadrilaterals|
-|ROOT|OFF|Build with support for ROOT (https://root.cern)|
-|STATIC_ANALYSIS|OFF|Enable static analysis on VecGeom|
 |VECGEOM_USE_CACHED_TRANSFORMATIONS|OFF|Use cached transformations in navigation states|
 |VECGEOM_USE_INDEXEDNAVSTATES|ON|Use indices rather than volume pointers in NavigationState objects|
 |VECGEOM_USE_NAVINDEX|OFF|Use navigation index table and states|
-|VALIDATION|OFF|Enable validation tests from CMS geometry|
-|VECGEOM_CUDA_VOLUME_SPECIALIZATION|OFF|Use specialized volumes for CUDA|
 |VECGEOM_ENABLE_CUDA|OFF|Enable compilation for CUDA|
+|VECGEOM_CUDA_VOLUME_SPECIALIZATION|OFF|Use specialized volumes for CUDA|
 |VECGEOM_VECTOR|sse2|Vector instruction set to be used|
 |VECGEOM_SINGLE_PRECISION|OFF|Use single precision throughout the package|
+|BUILD_TESTING|ON|Enable build of tests and integration with CTest|
+|BENCHMARK|OFF|Enable performance comparisons|
+|COVERAGE_TESTING|OFF|Enable coverage testing flags|
+|DATA_DOWNLOAD|OFF|Enable downloading of data for tests|
+|GEANT4|OFF|Build with support for Geant4 (https://geant4.web.cern.ch)|
+|ROOT|OFF|Build with support for ROOT (https://root.cern)|
+|STATIC_ANALYSIS|OFF|Enable static analysis on VecGeom|
+|VALIDATION|OFF|Enable validation tests from CMS geometry|
+
 
 ## Documentation
 - User's guide - tbd
