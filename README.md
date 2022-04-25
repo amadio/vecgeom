@@ -53,8 +53,8 @@ The table below shows the available CMake options for VecGeom that may be used t
 |VECGEOM_DISTANCE_DEBUG|OFF|Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes|
 |EMBREE|OFF|Enable Intel Embree|
 |FAST_MATH|OFF|Enable the -ffast-math compiler option in Release builds|
-|GDML|OFF|Enable GDML persistency. Requres Xerces-C|
-|GDMLDEBUG|OFF|Enable additional debug information in GDML module|
+|VECGEOM_GDML|OFF|Enable GDML persistency. Requres Xerces-C|
+|VECGEOM_GDMLDEBUG|OFF|Enable additional debug information in GDML module|
 |GEANT4|OFF|Build with support for Geant4 (https://geant4.web.cern.ch)|
 |VECGEOM_INPLACE_TRANSFORMATIONS|ON|Put transformation as members rather than pointers into PlacedVolume objects|
 |VECGEOM_NO_SPECIALIZATION|ON|Disable specialization of volumes|

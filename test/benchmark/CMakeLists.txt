@@ -45,7 +45,7 @@ if(VECGEOM_ENABLE_CUDA)
   target_link_libraries(NavigationBenchmark PUBLIC vecgeomcuda)
 endif()
 
-if(GDML)
+if(VECGEOM_GDML)
   build_executables(${PROJECT_SOURCE_DIR}/test/benchmark/TestNavIndex.cpp)
   target_link_libraries(TestNavIndex PUBLIC vgdml)
 endif()

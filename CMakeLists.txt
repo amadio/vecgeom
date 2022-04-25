@@ -174,11 +174,8 @@ if(NOT VECGEOM_USE_NAVINDEX AND VECGEOM_ENABLE_CUDA)
   set(VECGEOM_USE_NAVINDEX ON)
 endif()
 
-option(GDML "Enable GDML persistency. Requires Xerces-C" OFF)
-if(GDML)
-  set(VECGEOM_GDML ON)
-endif()
-option(GDMLDEBUG "Enable additional debug information in GDML module" OFF)
+option(VECGEOM_GDML "Enable GDML persistency. Requires Xerces-C" OFF)
+option(VECGEOM_GDMLDEBUG "Enable additional debug information in GDML module" OFF)
 
 option(EMBREE "Enable Intel Embree" OFF)
 if(EMBREE)
@@ -784,7 +781,7 @@ if(VECGEOM_ROOT)
 endif()
 
 # build the libraries for GDML persistency
-if(GDML)
+if(VECGEOM_GDML)
   add_subdirectory(persistency/gdml)
 endif()
 

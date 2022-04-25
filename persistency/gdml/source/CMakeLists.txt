@@ -27,7 +27,7 @@ target_include_directories(vgdml PUBLIC
 )
 target_link_libraries(vgdml PUBLIC XercesC::XercesC vecgeom)
 
-if(GDMLDEBUG)
+if(VECGEOM_GDMLDEBUG)
   # Only used in Middleware.cpp, and to set a constant
   target_compile_definitions(vgdml PRIVATE GDMLDEBUG)
 endif()
