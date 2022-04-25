@@ -69,6 +69,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |VECGEOM_CUDA_VOLUME_SPECIALIZATION|OFF|Use specialized volumes for CUDA|
 |VECGEOM_ENABLE_CUDA|OFF|Enable compilation for CUDA|
 |VECGEOM_VECTOR|sse2|Vector instruction set to be used|
+|VECGEOM_SINGLE_PRECISION|OFF|Use single precision throughout the package|
 
 ## Documentation
 - User's guide - tbd

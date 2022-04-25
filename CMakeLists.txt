@@ -136,9 +136,8 @@ endif()
 set(__BUILTIN_VECCORE_LAST ${VECGEOM_BUILTIN_VECCORE} CACHE INTERNAL "Builtin VecCore marker")
 
 # - Precision
-option(SINGLE_PRECISION "Use single precision throughout the package" OFF)
-if (SINGLE_PRECISION)
-  message(STATUS "VecGeom compiles in single precision mode.")
+option(VECGEOM_SINGLE_PRECISION "Use single precision throughout the package" OFF)
+if(VECGEOM_SINGLE_PRECISION)
   set(VECGEOM_FLOAT_PRECISION ON)
 endif()
 
