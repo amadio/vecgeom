@@ -177,10 +177,7 @@ endif()
 option(VECGEOM_GDML "Enable GDML persistency. Requires Xerces-C" OFF)
 option(VECGEOM_GDMLDEBUG "Enable additional debug information in GDML module" OFF)
 
-option(EMBREE "Enable Intel Embree" OFF)
-if(EMBREE)
-  set(VECGEOM_EMBREE ON)
-endif()
+option(VECGEOM_EMBREE "Enable Intel Embree" OFF)
 
 option(USE_CACHED_TRANSFORMATIONS "Use cached transformations in navigation states" OFF)
 if(USE_CACHED_TRANSFORMATIONS)
