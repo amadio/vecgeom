@@ -52,7 +52,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |DATA_DOWNLOAD|OFF|Enable downloading of data for tests|
 |VECGEOM_DISTANCE_DEBUG|OFF|Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes|
 |VECGEOM_EMBREE|OFF|Enable Intel Embree|
-|FAST_MATH|OFF|Enable the -ffast-math compiler option in Release builds|
+|VECGEOM_FAST_MATH|OFF|Enable the -ffast-math compiler option in Release builds|
 |VECGEOM_GDML|OFF|Enable GDML persistency. Requres Xerces-C|
 |VECGEOM_GDMLDEBUG|OFF|Enable additional debug information in GDML module|
 |GEANT4|OFF|Build with support for Geant4 (https://geant4.web.cern.ch)|
