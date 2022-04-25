@@ -168,12 +168,9 @@ option(VECGEOM_INPLACE_TRANSFORMATIONS "Put transformation as members rather tha
 
 option(VECGEOM_USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" ON)
 
-option(USE_NAVINDEX "Use navigation index table and states" OFF)
-if(NOT USE_NAVINDEX AND VECGEOM_ENABLE_CUDA)
+option(VECGEOM_USE_NAVINDEX "Use navigation index table and states" OFF)
+if(NOT VECGEOM_USE_NAVINDEX AND VECGEOM_ENABLE_CUDA)
   message(STATUS "CUDA=ON implies USE_NAVINDEX=ON")
-  set(USE_NAVINDEX ON)
-endif()
-if(USE_NAVINDEX)
   set(VECGEOM_USE_NAVINDEX ON)
 endif()
 

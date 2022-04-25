@@ -64,7 +64,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |STATIC_ANALYSIS|OFF|Enable static analysis on VecGeom|
 |USE_CACHED_TRANSFORMATIONS|OFF|Use cached transformations in navigation states|
 |VECGEOM_USE_INDEXEDNAVSTATES|ON|Use indices rather than volume pointers in NavigationState objects|
-|USE_NAVINDEX|OFF|Use navigation index table and states|
+|VECGEOM_USE_NAVINDEX|OFF|Use navigation index table and states|
 |VALIDATION|OFF|Enable validation tests from CMS geometry|
 |VECGEOM_CUDA_VOLUME_SPECIALIZATION|OFF|Use specialized volumes for CUDA|
 |VECGEOM_ENABLE_CUDA|OFF|Enable compilation for CUDA|
