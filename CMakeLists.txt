@@ -202,8 +202,8 @@ if(VECGEOM_TEST_STATIC_ANALYSIS)
 endif()
 
 # Following options result in changes to VecGeom API/ABI, but are strictly only for testing (AFAK)
-cmake_dependent_option(VTUNE "Enable the use of profiler Vtune" OFF "BUILD_TESTING" OFF)
-if(VTUNE)
+cmake_dependent_option(VECGEOM_TEST_VTUNE "Enable the use of profiler Vtune" OFF "BUILD_TESTING" OFF)
+if(VECGEOM_TEST_VTUNE)
   set(VECGEOM_VTUNE ON)
 endif()
 
