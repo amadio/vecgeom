@@ -162,10 +162,7 @@ if(VECGEOM_QUADRILATERAL_ACCELERATION)
   set(VECGEOM_QUADRILATERALS_VC ON)
 endif()
 
-option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
-if(DISTANCE_DEBUG)
-  set(VECGEOM_DISTANCE_DEBUG ON)
-endif()
+option(VECGEOM_DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
 
 option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
 if(INPLACE_TRANSFORMATIONS)

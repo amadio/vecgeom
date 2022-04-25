@@ -50,7 +50,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |COVERAGE_TESTING|OFF|Enable coverage testing flags|
 |CMAKE_CUDA_ARCHITECTURES|CUDA Compiler's Default (CMake >= 3.18) or Host GPU (CMake < 3.18)|Default CUDA device architecture|
 |DATA_DOWNLOAD|OFF|Enable downloading of data for tests|
-|DISTANCE_DEBUG|OFF|Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes|
+|VECGEOM_DISTANCE_DEBUG|OFF|Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes|
 |EMBREE|OFF|Enable Intel Embree|
 |FAST_MATH|OFF|Enable the -ffast-math compiler option in Release builds|
 |GDML|OFF|Enable GDML persistency. Requres Xerces-C|
