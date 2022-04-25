@@ -157,8 +157,8 @@ if(NOT VECGEOM_PLANESHELL)
   set(VECGEOM_PLANESHELL_DISABLE TRUE)
 endif()
 
-option(QUADRILATERAL_ACCELERATION "Enable SIMD vectorization when looping over quadrilaterals (in Polyhedron)." ON)
-if(QUADRILATERAL_ACCELERATION)
+option(VECGEOM_QUADRILATERAL_ACCELERATION "Enable SIMD vectorization when looping over quadrilaterals (in Polyhedron)." ON)
+if(VECGEOM_QUADRILATERAL_ACCELERATION)
   set(VECGEOM_QUADRILATERALS_VC ON)
 endif()
 

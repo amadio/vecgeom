@@ -59,7 +59,7 @@ The table below shows the available CMake options for VecGeom that may be used t
 |INPLACE_TRANSFORMATIONS|ON|Put transformation as members rather than pointers into PlacedVolume objects|
 |VECGEOM_NO_SPECIALIZATION|ON|Disable specialization of volumes|
 |VECGEOM_PLANESHELL|ON|Enable the use of PlaneShell class for the trapezoid|
-|QUADRILATERAL_ACCELERATION|ON|Enable SIMD vectorization when looping over quadrilaterals|
+|VECGEOM_QUADRILATERAL_ACCELERATION|ON|Enable SIMD vectorization when looping over quadrilaterals|
 |ROOT|OFF|Build with support for ROOT (https://root.cern)|
 |STATIC_ANALYSIS|OFF|Enable static analysis on VecGeom|
 |USE_CACHED_TRANSFORMATIONS|OFF|Use cached transformations in navigation states|
