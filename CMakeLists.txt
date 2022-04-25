@@ -164,10 +164,7 @@ endif()
 
 option(VECGEOM_DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
 
-option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
-if(INPLACE_TRANSFORMATIONS)
-  set(VECGEOM_INPLACE_TRANSFORMATIONS ON)
-endif()
+option(VECGEOM_INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
 
 option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" ON)
 if(USE_INDEXEDNAVSTATES)
