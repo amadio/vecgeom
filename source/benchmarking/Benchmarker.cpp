@@ -600,25 +600,25 @@ int Benchmarker::RunInsideBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunInsideBenchmark, __itt_null, __itt_null, __itt_RunInsideVectorized);
 #endif
     RunInsideVectorized(containsVectorized, insideVectorized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunInsideBenchmark);
 #endif
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunInsideBenchmark, __itt_null, __itt_null, __itt_RunInsideSpecialized);
 #endif
     RunInsideSpecialized(containsSpecialized, insideSpecialized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunInsideBenchmark);
 #endif
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunInsideBenchmark, __itt_null, __itt_null, __itt_RunInsideUnspecialized);
 #endif
     RunInsideUnspecialized(containsUnspecialized, insideUnspecialized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunInsideBenchmark);
 #endif
 #ifdef VECGEOM_GEANT4
@@ -834,25 +834,25 @@ int Benchmarker::RunToInBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunToInBenchmark, __itt_null, __itt_null, __itt_RunToInVectorized);
 #endif
     RunToInVectorized(distancesVectorized, safetiesVectorized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToInBenchmark);
 #endif
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunToInBenchmark, __itt_null, __itt_null, __itt_RunToInSpecialized);
 #endif
     RunToInSpecialized(distancesSpecialized, safetiesSpecialized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToInBenchmark);
 #endif
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunToInBenchmark, __itt_null, __itt_null, __itt_RunToInUnspecialized);
 #endif
     RunToInUnspecialized(distancesUnspecialized, safetiesUnspecialized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToInBenchmark);
 #endif
 #ifdef VECGEOM_GEANT4
@@ -998,25 +998,25 @@ int Benchmarker::RunToOutBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunToOutBenchmark, __itt_null, __itt_null, __itt_RunToOutVectorized);
 #endif
     RunToOutVectorized(distancesVectorized, safetiesVectorized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunToOutBenchmark, __itt_null, __itt_null, __itt_RunToOutSpecialized);
 #endif
     RunToOutSpecialized(distancesSpecialized, safetiesSpecialized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunToOutBenchmark, __itt_null, __itt_null, __itt_RunToOutUnspecialized);
 #endif
     RunToOutUnspecialized(distancesUnspecialized, safetiesUnspecialized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
 #ifdef VECGEOM_GEANT4
@@ -1175,25 +1175,25 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 
   // Run all benchmarks
   for (unsigned int i = 0; i < fMeasurementCount; ++i) {
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunToOutBenchmark, __itt_null, __itt_null, __itt_RunToOutVectorized);
 #endif
     RunToOutVectorized(distancesVectorized, safetiesVectorized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunToOutBenchmark, __itt_null, __itt_null, __itt_RunToOutSpecialized);
 #endif
     RunToOutSpecialized(distancesSpecialized, safetiesSpecialized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_begin(__itt_RunToOutBenchmark, __itt_null, __itt_null, __itt_RunToOutUnspecialized);
 #endif
     RunToOutUnspecialized(distancesUnspecialized, safetiesUnspecialized);
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
 #ifdef VECGEOM_GEANT4

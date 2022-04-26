@@ -23,7 +23,7 @@
 #include <vector>
 #include <utility> // for std::pair
 
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
 #include "ittnotify.h"
 #else
 #define __itt_resumme()
@@ -92,7 +92,7 @@ private:
   bool fOkToRunG4;
 #endif
 
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
   __itt_domain *__itt_RunInsideBenchmark = __itt_domain_create("RunInsideBenchmark");
   __itt_domain *__itt_RunToInBenchmark   = __itt_domain_create("RunToInBenchmark");
   __itt_domain *__itt_RunToOutBenchmark  = __itt_domain_create("RunToOutBenchmark");

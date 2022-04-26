@@ -7,7 +7,7 @@
 using vecgeom::RNG;
 #include "VecGeom/backend/cuda/Interface.h"
 
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
 #include "ittnotify.h"
 __itt_domain *__itt_mymap  = __itt_domain_create("myMapTest");
 __itt_domain *__itt_stdmap = __itt_domain_create("stdMapTest");
@@ -53,7 +53,7 @@ int main()
   }
 
 // test vecgeom::map
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
   __itt_resume();
   __itt_frame_begin_v3(__itt_mymap, NULL);
 #endif
@@ -103,19 +103,19 @@ int main()
   launch_rebuild_map(devMap, map_keys_dev, map_values_dev, size, 1, 1);
   launch_test_new(devMap, map_keys_dev, size, 1, 1);
 
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
   __itt_frame_end_v3(__itt_mymap, NULL);
 #endif
 
 #ifndef VECCORE_CUDA
 // test std::map
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
   __itt_frame_begin_v3(__itt_stdmap, NULL);
 #endif
 
 // test_std(size, map_values,map_keys);
 
-#if defined(VECGEOM_VTUNE)
+#if defined(VECGEOM_TEST_VTUNE)
   __itt_frame_end_v3(__itt_stdmap, NULL);
   __itt_pause();
 #endif

@@ -77,7 +77,7 @@
 #cmakedefine VECGEOM_BENCHMARK
 
 // When VTUNE is ON
-#cmakedefine VECGEOM_VTUNE
+#cmakedefine VECGEOM_TEST_VTUNE
 
 // When GDML id ON
 #cmakedefine VECGEOM_GDML

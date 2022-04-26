@@ -191,9 +191,6 @@ endif()
 
 # Following options result in changes to VecGeom API/ABI, but are strictly only for testing (AFAK)
 cmake_dependent_option(VECGEOM_TEST_VTUNE "Enable the use of profiler Vtune" OFF "BUILD_TESTING" OFF)
-if(VECGEOM_TEST_VTUNE)
-  set(VECGEOM_VTUNE ON)
-endif()
 
 cmake_dependent_option(VECGEOM_TEST_BENCHMARK "Enable benchmark/performance tests" OFF "BUILD_TESTING" OFF)
 if(VECGEOM_TEST_BENCHMARK)
@@ -431,7 +428,7 @@ if(VECGEOM_GEANT4)
   endif()
 endif()
 
-if(VECGEOM_VTUNE)
+if(VECGEOM_TEST_VTUNE)
   find_package(VTUNE REQUIRED)
   include_directories(AFTER SYSTEM ${VTUNE_INCLUDE_DIR})
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${VTUNE_LIBRARIES} -lpthread -ldl)
