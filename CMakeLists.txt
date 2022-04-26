@@ -146,9 +146,6 @@ option(VECGEOM_NO_SPECIALIZATION "Disable specialization of volumes." ON)
 option(VECGEOM_PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
 
 option(VECGEOM_QUADRILATERAL_ACCELERATION "Enable SIMD vectorization when looping over quadrilaterals (in Polyhedron)." ON)
-if(VECGEOM_QUADRILATERAL_ACCELERATION)
-  set(VECGEOM_QUADRILATERALS_VC ON)
-endif()
 
 option(VECGEOM_DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
 

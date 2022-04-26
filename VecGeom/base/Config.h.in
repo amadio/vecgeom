@@ -25,7 +25,10 @@
 
 // When QUADRILATERAL_ACCELERATION is ON (Maybe a VC dependence as well?)
 // Also, *seems* to only affect template functions in headers, so maybe choice is deferred?
-#cmakedefine VECGEOM_QUADRILATERALS_VC
+#cmakedefine VECGEOM_QUADRILATERAL_ACCELERATION
+#ifdef VECGEOM_QUADRILATERAL_ACCELERATION
+#define VECGEOM_QUADRILATERALS_VC
+#endif
 
 // When NO_SPECIALIZATION is ON
 // Pretty clear this affects API and ABI
