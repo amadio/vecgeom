@@ -131,10 +131,7 @@ endif()
 set(__BUILTIN_VECCORE_LAST ${VECGEOM_BUILTIN_VECCORE} CACHE INTERNAL "Builtin VecCore marker")
 
 # - Precision
-option(VECGEOM_SINGLE_PRECISION "Use single precision throughout the package" OFF)
-if(VECGEOM_SINGLE_PRECISION)
-  set(VECGEOM_FLOAT_PRECISION ON)
-endif()
+option(VECGEOM_SINGLE_PRECISION "Use single precision floating point type throughout VecGeom" OFF)
 
 option(VECGEOM_ENABLE_CUDA "Enable compilation for CUDA." OFF)
 cmake_dependent_option(VECGEOM_CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF "VECGEOM_ENABLE_CUDA" OFF)

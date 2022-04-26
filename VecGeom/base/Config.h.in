@@ -7,7 +7,10 @@
 // Scalar/Vector Backend (only one can be defined)
 #cmakedefine VECGEOM_SCALAR
 #cmakedefine VECGEOM_VC
-#cmakedefine VECGEOM_FLOAT_PRECISION
+#cmakedefine VECGEOM_SINGLE_PRECISION
+#ifdef VECGEOM_SINGLE_PRECISION
+#define VECGEOM_FLOAT_PRECISION
+#endif
 
 // Other symbols that are added to VECGEOM_DEFINITIONS, and their activation rule
 
