@@ -65,11 +65,6 @@ endif()
 # Build statics with Position Independent Code
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Review this as this is strictly incorrect for macOS (likely ROOT-ism)
-if(APPLE)
-  set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
-endif()
-
 # Install paths
 include(GNUInstallDirs)
 # Add a path for CMake config files (immutable)
