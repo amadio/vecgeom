@@ -142,15 +142,11 @@ if(VECGEOM_ENABLE_CUDA)
 endif()
 
 option(VECGEOM_NO_SPECIALIZATION "Disable specialization of volumes." ON)
-
 option(VECGEOM_PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
-
 option(VECGEOM_QUADRILATERAL_ACCELERATION "Enable SIMD vectorization when looping over quadrilaterals (in Polyhedron)." ON)
-
 option(VECGEOM_DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
-
 option(VECGEOM_INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
-
+option(VECGEOM_USE_CACHED_TRANSFORMATIONS "Use cached transformations in navigation states" OFF)
 option(VECGEOM_USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" ON)
 
 option(VECGEOM_USE_NAVINDEX "Use navigation index table and states" OFF)
@@ -164,8 +160,6 @@ option(VECGEOM_GDMLDEBUG "Enable additional debug information in GDML module" OF
 
 option(VECGEOM_EMBREE "Enable Intel Embree" OFF)
 
-option(VECGEOM_USE_CACHED_TRANSFORMATIONS "Use cached transformations in navigation states" OFF)
-
 option(VECGEOM_FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
 
 ################################################################################
@@ -177,22 +171,20 @@ include(CTest)
 cmake_dependent_option(VECGEOM_ROOT "Enable testing using ROOT" OFF "BUILD_TESTING" OFF)
 cmake_dependent_option(VECGEOM_GEANT4 "Enable testing using Geant4" OFF "BUILD_TESTING" OFF)
 
-# TODO: not completely set up. Will build VG+tests with correct flags/links, but no report gen.
-cmake_dependent_option(VECGEOM_TEST_COVERAGE "Enable coverage testing flags" OFF "BUILD_TESTING" OFF)
-
-# TODO: Check use of this option, not totally clear on use
+cmake_dependent_option(VECGEOM_TEST_BENCHMARK "Enable benchmark/performance tests" OFF "BUILD_TESTING" OFF)
 cmake_dependent_option(VECGEOM_TEST_VALIDATION "Enable validation tests from CMS geometry" OFF "BUILD_TESTING" OFF)
 
 # Static tests build/use clang-tidy, so require compile commands for VecGeom to be exported
-cmake_dependent_option(VECGEOM_TEST_STATIC_ANALYSIS "Enable static analysis/testing on VecGeom" OFF "BUILD_TESTING" OFF)
+cmake_dependent_option(VECGEOM_TEST_STATIC_ANALYSIS "Enable static analysis tests on VecGeom" OFF "BUILD_TESTING" OFF)
 if(VECGEOM_TEST_STATIC_ANALYSIS)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
-# Following options result in changes to VecGeom API/ABI, but are strictly only for testing (AFAK)
-cmake_dependent_option(VECGEOM_TEST_VTUNE "Enable the use of profiler Vtune" OFF "BUILD_TESTING" OFF)
+# Thought to now be obsolete 
+cmake_dependent_option(VECGEOM_TEST_VTUNE "Enable use of Intel Vtune for profiling tests" OFF "BUILD_TESTING" OFF)
 
-cmake_dependent_option(VECGEOM_TEST_BENCHMARK "Enable benchmark/performance tests" OFF "BUILD_TESTING" OFF)
+# TODO: not completely set up. Will build VG+tests with correct flags/links, but no report gen.
+cmake_dependent_option(VECGEOM_TEST_COVERAGE "Enable coverage testing flags" OFF "BUILD_TESTING" OFF)
 
 
 ################################################################################
