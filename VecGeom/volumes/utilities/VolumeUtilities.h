@@ -38,7 +38,7 @@ namespace volumeUtilities {
 
 /**
  * @brief Is the trajectory through a point along a direction hitting a volume?
- * @details If ROOT is available and VECGEOM_BENCHMARK is set, use
+ * @details If ROOT is available and VECGEOM_TEST_BENCHMARK is set, use
  *    ROOT to calculate it, otherwise use VecGeom utilities.
  * @param point is the starting point
  * @param dir is the direction of the trajectory

@@ -29,7 +29,7 @@
   #undef VECGEOM_CILK
   #undef VECGEOM_ROOT
   #undef VECGEOM_GEANT4
-  #undef VECGEOM_BENCHMARK
+  #undef VECGEOM_TEST_BENCHMARK
 #else
   // Not compiling with NVCC
   #define VECGEOM_IMPL_NAMESPACE cxx

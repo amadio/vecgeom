@@ -55,7 +55,7 @@ endif()
 # Define executables
 ################################################################################
 # - Dedicated Benchmark tests
-if(VECGEOM_BENCHMARK)
+if(VECGEOM_TEST_BENCHMARK)
   add_subdirectory(benchmark)
 endif()
 
@@ -137,7 +137,7 @@ if(VECGEOM_ROOT)
     ${PROJECT_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
     ${PROJECT_SOURCE_DIR}/services/LibraryGenerator.cpp)
 
-  if(VECGEOM_BENCHMARK)
+  if(VECGEOM_TEST_BENCHMARK)
     list(APPEND TEST_EXECUTABLES_ROOT
       root/BenchmarkShapeFromROOTFile.cpp
       root/BenchmarkShapeFromROOTFile_WithVisualization.cpp
@@ -308,7 +308,7 @@ if(NOT VECGEOM_ENABLE_CUDA)
   list(APPEND TEST_EXECUTABLES_SHAPETESTER shape_tester/shape_testTessellated.cpp)
 endif()
 
-if(VECGEOM_BENCHMARK)
+if(VECGEOM_TEST_BENCHMARK)
   build_executables("${TEST_EXECUTABLES_SHAPETESTER}")
 endif()
 

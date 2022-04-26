@@ -78,7 +78,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_BENCHMARK
+#endif // VECGEOM_TEST_BENCHMARK
 
 }; // end class declaration
 

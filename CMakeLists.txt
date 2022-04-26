@@ -193,9 +193,6 @@ endif()
 cmake_dependent_option(VECGEOM_TEST_VTUNE "Enable the use of profiler Vtune" OFF "BUILD_TESTING" OFF)
 
 cmake_dependent_option(VECGEOM_TEST_BENCHMARK "Enable benchmark/performance tests" OFF "BUILD_TESTING" OFF)
-if(VECGEOM_TEST_BENCHMARK)
-  set(VECGEOM_BENCHMARK ON)
-endif()
 
 
 ################################################################################
@@ -619,7 +616,7 @@ if(VECGEOM_ENABLE_CUDA)
 endif()
 
 # - Additional sources for benchmarking
-if(VECGEOM_BENCHMARK)
+if(VECGEOM_TEST_BENCHMARK)
   list(APPEND VECGEOM_CPPONLY_SRCS
     source/benchmarking/NavigationBenchmarker.cpp
     source/benchmarking/BenchmarkResult.cpp
@@ -730,7 +727,7 @@ if(VECGEOM_ENABLE_CUDA)
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
     target_link_libraries(${__vg_cuda_target} PUBLIC VecCore::VecCore vecgeom)
 
-    if(VECGEOM_BENCHMARK AND VECGEOM_ROOT)
+    if(VECGEOM_TEST_BENCHMARK AND VECGEOM_ROOT)
       # Benchmark stuff needs TVersionCheck
       target_link_libraries(${__vg_cuda_target} PUBLIC ROOT::Core)
     endif()
