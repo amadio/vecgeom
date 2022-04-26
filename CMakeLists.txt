@@ -144,9 +144,6 @@ endif()
 option(VECGEOM_NO_SPECIALIZATION "Disable specialization of volumes." ON)
 
 option(VECGEOM_PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
-if(NOT VECGEOM_PLANESHELL)
-  set(VECGEOM_PLANESHELL_DISABLE TRUE)
-endif()
 
 option(VECGEOM_QUADRILATERAL_ACCELERATION "Enable SIMD vectorization when looping over quadrilaterals (in Polyhedron)." ON)
 if(VECGEOM_QUADRILATERAL_ACCELERATION)
