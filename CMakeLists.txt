@@ -39,8 +39,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} _build_type)
 
-# - Setting the C++ compiler to use
-set("${CMAKE_CXX_COMPILER_ID}" TRUE CACHE STRING "C++ Compiler")
+# - Store CompilerId as a boolean for convenience
+set("${CMAKE_CXX_COMPILER_ID}" TRUE)
 if(NOT GNU AND NOT Clang AND NOT AppleClang AND NOT Intel AND NOT IntelLLVM)
   message(WARNING "Unsupported compiler. Build will likely fail.")
 endif()
