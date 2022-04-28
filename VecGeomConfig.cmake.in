@@ -132,7 +132,7 @@ if(__libvecgeom_type STREQUAL "SHARED_LIBRARY")
 endif()
 
 if(__libvecgeom_type STREQUAL "STATIC_LIBRARY")
-  set(VecGeom_shared_FOUND TRUE)
+  set(VecGeom_static_FOUND TRUE)
 endif()
 
 # Setup VECGEOM_LIBRARIES so that it should "work" for consumers
