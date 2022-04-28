@@ -16,7 +16,7 @@ code_checks:
   stage: build
   before_script:
     - apt update -y && apt-get upgrade -y
-    - apt install -y software-properties-common wget clang-14 libclang-14-dev clang-tidy-14 python3 cmake
+    - apt install -y software-properties-common wget clang-14 libclang-14-dev clang-tidy-14 python3 python-is-python3 cmake
   script:
     - mkdir build && cd build
     - CXX=clang++-14 cmake .. -DBUILTIN_VECCORE=ON -DROOT=OFF -DGDML=OFF -DSTATIC_ANALYSIS=ON -DBACKEND=Scalar
