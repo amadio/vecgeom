@@ -42,11 +42,11 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} _build_type)
 # - Store CompilerId as a boolean for convenience
 set("${CMAKE_CXX_COMPILER_ID}" TRUE)
 if(NOT GNU AND NOT Clang AND NOT AppleClang AND NOT Intel AND NOT IntelLLVM)
-  message(WARNING "Unsupported compiler. Build will likely fail.")
+  message(WARNING "Unsupported C++ compiler '${CMAKE_CXX_COMPILER_ID}', build will likely fail.")
 endif()
 
 # - C++ standard and extensions
-if (CMAKE_CXX_STANDARD LESS 17)
+if(CMAKE_CXX_STANDARD LESS 17)
   message(FATAL_ERROR "VecGeom requires at least C++17")
 endif()
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -138,6 +138,14 @@ cmake_dependent_option(VECGEOM_CUDA_VOLUME_SPECIALIZATION "Use specialized volum
 
 if(VECGEOM_ENABLE_CUDA)
   enable_language(CUDA)
+  # Keep these checks coherent with the C++ compiler/standard
+  if(CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA")
+    if(CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 11)
+      message(FATAL_ERROR "CUDA 11 or newer required, found '${CMAKE_CUDA_COMPILER_VERSION}'")
+    endif()
+  else()
+    message(WARNING "Unsupported CUDA compiler '${CMAKE_CUDA_COMPILER_VERSION}', build will likely fail")
+  endif()
   set(VecCore_COMPONENTS ${VecCore_COMPONENTS} "CUDA")
 endif()
 
