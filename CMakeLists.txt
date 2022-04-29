@@ -4,7 +4,11 @@ cmake_minimum_required(VERSION 3.16...3.22)
 include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
 
-project(VecGeom VERSION 1.1.20 LANGUAGES C CXX)
+project(VecGeom
+  VERSION 1.1.20
+  DESCRIPTION "Vectorized geometry library for particle-detector simulation"
+  HOMEPAGE_URL "https://gitlab.cern.ch/VecGeom/VecGeom"
+  LANGUAGES C CXX)
 
 ################################################################################
 # - Core CMake settings
