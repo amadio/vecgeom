@@ -41,7 +41,6 @@ if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
   set(CMAKE_BUILD_TYPE "Release")
 endif()
-string(TOUPPER ${CMAKE_BUILD_TYPE} _build_type)
 
 # - Store CompilerId as a boolean for convenience
 set("${CMAKE_CXX_COMPILER_ID}" TRUE)
@@ -224,8 +223,8 @@ find_package(VecCore ${VecCore_VERSION} REQUIRED COMPONENTS ${VecCore_COMPONENTS
 set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} VecCore::VecCore)
 
 ################################################################################
-# - Compiler Flags/Settings for each build type
-# We do this here as flags are dependent on chosen ISA
+# - C++ Compiler Flags/Settings for each build type
+# Done after all options, as flags are dependent on chosen ISA
 # Flags will also be forwarded by CUDA when compiling C++.
 set(VECGEOM_ERROR_LIMIT 20 CACHE STRING "Limit number of errors output by compiler")
 mark_as_advanced(VECGEOM_ERROR_LIMIT)
@@ -244,10 +243,6 @@ if(GNU)
 
   if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "7")
     string(APPEND VECGEOM_COMPILATION_FLAGS " -faligned-new")
-  endif()
-
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.9")
-    string(APPEND VECGEOM_CXX_FLAGS " -fdiagnostics-color=auto")
   endif()
 
 elseif(Intel)
@@ -289,8 +284,6 @@ elseif(Clang OR AppleClang)
     endif()
   endif()
 
-  # Whilst we don't test clang < 4, it is used to build the custom static
-  # analysis tools, and this causes it to barf...
   if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL "4")
     string(APPEND VECGEOM_COMPILATION_FLAGS " -faligned-new")
   endif()
@@ -330,16 +323,39 @@ elseif(NOT ${_arch_lo} MATCHES empty)
 endif()
 message(STATUS "Compiling for ${_arch_up} SIMD architecture")
 
+# Combine/finalize flags.
+# TODO: Rationalize this or use add_compile_options as appropriate
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VECGEOM_CXX_FLAGS} ${VECGEOM_COMPILATION_FLAGS}")
+
+
 ################################################################################
-# - Configure CUDA
+# - CUDA Compiler Flags/Settings for each build type
+#
 if(VECGEOM_ENABLE_CUDA)
+  if(NOT DEFINED CMAKE_CUDA_STANDARD)
+    set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
+  endif()
+
+  set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+  set(CMAKE_CUDA_EXTENSIONS OFF)
   set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
 
+  if(VECGEOM_FAST_MATH)
+    string(APPEND CMAKE_CUDA_FLAGS " --use_fast_math")
+  endif()
+
+  if(NOT VECGEOM_NO_SPECIALIZATION)
+    string(APPEND CMAKE_CUDA_FLAGS " -Xptxas --disable-optimizer-constants")
+  endif()
+
+  string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -G")
+  string(APPEND CMAKE_CUDA_FLAGS_RELWITHDEBINFO " -line-info")
+  
   # Pre CMake 3.18, we have to manually manage architecture flags, and can only
   # really support Nvidia compiler. Don't handle any other case
   if(CMAKE_VERSION VERSION_LESS "3.18" AND CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA")
     # Take default using FindCUDA, likely a cleaner way with try_compile
-    find_package(CUDA REQUIRED)
+    find_package(CUDA 11 REQUIRED)
     cuda_select_nvcc_arch_flags(_DEFAULT_CUDA_ARCH_FLAGS Auto)
     string(REGEX MATCH "[0-9][0-9]" _DEFAULT_CUDA_ARCH ${_DEFAULT_CUDA_ARCH_FLAGS})
     
@@ -360,37 +376,12 @@ if(VECGEOM_ENABLE_CUDA)
       endforeach()
     endif()
   endif()
-
-  string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -G")
-  string(APPEND CMAKE_CUDA_FLAGS_RELWITHDEBINFO " -line-info")
-
-  if(VECGEOM_FAST_MATH)
-    string(APPEND CMAKE_CUDA_FLAGS " --use_fast_math")
-  endif()
-
-  if(NOT DEFINED CMAKE_CUDA_STANDARD)
-    set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
-    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
-    set(CMAKE_CUDA_EXTENSIONS OFF)
-  endif()
-
-  if(NOT VECGEOM_NO_SPECIALIZATION)
-    string(APPEND CMAKE_CUDA_FLAGS " -Xptxas --disable-optimizer-constants")
-  endif()
 endif()
 
-### Set CXXFLAGS early, so that VECGEOM_GEANT4 and VECGEOM_ROOT are already defined when compiling benchmarks, or it breaks
-# Pass flags to compilers
-# We may have addition in compiler flags from the above included packages
-# We don't want to have trailing CMAKE_CXX_FLAGS_"BUILD_TYPE" options on the command line
-# but rather have it as first set of argument.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}} ${VECGEOM_CXX_FLAGS} ${VECGEOM_COMPILATION_FLAGS}")
 
-# At this point, all changes to CXXFLAGS have been made.
-# The line below is necessary to allow passing extra options
-# via -DCMAKE_CXX_FLAGS or CXXFLAGS environment variable.
-string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-
+################################################################################
+# - External Packages
+#
 if(VECGEOM_ROOT)
   # ROOT install may be relying on ROOTSYS
   list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
@@ -656,10 +647,9 @@ target_compile_features(vecgeom PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 #    flags that can be used.
 # 2. We have to use slightly awkward genexs when CUDA is enabled because VecGeom's
 #    CUDA library links to the C++ version. Thus its compile options are used by
-#    nvcc and may be unknown to it. CUDA 11 and newer support the -forward-unknown-to-host-compiler
-#    argument which CMake will apply automatically. CUDA 10 requires explicit forwarding
-#    of flags using -Xcompiler=. This argument is also supported by newer CUDA,
-#    so we use this form until VecGeom explicitly requires CUDA 11 as the minimum. 
+#    nvcc and may be unknown to it. CUDA 11 supports the -forward-unknown-to-host-compiler
+#    argument which CMake will apply automatically from CMake 3.17. To support
+#    CMake 3.16, explicitly forward flags using -Xcompiler=. 
 string(STRIP "${VECGEOM_COMPILATION_FLAGS}" __VECGEOM_COMPILE_OPTIONS)
 separate_arguments(__VECGEOM_COMPILE_OPTIONS)
 target_compile_options(vecgeom PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${__VECGEOM_COMPILE_OPTIONS}>)
