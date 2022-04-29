@@ -436,12 +436,9 @@ endif()
 # VECGEOM_COMMON_SRCS: C++ files compiled by both CXX and CUDA
 # VECGEOM_CPPONLY_SRCS: C++ files only compiled for CXX
 # VECGEOM_CUDA_SRCS: CUDA files (both from copies of common cpp->cu, and .cu)
-file(GLOB _createnuclei RELATIVE ${PROJECT_SOURCE_DIR} source/generated/CreateNuclei*.cpp)
 
 # Sources common to C++ and CUDA
 set(VECGEOM_COMMON_SRCS
-  #.. moved up for faster compilation
-  ${_createnuclei}
   source/UnplacedPolycone.cpp
   source/UnplacedPolyhedron.cpp
   source/UnplacedTet.cpp
@@ -564,9 +561,7 @@ if(VECGEOM_ENABLE_CUDA)
     source/SOA3D.cpp
     source/Vector.cpp)
 
-  list(APPEND VECGEOM_CPPONLY_SRCS
-    source/CudaManager.cpp
-    )
+  list(APPEND VECGEOM_CPPONLY_SRCS source/CudaManager.cpp)
 
   # Pure CUDA source files, which will be compiled together with the ones generated
   # from the dual-use .cpp files
@@ -734,7 +729,7 @@ if(VECGEOM_ENABLE_CUDA)
 
     # - Suppress stack size warnings from a couple of functions
     # NB: currently identified as needed at device link step, but this only works on 
-    # CMake 3.18 and newer (target_link_options 3.13, DEVICE_LINK from 3.18)
+    # CMake 3.18 and newer (for DEVICE_LINK)
     # TODO: find workaround for earlier versions
     # TODO: Check at CUDA compilation step
     if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.18.0)
