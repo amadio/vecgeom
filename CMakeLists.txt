@@ -1,5 +1,5 @@
 # - Setup the project
-cmake_minimum_required(VERSION 3.12...3.22)
+cmake_minimum_required(VERSION 3.16...3.22)
 
 include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
