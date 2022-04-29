@@ -141,6 +141,11 @@ option(VECGEOM_ENABLE_CUDA "Enable compilation for CUDA." OFF)
 cmake_dependent_option(VECGEOM_CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF "VECGEOM_ENABLE_CUDA" OFF)
 
 if(VECGEOM_ENABLE_CUDA)
+  # Incompatible with Vector backend
+  if(NOT VECGEOM_BACKEND MATCHES "[sS]calar")
+    message(FATAL_ERROR "CUDA support is only available with scalar VECGEOM_BACKEND (currently '${VECGEOM_BACKEND}')")
+  endif()
+
   enable_language(CUDA)
   # Keep these checks coherent with the C++ compiler/standard
   if(CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA")
