@@ -1,3 +1,61 @@
+Version 1.2.0             4th May 2022
+======================================
+Overview:
+- Configuration updates: updated configuration flags.
+- Switch to C++17 by default.
+- Some code optimisations for GPU.
+
+Configuration:
+- Bump minimum CMake version to 3.16.
+- Switch to C++17 by default.
+- Use new-style project arguments.
+- Use same C++ standard for C++ and CUDA.
+- Fixed CudaAssertError in release builds.
+- Facilitate error tracing in CudaManager.
+- Force cache CUDA-required option and check CUDA Compiler ID/Version
+  compatibility.
+- Install python symlink package on CI image.
+- Mark ccache program option as advanced and group options by build/test.
+- Drop linking libraries from custom ClangTidy check.
+- Migrated settings flags:
+  o SINGLE_PRECISION to VECGEOM_SINGLE_PRECISION
+  o FAST_MATH to VECGEOM_FAST_MATH
+  o USE_CACHED_TRANSFORMATIONS to VECGEOM_USE_CACHED_TRANSFORMATIONS
+  o EMBREE to VECGEOM_EMBREE
+  o GDML to VECGEOM_GDML
+  o USE_NAVINDEX to VECGEOM_USE_NAVINDEX
+  o USE_INDEXEDNAVSTATES to VECGEOM_USE_INDEXEDNAVSTATES
+  o INPLACE_TRANSFORMATIONS to VECGEOM_INPLACE_TRANSFORMATIONS
+  o DISTANCE_DEBUG to VECGEOM_DISTANCE_DEBUG
+  o QUADRILATERAL_ACCELERATION to VECGEOM_ENABLE_QUADRILATERAL_ACCELERATION
+  o PLANESHELL to VECGEOM_PLANESHELL
+  o NO_SPECIALIZATION to VECGEOM_NO_SPECIALIZATION
+  o BUILTIN_VECCORE to VECGEOM_BUILTIN_VECCORE
+  o BACKEND to VECGEOM_BACKEND
+  o ROOT, Geant4 options to VECGEOM_ namespace
+  o VECGEOM_BENCHMARK to VECGEOM_TEST_BENCHMARK
+  o VECGEOM_VTUNE to VECGEOM_TEST_VTUNE
+  o BENCHMARK to VECGEOM_TEST_BENCHMARK
+  o STATIC_ANALYSIS to VECGEOM_TEST_STATIC_ANALYSIS
+  o VALIDATION to VECGEOM_TEST_VALIDATION
+  o COVERAGE_TESTING to VECGEOM_TEST_COVERAGE
+- Clarification of compiler flag setup and documentation.
+- Updated static analysis configuration.
+
+GPU:
+- Moved TopMatrixImpl into header and made iterative; moved some BVH functions
+  and globals to header, improving performance in AdePT.
+
+Primitives:
+- Cone, Polycone: consistently replaced kHalfConeTolerance with kConeTolerance.
+
+Miscellaneous:
+- Make NavStateIndex trivially destructible.
+- EmbreManager: fix Wsign-compare.
+- Updated MaskedAssignCheck to avoid catching trivial expressions.
+- Use Ubuntu 22.04LTS (Jammy) for CI code checks.
+- Removed obsolete and unused Nuclei code.
+
 Version 1.1.20         30th March 2022
 ======================================
 Overview:
