@@ -4,6 +4,7 @@
 #ifndef VECGEOM_BASE_AABB_H_
 #define VECGEOM_BASE_AABB_H_
 
+#include "VecGeom/base/Config.h"
 #include "VecGeom/base/Vector3D.h"
 
 #ifdef VECGEOM_ENABLE_CUDA

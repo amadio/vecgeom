@@ -5,6 +5,8 @@
 #ifndef VECGEOM_NAVIGATION_NAVSTATEPATH_H_
 #define VECGEOM_NAVIGATION_NAVSTATEPATH_H_
 
+#include "VecGeom/base/Config.h"
+
 #include "VecGeom/base/VariableSizeObj.h"
 #include "VecGeom/base/Transformation3D.h"
 #include "VecGeom/volumes/PlacedVolume.h"

@@ -4,6 +4,7 @@
 #ifndef VECGEOM_BACKEND_CUDA_INTERFACE_H_
 #define VECGEOM_BACKEND_CUDA_INTERFACE_H_
 
+#include "VecGeom/base/Config.h"
 #include "VecGeom/base/Global.h"
 
 #ifdef VECGEOM_ENABLE_CUDA

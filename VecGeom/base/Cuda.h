@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "VecGeom/base/Config.h"
+
 // Keep compact version of the macros.
 // clang-format off
 

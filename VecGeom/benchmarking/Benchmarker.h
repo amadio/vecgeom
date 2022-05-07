@@ -4,6 +4,7 @@
 #ifndef VECGEOM_BENCHMARKING_BENCHMARKER_H_
 #define VECGEOM_BENCHMARKING_BENCHMARKER_H_
 
+#include "VecGeom/base/Config.h"
 #include "VecGeom/base/Global.h"
 
 #include "VecGeom/volumes/PlacedVolume.h"

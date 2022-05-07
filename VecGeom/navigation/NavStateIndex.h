@@ -5,6 +5,7 @@
 #ifndef VECGEOM_NAVIGATION_NAVSTATEINDEX_H_
 #define VECGEOM_NAVIGATION_NAVSTATEINDEX_H_
 
+#include "VecGeom/base/Config.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/Transformation3D.h"
 #include "VecGeom/volumes/PlacedVolume.h"

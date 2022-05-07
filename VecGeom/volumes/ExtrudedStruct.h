@@ -4,6 +4,8 @@
 #ifndef VECGEOM_EXTRUDED_STRUCT_H
 #define VECGEOM_EXTRUDED_STRUCT_H
 
+#include "VecGeom/base/Config.h"
+
 #include "VecGeom/volumes/PolygonalShell.h"
 #include "VecGeom/volumes/TessellatedStruct.h"
 

@@ -4,6 +4,7 @@
 #ifndef VECGEOM_BASE_TRANSFORMATION3D_H_
 #define VECGEOM_BASE_TRANSFORMATION3D_H_
 
+#include "VecGeom/base/Config.h"
 #include "VecGeom/base/Global.h"
 
 #include "VecGeom/base/Vector3D.h"
@@ -169,7 +170,7 @@ public:
     fRotation[5] *= sz;
     fRotation[6] *= sx;
     fRotation[7] *= sy;
-    fRotation[8] *= sz;    
+    fRotation[8] *= sz;
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -219,7 +220,7 @@ public:
     Precision sx = std::sqrt(fRotation[0]*fRotation[0] + fRotation[3]*fRotation[3] + fRotation[6]*fRotation[6]);
     Precision sy = std::sqrt(fRotation[1]*fRotation[1] + fRotation[4]*fRotation[4] + fRotation[7]*fRotation[7]);
     Precision sz = std::sqrt(fRotation[2]*fRotation[2] + fRotation[5]*fRotation[5] + fRotation[8]*fRotation[8]);
-    
+
     if (Determinant() < 0) sz = -sz;
 
     return Vector3D<Precision>(sx, sy, sz);

@@ -6,6 +6,7 @@
 #ifndef VECGEOM_VOLUMES_KERNEL_TESSELLATEDIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_TESSELLATEDIMPLEMENTATION_H_
 
+#include "VecGeom/base/Config.h"
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/volumes/TessellatedStruct.h"
 #include "VecGeom/volumes/kernel/GenericKernels.h"

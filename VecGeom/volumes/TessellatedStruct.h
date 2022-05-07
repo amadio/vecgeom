@@ -12,6 +12,7 @@
 #include "TessellatedCluster.h"
 #include "VecGeom/base/BitSet.h"
 #include "VecGeom/base/RNG.h"
+#include "VecGeom/base/Config.h"
 #include <vector>
 
 #include "VecGeom/base/Stopwatch.h"

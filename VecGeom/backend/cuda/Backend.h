@@ -4,6 +4,7 @@
 #ifndef VECGEOM_BACKEND_CUDABACKEND_H_
 #define VECGEOM_BACKEND_CUDABACKEND_H_
 
+#include "VecGeom/base/Config.h"
 #include "VecGeom/base/Global.h"
 
 #include "VecGeom/backend/scalar/Backend.h"

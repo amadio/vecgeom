@@ -8,6 +8,7 @@
 
 #include <cstdio>
 #include <VecCore/VecCore>
+#include "VecGeom/base/Config.h"
 #include "VecGeom/volumes/kernel/GenericKernels.h"
 #include "VecGeom/base/Vector3D.h"
 

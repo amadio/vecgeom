@@ -4,6 +4,7 @@
 #ifndef VECGEOM_BASE_VECTOR_H_
 #define VECGEOM_BASE_VECTOR_H_
 
+#include "VecGeom/base/Config.h"
 #include "VecGeom/base/Global.h"
 #include <initializer_list>
 #ifdef VECGEOM_ENABLE_CUDA
