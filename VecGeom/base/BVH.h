@@ -6,6 +6,7 @@
 
 #include "VecGeom/base/AABB.h"
 #include "VecGeom/base/Config.h"
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/navigation/NavStateIndex.h"
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/volumes/LogicalVolume.h"

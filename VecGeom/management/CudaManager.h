@@ -4,6 +4,7 @@
 #ifndef VECGEOM_MANAGEMENT_CUDAMANAGER_H_
 #define VECGEOM_MANAGEMENT_CUDAMANAGER_H_
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 
 #include "VecGeom/base/Vector.h"

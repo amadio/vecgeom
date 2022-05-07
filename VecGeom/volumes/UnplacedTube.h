@@ -1,6 +1,7 @@
 #ifndef VECGEOM_VOLUMES_UNPLACEDTUBE_H_
 #define VECGEOM_VOLUMES_UNPLACEDTUBE_H_
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/AlignedBase.h"
 #include "VecGeom/volumes/UnplacedVolume.h"

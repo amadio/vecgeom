@@ -9,6 +9,7 @@
 #define NAVSTATEPOOL_H_
 
 #include "VecGeom/base/Config.h"
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/navigation/NavigationState.h"
 #ifdef VECGEOM_ENABLE_CUDA

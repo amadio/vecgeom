@@ -9,6 +9,7 @@
 #ifndef VECGEOM_VOLUMES_UNPLACEDPARALLELEPIPED_H_
 #define VECGEOM_VOLUMES_UNPLACEDPARALLELEPIPED_H_
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/AlignedBase.h"
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/volumes/UnplacedVolume.h"

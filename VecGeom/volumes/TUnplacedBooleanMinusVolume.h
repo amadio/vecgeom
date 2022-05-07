@@ -8,6 +8,7 @@
 #ifndef TUNPLACEDBOOLEANMINUSVOLUME_H_
 #define TUNPLACEDBOOLEANMINUSVOLUME_H_
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/AlignedBase.h"
 #include "VecGeom/base/Vector3D.h"

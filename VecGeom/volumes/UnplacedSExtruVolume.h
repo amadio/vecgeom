@@ -2,6 +2,7 @@
 #define VECGEOM_VOLUMES_UNPLACED_SEXTRUVOLUME_H_
 
 #include "VecGeom/base/AlignedBase.h"
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/volumes/PolygonalShell.h"

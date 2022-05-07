@@ -3,6 +3,7 @@
 #ifndef VECGEOM_PLACEDASSEMBLY_H
 #define VECGEOM_PLACEDASSEMBLY_H
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/volumes/UnplacedAssembly.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/navigation/NavStateFwd.h"

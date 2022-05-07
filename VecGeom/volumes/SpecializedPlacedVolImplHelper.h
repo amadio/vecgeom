@@ -1,5 +1,6 @@
 #pragma once
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/SOA3D.h"
 

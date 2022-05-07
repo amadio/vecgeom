@@ -4,6 +4,7 @@
 #ifndef VECGEOM_VOLUMES_UNPLACEDROOTVOLUME_H_
 #define VECGEOM_VOLUMES_UNPLACEDROOTVOLUME_H_
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 
 #include "VecGeom/volumes/UnplacedVolume.h"

@@ -5,6 +5,7 @@
 #define VECGEOM_MANAGEMENT_BVHMANAGER_H_
 
 #include "VecGeom/base/Config.h"
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/BVH.h"
 #include "VecGeom/volumes/LogicalVolume.h"
 

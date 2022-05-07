@@ -7,6 +7,7 @@
 #define VECGEOM_BENCHMARKING_NAVIGATIONBENCHMARKER_H_
 
 #include "VecGeom/base/Config.h"
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/SOA3D.h"
 #include "VecGeom/volumes/PlacedVolume.h"

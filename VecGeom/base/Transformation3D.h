@@ -5,6 +5,7 @@
 #define VECGEOM_BASE_TRANSFORMATION3D_H_
 
 #include "VecGeom/base/Config.h"
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 
 #include "VecGeom/base/Vector3D.h"

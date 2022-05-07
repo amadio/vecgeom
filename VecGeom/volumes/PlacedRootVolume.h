@@ -4,6 +4,7 @@
 #ifndef VECGEOM_VOLUMES_PLACEDROOTVOLUME_H_
 #define VECGEOM_VOLUMES_PLACEDROOTVOLUME_H_
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 
 #include "VecGeom/volumes/PlacedVolume.h"

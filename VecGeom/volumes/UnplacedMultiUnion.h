@@ -6,6 +6,7 @@
  @author mihaela.gheata@cern.ch
 */
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/AlignedBase.h"
 #include "VecGeom/base/Vector3D.h"

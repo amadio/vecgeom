@@ -3,6 +3,7 @@
 #ifndef VECGEOM_VOLUMES_UNPLACEDTORUS2_H_
 #define VECGEOM_VOLUMES_UNPLACEDTORUS2_H_
 
+#include "VecGeom/base/Cuda.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/AlignedBase.h"
 #include "VecGeom/base/Array.h"
