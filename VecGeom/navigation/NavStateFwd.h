@@ -5,6 +5,9 @@
 #ifndef VECGEOM_NAVIGATION_NAVSTATEFWD_H_
 #define VECGEOM_NAVIGATION_NAVSTATEFWD_H_
 
+#include "VecGeom/base/Cuda.h"
+#include "VecGeom/base/Config.h"
+
 #ifdef VECGEOM_USE_NAVINDEX
 #define NavigationStateImpl NavStateIndex
 #else
