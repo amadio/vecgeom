@@ -291,25 +291,49 @@ public:
                    const Precision rot4, const Precision rot5, const Precision rot6, const Precision rot7,
                    const Precision rot8);
 
+  /**
+   * Set transformation and rotation.
+   * \param trans Memory address to load 3 * sizeof(Precision) bytes from to set translation. May be unaligned.
+   * \param rot Memory address to load 9 * sizeof(Precision) bytes from to set rotation. May be unaligned.
+   */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void Set(const Precision *trans, const Precision *rot, bool has_trans, bool has_rot)
+  void Set(const void *trans, const void *rot, bool has_trans, bool has_rot)
   {
     // Memory copy translation and rotation components.
     // Avoid memcpy that gives warning: non-null argument 2 expected
-    // Avoid copy by de-referencing trans/rot which may not have alignof(Precision)
-    auto trans_src  = reinterpret_cast<const char *>(trans);
-    auto trans_dest = reinterpret_cast<char *>(fTranslation);
-    auto rot_src    = reinterpret_cast<const char *>(rot);
-    auto rot_dest   = reinterpret_cast<char *>(fRotation);
     if (has_trans) {
       for (size_t i = 0; i < 3 * sizeof(Precision); ++i)
-        trans_dest[i] = trans_src[i];
+        reinterpret_cast<std::byte *>(fTranslation)[i] = reinterpret_cast<const std::byte *>(trans)[i];
     }
 
     if (has_rot) {
       for (size_t i = 0; i < 9 * sizeof(Precision); ++i)
-        rot_dest[i] = rot_src[i];
+        reinterpret_cast<std::byte *>(fRotation)[i] = reinterpret_cast<const std::byte *>(rot)[i];
+    }
+
+    fHasTranslation = has_trans;
+    fHasRotation    = has_rot;
+    fIdentity       = !fHasTranslation && !fHasRotation;
+  }
+
+  /**
+   * Set transformation and rotation.
+   * \param trans Pointer to at least 3 values.
+   * \param rot Pointer to at least 9 values.
+   */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void Set(const Precision *trans, const Precision *rot, bool has_trans, bool has_rot)
+  {
+    if (has_trans) {
+      for (size_t i = 0; i < 3; ++i)
+        fTranslation[i] = trans[i];
+    }
+
+    if (has_rot) {
+      for (size_t i = 0; i < 9; ++i)
+        fRotation[i] = rot[i];
     }
 
     fHasTranslation = has_trans;

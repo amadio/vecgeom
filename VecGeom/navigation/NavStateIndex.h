@@ -249,9 +249,9 @@ public:
     bool has_trans           = (hasm & 0x02) > 0;
     bool has_rot             = (hasm & 0x01) > 0;
     auto nd                  = GetNdaughtersImpl(nav_ind);
-    const Precision *address = (Precision *)(NavIndAddr(nav_ind + 3 + nd + ((nd + 1) & 1)));
+    auto address = (const std::byte *)(NavIndAddr(nav_ind + 3 + nd + ((nd + 1) & 1)));
     Transformation3D t;
-    t.Set(address, address + 3, has_trans, has_rot);
+    t.Set(address, address + 3 * sizeof(Precision), has_trans, has_rot);
     t.MultiplyFromRight(trans);
     trans = t;
   }
