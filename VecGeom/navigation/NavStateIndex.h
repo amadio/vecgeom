@@ -250,8 +250,14 @@ public:
     bool has_rot             = (hasm & 0x01) > 0;
     auto nd                  = GetNdaughtersImpl(nav_ind);
     auto address = (const std::byte *)(NavIndAddr(nav_ind + 3 + nd + ((nd + 1) & 1)));
+
+    // round up to Precision
+    auto alignedAddress = reinterpret_cast<const Precision *>(
+        (reinterpret_cast<uintptr_t>(address) + sizeof(Precision) - 1) & -sizeof(Precision));
+    assert(reinterpret_cast<uintptr_t>(alignedAddress) % sizeof(Precision) == 0);
+
     Transformation3D t;
-    t.Set(address, address + 3 * sizeof(Precision), has_trans, has_rot);
+    t.Set(alignedAddress, alignedAddress + 3, has_trans, has_rot);
     t.MultiplyFromRight(trans);
     trans = t;
   }

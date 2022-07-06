@@ -65,8 +65,13 @@ NavIndex_t BuildNavIndexVisitor::apply(NavStatePath *state, int level, NavIndex_
   state->TopMatrix(mat);
   *content_hasm = 0x04 + 0x02 * (unsigned short)mat.HasTranslation() + (unsigned short)mat.HasRotation();
 
+  // align
+  static_assert(sizeof(*fNavInd) == sizeof(::Precision) || sizeof(*fNavInd) * 2 == sizeof(::Precision));
+  if (((fCurrent * sizeof(*fNavInd)) % sizeof(::Precision)) != 0) fCurrent++;
+
   // Write the transformation elements
   auto content_mat = (Precision *)(&fNavInd[fCurrent]);
+  assert(reinterpret_cast<uintptr_t>(content_mat) % sizeof(Precision) == 0);
   for (auto i = 0; i < 3; ++i)
     content_mat[i] = mat.Translation(i);
   for (auto i = 0; i < 9; ++i)

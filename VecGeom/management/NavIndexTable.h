@@ -12,6 +12,8 @@
 #include "VecGeom/management/GeoVisitor.h"
 #include "VecGeom/navigation/NavigationState.h"
 
+#include <new>
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -84,21 +86,19 @@ public:
 
   bool AllocateTable(size_t bytes)
   {
-    bool success       = true;
     size_t nelem       = bytes / sizeof(NavIndex_t) + 1;
-    NavIndex_t *buffer = nullptr;
-    try {
-      buffer = new NavIndex_t[nelem];
-    } catch (std::bad_alloc &) {
-      success = false;
-      std::cout << "=== EEE === AlocateTable bad_alloc intercepted while trying to allocate " << bytes << " bytes\n";
-    }
-    if (success) {
+    NavIndex_t *buffer = new (std::nothrow) NavIndex_t[nelem];
+    if (buffer) {
+      assert((reinterpret_cast<uintptr_t>(buffer) % sizeof(Precision) == 0) &&
+             "Buffer must be aligned to at least Precision, because we store Transformation3D's translation and "
+             "rotation in it.");
       fNavInd    = buffer;
       fNavInd[0] = 0;
       fTableSize = bytes;
+    } else {
+      std::cout << "=== EEE === AlocateTable bad_alloc intercepted while trying to allocate " << bytes << " bytes\n";
     }
-    return success;
+    return buffer != nullptr;
   }
 
   static size_t ComputeTableSize(VPlacedVolume const *top, int maxdepth, int depth_limit)
