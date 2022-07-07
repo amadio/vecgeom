@@ -293,32 +293,6 @@ public:
 
   /**
    * Set transformation and rotation.
-   * \param trans Memory address to load 3 * sizeof(Precision) bytes from to set translation. May be unaligned.
-   * \param rot Memory address to load 9 * sizeof(Precision) bytes from to set rotation. May be unaligned.
-   */
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  void Set(const void *trans, const void *rot, bool has_trans, bool has_rot)
-  {
-    // Memory copy translation and rotation components.
-    // Avoid memcpy that gives warning: non-null argument 2 expected
-    if (has_trans) {
-      for (size_t i = 0; i < 3 * sizeof(Precision); ++i)
-        reinterpret_cast<std::byte *>(fTranslation)[i] = reinterpret_cast<const std::byte *>(trans)[i];
-    }
-
-    if (has_rot) {
-      for (size_t i = 0; i < 9 * sizeof(Precision); ++i)
-        reinterpret_cast<std::byte *>(fRotation)[i] = reinterpret_cast<const std::byte *>(rot)[i];
-    }
-
-    fHasTranslation = has_trans;
-    fHasRotation    = has_rot;
-    fIdentity       = !fHasTranslation && !fHasRotation;
-  }
-
-  /**
-   * Set transformation and rotation.
    * \param trans Pointer to at least 3 values.
    * \param rot Pointer to at least 9 values.
    */
