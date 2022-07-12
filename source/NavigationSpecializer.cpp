@@ -5,7 +5,7 @@
  *      Author: swenzel
  */
 
-#include "services/NavigationSpecializer.h"
+#include "NavigationSpecializer.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/navigation/NavigationState.h"

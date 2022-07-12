@@ -134,8 +134,8 @@ if(VECGEOM_ROOT)
     globalbenchmarks/TraceTrack.cpp
     globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
     # ???
-    ${PROJECT_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
-    ${PROJECT_SOURCE_DIR}/services/LibraryGenerator.cpp)
+    services/NavigationSpecializerTest.cpp
+    services/LibraryGenerator.cpp)
 
   if(VECGEOM_TEST_BENCHMARK)
     list(APPEND TEST_EXECUTABLES_ROOT
