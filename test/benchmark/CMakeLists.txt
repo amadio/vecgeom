@@ -47,6 +47,9 @@ endif()
 
 if(VECGEOM_GDML)
   build_executables(${PROJECT_SOURCE_DIR}/test/benchmark/TestNavIndex.cpp)
+  if(VECGEOM_ENABLE_CUDA)
+    target_sources(TestNavIndex PRIVATE TestNavIndex.cu)
+  endif()
   target_link_libraries(TestNavIndex PUBLIC vgdml)
 endif()
 

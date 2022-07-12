@@ -22,7 +22,6 @@
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/navigation/NewSimpleNavigator.h"
 #include "VecGeom/base/RNG.h"
-#include "VecGeom/benchmarking/BenchmarkResult.h"
 
 #include "VecGeom/navigation/SimpleABBoxNavigator.h"
 #include "VecGeom/navigation/SimpleSafetyEstimator.h"

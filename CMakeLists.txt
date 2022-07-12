@@ -605,20 +605,6 @@ if(VECGEOM_ENABLE_CUDA)
   endforeach()
 endif()
 
-# - Additional sources for benchmarking
-if(VECGEOM_TEST_BENCHMARK)
-  list(APPEND VECGEOM_CPPONLY_SRCS
-    source/benchmarking/NavigationBenchmarker.cpp
-    source/benchmarking/BenchmarkResult.cpp
-    source/benchmarking/Benchmarker.cpp
-    source/benchmarking/VolumePointers.cpp)
-
-  list(APPEND VECGEOM_CUDA_SRCS
-    source/benchmarking/Benchmarker.cu
-    source/benchmarking/NavigationBenchmarker.cu
-    test/benchmark/TestNavIndex.cu)
-endif()
-
 ################################################################################
 # Build libraries
 if(NOT APPLE)
@@ -716,7 +702,7 @@ if(VECGEOM_ENABLE_CUDA)
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
     target_link_libraries(${__vg_cuda_target} PUBLIC VecCore::VecCore vecgeom)
 
-    if(VECGEOM_TEST_BENCHMARK AND VECGEOM_ROOT)
+    if(VECGEOM_ROOT)
       # Benchmark stuff needs TVersionCheck
       target_link_libraries(${__vg_cuda_target} PUBLIC ROOT::Core)
     endif()

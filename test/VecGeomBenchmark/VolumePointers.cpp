@@ -1,7 +1,7 @@
 /// \file VolumePointers.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "VecGeom/benchmarking/VolumePointers.h"
+#include "VecGeomBenchmark/VolumePointers.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include <iostream>
 

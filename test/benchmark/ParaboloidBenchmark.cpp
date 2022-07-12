@@ -9,7 +9,7 @@
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/volumes/Box.h"
 #include "VecGeom/volumes/Paraboloid.h"
-#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeomBenchmark/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include <iostream>
 

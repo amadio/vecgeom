@@ -17,7 +17,7 @@
 
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/volumes/Box.h"
-#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeomBenchmark/Benchmarker.h"
 #include "VecGeom/volumes/kernel/BoxImplementation.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
 #include "VecGeom/management/GeoManager.h"

@@ -10,7 +10,7 @@
 #include "VecGeom/volumes/EllipticalCone.h"
 #include "VecGeom/volumes/PlacedBox.h"
 #include "VecGeom/volumes/UnplacedBox.h"
-#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeomBenchmark/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 

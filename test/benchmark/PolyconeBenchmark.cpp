@@ -1,7 +1,7 @@
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/volumes/UnplacedPolycone.h"
 #include "VecGeom/volumes/Box.h"
-#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeomBenchmark/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/base/Global.h"

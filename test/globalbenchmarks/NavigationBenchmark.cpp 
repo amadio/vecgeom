@@ -25,7 +25,7 @@
 #include "G4GeometryManager.hh"
 #endif
 
-#include "VecGeomBenchmark/NavigationBenchmarker.h"
+#include "VecGeom/benchmarking/NavigationBenchmarker.h"
 #include "test/benchmark/ArgParser.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
 

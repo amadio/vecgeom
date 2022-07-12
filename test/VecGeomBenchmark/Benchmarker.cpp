@@ -1,7 +1,7 @@
 /// \file Benchmarker.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeomBenchmark/Benchmarker.h"
 
 #include "VecGeom/base/SOA3D.h"
 #include "VecGeom/base/Stopwatch.h"

@@ -7,7 +7,9 @@ macro(build_executables EXECUTABLES)
   foreach(EXECUTABLE ${EXECUTABLES})
     get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
     add_executable(${TARGET_NAME} ${EXECUTABLE})
-    target_link_libraries(${TARGET_NAME} PUBLIC $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>)
+    target_link_libraries(${TARGET_NAME} PUBLIC 
+      $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>
+      $<$<BOOL:${VECGEOM_TEST_BENCHMARK}>:VecGeomBenchmark>)
   endforeach()
 endmacro()
 
@@ -51,6 +53,14 @@ if(VECGEOM_ROOT)
     "${CMAKE_CURRENT_BINARY_DIR}"
     "b6b0cfdd5035117171bfe1b7f1f40c3f")
 endif()
+
+################################################################################
+# Define benchmarking library
+################################################################################
+if(VECGEOM_TEST_BENCHMARK)
+  add_subdirectory(VecGeomBenchmark)
+endif()
+
 ################################################################################
 # Define executables
 ################################################################################

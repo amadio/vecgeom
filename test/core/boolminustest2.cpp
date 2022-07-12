@@ -11,7 +11,7 @@
 #include "VecGeom/volumes/Tube.h"
 #include "VecGeom/volumes/TBooleanMinusVolume.h"
 #include "VecGeom/management/GeoManager.h"
-#include "VecGeom/benchmarking/Benchmarker.h"
+#include "VecGeomBenchmark/Benchmarker.h"
 
 using namespace vecgeom;
 

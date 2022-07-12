@@ -3,7 +3,7 @@
 //
 // 2014-11-26 G.Lima - created, by adapting Johannes' Benchmarker for navigation
 
-#include "VecGeom/benchmarking/NavigationBenchmarker.h"
+#include "VecGeomBenchmark/NavigationBenchmarker.h"
 
 #include "VecGeom/base/SOA3D.h"
 #include "VecGeom/base/Stopwatch.h"

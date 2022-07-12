@@ -5,7 +5,6 @@
 #include "VecGeom/volumes/kernel/shapetypes/TubeTypes.h"
 #include "VecGeom/volumes/BooleanVolume.h"
 #include "VecGeom/management/GeoManager.h"
-#include "VecGeom/benchmarking/Benchmarker.h"
 //#include "ArgParser.h"
 
 //.. ensure asserts are compiled in

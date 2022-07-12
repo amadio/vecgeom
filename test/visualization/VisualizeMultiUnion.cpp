@@ -3,7 +3,6 @@
 #ifndef VECCORE_CUDA
 
 #include "VecGeom/volumes/LogicalVolume.h"
-#include "VecGeom/benchmarking/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "../benchmark/ArgParser.h"
 #include "VecGeom/base/Stopwatch.h"
@@ -195,28 +194,6 @@ int main(int argc, char *argv[])
 #endif
 
   return 0;
-
-/*
-LogicalVolume world("world", &worldUnplaced);
-LogicalVolume lunion("multiunion", &multiunion);
-
-Transformation3D placement(0, 0, 0);
-const VPlacedVolume *placedMunion = world.PlaceDaughter("multi-union", &lunion, &placement);
-
-VPlacedVolume *worldPlaced = world.Place();
-
-GeoManager::Instance().SetWorldAndClose(worldPlaced);
-
-Benchmarker tester(GeoManager::Instance().GetWorld());
-tester.SetVerbosity(3);
-tester.SetRepetitions(nrep);
-tester.SetPointCount(npoints);
-tester.SetToInBias(0.8);
-tester.SetPoolMultiplier(1);
-//  tester.RunToInBenchmark();
-//  tester.RunToOutBenchmark();
-return tester.RunBenchmark();
-*/
 #else
   return 0;
 #endif

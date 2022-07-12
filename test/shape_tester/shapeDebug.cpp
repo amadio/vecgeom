@@ -11,7 +11,6 @@
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/UnplacedBox.h"
-#include "VecGeom/benchmarking/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/volumes/UnplacedBox.h"
 #include "TGeoManager.h"
