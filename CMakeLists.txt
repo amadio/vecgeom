@@ -525,8 +525,6 @@ set(VECGEOM_COMMON_SRCS
   source/SolidMesh.cpp)
 
 set(VECGEOM_CPPONLY_SRCS
-  test/shape_tester/ShapeTester.cpp
-  test/shape_tester/ConventionChecker.cpp
   source/GeoManager.cpp
   source/CppExporter.cpp)
 

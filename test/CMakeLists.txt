@@ -282,6 +282,13 @@ endif()
 
 ################################################################################
 # - Shape Tester tests
+add_library(VecGeomShapeTester STATIC 
+  shape_tester/ShapeTester.h 
+  shape_tester/ShapeTester.cpp #includes ConventionChecker.cpp ...
+  )
+target_include_directories(VecGeomShapeTester PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/shaper_tester")
+target_link_libraries(VecGeomShapeTester PUBLIC vecgeom)
+
 set(TEST_EXECUTABLES_SHAPETESTER
   shape_tester/shape_testBox.cpp
   shape_tester/shape_testSExtru.cpp
@@ -320,6 +327,10 @@ endif()
 
 if(VECGEOM_TEST_BENCHMARK)
   build_executables("${TEST_EXECUTABLES_SHAPETESTER}")
+  foreach(f ${TEST_EXECUTABLES_SHAPETESTER})
+    get_filename_component(_target ${f} NAME_WE)
+    target_link_libraries(${_target} PRIVATE VecGeomShapeTester)
+  endforeach()
 endif()
 
 
