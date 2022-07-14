@@ -540,9 +540,7 @@ if(VECGEOM_ROOT)
   list(APPEND VECGEOM_COMMON_SRCS source/RootGeoManager.cpp)
   list(APPEND VECGEOM_CPPONLY_SRCS
     source/PlacedRootVolume.cpp
-    source/UnplacedRootVolume.cpp
-    source/ShapeDebugger.cpp
-    source/Visualizer.cpp)
+    source/UnplacedRootVolume.cpp)
 endif()
 
 # Copy all source files to .cu-files in order for NVCC to compile them as CUDA

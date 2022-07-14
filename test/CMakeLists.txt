@@ -9,7 +9,8 @@ macro(build_executables EXECUTABLES)
     add_executable(${TARGET_NAME} ${EXECUTABLE})
     target_link_libraries(${TARGET_NAME} PUBLIC 
       $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>
-      $<$<BOOL:${VECGEOM_TEST_BENCHMARK}>:VecGeomBenchmark>)
+      $<$<BOOL:${VECGEOM_TEST_BENCHMARK}>:VecGeomBenchmark>
+      $<$<BOOL:${VECGEOM_ROOT}>:VecGeomUtilities>)
   endforeach()
 endmacro()
 
@@ -55,11 +56,24 @@ if(VECGEOM_ROOT)
 endif()
 
 ################################################################################
-# Define benchmarking library
+# Define Testing libraries
 ################################################################################
 if(VECGEOM_TEST_BENCHMARK)
   add_subdirectory(VecGeomBenchmark)
 endif()
+
+if(VECGEOM_ROOT)
+  add_library(VecGeomUtilities STATIC 
+    utilities/ShapeDebugger.cpp 
+    utilities/ShapeDebugger.h
+    utilities/Visualizer.cpp
+    utilities/Visualizer.h)
+  target_include_directories(VecGeomUtilities PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(VecGeomUtilities 
+    PUBLIC vecgeom ROOT::Graf3d 
+    PRIVATE ROOT::Core ROOT::Geom ROOT::Gpad)
+endif()
+
 
 ################################################################################
 # Define executables
@@ -287,7 +301,7 @@ add_library(VecGeomShapeTester STATIC
   shape_tester/ShapeTester.cpp #includes ConventionChecker.cpp ...
   )
 target_include_directories(VecGeomShapeTester PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/shaper_tester")
-target_link_libraries(VecGeomShapeTester PUBLIC vecgeom)
+target_link_libraries(VecGeomShapeTester PUBLIC vecgeom $<$<BOOL:${VECGEOM_ROOT}>:VecGeomUtilities>)
 
 set(TEST_EXECUTABLES_SHAPETESTER
   shape_tester/shape_testBox.cpp
