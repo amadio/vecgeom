@@ -244,7 +244,8 @@ set(TEST_EXECUTABLES_SHAPES
   unit_tests/TestTorus2.cpp
   unit_tests/TestParaboloid.cpp
   unit_tests/TestReducedPolycone.cpp
-  unit_tests/TestUtils3D.cpp)
+  unit_tests/TestUtils3D.cpp
+  unit_tests/TestVECGEOM-601.cpp)
 
 if(NOT VECGEOM_ENABLE_CUDA)
   list(APPEND TEST_EXECUTABLES_SHAPES
@@ -268,6 +269,7 @@ add_test(NAME TestTet COMMAND TestTet)
 add_test(NAME TestTrap COMMAND TestTrap)
 add_test(NAME TestTrd COMMAND TestTrd)
 add_test(NAME TestTube COMMAND TestTube)
+add_test(NAME TestVECGEOM-601 COMMAND TestVECGEOM-601)
 if(NOT VECGEOM_ENABLE_CUDA)
   add_test(NAME TestTessellated COMMAND TestTessellated)
 endif()
