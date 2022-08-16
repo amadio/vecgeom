@@ -96,7 +96,8 @@ public:
   void CheckDaughterIntersections(Vector3D<Precision> localpoint, Vector3D<Precision> localdir, Precision &step,
                                   VPlacedVolume const *last, VPlacedVolume const *&hitcandidate) const
   {
-    unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+    unsigned int stack[BVH_MAX_DEPTH], *ptr = &stack[1];
+    stack[0] = 0;
 
     /* Calculate and reuse inverse direction to save on divisions */
     Vector3D<Precision> invdir(1.0 / NonZero(localdir[0]), 1.0 / NonZero(localdir[1]), 1.0 / NonZero(localdir[2]));
@@ -170,7 +171,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision ComputeSafety(Vector3D<Precision> localpoint, Precision safety) const
   {
-    unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+    unsigned int stack[BVH_MAX_DEPTH], *ptr = &stack[1];
+    stack[0] = 0;
 
     do {
       const unsigned int id = *--ptr;
@@ -253,7 +255,8 @@ public:
   bool LevelLocate(VPlacedVolume const *exclvol, Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                    Vector3D<Precision> &daughterlocalpoint) const
   {
-    unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+    unsigned int stack[BVH_MAX_DEPTH], *ptr = &stack[1];
+    stack[0] = 0;
 
     do {
       const unsigned int id = *--ptr;
@@ -295,7 +298,8 @@ public:
                    Vector3D<Precision> const &localdirection, VPlacedVolume const *&pvol,
                    Vector3D<Precision> &daughterlocalpoint) const
   {
-    unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
+    unsigned int stack[BVH_MAX_DEPTH], *ptr = &stack[1];
+    stack[0] = 0;
 
     do {
       const unsigned int id = *--ptr;
