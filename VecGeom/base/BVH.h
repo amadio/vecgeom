@@ -102,23 +102,23 @@ public:
     Vector3D<Precision> invdir(1.0 / NonZero(localdir[0]), 1.0 / NonZero(localdir[1]), 1.0 / NonZero(localdir[2]));
 
     do {
-      unsigned int id = *--ptr; /* pop next node id to be checked from the stack */
+      const unsigned int id = *--ptr; /* pop next node id to be checked from the stack */
 
       if (fNChild[id] >= 0) {
         /* For leaf nodes, loop over children */
         for (int i = 0; i < fNChild[id]; ++i) {
-          int prim = fPrimId[fOffset[id] + i];
+          const int prim = fPrimId[fOffset[id] + i];
           /* Check AABB first, then the volume itself if needed */
           if (fAABBs[prim].IntersectInvDir(localpoint, invdir, step)) {
-            auto vol  = fLV.GetDaughters()[prim];
-            auto dist = vol->DistanceToIn(localpoint, localdir, step);
+            const auto vol  = fLV.GetDaughters()[prim];
+            const auto dist = vol->DistanceToIn(localpoint, localdir, step);
             /* If distance to current child is smaller than current step, update step and hitcandidate */
             if (dist < step && !(dist <= 0.0 && vol == last)) step = dist, hitcandidate = vol;
           }
         }
       } else {
-        unsigned int childL = 2 * id + 1;
-        unsigned int childR = 2 * id + 2;
+        const unsigned int childL = 2 * id + 1;
+        const unsigned int childR = 2 * id + 2;
 
         /* For internal nodes, check AABBs to know if we need to traverse left and right children */
         Precision tminL = kInfLength, tmaxL = -kInfLength, tminR = kInfLength, tmaxR = -kInfLength;
@@ -126,8 +126,8 @@ public:
         fNodes[childL].ComputeIntersectionInvDir(localpoint, invdir, tminL, tmaxL);
         fNodes[childR].ComputeIntersectionInvDir(localpoint, invdir, tminR, tmaxR);
 
-        bool traverseL = tminL <= tmaxL && tmaxL >= 0.0 && tminL < step;
-        bool traverseR = tminR <= tmaxR && tmaxR >= 0.0 && tminR < step;
+        const bool traverseL = tminL <= tmaxL && tmaxL >= 0.0 && tminL < step;
+        const bool traverseR = tminR <= tmaxR && tmaxR >= 0.0 && tminR < step;
 
         /*
          * If both left and right nodes need to be checked, check closest one first.
@@ -173,25 +173,25 @@ public:
     unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
 
     do {
-      unsigned int id = *--ptr;
+      const unsigned int id = *--ptr;
 
       if (fNChild[id] >= 0) {
         for (int i = 0; i < fNChild[id]; ++i) {
-          int prim = fPrimId[fOffset[id] + i];
+          const int prim = fPrimId[fOffset[id] + i];
           if (fAABBs[prim].Safety(localpoint) < safety) {
-            Precision dist = fLV.GetDaughters()[prim]->SafetyToIn(localpoint);
+            const Precision dist = fLV.GetDaughters()[prim]->SafetyToIn(localpoint);
             if (dist < safety) safety = dist;
           }
         }
       } else {
-        unsigned int childL = 2 * id + 1;
-        unsigned int childR = 2 * id + 2;
+        const unsigned int childL = 2 * id + 1;
+        const unsigned int childR = 2 * id + 2;
 
-        Precision safetyL = fNodes[childL].Safety(localpoint);
-        Precision safetyR = fNodes[childR].Safety(localpoint);
+        const Precision safetyL = fNodes[childL].Safety(localpoint);
+        const Precision safetyR = fNodes[childR].Safety(localpoint);
 
-        bool traverseL = safetyL < safety;
-        bool traverseR = safetyR < safety;
+        const bool traverseL = safetyL < safety;
+        const bool traverseR = safetyR < safety;
 
         if (safetyR < safetyL) {
           if (traverseR) *ptr++ = childR;
@@ -256,13 +256,13 @@ public:
     unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
 
     do {
-      unsigned int id = *--ptr;
+      const unsigned int id = *--ptr;
 
       if (fNChild[id] >= 0) {
         for (int i = 0; i < fNChild[id]; ++i) {
-          int prim = fPrimId[fOffset[id] + i];
+          const int prim = fPrimId[fOffset[id] + i];
           if (fAABBs[prim].Contains(localpoint)) {
-            auto vol = fLV.GetDaughters()[prim];
+            const auto vol = fLV.GetDaughters()[prim];
             if (vol != exclvol && vol->Contains(localpoint, daughterlocalpoint)) {
               pvol = vol;
               return true;
@@ -270,10 +270,10 @@ public:
           }
         }
       } else {
-        unsigned int childL = 2 * id + 1;
+        const unsigned int childL = 2 * id + 1;
         if (fNodes[childL].Contains(localpoint)) *ptr++ = childL;
 
-        unsigned int childR = 2 * id + 2;
+        const unsigned int childR = 2 * id + 2;
         if (fNodes[childR].Contains(localpoint)) *ptr++ = childR;
       }
     } while (ptr > stack);
@@ -298,13 +298,13 @@ public:
     unsigned int stack[BVH_MAX_DEPTH] = {0}, *ptr = &stack[1];
 
     do {
-      unsigned int id = *--ptr;
+      const unsigned int id = *--ptr;
 
       if (fNChild[id] >= 0) {
         for (int i = 0; i < fNChild[id]; ++i) {
-          int prim = fPrimId[fOffset[id] + i];
+          const int prim = fPrimId[fOffset[id] + i];
           if (fAABBs[prim].Contains(localpoint)) {
-            auto v = fLV.GetDaughters()[prim];
+            const auto v = fLV.GetDaughters()[prim];
 
             if (v == exclvol) continue;
 
@@ -313,12 +313,13 @@ public:
             const auto p = T->Transform(localpoint);
 
             auto Entering = [&]() {
-              Vector3D<Precision> normal, dir = T->TransformDirection(localdirection);
+              const Vector3D<Precision> dir = T->TransformDirection(localdirection);
+              Vector3D<Precision> normal;
               u->Normal(p, normal);
               return Vector3D<Precision>::Dot(normal, dir) < 0.0;
             };
 
-            auto inside = u->Inside(p);
+            const auto inside = u->Inside(p);
 
             if (inside == kInside || (inside == kSurface && Entering())) {
               pvol = v, daughterlocalpoint = p;
@@ -327,10 +328,10 @@ public:
           }
         }
       } else {
-        unsigned int childL = 2 * id + 1;
+        const unsigned int childL = 2 * id + 1;
         if (fNodes[childL].Contains(localpoint)) *ptr++ = childL;
 
-        unsigned int childR = 2 * id + 2;
+        const unsigned int childR = 2 * id + 2;
         if (fNodes[childR].Contains(localpoint)) *ptr++ = childR;
       }
     } while (ptr > stack);
