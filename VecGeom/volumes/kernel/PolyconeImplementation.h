@@ -401,50 +401,51 @@ struct PolyconeImplementation {
       //          *sec.fSolid, p - Vector3D<Precision>(0, 0, sec.fShift), safety);
       ConeImplementation<polyconeTypeT>::template SafetyToIn<Real_v>(*sec.fSolid,
                                                                      p - Vector3D<Precision>(0, 0, sec.fShift), safety);
-    } else
+    } else {
 
       //      ConeImplementation<ConeTypes::UniversalCone>::SafetyToIn<Real_v>(
       //          *sec.fSolid, p - Vector3D<Precision>(0, 0, sec.fShift), safety);
       ConeImplementation<polyconeTypeT>::template SafetyToIn<Real_v>(*sec.fSolid,
                                                                      p - Vector3D<Precision>(0, 0, sec.fShift), safety);
 
-    if (safety < kTolerance) return;
-    minSafety       = safety;
-    Precision zbase = polycone.fZs[index + 1];
-    // going right
-    for (int i = index + 1; i < polycone.GetNSections(); ++i) {
-      Precision dz = polycone.fZs[i] - zbase;
-      if (dz >= minSafety) break;
-
-      PolyconeSection const &sect = polycone.GetSection(i);
-
-      //      ConeImplementation<ConeTypes::UniversalCone>::SafetyToIn<Real_v>(
-      //          *sect.fSolid, p - Vector3D<Precision>(0, 0, sect.fShift), safety);
-
-      ConeImplementation<polyconeTypeT>::template SafetyToIn<Real_v>(
-          *sect.fSolid, p - Vector3D<Precision>(0, 0, sect.fShift), safety);
-
-      if (safety < minSafety) minSafety = safety;
-    }
-
-    // going left if this is possible
-    if (index > 0) {
-      zbase = polycone.fZs[index - 1];
-      for (int i = index - 1; i >= 0; --i) {
-        Precision dz = zbase - polycone.fZs[i];
+      if (safety < kTolerance) return;
+      minSafety       = safety;
+      Precision zbase = polycone.fZs[index + 1];
+      // going right
+      for (int i = index + 1; i < polycone.GetNSections(); ++i) {
+        Precision dz = polycone.fZs[i] - zbase;
         if (dz >= minSafety) break;
+
         PolyconeSection const &sect = polycone.GetSection(i);
 
-        //        ConeImplementation<ConeTypes::UniversalCone>::SafetyToIn<Real_v>(
-        //            *sect.fSolid, p - Vector3D<Precision>(0, 0, sect.fShift), safety);
+        //      ConeImplementation<ConeTypes::UniversalCone>::SafetyToIn<Real_v>(
+        //          *sect.fSolid, p - Vector3D<Precision>(0, 0, sect.fShift), safety);
 
         ConeImplementation<polyconeTypeT>::template SafetyToIn<Real_v>(
             *sect.fSolid, p - Vector3D<Precision>(0, 0, sect.fShift), safety);
 
         if (safety < minSafety) minSafety = safety;
       }
+
+      // going left if this is possible
+      if (index > 0) {
+        zbase = polycone.fZs[index - 1];
+        for (int i = index - 1; i >= 0; --i) {
+          Precision dz = zbase - polycone.fZs[i];
+          if (dz >= minSafety) break;
+          PolyconeSection const &sect = polycone.GetSection(i);
+
+          //        ConeImplementation<ConeTypes::UniversalCone>::SafetyToIn<Real_v>(
+          //            *sect.fSolid, p - Vector3D<Precision>(0, 0, sect.fShift), safety);
+
+          ConeImplementation<polyconeTypeT>::template SafetyToIn<Real_v>(
+              *sect.fSolid, p - Vector3D<Precision>(0, 0, sect.fShift), safety);
+
+          if (safety < minSafety) minSafety = safety;
+        }
+      }
+      safety = minSafety;
     }
-    safety = minSafety;
     return;
   }
 
