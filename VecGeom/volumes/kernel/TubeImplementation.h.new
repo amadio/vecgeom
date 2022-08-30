@@ -962,12 +962,13 @@ struct TubeImplementation {
     }
 
     if (checkPhiTreatment<tubeTypeT>(tube)) {
-      //Real_v safephi;
-      //PhiPlaneSafety<Real_v, UnplacedStruct_t, tubeTypeT, true>(tube, point, safephi);
-      //vecCore::MaskedAssign(safety, safephi < safety, safephi);
-      //Now using Wedge to calculate the SafetyToOut for a sector of a tube
-      Real_v safephi = tube.fPhiWedge.SafetyToOut<Real_v>(point);
+      Real_v safephi;
+
+      PhiPlaneSafety<Real_v, UnplacedStruct_t, tubeTypeT, true>(tube, point, safephi);
       vecCore::MaskedAssign(safety, safephi < safety, safephi);
+
+//      Real_v safetyPhi = tube.fPhiWedge.SafetyToOut<Real_v>(point);
+//      vecCore::MaskedAssign(safety, safetyPhi < safety, safetyPhi);
     }
   }
 

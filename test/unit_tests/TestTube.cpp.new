@@ -11,6 +11,7 @@
 #include "ApproxEqual.h"
 #include "VecGeom/base/Global.h"
 
+#include "VecGeom/volumes/Cone.h"
 #include <cmath>
 
 using namespace vecgeom;
@@ -48,6 +49,7 @@ bool TestTubs()
   Vec_t vmxmy(-1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
   Vec_t vxmy(1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
 
+  #if(0)
   Precision Dist, vol, volCheck;
   Tube_t t1("Solid Tube #1", 0, 50, 50, 0, 2 * kPi);
   Tube_t t1a("Solid Tube #1", 0, 50, 50, 0, 0.5 * kPi);
@@ -239,11 +241,9 @@ bool TestTubs()
   // std::cout<<"Dist=t3.DistanceToOut((0,10,0),vx) = "<<Dist<<std::endl;
   assert(ApproxEqual<Precision>(Dist, 0));
 
-  Dist = t3.DistanceToOut(Vec_t(0.5, 10, 0), vx); // checking an outside point
-  assert(t3.Inside(Vec_t(0.5, 10, 0))==vecgeom::EInside::kOutside);
+  Dist = t3.DistanceToOut(Vec_t(0.5, 10, 0), vx);
   // std::cout<<"Dist=t3.DistanceToOut((0.5,10,0),vx) = "<<Dist<<std::endl;
-  // assert(ApproxEqual<Precision>(Dist, 48.489795)); // distance  can't be positive, buggy test case
-  assert(Dist < 0.);
+  assert(ApproxEqual<Precision>(Dist, 48.489795));
 
   Dist = t3.DistanceToOut(Vec_t(-0.5, 9, 0), vx);
   // std::cout<<"Dist=t3.DistanceToOut((-0.5,9,0),vx) = "<<Dist<<std::endl;
@@ -598,6 +598,50 @@ bool TestTubs()
       assert(normal.z() != 0. && normal.z() < 0.);
     }
   }
+#endif
+  //Adding few more simpler test
+  std::cout << "============== OUTPUT FROM Tube Raman ==============" << std::endl;
+
+  double dphi = 0.6 ;//1.0472;//vecgeom::kTwoPi;
+  double sphi = 0;
+  Tube_t tube_Raman("Raman Tube #1", 1., 6., 2., sphi, dphi);//vecgeom::kTwoPi);//0.5);
+  //Vec_t pt_Raman(1.773052629254333600883342, 1.213010566799905820545291, -0.4855983629518905164701437);
+  //Vec_t dir_Raman(-0.5809335354871901779816312, -0.7216332498172139953140913, -0.3765125231710098052673175);
+  Vec_t pt_Raman(3.186059611113930323256227, -5.010256971910030721062412, 1.137121040803607430191846);
+  Vec_t dir_Raman(0.3830496529286351869991734, 0.8242914004895878221645944, -0.4169132409388867088750885);
+
+//  Vec_t pt_Raman(3.085347419102447030780922, -4.851881415965721977556768, 1.101176342153832088399668);
+//  Vec_t dir_Raman(0.2453095811144632709677182, 0.9658196542812244045350667, -0.08375920735980352249683278);
+   //Vec_t pt_Raman(10*cos(M_PI/6),10*sin(M_PI/6),0.);
+   //Vec_t dir_Raman(-1.,0.,0.);
+  //Vec_t pt_Raman(5.,0.,0.);
+  std::cout << "PT : Location : " << tube_Raman.Inside(pt_Raman)
+  << " : kINSIDE : " << vecgeom::EInside::kInside
+  << " : kSURFACE : " << vecgeom::EInside::kSurface
+  << " : kOUTSIDE : " << vecgeom::EInside::kOutside
+  << std::endl;
+
+  double dist_Raman = tube_Raman.DistanceToIn(pt_Raman,dir_Raman);
+  std::cout << "DistanceToIn : " << dist_Raman << std::endl;
+  dist_Raman = tube_Raman.DistanceToOut(pt_Raman,dir_Raman);
+  std::cout << "DistanceToOut : " << dist_Raman << std::endl;
+  dist_Raman = tube_Raman.SafetyToIn(pt_Raman);
+  std::cout << "SafetyToIn : " << dist_Raman << std::endl;
+  dist_Raman = tube_Raman.SafetyToOut(pt_Raman);
+  std::cout << "SafetyToOut : " << dist_Raman << std::endl;
+
+  std::cout << "===================== Now using Cone ========================" << std::endl;
+  vecgeom::SimpleCone cone_Raman("Raman Tube #1", 1., 6., 1., 6., 2., sphi, dphi);// vecgeom::kTwoPi);//0.5);
+  std::cout << "PT : Location : " << cone_Raman.Inside(pt_Raman) << std::endl;
+  dist_Raman = cone_Raman.DistanceToIn(pt_Raman,dir_Raman);
+  std::cout << "DistanceToIn : " << dist_Raman << std::endl;
+  dist_Raman = cone_Raman.DistanceToOut(pt_Raman,dir_Raman);
+  std::cout << "DistanceToOut : " << dist_Raman << std::endl;
+  dist_Raman = cone_Raman.SafetyToIn(pt_Raman);
+  std::cout << "SafetyToIn : " << dist_Raman << std::endl;
+  dist_Raman = cone_Raman.SafetyToOut(pt_Raman);
+  std::cout << "SafetyToOut : " << dist_Raman << std::endl;
+
   return true;
 }
 
