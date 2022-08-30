@@ -701,7 +701,7 @@ struct TubeImplementation {
     // For points outside z-range, return -1
     Real_v distz = tube.fZ - Abs(point.z()); // avoid a division for now
     done |= distz < -kHalfTolerance;         // distance is already set to -1
-    if(vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     Real_v rsq   = point.x() * point.x() + point.y() * point.y();
     Real_v rdotn = dir.x() * point.x() + dir.y() * point.y();
@@ -724,8 +724,7 @@ struct TubeImplementation {
     if (checkPhiTreatment<tubeTypeT>(tube)) {
       Bool_v completelyoutsidephi(false);
       Bool_v completelyinsidephi(false);
-      tube.fPhiWedge.GenericKernelForContainsAndInside<Real_v, true>(point, completelyinsidephi,
-                                                                          completelyoutsidephi);
+      tube.fPhiWedge.GenericKernelForContainsAndInside<Real_v, true>(point, completelyinsidephi, completelyoutsidephi);
 
       done |= completelyoutsidephi;
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
@@ -937,10 +936,6 @@ struct TubeImplementation {
       PhiPlaneSafety<Real_v, UnplacedStruct_t, tubeTypeT, false>(tube, point, safephi);
       vecCore::MaskedAssign(safety, !insector && safephi < kInfLength && safephi > safety, safephi);
     }
-    /*if (checkPhiTreatment<tubeTypeT>(tube)) {
-          Float_t safetyPhi = tube.fPhiWedge.SafetyToIn<Real_v>(point);
-          vecCore__MaskedAssignFunc(safety, !done, Max(safetyPhi, safety));
-    }*/
   }
 
   template <typename Real_v>
@@ -962,10 +957,7 @@ struct TubeImplementation {
     }
 
     if (checkPhiTreatment<tubeTypeT>(tube)) {
-      //Real_v safephi;
-      //PhiPlaneSafety<Real_v, UnplacedStruct_t, tubeTypeT, true>(tube, point, safephi);
-      //vecCore::MaskedAssign(safety, safephi < safety, safephi);
-      //Now using Wedge to calculate the SafetyToOut for a sector of a tube
+      // Now using Wedge to calculate the SafetyToOut for a sector of a tube
       Real_v safephi = tube.fPhiWedge.SafetyToOut<Real_v>(point);
       vecCore::MaskedAssign(safety, safephi < safety, safephi);
     }
