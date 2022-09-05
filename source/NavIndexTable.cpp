@@ -67,7 +67,10 @@ NavIndex_t BuildNavIndexVisitor::apply(NavStatePath *state, int level, NavIndex_
 
   // align
   static_assert(sizeof(*fNavInd) == sizeof(::Precision) || sizeof(*fNavInd) * 2 == sizeof(::Precision));
-  if (((fCurrent * sizeof(*fNavInd)) % sizeof(::Precision)) != 0) fCurrent++;
+  if (((fCurrent * sizeof(*fNavInd)) % sizeof(::Precision)) != 0) {
+    fCurrent++;
+    current_size += sizeof(NavIndex_t);
+  }
 
   // Write the transformation elements
   auto content_mat = (Precision *)(&fNavInd[fCurrent]);
