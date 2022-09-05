@@ -94,6 +94,8 @@ private:
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTube(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processElTube(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processCutTube(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processCone(

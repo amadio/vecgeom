@@ -17,6 +17,7 @@
 #include "VecGeom/volumes/UnplacedOrb.h"
 #include "VecGeom/volumes/UnplacedBox.h"
 #include "VecGeom/volumes/UnplacedTube.h"
+#include "VecGeom/volumes/UnplacedEllipticalTube.h"
 #include "VecGeom/volumes/UnplacedCone.h"
 #include "VecGeom/volumes/UnplacedPolycone.h"
 #include "VecGeom/volumes/UnplacedPolyhedron.h"
@@ -593,6 +594,8 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processBox(aDOMNode);
     } else if (name == "tube") {
       return processTube(aDOMNode);
+    } else if (name == "eltube") {
+      return processElTube(aDOMNode);
     } else if (name == "cutTube") {
       return processCutTube(aDOMNode);
     } else if (name == "cone") {
@@ -733,6 +736,22 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processTube(
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTube>(
           rmin, rmax, halfz, startphi, deltaphi);
   return anUnplacedTubePtr;
+}
+
+const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processElTube(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processElTube: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *const attributes = aDOMNode->getAttributes();
+  auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
+  DECLAREANDGETLENGTVAR(dx)
+  DECLAREANDGETLENGTVAR(dy)
+  DECLAREANDGETLENGTVAR(dz)
+  auto const anUnplacedEllipticalTubePtr = vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<
+      vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedEllipticalTube>(dx, dy, dz);
+  return anUnplacedEllipticalTubePtr;
 }
 
 const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processCutTube(
