@@ -100,6 +100,8 @@ private:
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processCone(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processElCone(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processPolycone(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processPolyhedron(

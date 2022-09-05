@@ -19,6 +19,7 @@
 #include "VecGeom/volumes/UnplacedTube.h"
 #include "VecGeom/volumes/UnplacedEllipticalTube.h"
 #include "VecGeom/volumes/UnplacedCone.h"
+#include "VecGeom/volumes/UnplacedEllipticalCone.h"
 #include "VecGeom/volumes/UnplacedPolycone.h"
 #include "VecGeom/volumes/UnplacedPolyhedron.h"
 #include "VecGeom/volumes/UnplacedTorus2.h"
@@ -600,6 +601,8 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processCutTube(aDOMNode);
     } else if (name == "cone") {
       return processCone(aDOMNode);
+    } else if (name == "elcone") {
+      return processElCone(aDOMNode);
     } else if (name == "polycone") {
       return processPolycone(aDOMNode);
     } else if (name == "polyhedra") {
@@ -808,6 +811,23 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processCone(
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedCone>(
           rmin1, rmax1, rmin2, rmax2, halfz, startphi, deltaphi);
   return anUnplacedConePtr;
+}
+
+const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processElCone(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processElCone: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *const attributes = aDOMNode->getAttributes();
+  auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
+  DECLAREANDGETLENGTVAR(dx)
+  DECLAREANDGETLENGTVAR(dy)
+  DECLAREANDGETLENGTVAR(zmax)
+  DECLAREANDGETLENGTVAR(zcut)
+  auto const anUnplacedEllipticalConePtr = vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<
+      vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedEllipticalCone>(dx, dy, zmax, zcut);
+  return anUnplacedEllipticalConePtr;
 }
 
 const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processPolycone(
