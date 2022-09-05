@@ -1196,7 +1196,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processExtru
         ys.push_back(y);
       } else if (theChildNodeName == "section") {
         // FIXME warn about unsupported attributes
-        auto const z = lengthMultiplier * GetDoubleAttribute("z", childAttributes);
+        auto const z = lengthMultiplier * GetDoubleAttribute("zPosition", childAttributes);
         zs.push_back(z);
       }
     }
