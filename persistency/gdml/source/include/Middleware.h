@@ -110,6 +110,8 @@ private:
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processSphere(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processEllipsoid(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processParallelepiped(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTrd(

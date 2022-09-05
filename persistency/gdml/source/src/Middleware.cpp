@@ -24,6 +24,7 @@
 #include "VecGeom/volumes/UnplacedPolyhedron.h"
 #include "VecGeom/volumes/UnplacedTorus2.h"
 #include "VecGeom/volumes/UnplacedSphere.h"
+#include "VecGeom/volumes/UnplacedEllipsoid.h"
 #include "VecGeom/volumes/UnplacedParallelepiped.h"
 #include "VecGeom/volumes/UnplacedTrd.h"
 #include "VecGeom/volumes/UnplacedParaboloid.h"
@@ -611,6 +612,8 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processTorus(aDOMNode);
     } else if (name == "sphere") {
       return processSphere(aDOMNode);
+    } else if (name == "ellipsoid") {
+      return processEllipsoid(aDOMNode);
     } else if (name == "para") {
       return processParallelepiped(aDOMNode);
     } else if (name == "trd") {
@@ -940,6 +943,25 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processSpher
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedSphere>(
           rmin, rmax, startphi, deltaphi, starttheta, deltatheta);
   return anUnplacedSpherePtr;
+}
+
+const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processEllipsoid(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processEllipsoid: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *const attributes = aDOMNode->getAttributes();
+  auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
+  DECLAREANDGETLENGTVAR(ax)
+  DECLAREANDGETLENGTVAR(by)
+  DECLAREANDGETLENGTVAR(cz)
+  DECLAREANDGETLENGTVAR(zcut1)
+  DECLAREANDGETLENGTVAR(zcut2)
+  auto const anUnplacedEllipsoidPtr =
+      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedEllipsoid>(
+          ax, by, cz, zcut1, zcut2);
+  return anUnplacedEllipsoidPtr;
 }
 
 const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processParallelepiped(
