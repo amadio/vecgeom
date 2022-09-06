@@ -20,10 +20,25 @@ NavIndex_t BuildNavIndexVisitor::apply(NavStatePath *state, int level, NavIndex_
   if (fValidate) {
     return NavIndexTable::Instance()->ValidateState(state);
   }
+
+  // To keep the transformation data sufficiently aligned, we may insert padding. Precision is either the same size or
+  // twice the size as NavIndex_t, so in case we need to pad, we only need to pad one NavIndex_t.
+  static_assert(sizeof(::Precision) == sizeof(NavIndex_t) || sizeof(::Precision) == 2 * sizeof(NavIndex_t));
+  const auto indicesBefore   = fDoCount ? fTableSize / sizeof(NavIndex_t) : fCurrent;
+  const auto daughterIndices = 3 + nd + ((nd + 1) & 1);
+  const bool padTransformationData =
+      ((indicesBefore + daughterIndices) * sizeof(NavIndex_t)) % sizeof(::Precision) != 0;
+
   // Size in bytes of the current node data
-  size_t current_size = (3 + nd + ((nd + 1) & 1)) * sizeof(unsigned int) + int(cacheTrans) * 12 * sizeof(Precision);
+  const size_t current_size =
+      (daughterIndices + int{padTransformationData}) * sizeof(NavIndex_t) + int{cacheTrans} * 12 * sizeof(Precision);
+  // current_size does not need to be a multiple of sizeof(Precision), because the start of the node could be
+  // misaligned.
+
   if (fDoCount) {
     fTableSize += current_size;
+    assert(fTableSize % sizeof(::Precision) == 0 &&
+           "NavigationIndexTable size until now must be a multiple of sizeof(Precision)");
     return 0;
   }
 
@@ -56,7 +71,7 @@ NavIndex_t BuildNavIndexVisitor::apply(NavStatePath *state, int level, NavIndex_
   for (size_t i = 0; i < nd; ++i)
     content_dind[i] = 0;
 
-  fCurrent += 3 + nd + ((nd + 1) & 1);
+  fCurrent += daughterIndices;
 
   if (!cacheTrans) return new_mother;
 
@@ -65,12 +80,9 @@ NavIndex_t BuildNavIndexVisitor::apply(NavStatePath *state, int level, NavIndex_
   state->TopMatrix(mat);
   *content_hasm = 0x04 + 0x02 * (unsigned short)mat.HasTranslation() + (unsigned short)mat.HasRotation();
 
-  // align
-  static_assert(sizeof(*fNavInd) == sizeof(::Precision) || sizeof(*fNavInd) * 2 == sizeof(::Precision));
-  if (((fCurrent * sizeof(*fNavInd)) % sizeof(::Precision)) != 0) {
-    fCurrent++;
-    current_size += sizeof(NavIndex_t);
-  }
+  // insert padding before transformation elements to align them
+  if (padTransformationData) fCurrent++;
+  assert((fCurrent * sizeof(NavIndex_t)) % sizeof(Precision) == 0);
 
   // Write the transformation elements
   auto content_mat = (Precision *)(&fNavInd[fCurrent]);

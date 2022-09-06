@@ -246,18 +246,20 @@ public:
     }
 
     if ((hasm & 0x03) == 0) return;
-    bool has_trans           = (hasm & 0x02) > 0;
-    bool has_rot             = (hasm & 0x01) > 0;
-    auto nd                  = GetNdaughtersImpl(nav_ind);
-    auto address = (const std::byte *)(NavIndAddr(nav_ind + 3 + nd + ((nd + 1) & 1)));
+    bool has_trans = (hasm & 0x02) > 0;
+    bool has_rot   = (hasm & 0x01) > 0;
+    auto nd        = GetNdaughtersImpl(nav_ind);
 
-    // round up to Precision
-    auto alignedAddress = reinterpret_cast<const Precision *>(
-        (reinterpret_cast<uintptr_t>(address) + sizeof(Precision) - 1) & -sizeof(Precision));
-    assert(reinterpret_cast<uintptr_t>(alignedAddress) % sizeof(Precision) == 0);
+    // Potentially skip one NavIndex_t to ensure alignment of transformation data
+    auto transformationDataIndex     = nav_ind + 3 + nd + ((nd + 1) & 1);
+    const bool padTransformationData = (transformationDataIndex * sizeof(NavIndex_t)) % sizeof(::Precision) != 0;
+    transformationDataIndex += unsigned{padTransformationData};
+
+    const auto address = reinterpret_cast<const Precision *>(NavIndAddr(transformationDataIndex));
+    assert(reinterpret_cast<uintptr_t>(address) % sizeof(Precision) == 0);
 
     Transformation3D t;
-    t.Set(alignedAddress, alignedAddress + 3, has_trans, has_rot);
+    t.Set(address, address + 3, has_trans, has_rot);
     t.MultiplyFromRight(trans);
     trans = t;
   }
