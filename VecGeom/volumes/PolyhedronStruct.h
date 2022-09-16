@@ -321,15 +321,17 @@ struct PolyhedronStruct {
     phiStart = NormalizeAngle<kScalar>(phiStart);
     if (phiDelta > kTwoPi) phiDelta = kTwoPi;
     Precision sidePhi = phiDelta / sideCount;
-    vecgeom::unique_ptr<Precision[]> vertixPhi(new Precision[sideCount + 1]);
+
+    auto getPhi = [&](int side) {
+      if (!fHasPhiCutout && side == sideCount) {
+        side = 0;
+      }
+      return NormalizeAngle<kScalar>(phiStart + side * sidePhi);
+    };
+
     for (int i = 0, iMax = sideCount + 1; i < iMax; ++i) {
-      vertixPhi[i]                     = NormalizeAngle<kScalar>(phiStart + i * sidePhi);
-      Vector3D<Precision> cornerVector = Vec_t::FromCylindrical(1., vertixPhi[i], 0).Normalized().FixZeroes();
+      Vector3D<Precision> cornerVector = Vec_t::FromCylindrical(1., getPhi(i), 0).Normalized().FixZeroes();
       fPhiSections.set(i, cornerVector.Normalized().Cross(Vector3D<Precision>(0, 0, -1)));
-    }
-    if (!fHasPhiCutout) {
-      // If there is no phi cutout, last phi is equal to the first
-      vertixPhi[sideCount] = vertixPhi[0];
     }
 
     // Specified radii are to the sides, not to the corners. Change these values,
@@ -368,27 +370,15 @@ struct PolyhedronStruct {
     // The offset has to match the middle of the polyhedron
     fBoundingTubeOffset = 0.5 * (zPlanes[0] + zPlanes[zPlaneCount - 1]);
 
-    // Ease indexing into twodimensional vertix array
-    auto VertixIndex = [&sideCount](int plane, int corner) { return plane * (sideCount + 1) + corner; };
+    auto getVertexImpl = [&](Precision const r[], int i, int j) {
+      if (!fHasPhiCutout && j == sideCount) {
+        j = 0;
+      }
+      return Vec_t::FromCylindrical(r[i] / cosHalfDeltaPhi, getPhi(j), zPlanes[i]).FixZeroes();
+    };
 
-    // Precompute all vertices to ensure that there are no numerical cracks in the
-    // surface.
-    const int nVertices = zPlaneCount * (sideCount + 1);
-    vecgeom::unique_ptr<Vec_t[]> outerVertices(new Vec_t[nVertices]);
-    vecgeom::unique_ptr<Vec_t[]> innerVertices(new Vec_t[nVertices]);
-    for (int i = 0; i < zPlaneCount; ++i) {
-      for (int j = 0, jMax = sideCount + fHasPhiCutout; j < jMax; ++j) {
-        int index            = VertixIndex(i, j);
-        outerVertices[index] = Vec_t::FromCylindrical(rMax[i] / cosHalfDeltaPhi, vertixPhi[j], zPlanes[i]).FixZeroes();
-        innerVertices[index] = Vec_t::FromCylindrical(rMin[i] / cosHalfDeltaPhi, vertixPhi[j], zPlanes[i]).FixZeroes();
-      }
-      // Non phi cutout case
-      if (!fHasPhiCutout) {
-        // Make last vertices identical to the first phi coordinate
-        outerVertices[VertixIndex(i, sideCount)] = outerVertices[VertixIndex(i, 0)];
-        innerVertices[VertixIndex(i, sideCount)] = innerVertices[VertixIndex(i, 0)];
-      }
-    }
+    auto getInnerVertex = [&](int i, int j) { return getVertexImpl(rMin, i, j); };
+    auto getOuterVertex = [&](int i, int j) { return getVertexImpl(rMax, i, j); };
 
     // Build segments by drawing quadrilaterals between vertices
     for (int iPlane = 0; iPlane < zPlaneCount - 1; ++iPlane) {
@@ -400,19 +390,19 @@ struct PolyhedronStruct {
       // Draw the regular quadrilaterals along phi
       for (int iSide = 0; iSide < fZSegments[iPlane].outer.size(); ++iSide) {
         fZSegments[iPlane].outer.Set(
-            iSide, outerVertices[VertixIndex(iPlane, iSide)], outerVertices[VertixIndex(iPlane, iSide + 1)],
-            outerVertices[VertixIndex(iPlane + 1, iSide + 1)], outerVertices[VertixIndex(iPlane + 1, iSide)]);
+            iSide, getOuterVertex(iPlane, iSide), getOuterVertex(iPlane, iSide + 1),
+            getOuterVertex(iPlane + 1, iSide + 1), getOuterVertex(iPlane + 1, iSide));
         // Normal has to point away from Z-axis
-        if (WrongNormal(fZSegments[iPlane].outer.GetNormal(iSide), outerVertices[VertixIndex(iPlane, iSide)])) {
+        if (WrongNormal(fZSegments[iPlane].outer.GetNormal(iSide), getOuterVertex(iPlane, iSide))) {
           fZSegments[iPlane].outer.FlipSign(iSide);
         }
       }
       for (int iSide = 0; iSide < fZSegments[iPlane].inner.size(); ++iSide) {
         fZSegments[iPlane].inner.Set(
-            iSide, innerVertices[VertixIndex(iPlane, iSide)], innerVertices[VertixIndex(iPlane, iSide + 1)],
-            innerVertices[VertixIndex(iPlane + 1, iSide + 1)], innerVertices[VertixIndex(iPlane + 1, iSide)]);
+            iSide, getInnerVertex(iPlane, iSide), getInnerVertex(iPlane, iSide + 1),
+            getInnerVertex(iPlane + 1, iSide + 1), getInnerVertex(iPlane + 1, iSide));
         // Normal has to point away from Z-axis
-        if (WrongNormal(fZSegments[iPlane].inner.GetNormal(iSide), innerVertices[VertixIndex(iPlane, iSide)])) {
+        if (WrongNormal(fZSegments[iPlane].inner.GetNormal(iSide), getInnerVertex(iPlane, iSide))) {
           fZSegments[iPlane].inner.FlipSign(iSide);
         }
       }
@@ -421,15 +411,15 @@ struct PolyhedronStruct {
         // If there's a phi cutout, draw two quadrilaterals connecting the four
         // corners (two inner, two outer) of the first and last phi coordinate,
         // respectively
-        fZSegments[iPlane].phi.Set(0, innerVertices[VertixIndex(iPlane, 0)], innerVertices[VertixIndex(iPlane + 1, 0)],
-                                   outerVertices[VertixIndex(iPlane + 1, 0)], outerVertices[VertixIndex(iPlane, 0)]);
+        fZSegments[iPlane].phi.Set(0, getInnerVertex(iPlane, 0), getInnerVertex(iPlane + 1, 0),
+                                   getOuterVertex(iPlane + 1, 0), getOuterVertex(iPlane, 0));
         // Make sure normal points backwards along phi
         if (fZSegments[iPlane].phi.GetNormal(0).Dot(fPhiSections[0]) > 0) {
           fZSegments[iPlane].phi.FlipSign(0);
         }
         fZSegments[iPlane].phi.Set(
-            1, outerVertices[VertixIndex(iPlane, sideCount)], outerVertices[VertixIndex(iPlane + 1, sideCount)],
-            innerVertices[VertixIndex(iPlane + 1, sideCount)], innerVertices[VertixIndex(iPlane, sideCount)]);
+            1, getOuterVertex(iPlane, sideCount), getOuterVertex(iPlane + 1, sideCount),
+            getInnerVertex(iPlane + 1, sideCount), getInnerVertex(iPlane, sideCount));
         // Make sure normal points forwards along phi
         if (fZSegments[iPlane].phi.GetNormal(1).Dot(fPhiSections[fSideCount]) < 0) {
           fZSegments[iPlane].phi.FlipSign(1);
