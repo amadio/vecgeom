@@ -90,6 +90,11 @@ cudaError_t CudaDeviceSetStackLimit(unsigned size)
   return cudaDeviceSetLimit(cudaLimitStackSize, size);
 }
 
+cudaError_t CudaDeviceSetHeapLimit(unsigned size)
+{
+  return cudaDeviceSetLimit(cudaLimitMallocHeapSize, size);
+}
+
 } // End namespace cuda
 
 } // End namespace vecgeom

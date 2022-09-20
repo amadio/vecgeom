@@ -116,6 +116,8 @@ cudaError_t CudaFree(void *ptr);
 
 cudaError_t CudaDeviceSetStackLimit(unsigned size);
 
+cudaError_t CudaDeviceSetHeapLimit(unsigned size);
+
 template <typename Type>
 Type *AllocateOnDevice()
 {
