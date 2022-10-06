@@ -519,6 +519,7 @@ set(VECGEOM_COMMON_SRCS
 
   source/NavigationSpecializer.cpp
 
+  source/MarchingCubes.cpp
   source/ResultComparator.cpp
   source/ReducedPolycone.cpp
   source/Utils3D.cpp
@@ -570,6 +571,7 @@ if(VECGEOM_ENABLE_CUDA)
     Medium
     G4GeoManager
     RootGeoManager
+    MarchingCubes
     NavigationSpecializer
     ResultComparator
     UnplacedTessellated

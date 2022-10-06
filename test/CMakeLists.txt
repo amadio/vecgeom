@@ -245,6 +245,7 @@ set(TEST_EXECUTABLES_SHAPES
   unit_tests/TestParaboloid.cpp
   unit_tests/TestReducedPolycone.cpp
   unit_tests/TestUtils3D.cpp
+  unit_tests/TestMarchingCubes.cpp
   unit_tests/TestVECGEOM-601.cpp)
 
 if(NOT VECGEOM_ENABLE_CUDA)
