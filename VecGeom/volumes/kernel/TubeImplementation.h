@@ -84,7 +84,7 @@ void PointInCyclicalSector(UnplacedVolumeType const &volume, Real_v const &x, Re
 
   if (onSurfaceT) {
     // in this case, includeSurface is irrelevant
-    ret = (Abs(startCheck) <= kHalfTolerance) | (Abs(endCheck) <= kHalfTolerance);
+    ret = (Abs(startCheck) <= kHalfTolerance) || (Abs(endCheck) <= kHalfTolerance);
   } else {
     if (smallerthanpi) {
       if (includeSurface)
@@ -93,9 +93,9 @@ void PointInCyclicalSector(UnplacedVolumeType const &volume, Real_v const &x, Re
         ret = (startCheck >= kHalfTolerance) & (endCheck >= kHalfTolerance);
     } else {
       if (includeSurface)
-        ret = (startCheck >= -kHalfTolerance) | (endCheck >= -kHalfTolerance);
+        ret = (startCheck >= -kHalfTolerance) || (endCheck >= -kHalfTolerance);
       else
-        ret = (startCheck >= kHalfTolerance) | (endCheck >= kHalfTolerance);
+        ret = (startCheck >= kHalfTolerance) || (endCheck >= kHalfTolerance);
     }
   }
 }
