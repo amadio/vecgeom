@@ -55,8 +55,10 @@ public:
                                           NavigationState * /* out_state */, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const final
   {
-    VPlacedVolume const *last = in_state ? in_state->GetLastExited() : nullptr;
-    BVHManager::GetBVH(lvol)->CheckDaughterIntersections(localpoint, localdir, step, last, hitcandidate);
+    if (auto bvh = BVHManager::GetBVH(lvol)) {
+      VPlacedVolume const *last = in_state ? in_state->GetLastExited() : nullptr;
+      bvh->CheckDaughterIntersections(localpoint, localdir, step, last, hitcandidate);
+    }
     return false; /* return value indicates whether out_state has been modified */
   }
 };

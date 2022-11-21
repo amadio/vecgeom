@@ -16,15 +16,9 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 inline std::vector<BVH *> hBVH;
-} // namespace VECGEOM_IMPL_NAMESPACE
-
 #ifdef VECGEOM_ENABLE_CUDA
-namespace cuda {
 inline __device__ BVH *dBVH;
-}
 #endif
-
-inline namespace VECGEOM_IMPL_NAMESPACE {
 
 /**
  * @brief The @c BVHManager class is a singleton class to manage the association between
