@@ -837,17 +837,17 @@ public:
 
 inline bool operator&(const BitSet::reference &lhs, const BitSet::reference &rhs)
 {
-  return (bool)lhs & rhs;
+  return (bool)lhs && (bool)rhs;
 }
 
 inline bool operator|(const BitSet::reference &lhs, const BitSet::reference &rhs)
 {
-  return (bool)lhs | rhs;
+  return (bool)lhs || (bool)rhs;
 }
 
 inline bool operator^(const BitSet::reference &lhs, const BitSet::reference &rhs)
 {
-  return (bool)lhs ^ rhs;
+  return (bool)lhs ^ (bool)rhs;
 }
 } // namespace vecgeom
 
