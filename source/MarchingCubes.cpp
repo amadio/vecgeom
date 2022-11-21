@@ -358,7 +358,7 @@ static constexpr int triangles[256][16] = {
 };
 
 namespace vecgeom {
-namespace cxx {
+inline namespace cxx {
 
 static Vector3D<Precision> interpolate(VUnplacedVolume const * const v,
                                        Vector3D<Precision> a, Vector3D<Precision> b)

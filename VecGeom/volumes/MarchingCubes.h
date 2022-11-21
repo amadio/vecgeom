@@ -31,7 +31,7 @@
 #include "VecGeom/volumes/UnplacedVolume.h"
 
 namespace vecgeom {
-namespace cxx {
+inline namespace cxx {
 
 /**
  * Build a triangle mesh of @p v using the marching cubes algorithm.
