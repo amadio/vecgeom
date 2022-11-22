@@ -3,6 +3,8 @@
 ################################################################################
 # Helper Macros/Functions
 
+add_definitions(-UNDEBUG) # ensure asserts are enabled in all tests
+
 macro(build_executables EXECUTABLES)
   foreach(EXECUTABLE ${EXECUTABLES})
     get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
