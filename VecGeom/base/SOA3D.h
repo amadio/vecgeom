@@ -211,7 +211,7 @@ SOA3D<T> &SOA3D<T>::operator=(SOA3D<T> const &rhs)
   fSize     = rhs.fSize;
   fCapacity = rhs.fCapacity;
   Deallocate();
-  if (rhs.fAllocated) {
+  if (rhs.fAllocated && rhs.fSize > 0) {
     Allocate();
     copy(rhs.fX, rhs.fX + rhs.fSize, fX);
     copy(rhs.fY, rhs.fY + rhs.fSize, fY);

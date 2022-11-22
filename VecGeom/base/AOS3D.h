@@ -145,7 +145,7 @@ template <typename T>
 VECCORE_ATT_HOST_DEVICE
 AOS3D<T>::AOS3D(size_t sz) : fSize(sz), fCapacity(sz)
 {
-  reserve(fCapacity);
+  if (fCapacity > 0) reserve(fCapacity);
 }
 
 template <typename T>
@@ -214,7 +214,7 @@ void AOS3D<T>::reserve(size_t newCapacity)
   fCapacity = newCapacity;
   Vec_t *contentNew = fCapacity > 0 ? AlignedAllocate<Vec_t>(fCapacity) : nullptr;
   fSize = (fSize > fCapacity) ? fCapacity : fSize;
-  if (fContent) {
+  if (fContent && fSize > 0) {
     copy(fContent, fContent + fSize, contentNew);
   }
   Deallocate();
