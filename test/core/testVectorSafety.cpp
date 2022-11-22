@@ -143,7 +143,7 @@ void testVectorNavigator(VPlacedVolume const *world)
     // assert(cmp->IsOnBoundary() == newstates[i]->IsOnBoundary());
     // assert(safeties[i] == tmpSafety);
     // assert(saf == tmpSafety);
-    delete cmp;
+    delete[] (char *)cmp; // match call to new[] from VariableSizeObj
   }
 
   std::cout << "\n   # navigation mismatches: " << miscounter << "/" << np << "\n";

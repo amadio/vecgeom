@@ -257,7 +257,7 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
   }
   delete[] steps;
   if (WithSafety) {
-    delete safeties;
+    delete[] safeties;
   }
 
   // cleanup states
