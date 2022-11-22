@@ -204,6 +204,7 @@ public:
         i3 = (i3 + 1) % vtx.size();
         counter++;
         assert(counter < nvertices && "Triangulation failed");
+        (void)counter; // silence unused variable warnings in release builds
       }
       bool good = true;
       // Check if any of the remaining vertices are in the ear

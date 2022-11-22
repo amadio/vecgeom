@@ -324,7 +324,6 @@ void ReducedPolycone::ProcessContour(Vector<Precision> z)
   Vector<Line2D> lineVect = GetLineVector();
   for (unsigned int i = 0; i < z.size() - 1; i++) {
     Vector<Line2D> sectionLine;
-    int counter = 0;
     for (unsigned int j = 0; j < supVect[i].size(); j++) {
 
       Precision rval = supVect[i][j];
@@ -340,7 +339,6 @@ void ReducedPolycone::ProcessContour(Vector<Precision> z)
           valid = GetLineIntersection(
               line, Line2D(Vector2D<Precision>(0., z[i + 1]), Vector2D<Precision>(fRMax, z[i + 1])), poi);
           if (valid) {
-            counter++;
             sectionLine.push_back(line);
           }
         }

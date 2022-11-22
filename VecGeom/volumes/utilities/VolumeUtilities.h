@@ -225,6 +225,7 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
     for (int track = 0; track < size; ++track)
       if (IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume())) crosscheckhits++;
     assert(crosscheckhits == n_hits && "problem with hit count == 0");
+    (void)crosscheckhits; // silence set but not unused warnings when asserts are disabled
   }
 
   // Add hits until threshold
@@ -268,6 +269,7 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
     for (int p = 0; p < size; ++p)
       if (IsHittingAnyDaughter(points[p], dirs[p], *volume.GetLogicalVolume())) crosscheckhits++;
     assert(crosscheckhits == n_hits && "problem with hit count");
+    (void)crosscheckhits; // silence set but not unused warnings when asserts are disabled
   }
 
   if (tries == maxtries) {
@@ -341,10 +343,8 @@ VECGEOM_FORCE_INLINE bool FillUncontainedPoints(VPlacedVolume const &volume, Tra
     totaltries = 0;
     do {
       // ensure that point is contained in mother volume
-      int onego = 0;
       do {
         ++totaltries;
-        ++onego;
         if (totaltries % 10000 == 0) {
           printf("%s line %i: Warning: %i tries to find uncontained points... volume=%s.  Please check.\n", __FILE__,
                  __LINE__, totaltries, volume.GetLabel().c_str());

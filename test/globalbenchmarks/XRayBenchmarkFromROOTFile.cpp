@@ -182,7 +182,8 @@ void BenchNavigationUsingLoggedTracks(LogicalVolume const *lvol, std::vector<VNa
       bestT = T;
       i     = j;
     }
-    std::cerr << "lvol " << lvol->GetName() << " NAV " << nav->GetName() << " " << T << " " << i << "\n";
+    std::cerr << "lvol " << lvol->GetName() << " NAV " << nav->GetName() << "t: " << T << "i: " << i << "step: " << step
+              << "\n";
     j++;
   }
   std::cerr << "SETTING lvol " << lvol->GetName() << " to NAV " << navs[i]->GetName() << "\n";
@@ -296,6 +297,11 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       int crossedvolumecount    = 0;
       double accumulateddensity = 0.;
 
+      // avoid set but unused compiler warnings
+      (void)distancetravelled;
+      (void)crossedvolumecount;
+      (void)accumulateddensity;
+
       if (DoVerbose) {
         std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
         std::cout << " Direction <" << dir[0] << ", " << dir[1] << ", " << dir[2] << ">" << std::endl;
@@ -401,6 +407,10 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
 #endif
       double distancetravelled = 0.;
       int crossedvolumecount   = 0;
+
+      // avoid set but unused compiler warnings
+      (void)distancetravelled;
+      (void)crossedvolumecount;
 
       std::string currnodename;
       if (DoVerbose) {

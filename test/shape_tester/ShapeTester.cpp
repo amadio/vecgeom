@@ -770,6 +770,11 @@ int ShapeTester<ImplT>::TestSurfacePoint()
 
 #endif
 
+  (void)iIn;
+  (void)iInNoSurf;
+  (void)iOut;
+  (void)iOutNoSurf;
+
   for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; i++) { // test SamplePointOnSurface()
     // Initial point on surface
     point = fPoints[fOffsetSurface + i];
@@ -1242,6 +1247,10 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(Precision dist)
   Precision tolerance = fSolidTolerance;
   Precision toleranceBB = 10. * fSolidTolerance;
 
+  (void)iInInf;
+  (void)iInZero;
+  (void)iOut;
+
 #ifdef VECGEOM_ROOT
   // Histograms
   TH1D *hist10 = new TH1D("AccuracySurf", "Accuracy DistancetoIn", 200, -20, 0);
@@ -1661,6 +1670,9 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
   int nhit         = 0;
   int ntransitions = 0;
   bool last        = false;
+
+  (void)ntransitions;
+
   for (int i = 0; i < ip; i++) {
     dist = CrossedLength(grid_fPoints[i], dir, useeps);
     sum += dist;
