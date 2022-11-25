@@ -18,23 +18,33 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class BVHSafetyEstimator : public VSafetyEstimatorHelper<BVHSafetyEstimator> {
 private:
   /** Constructor. Private since this is a singleton class accessed only via the @c Instance() static method. */
+  VECCORE_ATT_DEVICE
   BVHSafetyEstimator() : VSafetyEstimatorHelper<BVHSafetyEstimator>() {}
 
 public:
   static constexpr const char *gClassNameString = "BVHSafetyEstimator";
 
+#ifndef VECCORE_CUDA
   /** Return instance of this singleton class. */
   static VSafetyEstimator *Instance()
   {
     static BVHSafetyEstimator instance;
     return &instance;
   }
+#else
+  // If used on device, this needs to be implemented in a .cu file rather than in this header
+  // This hack is used also by NewSimpleNavigator, implemented in LogicalVolume.cpp
+  // This is now implemented in BVHManager.cu
+  VECCORE_ATT_DEVICE
+  static VSafetyEstimator *Instance();
+#endif
 
   /**
    * Compute safety of a point given in the local coordinates of the placed volume @p pvol.
    * @param[in] localpoint Point in the local coordinates of the placed volume.
    * @param[in] pvol Placed volume.
    */
+  VECCORE_ATT_HOST_DEVICE
   Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint, VPlacedVolume const *pvol) const final
   {
     Precision safety = pvol->SafetyToOut(localpoint);
@@ -52,6 +62,7 @@ public:
    * @param[in] localpoint Point in the local coordinates of the placed volume.
    * @param[in] lvol Logical volume.
    */
+  VECCORE_ATT_HOST_DEVICE
   Precision ComputeSafetyToDaughtersForLocalPoint(Vector3D<Precision> const &localpoint,
                                                   LogicalVolume const *lvol) const final
   {
@@ -64,6 +75,7 @@ public:
    * @param[in] pvol Placed volume.
    * @param[in] m Mask of active SIMD lanes.
    */
+  VECCORE_ATT_HOST_DEVICE
   Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint, VPlacedVolume const *pvol, Bool_v m) const final
   {
     using vecCore::Get;

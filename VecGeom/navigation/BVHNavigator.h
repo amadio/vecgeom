@@ -21,6 +21,7 @@ template <bool MotherIsConvex = false>
 class BVHNavigator : public VNavigatorHelper<BVHNavigator<MotherIsConvex>, MotherIsConvex> {
 private:
   /** Constructor. Private since this is a singleton class accessed only via the @c Instance() static method. */
+  VECCORE_ATT_DEVICE
   BVHNavigator()
       : VNavigatorHelper<BVHNavigator<MotherIsConvex>, MotherIsConvex>(BVHSafetyEstimator::Instance())
   {
@@ -28,15 +29,25 @@ private:
 
 public:
   using SafetyEstimator_t = BVHSafetyEstimator;
+  using Base = VNavigatorHelper<BVHNavigator<MotherIsConvex>, MotherIsConvex>;
+  using Base::CheckDaughterIntersections;
 
   static constexpr const char *gClassNameString = "BVHNavigator";
 
+#ifndef VECCORE_CUDA
   /** Returns the instance of this singleton class. */
   static VNavigator *Instance()
   {
     static BVHNavigator instance;
     return &instance;
   }
+#else
+  // If used on device, this needs to be implemented in a .cu file rather than in this header
+  // This hack is used also by NewSimpleNavigator, implemented in LogicalVolume.cpp
+  // This is now implemented in BVHManager.cu
+  VECCORE_ATT_DEVICE
+  static VNavigator *Instance();
+#endif
 
   /**
    * Checks for intersections against child volumes of logical volume @p lvol, using the BVH
@@ -50,6 +61,7 @@ public:
    * @param[out] hitcandidate
    * @returns Whether @p out_state has been modified or not. Always false for this method.
    */
+  VECCORE_ATT_HOST_DEVICE
   bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
                                           Vector3D<Precision> const &localdir, NavigationState const *in_state,
                                           NavigationState * /* out_state */, Precision &step,
