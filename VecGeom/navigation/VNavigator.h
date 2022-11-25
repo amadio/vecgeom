@@ -448,24 +448,14 @@ public:
     Vector3D<Precision> localdir;
     Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir);
 
-    Precision step                    = step_limit;
     VPlacedVolume const *hitcandidate = nullptr;
     auto pvol                         = in_state.Top();
     auto lvol                         = pvol->GetLogicalVolume();
-
-    if (MotherIsConvex) {
-      // if mother is convex we may not need to do treatment of mother
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+    Precision step                    = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+    // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+    if (lvol->GetDaughters().size() > 0)
       ((Impl *)this)
           ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
-      if (hitcandidate == nullptr) step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
-    } else {
-      // need to calc DistanceToOut first
-      step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
-      ((Impl *)this)
-          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
-    }
 
     // fix state
     bool done;
@@ -505,24 +495,14 @@ public:
     Vector3D<Precision> localdir;
     Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir);
 
-    Precision step                    = step_limit;
     VPlacedVolume const *hitcandidate = nullptr;
     auto pvol                         = in_state.Top();
     auto lvol                         = pvol->GetLogicalVolume();
-
-    if (MotherIsConvex) {
-      // if mother is convex we may not need to do treatment of mother
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+    Precision step                    = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+    // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+    if (lvol->GetDaughters().size() > 0)
       ((Impl *)this)
           ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
-      if (hitcandidate == nullptr) step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
-    } else {
-      // need to calc DistanceToOut first
-      step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
-      ((Impl *)this)
-          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
-    }
 
     // fix state
     bool done;
@@ -564,28 +544,20 @@ public:
       safety = ((SafetyE_t *)fSafetyEstimator)->SafetyE_t::ComputeSafetyForLocalPoint(localpoint, in_state.Top());
     }
 
-    Precision step                    = step_limit;
     VPlacedVolume const *hitcandidate = nullptr;
     auto pvol                         = in_state.Top();
     auto lvol                         = pvol->GetLogicalVolume();
+    Precision step                    = step_limit;
 
     // is the next object certainly further away than the safety
     bool safetydone = calcsafety && safety >= step;
 
     if (!safetydone) {
-      if (MotherIsConvex) {
-        // if mother is convex we may not need to do treatment of mother
-        // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+      step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+      if (lvol->GetDaughters().size() > 0)
         ((Impl *)this)
             ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, out_state, step, hitcandidate);
-        if (hitcandidate == nullptr) step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
-      } else {
-        // need to calc DistanceToOut first
-        step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
-        // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
-        ((Impl *)this)
-            ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, out_state, step, hitcandidate);
-      }
     }
     if (indicateDaughterHit && hitcandidate) in_state.Push(hitcandidate);
     return Min(step, step_limit);
@@ -641,28 +613,13 @@ public:
                                                                 localpoint, localdir);
 
     T slimit(vecCore::FromPtr<T>(step_limits + from_index));
-    if (MotherIsConvex) {
-      vecCore::Store(slimit, out_steps + from_index);
-      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
-                                                               from_index, out_steps, hitcandidates);
-      // parse the hitcandidates pointer as double to apply a mask
-      T step(vecCore::FromPtr<T>(out_steps + from_index));
-      auto nothitdaughter = step == T(kInfLength);
-      if (!vecCore::MaskEmpty(nothitdaughter)) {
-        auto dout = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-        vecCore::MaskedAssign(step, nothitdaughter, dout);
-        vecCore::Store(step, out_steps + from_index);
-      }
+    // need to calc DistanceToOut first
+    T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+    vecCore::Store(step, out_steps + from_index);
 
-    } else {
-      // need to calc DistanceToOut first
-      T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-      vecCore::Store(step, out_steps + from_index);
-
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
-      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
-                                                               from_index, out_steps, hitcandidates);
-    }
+    // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+    Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
+                                                              from_index, out_steps, hitcandidates);
 
     // fix state ( seems to be serial so we iterate over indices )
     for (unsigned int i = 0; i < ChunkSize; ++i) {
@@ -711,27 +668,13 @@ public:
     Impl::template SafetyLooper<T, ChunkSize>(nav, pvol, localpoint, from_index, calcsafeties, out_safeties);
 
     T slimit(vecCore::FromPtr<T>(step_limits + from_index)); // will only work with new ScalarWrapper
-    if (MotherIsConvex) {
-      vecCore::Store(slimit, out_steps + from_index);
-      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
-                                                               from_index, out_steps, hitcandidates);
-      // parse the hitcandidates pointer as double to apply a mask
-      T step(vecCore::FromPtr<T>(out_steps + from_index));
-      auto nothitdaughter = step == T(kInfLength);
-      if (!vecCore::MaskEmpty(nothitdaughter)) {
-        vecCore__MaskedAssignFunc(step, nothitdaughter,
-                                  Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit));
-        vecCore::Store(step, out_steps + from_index);
-      }
-    } else {
-      // need to calc DistanceToOut first
-      T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-      vecCore::Store(step, out_steps + from_index);
+    // need to calc DistanceToOut first
+    T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+    vecCore::Store(step, out_steps + from_index);
 
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
-      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
-                                                               from_index, out_steps, hitcandidates);
-    }
+    // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+    Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
+                                                              from_index, out_steps, hitcandidates);
 
     using vecCore::LaneAt;
 
@@ -779,27 +722,13 @@ public:
     Impl::template SafetyLooper<T, ChunkSize>(nav, pvol, localpoint, from_index, calcsafeties, out_safeties);
 
     T slimit(vecCore::FromPtr<T>(step_limits + from_index)); // will only work with new ScalarWrapper
-    if (MotherIsConvex) {
-      vecCore::Store(slimit, out_steps + from_index);
-      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
-                                                               from_index, out_steps, hitcandidates);
-      // parse the hitcandidates pointer as double to apply a mask
-      T step(vecCore::FromPtr<T>(out_steps + from_index));
-      auto nothitdaughter = step == T(kInfLength);
-      if (!vecCore::MaskEmpty(nothitdaughter)) {
-        vecCore__MaskedAssignFunc(step, nothitdaughter,
-                                  Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit));
-        vecCore::Store(step, out_steps + from_index);
-      }
-    } else {
-      // need to calc DistanceToOut first
-      T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-      vecCore::Store(step, out_steps + from_index);
+    // need to calc DistanceToOut first
+    T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+    vecCore::Store(step, out_steps + from_index);
 
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
-      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
-                                                               from_index, out_steps, hitcandidates);
-    }
+    // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+    Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
+                                                              from_index, out_steps, hitcandidates);
 
     using vecCore::LaneAt;
 
@@ -849,27 +778,13 @@ public:
     Impl::template SafetyLooper<T, ChunkSize>(nav, pvol, localpoint, from_index, calcsafeties, out_safeties);
 
     T slimit(vecCore::FromPtr<T>(step_limits + from_index));
-    if (MotherIsConvex) {
-      vecCore::Store(slimit, out_steps + from_index);
-      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, from_index,
-                                                               out_steps, hitcandidates);
-      // parse the hitcandidates pointer as double to apply a mask
-      T step(vecCore::FromPtr<T>(out_steps + from_index));
-      auto nothitdaughter = step == T(kInfLength);
-      if (!vecCore::MaskEmpty(nothitdaughter)) {
-        vecCore__MaskedAssignFunc(step, nothitdaughter,
-                                  Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit));
-        vecCore::Store(step, out_steps + from_index);
-      }
-    } else {
-      // need to calc DistanceToOut first
-      T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-      vecCore::Store(step, out_steps + from_index);
+    // need to calc DistanceToOut first
+    T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+    vecCore::Store(step, out_steps + from_index);
 
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
-      Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, from_index,
-                                                               out_steps, hitcandidates);
-    }
+    // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+    Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, from_index,
+                                                              out_steps, hitcandidates);
   }
 
   // generic implementation for the vector interface
@@ -1030,24 +945,14 @@ public:
       safety_out = ((SafetyE_t *)fSafetyEstimator)->SafetyE_t::ComputeSafetyForLocalPoint(localpoint, in_state.Top());
     }
 
-    Precision step                    = step_limit;
     VPlacedVolume const *hitcandidate = nullptr;
     auto pvol                         = in_state.Top();
     auto lvol                         = pvol->GetLogicalVolume();
-
-    if (MotherIsConvex) {
-      // if mother is convex we may not need to do treatment of mother
+    Precision step                    = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);;
+    if (lvol->GetDaughters().size() > 0)
       // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
       ((Impl *)this)
           ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
-      if (hitcandidate == nullptr) step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
-    } else {
-      // need to calc DistanceToOut first
-      step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
-      ((Impl *)this)
-          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
-    }
 
     // fix state
     bool done;
