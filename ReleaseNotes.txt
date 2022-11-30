@@ -1,3 +1,74 @@
+Version 1.2.1            29th Nov 2022
+======================================
+Overview:
+- Fixes in shapes: polycone, cone, tube.
+- Extended vgdml support for the existing shapes.
+- Configuration updates and reorganisation for tests and benchmarks.
+- Improved CUDA support for memory allocation from shapes.
+- Simplified daughter crossing check in navigation.
+
+Configuration:
+- Split service code into vecgeom/tests as appropriate. Moved benchmarking code
+  to dedicated test-only library. Made utilities/ code a test-only library.
+  Updated build scripts to account for path changes.
+- Compile ShapeTester code into test-only library.
+- Updated location for test files download.
+- Ensure asserts are always enabled in all tests.
+- Fixed compilation warnings on gcc-12 and on recent clang versions.
+
+Navigation:
+- In VNavigator, simplified the logic which uses the mother volume convexity to
+  prioritize daughter checks. This approach is not always justified because
+  it may increase the search range for daughter candidates. The current
+  approach is conservative and uses the distance to mother first to limit
+  the search distance for daughters, only if there are daughters. The check
+  for daughters at this point spares extra checks in the derived navigators,
+  which in the case of BVH was even generating a crash.
+
+Persistency:
+- Added vgdml support for UnplacedEllipticalTube, UnplacedEllipticalCone
+  and UnplacedEllispoid shapes.
+- Fixed reading of (simple) extruded solid.
+
+Shapes:
+- Updated Polycone/Cone implementation to only use kConeTolerance.
+  Fixing cases of stuck tracks in ATLAS simulation.
+- [VECGEOM-542]: In Tube::DistanceToOut(), added logic to detect point location
+  in Phi sector of a tube. Now SafetyToOut() uses Wedge to calculate the
+  SafetyToOut() for a point from the phi section.
+  These modifications fix the mismatches reported by ShapeTester.
+  Since now checking the existence of a point in Phi section in DistanceToOut(),
+  a minor performance penalty is expected.
+- [VECGEOM-602] Fix in Polycone::SafetyToIn() to remove unececessary
+  calculations, when a point is outside the Z range.
+- Rewritten PolyhedronStruct::Initialize() without use of dynamic memory.
+  CUDA has only a very limited amount of scratch space for malloc / new.
+  Having many polyhedra in a geometry setup may exhaust that space.
+
+GPU:
+- Expose function to change heap limit in CUDA.
+  As of now, all "dynamically sized" shapes such as polyhedra, polycones,
+  and extruded solids allocate memory in kernels. This is problematic as
+  CUDA only has a very limited amount of scratch space for malloc / new.
+  Until the "transfer code" for these types of shapes is fixed, add the
+  function CudaDeviceSetHeapLimit() similar to CudaDeviceSetStackLimit()
+  to let VecGeom clients work around this problem.
+- Make BVHSafetyEstimator and BVHNavigator usable on device.
+  Function annotation as host device as needed. Implement the Instance method
+  for the GPU case.
+- Overload Transformation3D::Set for aligned/byte-wise data; allowing
+  user to choose whether a byte-wise load of the passed translation/rotation,
+  or an element-wise. The latter resulting in better load instructions.
+  Remove obsolete byte-wise Transformation3D::Set().
+- Ensure that transformation data in nav table is stored aligned;
+  fixed size calculation of navigation index table.
+
+Miscellaneous:
+- Added protection when using BVH navigation in leaf volumes.
+- Added implementation of marching cubes algorithm.
+- Fixed pixels container overlaps for trackML GDML file.
+- Self-consistency fixes for header inclusions in translation units.
+
 Version 1.2.0             4th May 2022
 ======================================
 Overview:
