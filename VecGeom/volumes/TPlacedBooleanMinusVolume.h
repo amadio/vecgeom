@@ -8,8 +8,7 @@
 #include "VecGeom/volumes/UnplacedVolume.h"
 #include "VecGeom/volumes/kernel/TBooleanMinusImplementation.h"
 #include "VecGeom/volumes/TUnplacedBooleanMinusVolume.h"
-//#define VECGEOM_ROOT
-//#define VECGEOM_TEST_BENCHMARK
+
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
 #include "TGeoVolume.h"
@@ -18,6 +17,7 @@
 #include "TGeoMatrix.h"
 #include "TGeoManager.h"
 #endif
+
 #ifdef VECGEOM_GEANT4
 #include "G4SubtractionSolid.hh"
 #include "G4ThreeVector.hh"
@@ -78,7 +78,7 @@ public:
 
 // Comparison specific
 
-#ifdef VECGEOM_TEST_BENCHMARK
+#ifndef VECGEOM_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const { return this; }
 
 #ifdef VECGEOM_ROOT
@@ -114,7 +114,7 @@ public:
         0, G4ThreeVector(rightm->Translation(0), rightm->Translation(1), rightm->Translation(2)));
   }
 #endif
-#endif // VECGEOM_TEST_BENCHMARK
+#endif // VECGEOM_CUDA
 
 }; // end class declaration
 

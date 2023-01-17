@@ -73,9 +73,6 @@
 // When DISTANCE_DEBUG is ON
 #cmakedefine VECGEOM_DISTANCE_DEBUG
 
-// When BENCHMARK is ON (NB: Not clear it's used at all in code)
-#cmakedefine VECGEOM_TEST_BENCHMARK
-
 // When VTUNE is ON
 #cmakedefine VECGEOM_TEST_VTUNE
 

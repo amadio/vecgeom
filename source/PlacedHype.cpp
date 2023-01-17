@@ -6,7 +6,6 @@
 #include "VecGeom/volumes/Hype.h"
 #include "VecGeom/base/Global.h"
 
-//#if defined(VECGEOM_TEST_BENCHMARK) && defined(VECGEOM_ROOT)
 #ifdef VECGEOM_ROOT
 #include "TGeoHype.h"
 #endif
@@ -50,7 +49,7 @@ G4VSolid const *PlacedHype::ConvertToGeant4() const
 }
 #endif
 
-#endif // VECGEOM_TEST_BENCHMARK
+#endif // VECGEOM_CUDA
 
 } // namespace VECGEOM_IMPL_NAMESPACE
 

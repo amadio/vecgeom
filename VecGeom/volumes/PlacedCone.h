@@ -66,7 +66,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_TEST_BENCHMARK
+#endif // VECGEOM_CUDA
 
   Precision GetRmin1() const { return GetUnplacedVolume()->GetRmin1(); }
   Precision GetRmax1() const { return GetUnplacedVolume()->GetRmax1(); }
