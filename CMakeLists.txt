@@ -404,7 +404,7 @@ if(VECGEOM_GEANT4)
     # for user friendliness .. added as external project for now
     set(VGM_INSTALL "${PROJECT_BINARY_DIR}/vgminstall/")
     ExternalProject_Add(VGM
-      GIT_REPOSITORY "https://github.com/alisw/VGM.git"
+      GIT_REPOSITORY "https://github.com/vmc-project/vgm.git"
       CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${VGM_INSTALL}
         -DWITH_EXAMPLES=OFF
