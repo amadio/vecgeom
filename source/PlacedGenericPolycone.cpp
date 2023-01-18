@@ -3,9 +3,6 @@
 
 #include "VecGeom/volumes/PlacedGenericPolycone.h"
 #include "VecGeom/volumes/SpecializedGenericPolycone.h"
-#ifdef VECGEOM_ROOT
-
-#endif
 #ifdef VECGEOM_GEANT4
 #include "G4GenericPolycone.hh"
 #endif

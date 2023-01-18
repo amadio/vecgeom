@@ -35,10 +35,9 @@ class UnplacedGenTrap;
 ///        and to lookup VecGeom instances from ROOT ones and vice versa.
 ///
 /// \details Allows integration with ROOT geometries for compatibility reasons.
-///          Is not necessary for VecGeom library, and will only have source
-///          compiled if the VECGEOM_ROOT flag is set by the compiler, activated
-///          with -DROOT=ON in CMake. When VecGeom is compiled with specialization
-///          support, the conversion will return runtime-specialized versions.
+///          Is not necessary for VecGeom, only compiled into the library if testing and use of 
+//           ROOT for testing is enabled in CMake.
+//           When VecGeom is compiled with specialization support, the conversion will return runtime-specialized versions.
 class RootGeoManager {
 
 private:

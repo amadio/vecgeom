@@ -12,10 +12,6 @@
 #include "VecGeom/volumes/PlacedVolImplHelper.h"
 #include "VecGeom/volumes/UnplacedBox.h"
 
-//#ifdef VECGEOM_ROOT
-//#include "TGeoBBox.h"
-//#endif
-
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedBox;);

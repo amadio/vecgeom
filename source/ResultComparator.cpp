@@ -63,22 +63,6 @@ void CompareUnplacedContains(VPlacedVolume const *vol, bool vecgeomresult, Vecto
   auto rootshape  = LookupROOT(vol);
   bool rootresult = rootshape->Contains((double *)&point[0]);
   mismatch |= rootresult != vecgeomresult;
-//        if( rootresult != vecgeomresult ){
-//            std::cout << "## WARNING (  " <<  callcounter  << " ) ## UnplacedContains VecGeom  " << vecgeomresult;
-//            std::cout << " ROOT: " << rootresult << "\n";
-//
-//            // generate ROOT file and macro to debug this error offline / asynchronously
-////    TGeoVolume * worldbackup = gGeoManager->GetTopVolume();
-////    std::stringstream s; s << "DO-Debug" << errorcounter;
-////    std::stringstream fn;
-////    fn << "DO-Debug" << errorcounter << ".root";
-////    gGeoManager->SetTopVolume( new TGeoVolume( s.str().c_str(), rootshape.get() ) );
-////    gGeoManager->Export( fn.str().c_str() );
-////
-////    // recover old geometry
-////    gGeoManager->SetTopVolume( worldbackup ); // gGeoManager->CloseGeometry();
-////
-//    }
 #endif
 
 #ifdef VECGEOM_GEANT4
@@ -89,10 +73,6 @@ void CompareUnplacedContains(VPlacedVolume const *vol, bool vecgeomresult, Vecto
   bool bothoutside = (g4inside == 0) && (!vecgeomresult);
   bool bothinside  = (g4inside == 2) && (vecgeomresult);
   mismatch |= g4inside != 1 && !(bothoutside || bothinside);
-//    if( ! ( bothoutside || bothinside ) ){
-//                std::cout << "## WARNING (  " <<  callcounter  << " ) ## UnplacedContains VecGeom  " << vecgeomresult;
-//                std::cout << " G4: " << g4inside << "\n";
-//       }
 #endif
 
   if (mismatch) {

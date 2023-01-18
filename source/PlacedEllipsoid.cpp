@@ -7,10 +7,7 @@
 
 #include "VecGeom/volumes/PlacedEllipsoid.h"
 #include "VecGeom/volumes/SpecializedEllipsoid.h"
-#ifdef VECGEOM_ROOT
-// Include header file for ROOT Ellipsoid as done for Elliptical Tube below
-// #include "TGeoEltu.h"
-#endif
+
 #ifdef VECGEOM_GEANT4
 #include "G4Ellipsoid.hh"
 #endif

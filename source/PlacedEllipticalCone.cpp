@@ -8,11 +8,6 @@
 #include "VecGeom/volumes/PlacedEllipticalCone.h"
 #include "VecGeom/volumes/SpecializedEllipticalCone.h"
 
-#ifdef VECGEOM_ROOT
-// Include header file for ROOT Elliptical Cone as done for Tube below
-// #include "TGeoEltu.h"
-#endif
-
 #ifdef VECGEOM_GEANT4
 #include "G4EllipticalCone.hh"
 #endif

@@ -9,11 +9,11 @@
 #include "VecGeom/volumes/Cone.h"
 #include "VecGeom/volumes/SpecializedCone.h"
 
-#if defined(VECGEOM_ROOT)
+#ifdef VECGEOM_ROOT
 #include "TGeoCone.h"
 #endif
 
-#if defined(VECGEOM_GEANT4)
+#ifdef VECGEOM_GEANT4
 #include "G4Cons.hh"
 #endif
 

@@ -1,12 +1,12 @@
 #include "VecGeom/management/G4GeoManager.h"
 
-#if defined(VECGEOM_GEANT4)
+#ifdef VECGEOM_GEANT4
 
 #include "G4GDMLParser.hh"
 #include "G4GeometryManager.hh"
 #include "G4VPhysicalVolume.hh"
 
-#if defined(VECGEOM_ROOT)
+#ifdef VECGEOM_ROOT
 // from VGM
 #include "Geant4GM/volumes/Factory.h"
 #include "RootGM/volumes/Factory.h"

@@ -3,12 +3,6 @@
 
 #include "VecGeom/volumes/PlacedCoaxialCones.h"
 #include "VecGeom/volumes/SpecializedCoaxialCones.h"
-#ifdef VECGEOM_ROOT
-
-#endif
-#ifdef VECGEOM_GEANT4
-
-#endif
 
 #include <stdio.h>
 

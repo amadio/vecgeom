@@ -24,9 +24,6 @@
 #include <random>
 #include <vector>
 #include <random>
-#ifdef VECGEOM_ROOT
-#include "TGeoShape.h"
-#endif
 
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
