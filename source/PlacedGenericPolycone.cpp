@@ -30,13 +30,6 @@ VPlacedVolume const *PlacedGenericPolycone::ConvertToUnspecialized() const
   return new SimpleGenericPolycone(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedGenericPolycone::ConvertToRoot() const
-{
-  return nullptr; // There is no corresponding TGeo shape
-}
-#endif
-
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedGenericPolycone::ConvertToGeant4() const
 {

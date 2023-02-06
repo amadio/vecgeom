@@ -7,7 +7,7 @@
 /// @author: Ceated by Mihaela Gheata
 
 #include "../benchmark/ArgParser.h"
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 #include "VecGeom/volumes/Parallelepiped.h"
 typedef vecgeom::SimpleParallelepiped Para_t;
 

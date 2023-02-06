@@ -25,10 +25,6 @@
 #include <vector>
 #include <random>
 
-#ifdef VECGEOM_ROOT
-#include "TGeoShape.h"
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 namespace volumeUtilities {
@@ -46,15 +42,7 @@ VECGEOM_FORCE_INLINE
 bool IsHittingVolume(Vector3D<Precision> const &point, Vector3D<Precision> const &dir, VPlacedVolume const &volume)
 {
   assert(!volume.Contains(point));
-#if defined(USEROOTFORHITDETECTION)
-  std::shared_ptr<TGeoShape const> rootshape(volume.ConvertToRoot());
-  Transformation3D const *m  = volume.GetTransformation();
-  Vector3D<Precision> rpoint = m->Transform(point);
-  Vector3D<Precision> rdir   = m->TransformDirection(dir);
-  return rootshape->DistFromOutside((double *)&rpoint[0], (double *)&rdir[0], 3, vecgeom::kInfLength) < 1E20;
-#else
   return volume.DistanceToIn(point, dir, vecgeom::kInfLength) < vecgeom::kInfLength;
-#endif
 }
 
 // utility function to check if track hits any daughter of input logical volume

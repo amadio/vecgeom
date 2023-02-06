@@ -1,4 +1,4 @@
-#include "utilities/ShapeDebugger.h"
+#include "VecGeomTest/ShapeDebugger.h"
 #include "VecGeom/volumes/Sphere.h"
 
 using namespace vecgeom;

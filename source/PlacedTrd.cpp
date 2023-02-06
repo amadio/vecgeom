@@ -28,20 +28,6 @@ VPlacedVolume const *PlacedTrd::ConvertToUnspecialized() const
   return new SimpleTrd(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedTrd::ConvertToRoot() const
-{
-  return GetUnplacedVolume()->ConvertToRoot(GetName());
-}
-#endif
-
-#ifdef VECGEOM_GEANT4
-G4VSolid const *PlacedTrd::ConvertToGeant4() const
-{
-  return GetUnplacedVolume()->ConvertToGeant4(GetName());
-}
-#endif
-
 #endif // VECCORE_CUDA
 
 } // namespace VECGEOM_IMPL_NAMESPACE

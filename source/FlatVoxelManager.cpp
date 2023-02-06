@@ -14,12 +14,6 @@
 #include <sstream>
 #include <set>
 
-// this is for serialization
-#ifdef VECGEOM_ROOT
-#include "TFile.h"
-#include "TTree.h"
-#endif
-
 // for timing measurement
 #include "VecGeom/base/Stopwatch.h"
 
@@ -42,6 +36,7 @@ void FlatVoxelManager::InitStructure(LogicalVolume const *lvol)
 
 FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume const *vol)
 {
+// TODO: How/Where is this supposed to be used, or is it obsolete?
 #ifdef EXTREMELOOKUP
   Vector3D<Precision> lower, upper;
   vol->GetUnplacedVolume()->Extent(lower, upper);
@@ -184,14 +179,8 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
   //  int Ny = 10; //std::max(4., 2*std::sqrt(1.*ndaughters));
   //  int Nz = 10; //std::max(4., 2*std::sqrt(1.*ndaughters));
 
-  // first of all look if we have a cached version sitting in some file
-  FlatVoxelHashMap<int, false> *safetyvoxels = nullptr;
-  safetyvoxels = FlatVoxelHashMap<int, false>::readFromTFile(createName(vol, Nx, Ny, Nz).c_str());
-  if (safetyvoxels) {
-    std::cout << "Found cached version of safety voxels for volume " << vol->GetName() << "\n";
-    return safetyvoxels;
-  }
-  safetyvoxels = new FlatVoxelHashMap<int, false>(lower, 1.005 * (upper - lower), Nx, Ny, Nz);
+  // Initialize new structure
+  auto* safetyvoxels = new FlatVoxelHashMap<int, false>(lower, 1.005 * (upper - lower), Nx, Ny, Nz);
 
   int numtasks = std::thread::hardware_concurrency();
   int npointstotal{1000 * Nx * Ny * Nz};
@@ -257,9 +246,9 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
             << sortedkeys.size() / (1. * Nx * Ny * Nz) << " estimated volume "
             << sortedkeys.size() * safetyvoxels->getVoxelVolume() << "\n";
   size_t minSize = 50;
-  if( sortedkeys.size() < minSize ){
-     std::cerr << " ** Keys are few -- not creating acceleration structure. \n";
-     return nullptr;
+  if (sortedkeys.size() < minSize) {
+    std::cerr << " ** Keys are few -- not creating acceleration structure. \n";
+    return nullptr;
   }
   //
   timer.Start();
@@ -287,7 +276,7 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
 
       std::vector<Vector3D<float>> voxelsurfacepoints;
       for (int i = startindex; i < endindex; ++i) {
-        auto k       = sortedkeys[i];
+        auto k = sortedkeys[i];
 
         // ---
         // step 1 is to check intersections of this voxel with all object bounding boxes
@@ -395,8 +384,8 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
               const auto candsafetysqr   = candidatesafety * candidatesafety;
 #ifdef VOXEL_DEBUG
               if (verbose) {
-                std::cerr << "DAUGH " << volid << " squared box saf " << safetytoboxsqr
-                          << " cands " << candidatesafety << "\n";
+                std::cerr << "DAUGH " << volid << " squared box saf " << safetytoboxsqr << " cands " << candidatesafety
+                          << "\n";
               }
 #endif
               // we take the larger of boxsafety or candidatesafety as the safety for this object
@@ -414,8 +403,10 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
                 finalsafetysqr = thiscandidatesafetysqr;
               }
             }
-#ifdef VOXEL_DEBUG            
-            if (verbose) { std::cerr << "Inserting best candidate " << bestcandidate << "\n"; }
+#ifdef VOXEL_DEBUG
+            if (verbose) {
+              std::cerr << "Inserting best candidate " << bestcandidate << "\n";
+            }
 #endif
             othersafetycandidates.insert(bestcandidate);
           } // if not in daughter
@@ -458,11 +449,6 @@ FlatVoxelHashMap<int, false> *FlatVoxelManager::BuildSafetyVoxels(LogicalVolume 
     }
   }
   std::cout << " done \n";
-
-  // safetyvoxels->print();
-  // create cache
-  safetyvoxels->dumpToTFile(createName(vol, Nx, Ny, Nz).c_str());
-
   return safetyvoxels;
 #endif // extreme lookup
 }
@@ -565,78 +551,6 @@ void FlatVoxelManager::RemoveStructure(LogicalVolume const *lvol)
 {
   // FIXME: take care of memory deletion within acceleration structure
   if (fStructureHolder[lvol->id()]) delete fStructureHolder[lvol->id()];
-}
-
-// save to TFile
-void FlatVoxelManager::dumpToTFile(const char *name, std::vector<float> const &xs, std::vector<float> const &ys,
-                                   std::vector<float> const &zs, std::vector<long> const &keys,
-                                   std::vector<float> const &safeties)
-{
-#ifdef VECGEOM_ROOT
-  TFile f(name, "RECREATE");
-  f.WriteObjectAny((void *)&xs, "std::vector<float>", "XS");
-  f.WriteObjectAny((void *)&ys, "std::vector<float>", "YS");
-  f.WriteObjectAny((void *)&zs, "std:s:vector<float>", "ZS");
-  f.WriteObjectAny((void *)&keys, "std::vector<long>", "KEYS");
-  f.WriteObjectAny((void *)&safeties, "std::vector<float>", "SAF");
-  f.Close();
-#endif
-}
-
-void FlatVoxelManager::dumpToTFile(const char *name, SOA3D<float> const &points, std::vector<long> const &keys,
-                                   std::vector<float> const &safeties)
-{
-#ifdef VECGEOM_ROOT
-  size_t npoints = points.size();
-  std::vector<float> xs(points.x(), points.x() + npoints);
-  std::vector<float> ys(points.y(), points.y() + npoints);
-  std::vector<float> zs(points.z(), points.z() + npoints);
-
-  TFile f(name, "RECREATE");
-  TTree tree("t", "t");
-  tree.Branch("XS", &xs);
-  tree.Branch("YS", &ys);
-  tree.Branch("ZS", &zs);
-  std::vector<long> *keysptr = (std::vector<long> *)&keys;
-  tree.Branch("KEYS", keysptr);
-  std::vector<float> *sptr = (std::vector<float> *)&safeties;
-  tree.Branch("SAF", sptr);
-  tree.Fill();
-  tree.Write();
-  f.Close();
-#endif
-}
-
-// read from TFile; return true if successful
-bool FlatVoxelManager::readFromTFile(const char *name, std::vector<float> &xs, std::vector<float> &ys,
-                                     std::vector<float> &zs, std::vector<long> &keys, std::vector<float> &safeties)
-{
-  // TFile f(name);
-  // std::vector<float> *lxs = nullptr;
-  // std::vector<float> *lys = nullptr;
-  // std::vector<float> *lzs = nullptr;
-  // std::vector<long>  *lkeys = nullptr;
-  // std::vector<float> *lsafeties = nullptr;
-
-  // if (!f.IsZombie()) {
-  //  lxs = (std::vector<float> *)f.GetObjectChecked("XS","std::vector<float>");
-  //  lys = (std::vector<float> *)f.GetObjectChecked("YS","std::vector<float>");
-  //  lzs = (std::vector<float> *)f.GetObjectChecked("ZS","std::vector<float>");
-  //  lkeys = (std::vector<long> *)f.GetObjectChecked("KEYS","std::vector<long>");
-  //  lsafeties = (std::vector<float> *)f.GetObjectChecked("SAF","std::vector<float>");
-  //  return true;
-  // }
-  return false;
-}
-
-// create a name for the backup file
-std::string FlatVoxelManager::createName(LogicalVolume const *vol, int kx, int ky, int kz)
-{
-  const auto volname    = vol->GetName();
-  const auto ndaughters = vol->GetDaughtersp()->size();
-  std::stringstream str;
-  str << volname << "_ND_" << ndaughters << "_KX_" << kx << "_KY_" << ky << "_KZ_" << kz << ".root";
-  return str.str();
 }
 
 } // namespace VECGEOM_IMPL_NAMESPACE

@@ -8,6 +8,8 @@
 // Forced asserts() to be defined, even for Release mode
 #undef NDEBUG
 
+#include "VecGeomTest/NavStateConverter.h"
+
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/base/Global.h"
 #include "VecGeom/base/Transformation3D.h"
@@ -26,7 +28,9 @@
 #include "VecGeom/navigation/GlobalLocator.h"
 #include "VecGeom/volumes/UnplacedTorus2.h"
 #include "VecGeom/volumes/UnplacedTrapezoid.h"
-#include "VecGeom/management/RootGeoManager.h"
+
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/management/GeoManager.h"
 #include "TGeoManager.h"
 #include "TGeoBranchArray.h"
@@ -176,7 +180,7 @@ int main()
 
   /*** locate in ROOT geometry        **/
   for (int i = 0; i < NPOINTS; ++i) {
-    rootstates[i] = states1[i]->ToTGeoBranchArray();
+    rootstates[i] = NavStateConverter::ToTGeoBranchArray(*states1[i]);
 
     TGeoNavigator *nav = ::gGeoManager->GetCurrentNavigator();
     nav->FindNode(testpoints[i][0], testpoints[i][1], testpoints[i][2]);

@@ -6,10 +6,6 @@
 
 #include <algorithm>
 
-#ifdef VECGEOM_DISTANCE_DEBUG
-#include "VecGeom/volumes/utilities/ResultComparator.h"
-#endif
-
 namespace vecgeom {
 
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, PlacedVolumeImplHelper, class, Arg1, class, Arg2);
@@ -44,10 +40,6 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   Struct_t const *GetUnplacedStruct() const { return static_cast<Struct_t const *>(&GetUnplacedVolume()->GetStruct()); }
-
-  // VECCORE_ATT_HOST_DEVICE
-  // virtual void PrintType() const override;
-  // virtual void PrintType(std::ostream &s) const override;
 
 #if !defined(VECCORE_CUDA)
   virtual Precision Capacity() override { return const_cast<UnplacedShape_t *>(GetUnplacedVolume())->Capacity(); }

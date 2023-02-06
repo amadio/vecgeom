@@ -6,7 +6,9 @@
  */
 
 #include "VecGeom/management/GeoManager.h"
-#include "VecGeom/management/RootGeoManager.h"
+
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/management/CppExporter.h"
 #ifdef VECGEOM_CUDA_INTERFACE
 #include "VecGeom/management/CudaManager.h"

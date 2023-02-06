@@ -1,10 +1,10 @@
-#include "utilities/ShapeDebugger.h"
+#include "ShapeDebugger.h"
 
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
 
 #ifdef VECGEOM_ROOT
-#include "utilities/Visualizer.h"
+#include "Visualizer.h"
 #include "TGeoManager.h"
 #include "TGeoShape.h"
 #include "TGeoSphere.h"

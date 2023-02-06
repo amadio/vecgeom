@@ -16,10 +16,6 @@
 #endif
 #include "VecGeom/base/Global.h"
 
-#ifdef VECGEOM_ROOT
-#include "VecGeom/management/RootGeoManager.h"
-#endif
-
 #include <iostream>
 #include <string>
 
@@ -291,11 +287,6 @@ public:
     other->fPath.fSelfAlloc = alloc;
   }
 
-#ifdef VECGEOM_ROOT
-  TGeoBranchArray *ToTGeoBranchArray() const;
-  NavStatePath &operator=(TGeoBranchArray const &rhs);
-#endif
-
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   ~NavStatePath();
@@ -448,13 +439,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   unsigned char GetLevel() const { return fCurrentLevel - 1; }
 
-#ifdef VECGEOM_ROOT
-  VECGEOM_FORCE_INLINE
-  void printVolumePath(std::ostream & = std::cerr) const;
-
-  TGeoNode const *GetNode(int level) const { return RootGeoManager::Instance().tgeonode(ToPlacedVolume(fPath[level])); }
-#endif
-
   /**
     function returning whether the point (current navigation state) is outside the detector setup
   */
@@ -484,17 +468,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void SetCacheValue(short v) { fCache = v; }
 
-#ifdef VECGEOM_ROOT
-  /**
-   * function return the ROOT TGeoNode object which is equivalent to calling Top()
-   * function included for convenience; to make porting Geant-V easier; we should eventually get rid of this function
-   */
-  VECGEOM_FORCE_INLINE
-  TGeoNode const *GetCurrentNode() const { return RootGeoManager::Instance().tgeonode(this->Top()); }
-#endif
-
-  // void GetGlobalMatrixFromPath( Transformation3D *const m ) const;
-  // Transformation3D const * GetGlobalMatrixFromPath() const;
 }; // end of class
 
 VECCORE_ATT_HOST_DEVICE
@@ -513,18 +486,6 @@ NavStatePath &NavStatePath::operator=(NavStatePath const &rhs)
   }
   return *this;
 }
-
-/*
-NavStatePath::NavStatePath( NavStatePath const & rhs ) :
-        fMaxlevel(rhs.fMaxlevel),
-        fCurrentLevel(rhs.fCurrentLevel),
-        fOnBoundary(rhs.fOnBoundary),
-        fPath(&fBuffer[0])
-{
-   InitInternalStorage();
-   std::memcpy(fPath, rhs.fPath, sizeof(*fPath)*rhs.fCurrentLevel );
-}
-*/
 
 // private implementation of standard constructor
 VECCORE_ATT_HOST_DEVICE
@@ -676,20 +637,6 @@ inline void NavStatePath::printValueSequence(std::ostream &stream) const
     stream << "/" << fPath[i] << "(" << At(i)->GetLabel() << ")";
   }
 }
-
-#ifdef VECGEOM_ROOT
-VECGEOM_FORCE_INLINE
-/**
- * prints the path of the track as a verbose string ( like TGeoBranchArray in ROOT )
- * (uses internal root representation for the moment)
- */
-void NavStatePath::printVolumePath(std::ostream &stream) const
-{
-  for (int i = 0; i < fCurrentLevel; ++i) {
-    stream << "/" << RootGeoManager::Instance().tgeonode(ToPlacedVolume(fPath[i]))->GetName();
-  }
-}
-#endif
 
 /**
  * calculates if other navigation state takes a different branch in geometry path or is on same branch

@@ -1,6 +1,4 @@
-#include "VecGeom/management/G4GeoManager.h"
-
-#ifdef VECGEOM_GEANT4
+#include "G4GeoManager.h"
 
 #include "G4GDMLParser.hh"
 #include "G4GeometryManager.hh"
@@ -73,5 +71,3 @@ void G4GeoManager::LoadG4Geometry(G4VPhysicalVolume *world)
 }
 }
 } // end namespaces
-
-#endif

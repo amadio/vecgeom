@@ -15,7 +15,9 @@
 #include "VecGeom/navigation/NavStatePool.h"
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/volumes/PlacedVolume.h"
-#include "VecGeom/management/RootGeoManager.h"
+
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/base/Stopwatch.h"
 #include "VecGeom/navigation/SimpleSafetyEstimator.h"
@@ -41,7 +43,7 @@
 #include "G4Navigator.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4ThreeVector.hh"
-#include "VecGeom/management/G4GeoManager.h"
+#include "VecGeomTest/G4GeoManager.h"
 #include "G4VoxelNavigation.hh"
 #endif
 

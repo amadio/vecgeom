@@ -1,5 +1,5 @@
 #include "../benchmark/ArgParser.h"
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 #include "VecGeom/volumes/Polycone.h"
 
 typedef vecgeom::SimplePolycone Poly_t;

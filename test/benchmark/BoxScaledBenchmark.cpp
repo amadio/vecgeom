@@ -5,7 +5,7 @@
 #include "VecGeom/volumes/Box.h"
 #include "VecGeom/volumes/Tube.h"
 #include "VecGeom/volumes/ScaledShape.h"
-#include "VecGeomBenchmark/Benchmarker.h"
+#include "VecGeomTest/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 

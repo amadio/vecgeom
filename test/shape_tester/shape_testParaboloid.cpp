@@ -7,7 +7,7 @@
 /// @author Raman Sehgal
 
 #include "../benchmark/ArgParser.h"
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 #include "VecGeom/volumes/Paraboloid.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;

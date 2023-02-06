@@ -8,13 +8,6 @@
 #include <list>
 #include <sstream>
 
-#ifdef VECGEOM_ROOT
-#include "VecGeom/management/RootGeoManager.h"
-#include "TGeoBranchArray.h"
-#include "TGeoNode.h"
-#include "TGeoManager.h"
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -166,47 +159,6 @@ int NavStateIndex::Distance(NavStateIndex const &other) const
 
   return (thislevel - lastcommonlevel) + (otherlevel - lastcommonlevel);
 }
-
-#ifdef VECGEOM_ROOT
-TGeoBranchArray *NavStateIndex::ToTGeoBranchArray() const
-{
-// attention: the counting of levels is different: fLevel=0 means that
-// this is a branch which is filled at level zero
-
-// my counting is a bit different: it tells the NUMBER of levels which are filled
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 34, 23)
-  TGeoBranchArray *tmp = TGeoBranchArray::MakeInstance(GetMaxLevel());
-#else
-  TGeoBranchArray *tmp = new TGeoBranchArray(GetMaxLevel());
-#endif
-  // gain access to array
-  TGeoNode **array   = tmp->GetArray();
-  RootGeoManager &mg = RootGeoManager::Instance();
-  TGeoNavigator *nav = gGeoManager->GetCurrentNavigator();
-  tmp->InitFromNavigator(nav);
-
-  // tmp->
-  int level = GetLevel();
-  for (int i = 0; i < level + 1; ++i)
-    array[i] = const_cast<TGeoNode *>(mg.tgeonode(At(level)));
-  return tmp;
-}
-
-NavStateIndex &NavStateIndex::operator=(TGeoBranchArray const &other)
-{
-  // attention: the counting of levels is different: fLevel=0 means that
-  // this is a branch which is filled at level zero
-  Clear();
-  RootGeoManager &mg = RootGeoManager::Instance();
-  assert(other.GetLevel() <= GetMaxLevel());
-
-  for (size_t i = 0; i < other.GetLevel(); ++i) {
-    Push(mg.GetPlacedVolume(other.GetNode(i)));
-  }
-  return *this;
-}
-
-#endif
 
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

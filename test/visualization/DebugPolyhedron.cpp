@@ -1,5 +1,5 @@
 #include "VecGeom/volumes/Polyhedron.h"
-#include "utilities/ShapeDebugger.h"
+#include "VecGeomTest/ShapeDebugger.h"
 
 #include <memory>
 

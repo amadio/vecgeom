@@ -1,7 +1,7 @@
 /// \file PlacedRootVolume.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "VecGeom/volumes/PlacedRootVolume.h"
+#include "PlacedRootVolume.h"
 #include "TGeoBBox.h"
 #include "VecGeom/base/SOA3D.h"
 
@@ -115,20 +115,6 @@ VPlacedVolume const *PlacedRootVolume::ConvertToUnspecialized() const
   assert(0 && "Attempted to perform conversion on unsupported ROOT volume.");
   return NULL;
 }
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedRootVolume::ConvertToRoot() const
-{
-  assert(0 && "Attempted to perform conversion on unsupported ROOT volume.");
-  return NULL;
-}
-#endif
-#ifdef VECGEOM_GEANT4
-G4VSolid const *PlacedRootVolume::ConvertToGeant4() const
-{
-  assert(0 && "Attempted to perform conversion on unsupported ROOT volume.");
-  return NULL;
-}
-#endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
 DevicePtr<cuda::VPlacedVolume> PlacedRootVolume::CopyToGpu(DevicePtr<cuda::LogicalVolume> const /* logical_volume */,

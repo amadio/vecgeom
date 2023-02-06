@@ -3,12 +3,6 @@
 
 #include "VecGeom/volumes/PlacedTrapezoid.h"
 #include "VecGeom/volumes/SpecializedTrapezoid.h"
-#ifdef VECGEOM_ROOT
-#include "TGeoArb8.h"
-#endif
-#ifdef VECGEOM_GEANT4
-#include "G4Trap.hh"
-#endif
 
 #include <cstdio>
 
@@ -32,20 +26,6 @@ VPlacedVolume const *PlacedTrapezoid::ConvertToUnspecialized() const
 {
   return new SimpleTrapezoid(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
-
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedTrapezoid::ConvertToRoot() const
-{
-  return GetUnplacedVolume()->ConvertToRoot(GetName());
-}
-#endif
-
-#ifdef VECGEOM_GEANT4
-G4VSolid const *PlacedTrapezoid::ConvertToGeant4() const
-{
-  return GetUnplacedVolume()->ConvertToGeant4(GetName());
-}
-#endif
 
 #endif // VECCORE_CUDA
 

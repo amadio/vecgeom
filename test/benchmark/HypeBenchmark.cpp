@@ -7,7 +7,7 @@
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/volumes/Box.h"
 #include "VecGeom/volumes/Hype.h"
-#include "VecGeomBenchmark/Benchmarker.h"
+#include "VecGeomTest/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 #define PI 3.141592653589793

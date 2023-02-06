@@ -15,10 +15,6 @@
 #include "VecGeom/management/CudaManager.h"
 #endif
 
-#ifdef VECGEOM_ROOT
-#include "VecGeom/management/RootGeoManager.h"
-#endif
-
 #include <iostream>
 #include <string>
 
@@ -107,17 +103,6 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   static size_t SizeOf(size_t) { return sizeof(NavStateIndex); }
-
-#ifdef VECGEOM_ROOT
-  TGeoBranchArray *ToTGeoBranchArray() const;
-  NavStateIndex &operator=(TGeoBranchArray const &rhs);
-  /**
-   * function return the ROOT TGeoNode object which is equivalent to calling Top()
-   * function included for convenience; to make porting Geant-V easier; we should eventually get rid of this function
-   */
-  VECGEOM_FORCE_INLINE
-  TGeoNode const *GetCurrentNode() const { return RootGeoManager::Instance().tgeonode(this->Top()); }
-#endif
 
   VECCORE_ATT_HOST_DEVICE
   void CopyTo(NavStateIndex *other) const { *other = *this; }

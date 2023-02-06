@@ -35,14 +35,6 @@ VPlacedVolume const *PlacedEllipsoid::ConvertToUnspecialized() const
   return new SimpleEllipsoid(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedEllipsoid::ConvertToRoot() const
-{
-  // Return ROOT Ellipsoid
-  return nullptr; // There is no suitable TGeo shape 2019.06.17
-}
-#endif
-
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedEllipsoid::ConvertToGeant4() const
 {

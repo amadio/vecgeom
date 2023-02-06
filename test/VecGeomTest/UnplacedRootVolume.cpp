@@ -1,9 +1,9 @@
 /// \file UnplacedRootVolume.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "VecGeom/volumes/UnplacedRootVolume.h"
+#include "UnplacedRootVolume.h"
 
-#include "VecGeom/volumes/PlacedRootVolume.h"
+#include "PlacedRootVolume.h"
 
 #include <stdio.h>
 

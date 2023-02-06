@@ -19,16 +19,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 const Transformation3D Transformation3D::kIdentity = Transformation3D();
 
-// Transformation3D::Transformation3D(const Precision tx,
-//                                   const Precision ty,
-//                                   const Precision tz) :
-//   fIdentity(false), fHasRotation(true), fHasTranslation(true)
-//{
-//  SetTranslation(tx, ty, tz);
-//  SetRotation(1, 0, 0, 0, 1, 0, 0, 0, 1);
-//  SetProperties();
-//}
-
 VECCORE_ATT_HOST_DEVICE
 Transformation3D::Transformation3D(const Precision tx, const Precision ty, const Precision tz, const Precision phi,
                                    const Precision theta, const Precision psi)
@@ -199,31 +189,31 @@ TranslationCode Transformation3D::GenerateTranslationCode() const
 #ifdef VECGEOM_ROOT
 // function to convert this transformation to a TGeo transformation
 // mainly used for the benchmark comparisons with ROOT
-TGeoMatrix *Transformation3D::ConvertToTGeoMatrix() const
+TGeoMatrix *Transformation3D::ConvertToTGeoMatrix(Transformation3D const& ttd)
 {
   double rotd[9];
-  if (fHasRotation) {
+  if (ttd.HasRotation()) {
     for (auto i = 0; i < 9; ++i)
-      rotd[i] = Rotation()[i];
+      rotd[i] = ttd.Rotation()[i];
   }
 
-  if (fIdentity) {
+  if (ttd.IsIdentity()) {
     return new TGeoIdentity();
   }
-  if (fHasTranslation && !fHasRotation) {
-    return new TGeoTranslation(fTranslation[0], fTranslation[1], fTranslation[2]);
+  if (ttd.HasTranslation() && !ttd.HasRotation()) {
+    return new TGeoTranslation(ttd.Translation(0), ttd.Translation(1), ttd.Translation(2));
   }
-  if (fHasRotation && !fHasTranslation) {
+  if (ttd.HasRotation() && !ttd.HasTranslation()) {
     TGeoRotation *tmp = new TGeoRotation();
     tmp->SetMatrix(rotd);
     return tmp;
   }
-  if (fHasTranslation && fHasRotation) {
+  if (ttd.HasTranslation() && ttd.HasRotation()) {
     TGeoRotation *tmp = new TGeoRotation();
     tmp->SetMatrix(rotd);
-    return new TGeoCombiTrans(fTranslation[0], fTranslation[1], fTranslation[2], tmp);
+    return new TGeoCombiTrans(ttd.Translation(0), ttd.Translation(1), ttd.Translation(2), tmp);
   }
-  return 0;
+  return nullptr;
 }
 #endif
 
@@ -263,8 +253,8 @@ DevicePtr<cuda::Transformation3D> Transformation3D::CopyToGpu() const
  * \param gpu_ptrs Device pointers to indicate where the transformations should be placed.
  * The device memory must have been allocated before copying.
  */
-void Transformation3D::CopyManyToGpu(const std::vector<Transformation3D const *>& trafos,
-                                     const std::vector<DevicePtr<cuda::Transformation3D>>& gpu_ptrs)
+void Transformation3D::CopyManyToGpu(const std::vector<Transformation3D const *> &trafos,
+                                     const std::vector<DevicePtr<cuda::Transformation3D>> &gpu_ptrs)
 {
   assert(trafos.size() == gpu_ptrs.size());
 
@@ -278,18 +268,22 @@ void Transformation3D::CopyManyToGpu(const std::vector<Transformation3D const *>
   std::vector<Precision> trafoData(12 * trafos.size());
 
   std::size_t trafoCounter = 0;
-  for (Transformation3D const * trafo : trafos) {
-    for (unsigned int i = 0; i < 3; ++i) trafoData[trafoCounter +  i    * trafos.size()] = trafo->Translation(i);
-    for (unsigned int i = 0; i < 9; ++i) trafoData[trafoCounter + (i+3) * trafos.size()] = trafo->Rotation(i);
+  for (Transformation3D const *trafo : trafos) {
+    for (unsigned int i = 0; i < 3; ++i)
+      trafoData[trafoCounter + i * trafos.size()] = trafo->Translation(i);
+    for (unsigned int i = 0; i < 9; ++i)
+      trafoData[trafoCounter + (i + 3) * trafos.size()] = trafo->Rotation(i);
     ++trafoCounter;
   }
 
-  ConstructManyOnGpu<cuda::Transformation3D>(trafos.size(), gpu_ptrs.data(),
-      trafoData.data(),                     trafoData.data() +  1 * trafos.size(), trafoData.data() +  2 * trafos.size(), // translations
-      trafoData.data() + 3 * trafos.size(), trafoData.data() +  4 * trafos.size(), trafoData.data() +  5 * trafos.size(), // rotations
-      trafoData.data() + 6 * trafos.size(), trafoData.data() +  7 * trafos.size(), trafoData.data() +  8 * trafos.size(),
-      trafoData.data() + 9 * trafos.size(), trafoData.data() + 10 * trafos.size(), trafoData.data() + 11 * trafos.size()
-  );
+  ConstructManyOnGpu<cuda::Transformation3D>(
+      trafos.size(), gpu_ptrs.data(), trafoData.data(), trafoData.data() + 1 * trafos.size(),
+      trafoData.data() + 2 * trafos.size(), // translations
+      trafoData.data() + 3 * trafos.size(), trafoData.data() + 4 * trafos.size(),
+      trafoData.data() + 5 * trafos.size(), // rotations
+      trafoData.data() + 6 * trafos.size(), trafoData.data() + 7 * trafos.size(), trafoData.data() + 8 * trafos.size(),
+      trafoData.data() + 9 * trafos.size(), trafoData.data() + 10 * trafos.size(),
+      trafoData.data() + 11 * trafos.size());
 }
 
 #endif // VECGEOM_CUDA_INTERFACE
@@ -307,10 +301,10 @@ template void DevicePtr<cuda::Transformation3D>::Construct(const Precision tx, c
                                                            const Precision r6, const Precision r7,
                                                            const Precision r8) const;
 template void ConstructManyOnGpu<Transformation3D>(std::size_t, DevicePtr<cuda::Transformation3D> const *,
-                                                   Precision const * tx, Precision const * ty, Precision const * tz,
-                                                   Precision const * r0, Precision const * r1, Precision const * r2,
-                                                   Precision const * r3, Precision const * r4, Precision const * r5,
-                                                   Precision const * r6, Precision const * r7, Precision const * r8);
+                                                   Precision const *tx, Precision const *ty, Precision const *tz,
+                                                   Precision const *r0, Precision const *r1, Precision const *r2,
+                                                   Precision const *r3, Precision const *r4, Precision const *r5,
+                                                   Precision const *r6, Precision const *r7, Precision const *r8);
 
 } // namespace cxx
 

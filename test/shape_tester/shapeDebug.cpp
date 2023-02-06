@@ -7,7 +7,8 @@
 //  Note: ROOT is required for visualization.
 //        Geant4 is also used when available, but they are not mandatory.
 //
-#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/UnplacedBox.h"
@@ -17,7 +18,7 @@
 #include "TGeoVolume.h"
 #include "TGeoBBox.h"
 #include "TGeoTube.h"
-#include "utilities/Visualizer.h"
+#include "VecGeomTest/Visualizer.h"
 #include <string>
 #include <cmath>
 #include <iostream>

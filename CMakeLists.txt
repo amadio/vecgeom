@@ -191,7 +191,7 @@ if(VECGEOM_TEST_STATIC_ANALYSIS)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
-# Thought to now be obsolete 
+# Thought to now be obsolete
 cmake_dependent_option(VECGEOM_TEST_VTUNE "Enable use of Intel Vtune for profiling tests" OFF "BUILD_TESTING" OFF)
 
 # TODO: not completely set up. Will build VG+tests with correct flags/links, but no report gen.
@@ -345,7 +345,7 @@ if(VECGEOM_ENABLE_CUDA)
 
   string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -G")
   string(APPEND CMAKE_CUDA_FLAGS_RELWITHDEBINFO " -line-info")
-  
+
   # Pre CMake 3.18, we have to manually manage architecture flags, and can only
   # really support Nvidia compiler. Don't handle any other case
   if(CMAKE_VERSION VERSION_LESS "3.18" AND CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA")
@@ -353,7 +353,7 @@ if(VECGEOM_ENABLE_CUDA)
     find_package(CUDA 11 REQUIRED)
     cuda_select_nvcc_arch_flags(_DEFAULT_CUDA_ARCH_FLAGS Auto)
     string(REGEX MATCH "[0-9][0-9]" _DEFAULT_CUDA_ARCH ${_DEFAULT_CUDA_ARCH_FLAGS})
-    
+
     # Duplicate as far as possible CMake >= 3.18 behaviour
     # NB: does *not* support -real or -virtual extensions
     set(CMAKE_CUDA_ARCHITECTURES ${_DEFAULT_CUDA_ARCH} CACHE STRING "List of CUDA Architectures")
@@ -392,32 +392,6 @@ endif()
 
 if(VECGEOM_GEANT4)
   find_package(Geant4 REQUIRED)
-  # need to define G4MULTITHREADED for Geant4-MT
-  add_definitions(${Geant4_DEFINITIONS})
-  include_directories(AFTER SYSTEM ${Geant4_INCLUDE_DIRS})
-  set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${Geant4_INCLUDE_DIRS}")
-  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${Geant4_LIBRARIES})
-
-  if(VECGEOM_ROOT)
-    # We use VGM to convert (test) geometries from ROOT input to G4
-    # without needing an intermediate gdml file
-    # for user friendliness .. added as external project for now
-    set(VGM_INSTALL "${PROJECT_BINARY_DIR}/vgminstall/")
-    ExternalProject_Add(VGM
-      GIT_REPOSITORY "https://github.com/vmc-project/vgm.git"
-      CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${VGM_INSTALL}
-        -DWITH_EXAMPLES=OFF
-        -DGeant4_DIR=${Geant4_DIR}
-        -DROOT_DIR=${ROOT_DIR}
-        -DCMAKE_INSTALL_LIBDIR=${VGM_INSTALL}/lib)
-
-    # now modify includes and libs for later linking
-    include_directories(${VGM_INSTALL}/include)
-    link_directories(${VGM_INSTALL}/lib)
-    set(VECGEOM_LIBRARIES_EXTERNAL "-L${VGM_INSTALL}/lib" BaseVGM;ClhepVGM;XmlVGM;Geant4GM;RootGM ${VECGEOM_LIBRARIES_EXTERNAL})
-    set(VGM ON)
-  endif()
 endif()
 
 if(VECGEOM_TEST_VTUNE)
@@ -533,17 +507,6 @@ if(VECGEOM_EMBREE)
   list(APPEND VECGEOM_COMMON_SRCS source/EmbreeManager.cpp)
 endif()
 
-if(VECGEOM_GEANT4)
-  list(APPEND VECGEOM_COMMON_SRCS source/G4GeoManager.cpp)
-endif()
-
-if(VECGEOM_ROOT)
-  list(APPEND VECGEOM_COMMON_SRCS source/RootGeoManager.cpp)
-  list(APPEND VECGEOM_CPPONLY_SRCS
-    source/PlacedRootVolume.cpp
-    source/UnplacedRootVolume.cpp)
-endif()
-
 # Copy all source files to .cu-files in order for NVCC to compile them as CUDA
 # code and not regular C++ files.
 if(VECGEOM_ENABLE_CUDA)
@@ -569,7 +532,6 @@ if(VECGEOM_ENABLE_CUDA)
     HybridManager2
     FlatVoxelManager
     Medium
-    G4GeoManager
     RootGeoManager
     MarchingCubes
     NavigationSpecializer
@@ -628,7 +590,7 @@ target_compile_features(vecgeom PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 #    CUDA library links to the C++ version. Thus its compile options are used by
 #    nvcc and may be unknown to it. CUDA 11 supports the -forward-unknown-to-host-compiler
 #    argument which CMake will apply automatically from CMake 3.17. To support
-#    CMake 3.16, explicitly forward flags using -Xcompiler=. 
+#    CMake 3.16, explicitly forward flags using -Xcompiler=.
 string(STRIP "${VECGEOM_COMPILATION_FLAGS}" __VECGEOM_COMPILE_OPTIONS)
 separate_arguments(__VECGEOM_COMPILE_OPTIONS)
 target_compile_options(vecgeom PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${__VECGEOM_COMPILE_OPTIONS}>)
@@ -645,8 +607,12 @@ target_link_libraries(vecgeom
   PUBLIC ${VECGEOM_LIBRARIES_EXTERNAL}
   PRIVATE ${CMAKE_DL_LIBS})
 
-if(VGM)
-  add_dependencies(vecgeom VGM)
+if(VECGEOM_ROOT)
+  target_link_libraries(vecgeom PUBLIC ROOT::Geom)
+endif()
+
+if(VECGEOM_GEANT4)
+  target_link_libraries(vecgeom PUBLIC Geant4::G4geometry)
 endif()
 
 # build the CUDA version of the library
@@ -700,13 +666,8 @@ if(VECGEOM_ENABLE_CUDA)
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
     target_link_libraries(${__vg_cuda_target} PUBLIC VecCore::VecCore vecgeom)
 
-    if(VECGEOM_ROOT)
-      # Benchmark stuff needs TVersionCheck
-      target_link_libraries(${__vg_cuda_target} PUBLIC ROOT::Core)
-    endif()
-
     # - Suppress stack size warnings from a couple of functions
-    # NB: currently identified as needed at device link step, but this only works on 
+    # NB: currently identified as needed at device link step, but this only works on
     # CMake 3.18 and newer (for DEVICE_LINK)
     # TODO: find workaround for earlier versions
     # TODO: Check at CUDA compilation step
@@ -714,10 +675,6 @@ if(VECGEOM_ENABLE_CUDA)
       target_link_options(${__vg_cuda_target} PUBLIC "$<DEVICE_LINK:SHELL: -Xnvlink --suppress-stack-size-warning>")
     endif()
   endforeach()
-endif()
-
-if(VECGEOM_ROOT)
-  target_link_libraries(vecgeom PUBLIC ROOT::Graf3d ROOT::Tree ROOT::Geom)
 endif()
 
 # build the libraries for GDML persistency

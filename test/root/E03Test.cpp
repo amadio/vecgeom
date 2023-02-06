@@ -8,7 +8,8 @@
 // tests on a simple geometry from the Geant4 E03 example
 // only makes sense with the proper geometry description (EN03.root)
 
-#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/navigation/GlobalLocator.h"
@@ -44,8 +45,10 @@ void locatetest()
 
   GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), Vector3D<Precision>(-8, 0, 0), *a, true);
   a->Print();
-  if (a->GetCurrentNode() != NULL) {
-    a->GetCurrentNode()->GetVolume()->Print();
+  auto* node = RootGeoManager::Instance().tgeonode(a->Top());
+
+  if (node != nullptr) {
+    node->GetVolume()->Print();
   }
   NavigationState::ReleaseInstance(a);
 }

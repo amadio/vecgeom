@@ -35,7 +35,9 @@
 #include "TF1.h"
 #include "TVirtualPad.h"
 #include "TView3D.h"
-#include "VecGeom/management/RootGeoManager.h"
+
+#include "RootGeoManager.h"
+
 #endif
 
 using namespace std;

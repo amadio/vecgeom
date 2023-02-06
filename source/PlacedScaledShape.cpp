@@ -42,17 +42,9 @@ TGeoShape const *PlacedScaledShape::ConvertToRoot() const
 }
 #endif
 
-#ifdef VECGEOM_GEANT4
-G4VSolid const *PlacedScaledShape::ConvertToGeant4() const
-{
-  // No implementation in Geant4
-  return 0;
-}
-#endif
-
 #endif // VECCORE_CUDA
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 

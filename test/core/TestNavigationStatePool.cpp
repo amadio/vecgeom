@@ -2,7 +2,9 @@
 #include "VecGeom/navigation/NavStatePool.h"
 #include "VecGeom/navigation/GlobalLocator.h"
 #include "VecGeom/base/Global.h"
-#include "VecGeom/management/RootGeoManager.h"
+
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/management/GeoManager.h"
 #ifdef VECCORE_CUDA
 #include "VecGeom/management/CudaManager.h"

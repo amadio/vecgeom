@@ -1,7 +1,7 @@
 /// \file Benchmarker.cu
 /// \author Johannes de Fine Licht
 
-#include "VecGeomBenchmark/Benchmarker.h"
+#include "Benchmarker.h"
 
 #include "VecGeom/base/Stopwatch.h"
 #include "VecGeom/backend/cuda/Backend.h"

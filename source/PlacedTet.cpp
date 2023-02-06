@@ -35,13 +35,6 @@ VPlacedVolume const *PlacedTet::ConvertToUnspecialized() const
   return new SimpleTet(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedTet::ConvertToRoot() const
-{
-  return nullptr; // There is no suitable TGeo shape 2018.07.18
-}
-#endif
-
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedTet::ConvertToGeant4() const
 {

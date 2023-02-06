@@ -1,7 +1,7 @@
 #ifndef VECGEOM_ENABLE_CUDA
 
 #include "test/benchmark/ArgParser.h"
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 #include "VecGeom/volumes/Box.h"
 #include "VecGeom/volumes/MultiUnion.h"
 #include "VecGeom/volumes/LogicalVolume.h"

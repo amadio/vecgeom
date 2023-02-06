@@ -1,5 +1,6 @@
 
-#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
 

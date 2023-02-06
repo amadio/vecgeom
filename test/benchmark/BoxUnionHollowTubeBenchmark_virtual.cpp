@@ -5,7 +5,7 @@
 #include "VecGeom/volumes/kernel/shapetypes/TubeTypes.h"
 #include "VecGeom/volumes/BooleanVolume.h"
 #include "VecGeom/management/GeoManager.h"
-#include "VecGeomBenchmark/Benchmarker.h"
+#include "VecGeomTest/Benchmarker.h"
 #include "ArgParser.h"
 
 using namespace vecgeom;

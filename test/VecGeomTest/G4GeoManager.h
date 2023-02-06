@@ -22,13 +22,10 @@ error: no matching function for call to ‘CLHEP::Hep3Vector::Hep3Vector(<unreso
 
 #include "VecGeom/base/Config.h"
 
-#ifdef VECGEOM_GEANT4
-
 class G4Navigator;
 class G4VPhysicalVolume;
 
 #include "VecGeom/base/Global.h"
-#include "G4GDMLParser.hh"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -77,9 +74,7 @@ private:
   // default private constructor
   G4GeoManager();
 };
-}
-} // end namespaces
-
-#endif // VECGEOM_GEANT4
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_G4GEOMANAGER_H_ */

@@ -8,7 +8,8 @@
  * the basic higher level navigation functionality
  */
 
-#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/volumes/LogicalVolume.h"
 
 #include "VecGeom/base/Global.h"
@@ -43,7 +44,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4PVPlacement.hh"
 #include "G4GeometryManager.hh"
-#include "VecGeom/management/G4GeoManager.h"
+#include "VecGeomTest/G4GeoManager.h"
 #endif
 
 #undef NDEBUG

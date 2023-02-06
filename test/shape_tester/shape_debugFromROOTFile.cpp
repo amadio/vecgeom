@@ -1,13 +1,15 @@
 #include <stdlib.h>
 #include "../benchmark/ArgParser.h"
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 
 #include "TApplication.h"
 #include "TCanvas.h"
 #include "TView.h"
 #include "TPolyMarker3D.h"
 #include "TPolyLine3D.h"
-#include "VecGeom/management/RootGeoManager.h"
+
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/management/GeoManager.h"
 #include "TGeoManager.h"

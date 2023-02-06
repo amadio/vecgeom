@@ -1,4 +1,4 @@
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 
 #include "VecGeom/volumes/Tube.h"

@@ -8,7 +8,8 @@
  * the basic higher level navigation functionality
  */
 
-#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/volumes/LogicalVolume.h"
 
 #include "VecGeom/base/Global.h"
@@ -51,7 +52,7 @@
 #ifdef VECGEOM_GEANT4
 #include "G4Navigator.hh"
 #include "G4VPhysicalVolume.hh"
-#include "VecGeom/management/G4GeoManager.h"
+#include "VecGeomTest/G4GeoManager.h"
 #endif
 
 #define VERBOSE false                     // true or false

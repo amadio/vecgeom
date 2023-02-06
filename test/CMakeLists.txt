@@ -9,10 +9,9 @@ macro(build_executables EXECUTABLES)
   foreach(EXECUTABLE ${EXECUTABLES})
     get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
     add_executable(${TARGET_NAME} ${EXECUTABLE})
-    target_link_libraries(${TARGET_NAME} PUBLIC 
+    target_link_libraries(${TARGET_NAME} PUBLIC
       $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>
-      $<$<BOOL:${VECGEOM_TEST_BENCHMARK}>:VecGeomBenchmark>
-      $<$<BOOL:${VECGEOM_ROOT}>:VecGeomUtilities>)
+      VecGeomTest)
   endforeach()
 endmacro()
 
@@ -60,21 +59,7 @@ endif()
 ################################################################################
 # Define Testing libraries
 ################################################################################
-if(VECGEOM_TEST_BENCHMARK)
-  add_subdirectory(VecGeomBenchmark)
-endif()
-
-if(VECGEOM_ROOT)
-  add_library(VecGeomUtilities STATIC 
-    utilities/ShapeDebugger.cpp 
-    utilities/ShapeDebugger.h
-    utilities/Visualizer.cpp
-    utilities/Visualizer.h)
-  target_include_directories(VecGeomUtilities PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-  target_link_libraries(VecGeomUtilities 
-    PUBLIC vecgeom ROOT::Graf3d 
-    PRIVATE ROOT::Core ROOT::Geom ROOT::Gpad)
-endif()
+add_subdirectory(VecGeomTest)
 
 
 ################################################################################
@@ -179,7 +164,9 @@ if(VECGEOM_ROOT)
   add_executable(TestNavigationStatePool
     core/TestNavigationStatePool.cpp
     $<$<BOOL:VECGEOM_ENABLE_CUDA>:core/TestNavigationStatePool.cu>)
-  target_link_libraries(TestNavigationStatePool PRIVATE $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>)
+  target_link_libraries(TestNavigationStatePool PRIVATE
+    $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>
+    $<$<BOOL:${VECGEOM_ROOT}>:VecGeomTest>)
   add_test(NAME TestNavigationStatePool COMMAND TestNavigationStatePool)
 
   # - separate list for ROOT UNIT tests
@@ -293,21 +280,14 @@ if(VECGEOM_ENABLE_CUDA)
     target_link_libraries(MapTestClass PUBLIC vecgeomcuda_static vgdml)
     target_link_libraries(GeometryTest PUBLIC vecgeomcuda_static vgdml)
 
-    add_test(NAME BVHTest      COMMAND BVHTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
-    add_test(NAME GeometryTest-Device-trackML COMMAND GeometryTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/trackML.gdml)
-    add_test(NAME GeometryTest-Device-cms2018 COMMAND GeometryTest ${PROJECT_SOURCE_DIR}/persistency/gdml/gdmls/cms2018.gdml)
+    add_test(NAME BVHTest      COMMAND BVHTest ${PROJECT_SOURCE_DIR}/test/gdml/gdmls/trackML.gdml)
+    add_test(NAME GeometryTest-Device-trackML COMMAND GeometryTest ${PROJECT_SOURCE_DIR}/test/gdml/gdmls/trackML.gdml)
+    add_test(NAME GeometryTest-Device-cms2018 COMMAND GeometryTest ${PROJECT_SOURCE_DIR}/test/gdml/gdmls/cms2018.gdml)
   endif()
 endif()
 
 ################################################################################
 # - Shape Tester tests
-add_library(VecGeomShapeTester STATIC 
-  shape_tester/ShapeTester.h 
-  shape_tester/ShapeTester.cpp #includes ConventionChecker.cpp ...
-  )
-target_include_directories(VecGeomShapeTester PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/shaper_tester")
-target_link_libraries(VecGeomShapeTester PUBLIC vecgeom $<$<BOOL:${VECGEOM_ROOT}>:VecGeomUtilities>)
-
 set(TEST_EXECUTABLES_SHAPETESTER
   shape_tester/shape_testBox.cpp
   shape_tester/shape_testSExtru.cpp
@@ -346,10 +326,6 @@ endif()
 
 if(VECGEOM_TEST_BENCHMARK)
   build_executables("${TEST_EXECUTABLES_SHAPETESTER}")
-  foreach(f ${TEST_EXECUTABLES_SHAPETESTER})
-    get_filename_component(_target ${f} NAME_WE)
-    target_link_libraries(${_target} PRIVATE VecGeomShapeTester)
-  endforeach()
 endif()
 
 
@@ -367,4 +343,10 @@ if(VECGEOM_TEST_VALIDATION AND VECGEOM_ROOT)
   add_cmsshapevalidation_test( boxvalidation cmsboxes.txt )
   #taken out due to problems: add_cmsshapevalidation_test( booleanvalidation cmsbooleans.txt )
   #taken out due to Issue-133: add_cmsshapevalidation_test( torusvalidation cmstori.txt )
+endif()
+
+################################################################################
+# - GDML tests
+if(VECGEOM_GDML)
+  add_subdirectory(gdml)
 endif()

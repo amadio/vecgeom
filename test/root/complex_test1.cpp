@@ -10,11 +10,13 @@
 // Forced asserts() to be defined, even for Release mode
 #undef NDEBUG
 
+#include "VecGeomTest/NavStateConverter.h"
+
 #include <iostream>
 
 #include "VecGeom/base/SOA3D.h"
 #include "VecGeom/management/GeoManager.h"
-#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeomTest/RootGeoManager.h"
 #include "VecGeom/base/AOS3D.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/LogicalVolume.h"
@@ -421,7 +423,7 @@ void test_NavigationStateToTGeoBranchArrayConversion()
 
     // we are now testing conversion of states such that the ROOT navigator
     // does not need to be initialized via FindNode()...
-    TGeoBranchArray *path = state->ToTGeoBranchArray();
+    TGeoBranchArray *path = NavStateConverter::ToTGeoBranchArray(*state);
     // path->Print();
     rootnav->ResetState();
     rootnav->SetCurrentPoint(x, y, z);

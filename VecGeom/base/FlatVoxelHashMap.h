@@ -8,12 +8,6 @@
 #include "VecGeom/base/robin_hood.h" // for fast hash map
 #include <type_traits>
 
-#ifdef VECGEOM_ROOT
-// this is for serialization --> we should include this in some source file only
-#include "TFile.h"
-#include "TTree.h"
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -239,112 +233,6 @@ public:
       std::cout << " }\n";
     }
     std::cout << "NUM VOXELS OCCUPIED " << count << " SUM PROPERTIES " << pcount << "\n";
-  }
-
-  void dumpToTFile(const char *filename, const char *key = nullptr) const
-  {
-#ifdef VECGEOM_ROOT
-    TFile f(filename, "RECREATE");
-
-    // ROOT somehow does not write single pods; so I am wrapping all meta info into a single vector
-    std::vector<float> meta;
-    meta.push_back(fNx);
-    meta.push_back(fNy);
-    meta.push_back(fNz);
-    meta.push_back(fLowerX);
-    meta.push_back(fLowerY);
-    meta.push_back(fLowerZ);
-    meta.push_back(fDeltaX);
-    meta.push_back(fDeltaY);
-    meta.push_back(fDeltaZ);
-    meta.push_back(fInvDeltaX);
-    meta.push_back(fInvDeltaY);
-    meta.push_back(fInvDeltaZ);
-    f.WriteObject(&meta, "VoxelMeta");
-
-    // dump keys/values --> need them as plain vectors
-    std::vector<long> keys;
-    keys.reserve(fVoxelMap.size());
-    std::vector<MapValueType> indices;
-    indices.reserve(fVoxelMap.size());
-    for (const auto &entry : fVoxelMap) {
-      keys.push_back(entry.first);
-      indices.push_back(entry.second);
-    }
-    f.WriteObject(&keys, "Keys");
-    f.WriteObject(&indices, "Values");
-
-    // dump properties
-    f.WriteObject(&fProperties, "Properties");
-    f.Close();
-#endif
-  }
-
-  static FlatVoxelHashMap<P, ScalarProperties> *readFromTFile(const char *filename, const char *key = nullptr)
-  {
-#ifdef VECGEOM_ROOT
-#if ROOT_VERSION_CODE <= ROOT_VERSION(6, 18, 0)
-    std::cerr << "\n*** VecGeom note: ROOT v6.18.00 required for reading voxel information from a TFile!\n\n";
-#else
-    TFile f(filename, "OPEN");
-    if (f.IsZombie()) {
-      return nullptr;
-    }
-    std::vector<float> *meta;
-    meta = f.Get<typename std::remove_pointer<decltype(meta)>::type>("VoxelMeta");
-    if (!meta && meta->size() == 12) {
-      return nullptr;
-    }
-    int Nx          = (*meta)[0];
-    int Ny          = (*meta)[1];
-    int Nz          = (*meta)[2];
-    float LowerX    = (*meta)[3];
-    float LowerY    = (*meta)[4];
-    float LowerZ    = (*meta)[5];
-    float DeltaX    = (*meta)[6];
-    float DeltaY    = (*meta)[7];
-    float DeltaZ    = (*meta)[8];
-    float InvDeltaX = (*meta)[9];
-    float InvDeltaY = (*meta)[10];
-    float InvDeltaZ = (*meta)[11];
-
-    // get keys/values/properties
-    std::vector<long> *keys            = nullptr;
-    keys                               = f.Get<typename std::remove_pointer<decltype(keys)>::type>("Keys");
-    std::vector<MapValueType> *indices = nullptr;
-    indices                            = f.Get<typename std::remove_pointer<decltype(indices)>::type>("Values");
-    std::vector<P> *properties         = nullptr;
-    properties                         = f.Get<typename std::remove_pointer<decltype(properties)>::type>("Properties");
-
-    // rebuild container
-    if (keys == nullptr || indices == nullptr || properties == nullptr || keys->size() != indices->size()) {
-      std::cerr << "COULD NOT READ VOXELMAP\n";
-      return nullptr;
-    }
-    Vector3D<float> lower(0., 0., 0.);
-    Vector3D<float> upper(1., 1., 1.);
-    auto voxels = new FlatVoxelHashMap<P, ScalarProperties>(lower, upper, Nx, Ny, Nz);
-    // copy the properties
-    voxels->fNx         = Nx;
-    voxels->fNy         = Ny;
-    voxels->fLowerX     = LowerX;
-    voxels->fLowerY     = LowerY;
-    voxels->fLowerZ     = LowerZ;
-    voxels->fDeltaX     = DeltaX;
-    voxels->fDeltaY     = DeltaY;
-    voxels->fDeltaZ     = DeltaZ;
-    voxels->fInvDeltaX  = InvDeltaX;
-    voxels->fInvDeltaY  = InvDeltaY;
-    voxels->fInvDeltaZ  = InvDeltaZ;
-    voxels->fProperties = *properties;
-    // insert the keys / values into the map (order does not matter in this case)
-    for (size_t i = 0; i < keys->size(); ++i) {
-      voxels->fVoxelMap[(*keys)[i]] = (*indices)[i];
-    }
-    return voxels;
-#endif
-#endif
-    return nullptr;
   }
 
   /// clear the container

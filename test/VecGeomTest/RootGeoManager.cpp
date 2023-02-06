@@ -5,18 +5,20 @@
 /// \file RootGeoManager.cpp
 /// \author created by Johannes de Fine Licht, Sandro Wenzel (CERN)
 
+#include "RootGeoManager.h"
+
+#include "PlacedRootVolume.h"
+#include "UnplacedRootVolume.h"
+
 #include "VecGeom/base/Transformation3D.h"
 #include "VecGeom/base/Stopwatch.h"
 #include "VecGeom/management/GeoManager.h"
-#include "VecGeom/management/RootGeoManager.h"
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/volumes/LogicalVolume.h"
-#include "VecGeom/volumes/PlacedRootVolume.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/UnplacedBox.h"
 #include "VecGeom/volumes/UnplacedTube.h"
 #include "VecGeom/volumes/UnplacedCone.h"
-#include "VecGeom/volumes/UnplacedRootVolume.h"
 #include "VecGeom/volumes/UnplacedParaboloid.h"
 #include "VecGeom/volumes/UnplacedParallelepiped.h"
 #include "VecGeom/volumes/UnplacedPolyhedron.h"
@@ -306,7 +308,7 @@ TGeoMatrix *RootGeoManager::Convert(Transformation3D const *const trans)
 {
   if (fTransformationMap.Contains(trans)) return const_cast<TGeoMatrix *>(fTransformationMap[trans]);
 
-  TGeoMatrix *const geomatrix = trans->ConvertToTGeoMatrix();
+  TGeoMatrix *const geomatrix = Transformation3D::ConvertToTGeoMatrix(*trans);
 
   fTransformationMap.Set(geomatrix, trans);
   return geomatrix;

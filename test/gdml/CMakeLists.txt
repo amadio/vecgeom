@@ -11,13 +11,16 @@ foreach(_vgdml_test TestXercesBackend TestXercesFrontend TestXercesMiddleware Re
   target_link_libraries(${_vgdml_test} PUBLIC vgdml $<IF:$<BOOL:${VECGEOM_ENABLE_CUDA}>,vecgeomcuda_static,vecgeom>)
 endforeach()
 
+# Middleware test also needs ROOT support
+target_link_libraries(TestXercesMiddleware PRIVATE $<$<BOOL:${VECGEOM_ROOT}>:VecGeomTest>)
+
 # Tests of VGDML's types for the GDML schema and translations
 add_test(NAME TestVGDMLAuxiliary COMMAND TestVGDMLAuxiliary)
-add_test(NAME TestVGDMLVolumeAuxiliaryInfo COMMAND TestVGDMLVolumeAuxiliaryInfo "${CMAKE_CURRENT_SOURCE_DIR}/../gdmls/auxiliary.gdml" )
+add_test(NAME TestVGDMLVolumeAuxiliaryInfo COMMAND TestVGDMLVolumeAuxiliaryInfo "${CMAKE_CURRENT_SOURCE_DIR}/gdmls/auxiliary.gdml" )
 
 # Add tests for each type with needed input GDML file
 # - Backend
-file(GLOB GDMLS ${CMAKE_CURRENT_SOURCE_DIR}/../gdmls/*.gdml)
+file(GLOB GDMLS ${CMAKE_CURRENT_SOURCE_DIR}/gdmls/*.gdml)
 foreach(GDML ${GDMLS})
   get_filename_component(BASENAMEGDML ${GDML} NAME)
   add_test(NAME TestXercesBackend-${BASENAMEGDML} COMMAND TestXercesBackend ${GDML})
@@ -25,7 +28,7 @@ endforeach()
 
 # - Middleware
 foreach(BASENAMEGDML oneOrb oneSphere oneTorus oneBox oneTube oneConeSegment oneParallelepiped oneTrapezoid oneParaboloid oneGeneralTrapezoid oneHyperbolicTube oneCutTube aConstant twoBoxes aPosition aRotation solidIntersection solidSubtraction solidUnion onePolycone onePolyhedron cms2018)
-  set(GDMLFILE ${CMAKE_CURRENT_SOURCE_DIR}/../gdmls/${BASENAMEGDML}.gdml)
+  set(GDMLFILE ${CMAKE_CURRENT_SOURCE_DIR}/gdmls/${BASENAMEGDML}.gdml)
   add_test(NAME TestXercesMiddleware-${BASENAMEGDML} COMMAND TestXercesMiddleware ${GDMLFILE})
 endforeach()
 
@@ -33,7 +36,7 @@ endforeach()
 
 foreach(NAVIGATOR SimpleABBoxNavigator HybridNavigator BVHNavigator)
   foreach(GDML trackML cms2018)
-    set(GDML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../gdmls/${GDML}.gdml)
+    set(GDML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/gdmls/${GDML}.gdml)
     add_test(NAME Test${NAVIGATOR}-${GDML}
       COMMAND TestVGDMLNavigation -i 10 -n ${NAVIGATOR} ${GDML_FILE})
   endforeach()

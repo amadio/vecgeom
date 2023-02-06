@@ -12,7 +12,7 @@
 #include "VecGeom/volumes/kernel/shapetypes/TubeTypes.h"
 #include "VecGeom/volumes/TBooleanMinusVolume.h"
 #include "VecGeom/management/GeoManager.h"
-#include "VecGeomBenchmark/Benchmarker.h"
+#include "VecGeomTest/Benchmarker.h"
 
 using namespace vecgeom;
 

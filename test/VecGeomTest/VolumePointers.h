@@ -6,7 +6,7 @@
 
 #include "VecGeom/base/Global.h"
 
-#include "VecGeomBenchmark/BenchmarkResult.h"
+#include "BenchmarkResult.h"
 
 class TGeoShape;
 class G4VSolid;

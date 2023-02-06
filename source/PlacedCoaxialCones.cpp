@@ -27,20 +27,6 @@ VPlacedVolume const *PlacedCoaxialCones::ConvertToUnspecialized() const
   return new SimpleCoaxialCones(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedCoaxialCones::ConvertToRoot() const
-{
-  return nullptr; // There is no corresponding TGeo shape
-}
-#endif
-
-#ifdef VECGEOM_GEANT4
-G4VSolid const *PlacedCoaxialCones::ConvertToGeant4() const
-{
-  return nullptr; // There is no corresponding G4 shape
-}
-#endif
-
 #endif // VECCORE_CUDA
 
 } // namespace VECGEOM_IMPL_NAMESPACE

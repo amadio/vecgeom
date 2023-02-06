@@ -4,7 +4,7 @@
 #ifndef VECGEOM_ENABLE_CUDA
 
 #include "VecGeom/volumes/LogicalVolume.h"
-#include "VecGeomBenchmark/Benchmarker.h"
+#include "VecGeomTest/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 #include "VecGeom/base/Stopwatch.h"

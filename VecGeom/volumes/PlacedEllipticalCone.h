@@ -102,7 +102,10 @@ public:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const *ConvertToRoot() const override;
+  virtual TGeoShape const *ConvertToRoot() const override
+  {
+    return nullptr; // There is no suitable TGeo shape 2019.02.19
+  }
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;

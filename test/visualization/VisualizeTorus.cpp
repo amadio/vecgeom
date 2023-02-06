@@ -1,4 +1,4 @@
-#include "utilities/Visualizer.h"
+#include "VecGeomTest/Visualizer.h"
 #include "VecGeom/volumes/Torus2.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
 

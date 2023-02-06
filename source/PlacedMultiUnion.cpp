@@ -34,13 +34,6 @@ VPlacedVolume const *PlacedMultiUnion::ConvertToUnspecialized() const
   return new SimpleMultiUnion(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedMultiUnion::ConvertToRoot() const
-{
-  return nullptr;
-}
-#endif
-
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedMultiUnion::ConvertToGeant4() const
 {

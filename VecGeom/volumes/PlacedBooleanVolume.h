@@ -8,13 +8,6 @@
 #include "VecGeom/volumes/PlacedVolImplHelper.h"
 #include "VecGeom/volumes/UnplacedBooleanVolume.h"
 
-#ifdef VECGEOM_ROOT
-class TGeoShape;
-#endif
-#ifdef VECGEOM_GEANT4
-class G4VSolid;
-#endif
-
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(template <BooleanOperation Op> class PlacedBooleanVolume;);

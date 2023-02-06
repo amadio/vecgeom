@@ -58,27 +58,6 @@ public:
 
   static FlatVoxelHashMap<int, false> *BuildLocateVoxels(LogicalVolume const *lvol);
   static FlatVoxelHashMap<int, false> *BuildSafetyVoxels(LogicalVolume const *lvol);
-
-private:
-  // save to TFile
-  static void dumpToTFile(const char *name, std::vector<float> const &xs, std::vector<float> const &ys,
-                          std::vector<float> const &zs, std::vector<long> const &keys,
-                          std::vector<float> const &safeties);
-
-  // save to TFile
-  static void dumpToTFile(const char *name, SOA3D<float> const &points, std::vector<long> const &keys,
-                          std::vector<float> const &safeties);
-
-  // read from TFile; return true if successful
-  static bool readFromTFile(const char *name, std::vector<float> &xs, std::vector<float> &ys, std::vector<float> &zs,
-                            std::vector<long> &keys, std::vector<float> &safeties);
-
-  static bool readFromTFile(const char *name, SOA3D<float> &points, std::vector<long> &keys,
-                            std::vector<float> &safeties);
-
-  // create a name for the backup file
-  static std::string createName(LogicalVolume const *, int kx, int ky, int kz);
-
 }; // end class
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

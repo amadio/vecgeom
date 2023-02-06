@@ -14,7 +14,9 @@
 #include "VecGeom/navigation/NavStatePool.h"
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/volumes/PlacedVolume.h"
-#include "VecGeom/management/RootGeoManager.h"
+
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/base/Stopwatch.h"
 

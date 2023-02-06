@@ -34,10 +34,8 @@
 
 namespace vecgeom {
 
-
 template <>
-VECCORE_ATT_HOST_DEVICE
-void PlacedBooleanVolume<kUnion>::PrintType() const
+VECCORE_ATT_HOST_DEVICE void PlacedBooleanVolume<kUnion>::PrintType() const
 {
   VPlacedVolume const *pleft  = GetUnplacedVolume()->GetLeft();
   VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
@@ -49,8 +47,7 @@ void PlacedBooleanVolume<kUnion>::PrintType() const
 }
 
 template <>
-VECCORE_ATT_HOST_DEVICE
-void PlacedBooleanVolume<kIntersection>::PrintType() const
+VECCORE_ATT_HOST_DEVICE void PlacedBooleanVolume<kIntersection>::PrintType() const
 {
   VPlacedVolume const *pleft  = GetUnplacedVolume()->GetLeft();
   VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
@@ -62,8 +59,7 @@ void PlacedBooleanVolume<kIntersection>::PrintType() const
 }
 
 template <>
-VECCORE_ATT_HOST_DEVICE
-void PlacedBooleanVolume<kSubtraction>::PrintType() const
+VECCORE_ATT_HOST_DEVICE void PlacedBooleanVolume<kSubtraction>::PrintType() const
 {
   VPlacedVolume const *pleft  = GetUnplacedVolume()->GetLeft();
   VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
@@ -81,9 +77,9 @@ void PlacedBooleanVolume<kUnion>::PrintType(std::ostream &s) const
   VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
   s << "PlacedBooleanVolume<kUnion>(";
   pleft->PrintType(s);
-  s <<",";
+  s << ",";
   pright->PrintType(s);
-  s <<")";
+  s << ")";
 }
 
 template <>
@@ -93,9 +89,9 @@ void PlacedBooleanVolume<kIntersection>::PrintType(std::ostream &s) const
   VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
   s << "PlacedBooleanVolume<kIntersection>(";
   pleft->PrintType(s);
-  s <<",";
+  s << ",";
   pright->PrintType(s);
-  s <<")";
+  s << ")";
 }
 
 template <>
@@ -105,9 +101,9 @@ void PlacedBooleanVolume<kSubtraction>::PrintType(std::ostream &s) const
   VPlacedVolume const *pright = GetUnplacedVolume()->GetRight();
   s << "PlacedBooleanVolume<kSubtraction>(";
   pleft->PrintType();
-  s <<",";
+  s << ",";
   pright->PrintType();
-  s <<")";
+  s << ")";
 }
 
 #ifdef VECGEOM_ROOT
@@ -121,7 +117,7 @@ TGeoShape const *PlacedBooleanVolume<kUnion>::ConvertToRoot() const
 
   TGeoUnion *node =
       new TGeoUnion(const_cast<TGeoShape *>(left->ConvertToRoot()), const_cast<TGeoShape *>(right->ConvertToRoot()),
-                    leftm->ConvertToTGeoMatrix(), rightm->ConvertToTGeoMatrix());
+                    Transformation3D::ConvertToTGeoMatrix(*leftm), Transformation3D::ConvertToTGeoMatrix(*rightm));
   return new TGeoCompositeShape("RootComposite", node);
 }
 
@@ -133,8 +129,8 @@ TGeoShape const *PlacedBooleanVolume<kIntersection>::ConvertToRoot() const
   Transformation3D const *leftm  = left->GetTransformation();
   Transformation3D const *rightm = right->GetTransformation();
   TGeoIntersection *node         = new TGeoIntersection(const_cast<TGeoShape *>(left->ConvertToRoot()),
-                                                const_cast<TGeoShape *>(right->ConvertToRoot()),
-                                                leftm->ConvertToTGeoMatrix(), rightm->ConvertToTGeoMatrix());
+                                                        const_cast<TGeoShape *>(right->ConvertToRoot()),
+                                                        Transformation3D::ConvertToTGeoMatrix(*leftm), Transformation3D::ConvertToTGeoMatrix(*rightm));
   return new TGeoCompositeShape("RootComposite", node);
 }
 
@@ -145,9 +141,9 @@ TGeoShape const *PlacedBooleanVolume<kSubtraction>::ConvertToRoot() const
   VPlacedVolume const *right     = GetUnplacedVolume()->GetRight();
   Transformation3D const *leftm  = left->GetTransformation();
   Transformation3D const *rightm = right->GetTransformation();
-  TGeoSubtraction *node          = new TGeoSubtraction(const_cast<TGeoShape *>(left->ConvertToRoot()),
-                                              const_cast<TGeoShape *>(right->ConvertToRoot()),
-                                              leftm->ConvertToTGeoMatrix(), rightm->ConvertToTGeoMatrix());
+  TGeoSubtraction *node          = new TGeoSubtraction(
+      const_cast<TGeoShape *>(left->ConvertToRoot()), const_cast<TGeoShape *>(right->ConvertToRoot()),
+      Transformation3D::ConvertToTGeoMatrix(*leftm), Transformation3D::ConvertToTGeoMatrix(*rightm));
   return new TGeoCompositeShape("RootComposite", node);
 }
 #endif

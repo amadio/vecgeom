@@ -5,7 +5,6 @@
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
 #include "TGeoManager.h"
-#include "VecGeom/management/RootGeoManager.h"
 #endif
 #ifdef VECGEOM_GEANT4
 #include "G4VSolid.hh"

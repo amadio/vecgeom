@@ -515,7 +515,7 @@ public:
 #ifdef VECGEOM_ROOT
   // function to convert this transformation to a TGeo transformation
   // mainly used for the benchmark comparisons with ROOT
-  TGeoMatrix *ConvertToTGeoMatrix() const;
+  static TGeoMatrix *ConvertToTGeoMatrix(Transformation3D const&);
 #endif
 
 public:

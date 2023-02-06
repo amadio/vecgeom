@@ -1,4 +1,4 @@
-#include "utilities/Visualizer.h"
+#include "VecGeomTest/Visualizer.h"
 #include "VecGeom/volumes/Orb.h"
 #include "VecGeom/volumes/ScaledShape.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"

@@ -177,16 +177,6 @@ void VPlacedVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax)
 #endif
 }
 
-#ifdef VECGEOM_GEANT4
-/// A conversion function to a Geant4 G4VSolid (when G4 support is available)
-G4VSolid const *VPlacedVolume::ConvertToGeant4() const
-{
-#ifndef VECCORE_CUDA
-  throw std::runtime_error("ConvertToGeant4() not implemented for this shape type.");
-#endif
-}
-#endif
-
 } // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA

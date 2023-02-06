@@ -32,13 +32,6 @@ VPlacedVolume const *PlacedTessellated::ConvertToUnspecialized() const
   return new SimpleTessellated(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedTessellated::ConvertToRoot() const
-{
-  return nullptr;
-}
-#endif
-
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedTessellated::ConvertToGeant4() const
 {

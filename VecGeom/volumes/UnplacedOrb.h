@@ -17,12 +17,6 @@
 #include "VecGeom/volumes/OrbStruct.h" // the pure Orb struct
 #include "VecGeom/volumes/kernel/OrbImplementation.h"
 #include "VecGeom/volumes/UnplacedVolumeImplHelper.h"
-#ifdef VECGEOM_ROOT
-class TGeoShape;
-#endif
-#ifdef VECGEOM_GEANT4
-class G4VSolid;
-#endif
 
 namespace vecgeom {
 

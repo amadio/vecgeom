@@ -84,8 +84,6 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const
   {
-    printf("Converting to ROOT\n");
-    // what do we need?
     VPlacedVolume const *left      = GetUnplacedVolume()->fLeftVolume;
     VPlacedVolume const *right     = GetUnplacedVolume()->fRightVolume;
     Transformation3D const *leftm  = left->transformation();
@@ -93,19 +91,12 @@ public:
     TGeoSubtraction *node          = new TGeoSubtraction(const_cast<TGeoShape *>(left->ConvertToRoot()),
                                                 const_cast<TGeoShape *>(right->ConvertToRoot()),
                                                 leftm->ConvertToTGeoMatrix(), rightm->ConvertToTGeoMatrix());
-    TGeoShape *shape = new TGeoCompositeShape("RootComposite", node);
-    // TGeoManager *m = new TGeoManager();
-    gGeoManager->SetTopVolume(new TGeoVolume("world", shape));
-    // gGeoManager->CloseGeometry();
-    gGeoManager->Export("FOO.root");
-    shape->InspectShape();
-    return shape;
+    return new TGeoCompositeShape("RootComposite", node);
   }
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const
   {
-    printf("Converting to Geant4\n");
     VPlacedVolume const *left      = GetUnplacedVolume()->fLeftVolume;
     VPlacedVolume const *right     = GetUnplacedVolume()->fRightVolume;
     Transformation3D const *rightm = right->transformation();

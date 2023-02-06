@@ -1,7 +1,8 @@
 #include "../benchmark/ArgParser.h"
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 
-#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/management/GeoManager.h"
 #include "TGeoManager.h"

@@ -9,14 +9,6 @@
 #include "VecGeom/volumes/Cone.h"
 #include "VecGeom/volumes/SpecializedCone.h"
 
-#ifdef VECGEOM_ROOT
-#include "TGeoCone.h"
-#endif
-
-#ifdef VECGEOM_GEANT4
-#include "G4Cons.hh"
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -36,20 +28,6 @@ VPlacedVolume const *PlacedCone::ConvertToUnspecialized() const
 {
   return new SimpleCone(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
-
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedCone::ConvertToRoot() const
-{
-  return GetUnplacedVolume()->ConvertToRoot(GetName());
-}
-#endif
-
-#ifdef VECGEOM_GEANT4
-G4VSolid const *PlacedCone::ConvertToGeant4() const
-{
-  return GetUnplacedVolume()->ConvertToGeant4(GetName());
-}
-#endif
 
 #endif
 

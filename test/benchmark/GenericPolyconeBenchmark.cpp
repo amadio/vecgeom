@@ -10,7 +10,7 @@
 #include "VecGeom/volumes/Polycone.h"
 #include "VecGeom/volumes/PlacedBox.h"
 #include "VecGeom/volumes/UnplacedBox.h"
-#include "VecGeomBenchmark/Benchmarker.h"
+#include "VecGeomTest/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "ArgParser.h"
 

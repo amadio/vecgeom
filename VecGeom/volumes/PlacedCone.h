@@ -61,10 +61,10 @@ public:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const *ConvertToRoot() const override;
+  virtual TGeoShape const *ConvertToRoot() const override { return GetUnplacedVolume()->ConvertToRoot(GetName()); }
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const *ConvertToGeant4() const override;
+  virtual G4VSolid const *ConvertToGeant4() const override { return GetUnplacedVolume()->ConvertToGeant4(GetName()); }
 #endif
 #endif // VECGEOM_CUDA
 

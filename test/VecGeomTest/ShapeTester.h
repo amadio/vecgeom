@@ -10,7 +10,7 @@
 #include "VecGeom/base/RNG.h"
 
 #ifdef VECGEOM_ROOT
-#include "utilities/Visualizer.h"
+#include "Visualizer.h"
 #endif
 
 #ifdef VECGEOM_FLOAT_PRECISION

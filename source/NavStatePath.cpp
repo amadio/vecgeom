@@ -8,13 +8,6 @@
 #include <list>
 #include <sstream>
 
-#ifdef VECGEOM_ROOT
-#include "VecGeom/management/RootGeoManager.h"
-#include "TGeoBranchArray.h"
-#include "TGeoNode.h"
-#include "TGeoManager.h"
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -132,63 +125,6 @@ void NavStatePath::ResetPathFromListOfIndices(VPlacedVolume const *world, std::l
     }
   }
 }
-
-#ifdef VECGEOM_ROOT
-TGeoBranchArray *NavStatePath::ToTGeoBranchArray() const
-{
-// attention: the counting of levels is different: fLevel=0 means that
-// this is a branch which is filled at level zero
-
-// my counting is a bit different: it tells the NUMBER of levels which are filled
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 34, 23)
-  TGeoBranchArray *tmp = TGeoBranchArray::MakeInstance(GetMaxLevel());
-#else
-  TGeoBranchArray *tmp = new TGeoBranchArray(GetMaxLevel());
-#endif
-  // gain access to array
-  TGeoNode **array   = tmp->GetArray();
-  RootGeoManager &mg = RootGeoManager::Instance();
-  TGeoNavigator *nav = gGeoManager->GetCurrentNavigator();
-  tmp->InitFromNavigator(nav);
-
-  // tmp->
-  for (int i = 0; i < fCurrentLevel; ++i)
-    array[i] = const_cast<TGeoNode *>(mg.tgeonode(ToPlacedVolume(fPath[i])));
-  // assert( tmp->GetCurrentNode() == mg.tgeonode( Top() ));
-
-  /*
-  std::list<uint> ilist;
-  GetPathAsListOfIndices( ilist );
-  int counter=0;
-  for( auto x : ilist ) {
-      if(counter>0)
-          tmp->AddLevel(x);
-      counter++;
-  }
-  */
-
-  return tmp;
-}
-
-NavStatePath &NavStatePath::operator=(TGeoBranchArray const &other)
-{
-  // attention: the counting of levels is different: fLevel=0 means that
-  // this is a branch which is filled at level zero
-  this->fCurrentLevel = other.GetLevel() + 1;
-  assert(fCurrentLevel <= GetMaxLevel());
-
-  RootGeoManager &mg = RootGeoManager::Instance();
-
-  for (int i = 0; i < fCurrentLevel; ++i)
-    fPath[i] = ToIndex(mg.GetPlacedVolume(other.GetNode(i)));
-
-  // other things like onboundary I don't care
-  fOnBoundary = false;
-
-  return *this;
-}
-
-#endif
 
 std::string NavStatePath::RelativePath(NavStatePath const &other) const
 {

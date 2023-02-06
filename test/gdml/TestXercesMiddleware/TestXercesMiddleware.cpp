@@ -13,8 +13,7 @@
 
 #ifdef VECGEOM_ROOT
 // if ROOT is available will export the loaded geometry
-#include "VecGeom/management/RootGeoManager.h"
-#include "VecGeom/management/GeoManager.h"
+#include "VecGeomTest/RootGeoManager.h"
 #include "TGeoManager.h"
 #endif
 

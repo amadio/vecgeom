@@ -11,7 +11,8 @@
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/base/Transformation3D.h"
 #include "VecGeom/base/Vector3D.h"
-#include "VecGeom/management/RootGeoManager.h"
+
+#include "VecGeomTest/RootGeoManager.h"
 
 int N = 500000;
 

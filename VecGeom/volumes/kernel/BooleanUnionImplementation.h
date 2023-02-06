@@ -9,10 +9,6 @@
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/volumes/BooleanStruct.h"
 
-#ifdef VECGEOM_ROOT
-#include "TGeoShape.h"
-#endif
-
 namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {

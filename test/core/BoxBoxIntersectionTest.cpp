@@ -3,7 +3,7 @@
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/base/Transformation3D.h"
 #include "VecGeom/volumes/Box.h"
-#include "utilities/Visualizer.h"
+#include "VecGeomTest/Visualizer.h"
 #undef NDEBUG
 #include <cassert>
 

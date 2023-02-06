@@ -39,16 +39,6 @@ void testGeneralVersion()
   Vector3D<float> p2(-4.85, -4.85, -4.85);
   assert(voxels.isOccupied(p2) == true);
   assert(voxels.getProperties(p2, length) != nullptr);
-
-#ifdef VECGEOM_ROOT
-  voxels.dumpToTFile("foo.root");
-  auto newvoxels = FlatVoxelHashMap<int, false>::readFromTFile("foo.root");
-  assert(newvoxels != nullptr);
-  assert(newvoxels && newvoxels->isOccupied(p2) == true);
-  assert(newvoxels && newvoxels->getProperties(p2, length) != nullptr && length == 2);
-  assert(newvoxels && newvoxels->getProperties(p1, length) != nullptr && length == 2);
-  assert(newvoxels && newvoxels->getVoxelKey(p3) == Nx * Ny * Nz - 1);
-#endif
 }
 
 void testScalarVersion()
@@ -83,15 +73,6 @@ void testScalarVersion()
   Vector3D<float> p2(-4.85, -4.85, -4.85);
   assert(voxels.isOccupied(p2) == true);
   assert(voxels.getProperties(p2, length) != nullptr);
-
-#ifdef VECGEOM_ROOT
-  voxels.dumpToTFile("foo.root");
-  auto newvoxels = FlatVoxelHashMap<int, true>::readFromTFile("foo.root");
-  assert(newvoxels != nullptr);
-  assert(newvoxels && newvoxels->isOccupied(p2) == true);
-  assert(newvoxels && newvoxels->getProperties(p2, length) != nullptr);
-  assert(newvoxels && newvoxels->getVoxelKey(p3) == Nx * Ny * Nz - 1);
-#endif
 }
 
 int main()

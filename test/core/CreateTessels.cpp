@@ -12,7 +12,7 @@
 #include "test/core/TessellatedOrb.h"
 
 #ifdef VECGEOM_ROOT
-#include "utilities/Visualizer.h"
+#include "VecGeomTest/Visualizer.h"
 #include "TPolyMarker3D.h"
 #include "TPolyLine3D.h"
 #include "TH1.h"

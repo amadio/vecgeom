@@ -2,7 +2,7 @@
 /// \author: Mihaela Gheata (mihaela.gheata@cern.ch)
 
 #include "../benchmark/ArgParser.h"
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 
 #include "VecGeom/volumes/Polyhedron.h"

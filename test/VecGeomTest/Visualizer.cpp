@@ -1,4 +1,4 @@
-#include "utilities/Visualizer.h"
+#include "Visualizer.h"
 
 #include "VecGeom/base/AOS3D.h"
 #include "VecGeom/base/SOA3D.h"
@@ -49,7 +49,7 @@ void Visualizer::AddVolume(VPlacedVolume const &volume, Transformation3D const &
   fGeoManager                = new TGeoManager("visualizer", "");
   TGeoShape const *rootShape = volume.ConvertToRoot();
   fVolumes.push_back(std::make_tuple(std::shared_ptr<const TGeoShape>(rootShape),
-                                     std::unique_ptr<TGeoMatrix>(transformation.ConvertToTGeoMatrix()),
+                                     std::unique_ptr<TGeoMatrix>(Transformation3D::ConvertToTGeoMatrix(transformation)),
                                      std::unique_ptr<TGeoVolume>(new TGeoVolume("", rootShape, nullptr))));
   if (fVerbosity > 0) {
     std::cout << "Added volume " << volume << " to Visualizer.\n";
@@ -67,7 +67,7 @@ void Visualizer::AddVolume(std::shared_ptr<const TGeoShape> volume)
 
 void Visualizer::AddVolume(std::shared_ptr<const TGeoShape> volume, Transformation3D const &transformation)
 {
-  fVolumes.push_back(std::make_tuple(volume, std::unique_ptr<TGeoMatrix>(transformation.ConvertToTGeoMatrix()),
+  fVolumes.push_back(std::make_tuple(volume, std::unique_ptr<TGeoMatrix>(Transformation3D::ConvertToTGeoMatrix(transformation)),
                                      std::unique_ptr<TGeoVolume>(new TGeoVolume("", volume.get(), nullptr))));
   if (fVerbosity > 0) {
     std::cout << "Added ROOT volume to Visualizer.\n";

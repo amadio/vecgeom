@@ -1,14 +1,15 @@
-#include "VecGeom/management/RootGeoManager.h"
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/UnplacedBox.h"
-#include "VecGeomBenchmark/Benchmarker.h"
+#include "VecGeomTest/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/volumes/UnplacedBox.h"
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
 #include "TGeoBBox.h"
-#include "utilities/Visualizer.h"
+#include "VecGeomTest/Visualizer.h"
 #include <string>
 #include <cmath>
 #include <iostream>

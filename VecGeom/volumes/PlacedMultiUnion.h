@@ -64,7 +64,7 @@ public:
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const *ConvertToRoot() const override;
+  virtual TGeoShape const *ConvertToRoot() const override { return nullptr; }
 #endif
 #ifdef VECGEOM_GEANT4
   G4VSolid const *ConvertToGeant4() const override;

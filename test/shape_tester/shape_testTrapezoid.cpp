@@ -1,5 +1,5 @@
 #include "../benchmark/ArgParser.h"
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/volumes/Trapezoid.h"

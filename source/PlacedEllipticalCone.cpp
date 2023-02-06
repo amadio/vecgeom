@@ -35,14 +35,6 @@ VPlacedVolume const *PlacedEllipticalCone::ConvertToUnspecialized() const
   return new SimpleEllipticalCone(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedEllipticalCone::ConvertToRoot() const
-{
-  // Return ROOT Elliptical Cone
-  return nullptr; // There is no suitable TGeo shape 2019.02.19
-}
-#endif
-
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedEllipticalCone::ConvertToGeant4() const
 {

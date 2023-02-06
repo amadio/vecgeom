@@ -74,7 +74,10 @@ public:
   virtual TGeoShape const *ConvertToRoot() const override;
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const *ConvertToGeant4() const override;
+  virtual G4VSolid const *ConvertToGeant4() const override
+  {
+    return nullptr; // No implementation in Geant4
+  }
 #endif
 #endif // VECCORE_CUDA
 };

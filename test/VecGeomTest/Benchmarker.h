@@ -9,8 +9,8 @@
 
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/base/SOA3D.h"
-#include "VecGeomBenchmark/BenchmarkResult.h"
-#include "VecGeomBenchmark/VolumePointers.h"
+#include "BenchmarkResult.h"
+#include "VolumePointers.h"
 
 #ifdef VECGEOM_GEANT4
 #include "G4VSolid.hh"

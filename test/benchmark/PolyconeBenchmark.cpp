@@ -1,13 +1,13 @@
 #include "VecGeom/volumes/LogicalVolume.h"
 #include "VecGeom/volumes/UnplacedPolycone.h"
 #include "VecGeom/volumes/Box.h"
-#include "VecGeomBenchmark/Benchmarker.h"
+#include "VecGeomTest/Benchmarker.h"
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/base/Global.h"
 #include "ArgParser.h"
 #ifdef VECGEOM_ROOT
-#include "utilities/Visualizer.h"
+#include "VecGeomTest/Visualizer.h"
 #endif
 
 using namespace vecgeom;

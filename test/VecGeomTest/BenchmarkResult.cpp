@@ -1,7 +1,7 @@
 /// \file BenchmarkResult.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
-#include "VecGeomBenchmark/BenchmarkResult.h"
+#include "BenchmarkResult.h"
 
 namespace vecgeom {
 

@@ -11,21 +11,20 @@
 #include "VecGeom/base/Config.h"
 
 #ifdef VECGEOM_ROOT
-#include "VecGeom/management/RootGeoManager.h"
-#include "utilities/Visualizer.h"
+#include "VecGeomTest/RootGeoManager.h"
+#include "VecGeomTest/Visualizer.h"
 #endif
 
 #ifdef VECGEOM_GEANT4
-#include "VecGeom/management/G4GeoManager.h"
+#include "VecGeomTest/G4GeoManager.h"
 #include "G4ThreeVector.hh"
-// #include "G4TouchableHistoryHandle.hh"
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4PVPlacement.hh"
 #include "G4GeometryManager.hh"
 #endif
 
-#include "VecGeomBenchmark/NavigationBenchmarker.h"
+#include "VecGeomTest/NavigationBenchmarker.h"
 #include "test/benchmark/ArgParser.h"
 #include "VecGeom/volumes/utilities/VolumeUtilities.h"
 

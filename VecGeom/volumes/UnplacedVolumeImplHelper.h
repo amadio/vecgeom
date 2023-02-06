@@ -101,10 +101,6 @@ public:
     Implementation::template DistanceToOut(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d, step_max,
                                            output);
 
-//#ifdef VECGEOM_DISTANCE_DEBUG
-//    DistanceComparator::CompareDistanceToOut( this, output, point, direction, stepMax );
-//#endif
-
 // detect -inf responses which are often an indication for a real bug
 #ifndef VECCORE_CUDA
     assert(!((output < 0.) && std::isinf((Precision)output)));

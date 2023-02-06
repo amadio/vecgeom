@@ -6,7 +6,7 @@
 /// @file test/shape_tester/shape_testTrd.cpp
 
 #include "../benchmark/ArgParser.h"
-#include "ShapeTester.h"
+#include "VecGeomTest/ShapeTester.h"
 #include "VecGeom/volumes/PlacedVolume.h"
 #include "VecGeom/volumes/Trd.h"
 

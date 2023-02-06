@@ -249,10 +249,10 @@ public:
   }
 
   /// Not implemented.
-  virtual void CopyManyToGpu(std::vector<VPlacedVolume const *> const & host_volumes,
-                             std::vector<DevicePtr<cuda::LogicalVolume>> const & logical_volumes,
-                             std::vector<DevicePtr<cuda::Transformation3D>> const & transforms,
-                             std::vector<DevicePtr<cuda::VPlacedVolume>> const & in_gpu_ptrs) const override
+  virtual void CopyManyToGpu(std::vector<VPlacedVolume const *> const &host_volumes,
+                             std::vector<DevicePtr<cuda::LogicalVolume>> const &logical_volumes,
+                             std::vector<DevicePtr<cuda::Transformation3D>> const &transforms,
+                             std::vector<DevicePtr<cuda::VPlacedVolume>> const &in_gpu_ptrs) const override
   {
   }
 #endif

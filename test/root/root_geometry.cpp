@@ -3,7 +3,9 @@
 #undef NDEBUG
 
 #include "VecGeom/management/GeoManager.h"
-#include "VecGeom/management/RootGeoManager.h"
+
+#include "VecGeomTest/RootGeoManager.h"
+
 #include "VecGeom/navigation/NavigationState.h"
 #include "VecGeom/navigation/GlobalLocator.h"
 #include "VecGeom/volumes/PlacedVolume.h"
