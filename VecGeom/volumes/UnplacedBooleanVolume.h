@@ -14,6 +14,8 @@
 #include "VecGeom/volumes/UnplacedMultiUnion.h"
 #endif
 
+#include <string>
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v(class, UnplacedBooleanVolume, BooleanOperation, Arg1);
@@ -110,9 +112,39 @@ public:
   std::string GetEntityType() const { return "BooleanVolume"; }
 
   VECCORE_ATT_HOST_DEVICE
-  virtual void Print() const override{};
+  virtual void Print() const override {
+#ifndef VECCORE_CUDA
+      auto op = this->GetOp();
+      const char* opname = (op == kUnion ? "Union"
+             : (op == kIntersection ? "Intersection" : "Subtraction"));
+      printf("UnplacedBooleanVol<%s>{fLeft=[%i]<%s>, fRight=[%i]<%s>}", opname,
+          this->GetLeft()->id(), this->GetLeft()->GetName(),
+          this->GetRight()->id(), this->GetRight()->GetName());
+#else
+      printf("UnplacedBooleanVol<%i>{fLeft=[%i], fRight=[%i]}",
+          this->GetOp(), this->GetLeft()->id(), this->GetRight()->id());
+#endif
+      printf("\nfLeft:  [%i] ", this->GetLeft()->id());
+      this->GetLeft()->GetUnplacedVolume()->Print();
+      printf("\nfRight: [%i] ", this->GetRight()->id());
+      this->GetRight()->GetUnplacedVolume()->Print();
+      printf("\n");
+  }
 
-  virtual void Print(std::ostream & /*os*/) const override{};
+  virtual void Print(std::ostream& os) const override {
+#ifndef VECCORE_CUDA
+      auto op = this->GetOp();
+      os << "UnplacedBooleanVol<"<< (op == kUnion ? "Union" 
+                         : (op == kIntersection ? "Intersection" : "Subtraction"))
+         <<">{fLeft=<"<< this->GetLeft()->id()
+         << ">, fRight=<"<< this->GetRight()->id() <<">}\n";
+#endif
+      os << "fLeft:  [" << this->GetLeft()->id() <<"] ";
+      this->GetLeft()->GetUnplacedVolume()->Print(os);
+      os << "fRight: [" << this->GetRight()->id() <<"] ";
+      this->GetRight()->GetUnplacedVolume()->Print(os);
+      os <<"\n";
+  }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE

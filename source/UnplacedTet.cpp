@@ -127,9 +127,21 @@ std::ostream &UnplacedTet::StreamInfo(std::ostream &os) const
 }
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedTet::Print() const {}
+void UnplacedTet::Print() const {
+  auto const& vtx = fTet.fVertex;
+  printf("UnplacedTet {V0=(%.2f, %.2f, %.2f), V1=(%.2f, %.2f, %.2f), V2=(%.2f, %.2f, %.2f), V3=(%.2f, %.2f, %.2f)}\n",
+      vtx[0].x(), vtx[0].y(), vtx[0].z(), vtx[1].x(), vtx[1].y(), vtx[1].z(),
+      vtx[2].x(), vtx[2].y(), vtx[2].z(), vtx[3].x(), vtx[3].y(), vtx[3].z() );
+}
 
-void UnplacedTet::Print(std::ostream &os) const {}
+void UnplacedTet::Print(std::ostream &os) const {
+  auto const& vtx = fTet.fVertex;
+  os << "UnplacedTet {"
+     <<"V0=("<< vtx[0].x() <<"; "<< vtx[0].y() <<"; "<< vtx[0].z() <<"), "
+     <<"V1=("<< vtx[1].x() <<"; "<< vtx[1].y() <<"; "<< vtx[1].z() <<"), "
+     <<"V2=("<< vtx[2].x() <<"; "<< vtx[2].y() <<"; "<< vtx[2].z() <<"), "
+     <<"V3=("<< vtx[3].x() <<"; "<< vtx[3].y() <<"; "<< vtx[3].z() <<") }\n";
+}
 
 #ifndef VECCORE_CUDA
 SolidMesh *UnplacedTet::CreateMesh3D(Transformation3D const &trans, const size_t nFaces) const

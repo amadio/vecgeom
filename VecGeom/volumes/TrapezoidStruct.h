@@ -91,7 +91,6 @@ public:
   {
     fTthetaCphi = vecCore::math::Tan(fTheta) * vecCore::math::Cos(fPhi);
     fTthetaSphi = vecCore::math::Tan(fTheta) * vecCore::math::Sin(fPhi);
-    // ComputeBoundingBox();
   }
 
 public:

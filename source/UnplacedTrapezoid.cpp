@@ -431,14 +431,14 @@ void UnplacedTrapezoid::Print() const
   // Note: units printed out chosen such that same numbers can be used as arguments to full constructor
   printf("UnplacedTrapezoid {%.3fmm, %.3frad, %.3frad, %.3fmm, %.3fmm, %.3fmm, %.3frad, %.3fmm, %.3fmm, %.3fmm, "
          "%.3frad}\n",
-         fTrap.fDz, fTrap.fTheta, fTrap.fPhi, fTrap.fDy1, fTrap.fDx1, fTrap.fDx2, this->alpha1(), fTrap.fDy2,
+         fTrap.fDz, this->theta(), this->phi(), fTrap.fDy1, fTrap.fDx1, fTrap.fDx2, this->alpha1(), fTrap.fDy2,
          fTrap.fDx3, fTrap.fDx4, this->alpha2());
 }
 
 void UnplacedTrapezoid::Print(std::ostream &os) const
 {
   // Note: units printed out chosen such that same numbers can be used as arguments to full constructor
-  os << "UnplacedTrapezoid { " << fTrap.fDz << "mm, " << fTrap.fTheta << "rad, " << fTrap.fPhi << "rad, " << fTrap.fDy1
+  os << "UnplacedTrapezoid { " << fTrap.fDz << "mm, " << this->theta() << "rad, " << this->phi() << "rad, " << fTrap.fDy1
      << "mm, " << fTrap.fDx1 << "mm, " << fTrap.fDx2 << "mm, " << this->alpha1() << "rad, " << fTrap.fDy2 << "mm, "
      << fTrap.fDx3 << "mm, " << fTrap.fDx4 << "mm, " << this->alpha2() << "rad }\n";
 }
