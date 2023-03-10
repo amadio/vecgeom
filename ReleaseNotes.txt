@@ -1,3 +1,67 @@
+Version 1.2.2            10th Mar 2023
+======================================
+Overview:
+- Rationalised use of VECGEOM_{GEANT4,ROOT} in library code.
+  Minimised use of ROOT/Geant4 in main VecGeom library.
+- Improvements and extensions to the VGDML parser.
+- BVHNavigator now allows relocation using VNavigator interface.
+
+Configuration:
+- Rationalised use of VECGEOM_{GEANT4,ROOT} in library code.
+- Minimised use of ROOT/Geant4 in main VecGeom library:
+  * Create VecGeomTest library for all shared testing code.
+  * VGM is only needed by G4GeoManager as private dependency.
+  * Make GDML tests a subdirectory of main tests.
+  * Cleaner organization, find all tests under one tree.
+  * Isolate ConvertTo{Geant4,Root} functions as far as possible.
+  * Moved G4GeoManager out of VecGeom interface, as the class is only used
+    for global benchmarks and should not be part of the main VecGeom interface.
+  * Removed unused ResultComparator includes.
+  * Made Transformation3D::ConvertToTGeoMatrix() a static method and updated
+    client code to use it.
+  * Fully remove ROOT dependence in NavState{Index,Path}; migrated remaining
+  * ROOT conversion function to free function only used in testing code.
+  * Removed NavState{Index,Path}::GetCurrentNode().
+  * NavState{Index,Path} ROOT conversion/access can be static
+    Removed copy assignment from TGeoBranchArray as this is not used.
+    Made conversion/access ROOT functions static, as they can be
+    implemented using public methods.
+    Updated tests to use static member functions.
+  * Remove ROOT dependence of FlatVoxelHashMap.
+  * Minimize ROOT use in FlatVoxelManager.
+    Removed private functions that are never called anywhere. Migrated
+    remaining static functions to free functions in anonymous namespace
+    to hide as much as possible.
+  * Make all Volume use of VECGEOM_{ROOT,GEANT4} consistently.
+  * Removed ROOT usage which is no longer relevant.
+    Code never uses ROOT, so remove VECGEOM_ROOT.
+  * Removed unused, obsolete header.
+- Include config header to pick up VECGEOM_GEANT4; the symbol is no longer
+  transmitted by compiler flag.
+- No longer use VECGEOM_TEST_BENCHMARK in VecGeom library code.
+- Use optional VMC from official upstream repository.
+
+Navigation:
+- BVHNavigator now allows relocation using VNavigator interface.
+  Implemented VNavigator::Relocate() interface and related auxiliary helper
+  methods; working on both host/device.
+
+Persistency:
+- Improvements to VGDML parser:
+  * Make Trap theta,phi recalculation transient, moving from construction
+    to accessor. Fixed sign conventions for Trap angles as in Geant4.
+  * Fixed EllipticalCone shape parsing.
+  * Fixed memory leak.
+  * Fixed construction arguments for full compatibility with Geant4
+    in conversion.
+  * Use names from GDML files when creating the volumes.
+  * Improved handling of no-rotation identity matrix.
+    In addition to being much faster, this also fixes the previous
+    no-rotation identity matrix, obtained by actual rotations of zero angles.
+  * Fixed unit treatment for some shape parameters from GDML parsing.
+  * Added meaningful parameter printouts for Tet and Boolean shapes.
+- Added VGDML support for GenericPolycone shape.
+
 Version 1.2.1            29th Nov 2022
 ======================================
 Overview:

@@ -5,7 +5,7 @@ include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
 
 project(VecGeom
-  VERSION 1.2.1
+  VERSION 1.2.2
   DESCRIPTION "Vectorized geometry library for particle-detector simulation"
   HOMEPAGE_URL "https://gitlab.cern.ch/VecGeom/VecGeom"
   LANGUAGES C CXX)
