@@ -30,20 +30,17 @@ with_ROOT:
      - cvmfs
    image: cern/cc7-base
    stage: build
-   script:
-     - ls /cvmfs/alice.cern.ch/
-     - mkdir build && cd build
-       # need C++17 since ROOT was built with C++17
-     - cmake .. -DVECGEOM_BUILTIN_VECCORE=ON -DVc_DIR=${VC_ROOT}/lib/cmake -DVECGEOM_ROOT=ON -DVECGEOM_GDML=OFF -DVECGEOM_BACKEND=Vc
-       # for the moment exclude the E03 test since downloading E03 root geometry has problems on the CI machine
-     - make -j8 VERBOSE=ON && ctest --output-on-failure -j8 -E E03
    before_script:
-     - echo $SHELL
      - yum install environment-modules -y
      - yum install -y unzip autoconf automake make gcc
      - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv CMake::v3.18.2-1)"
      - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv ROOT::v6-18-04-8)"
      - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv Vc::1.4.1-6)"
+   script:
+     - mkdir build && cd build
+     - cmake .. -DVECGEOM_BUILTIN_VECCORE=ON -DVECGEOM_BACKEND=Vc -DVc_DIR=${VC_ROOT}/lib/cmake -DVECGEOM_ROOT=ON -DVECGEOM_GDML=OFF
+       # for the moment exclude the E03 test since downloading E03 root geometry has problems on the CI machine
+     - make -j8 VERBOSE=ON && ctest --output-on-failure -j8 -E E03
 
 # build for USING_NAVINDEX=ON (using the cvmfs ALICE software stack: TODO: convert to project/sft...)
 with_NAVINDEX:
@@ -51,17 +48,14 @@ with_NAVINDEX:
      - cvmfs
    image: cern/cc7-base
    stage: build
-   script:
-     - ls /cvmfs/alice.cern.ch/
-     - mkdir build && cd build
-       # need C++17 since ROOT was built with C++17
-     - cmake .. -DVECGEOM_BUILTIN_VECCORE=ON -DVc_DIR=${VC_ROOT}/lib/cmake -DVECGEOM_USE_NAVINDEX=ON -DVECGEOM_ROOT=ON -DVECGEOM_GDML=OFF -DVECGEOM_BACKEND=Vc
-       # for the moment exclude the E03 test since downloading E03 root geometry has problems on the CI machine
-     - make -j8 VERBOSE=ON && ctest --output-on-failure -j8 -E E03
    before_script:
-     - echo $SHELL
      - yum install environment-modules -y
      - yum install -y unzip autoconf automake make gcc
      - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv CMake::v3.18.2-1)"
      - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv ROOT::v6-18-04-8)"
      - eval "$(/cvmfs/alice.cern.ch/bin/alienv printenv Vc::1.4.1-6)"
+   script:
+     - mkdir build && cd build
+     - cmake .. -DVECGEOM_BUILTIN_VECCORE=ON -DVECGEOM_BACKEND=Vc -DVc_DIR=${VC_ROOT}/lib/cmake -DVECGEOM_USE_NAVINDEX=ON -DVECGEOM_ROOT=ON -DVECGEOM_GDML=OFF
+       # for the moment exclude the E03 test since downloading E03 root geometry has problems on the CI machine
+     - make -j8 VERBOSE=ON && ctest --output-on-failure -j8 -E E03
