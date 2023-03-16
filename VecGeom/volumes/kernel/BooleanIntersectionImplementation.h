@@ -24,40 +24,26 @@ struct BooleanImplementation<kIntersection> {
   using UnplacedStruct_t = BooleanStruct;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  { /* printf("SpecializedBooleanVolume<%i, %i, %i>", kIntersection, transCodeT, rotCodeT); */
-  }
+  static void PrintType() {}
 
   template <typename Stream>
   static void PrintType(Stream &s)
   {
-    // s << "SpecializedBooleanVolume<kIntersection"
-    //  << "," << transCodeT << "," << rotCodeT << ">";
-  }
-
-  template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
-  {
-    st << "SpecializedBooleanVolume<kIntersection" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &s)
   {
-    // s << "BooleanImplementation<kIntersection"
-    //  << "," << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintUnplacedType(Stream &s)
   {
-    // s << "UnplacedBooleanVolume";
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(BooleanStruct const &unplaced,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     const auto insideA = unplaced.fLeftVolume->Contains(point);
     const auto insideB = unplaced.fRightVolume->Contains(point);
@@ -65,9 +51,8 @@ struct BooleanImplementation<kIntersection> {
   }
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(BooleanStruct const &unplaced,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
     // now use the Inside functionality of left and right components
     // algorithm taken from Geant4 implementation
@@ -99,10 +84,10 @@ struct BooleanImplementation<kIntersection> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
-                           Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(BooleanStruct const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &dir,
+                                                                        Real_v const &stepMax, Real_v &distance)
   {
     Vector3D<Real_v> hitpoint = point;
 
@@ -183,19 +168,18 @@ struct BooleanImplementation<kIntersection> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(BooleanStruct const &unplaced, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(BooleanStruct const &unplaced,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const &stepMax, Real_v &distance)
   {
     distance = Min(unplaced.fLeftVolume->DistanceToOut(point, direction),
                    unplaced.fRightVolume->PlacedDistanceToOut(point, direction));
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(BooleanStruct const &unplaced,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     // This is the Geant4 algorithm
     // TODO: ROOT seems to produce better safeties
@@ -215,9 +199,8 @@ struct BooleanImplementation<kIntersection> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(BooleanStruct const &unplaced,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     safety = Min(
         // TODO: could fail if left volume is placed shape
@@ -229,10 +212,9 @@ struct BooleanImplementation<kIntersection> {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void NormalKernel(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &normal,
-                           Bool_v &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void NormalKernel(BooleanStruct const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> &normal, Bool_v &valid)
   {
     Vector3D<Real_v> localNorm;
     Vector3D<Real_v> localPoint;

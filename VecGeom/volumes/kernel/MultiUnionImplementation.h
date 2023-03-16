@@ -34,9 +34,8 @@ struct MultiUnionImplementation {
   static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &st)
   {
-    st << "SpecializedMultiUnion<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -52,9 +51,8 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &munion,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     auto containshook = [&](size_t id) {
       inside = munion.fVolumes[id]->Contains(point);
@@ -66,9 +64,8 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point, Inside_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &munion,
+                                                                  Vector3D<Real_v> const &point, Inside_v &inside)
   {
     inside          = EInside::kOutside;
     auto insidehook = [&](size_t id) {
@@ -87,9 +84,9 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void InsideComponent(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point, int &component)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void InsideComponent(UnplacedStruct_t const &munion,
+                                                                           Vector3D<Real_v> const &point,
+                                                                           int &component)
   {
     component       = -1;
     auto insidehook = [&](size_t id) {
@@ -106,9 +103,8 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void InsideCluster(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point, int &component)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void InsideCluster(UnplacedStruct_t const &munion,
+                                                                         Vector3D<Real_v> const &point, int &component)
   {
     // loop cluster overlap candidates for current component, then update component
     size_t *cluster = munion.fNeighbours[component];
@@ -123,10 +119,10 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &munion,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const &stepMax, Real_v &distance)
   {
     // Check if the bounding box is hit
     const Vector3D<Real_v> invdir(Real_v(1.0) / NonZero(direction.x()), Real_v(1.0) / NonZero(direction.y()),
@@ -156,10 +152,10 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &munion,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const &stepMax, Real_v &distance)
   {
     constexpr Real_v eps = 10 * kTolerance;
     distance             = -1.;
@@ -189,10 +185,9 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToInComp(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point, Real_v &safety,
-                             int &component)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToInComp(UnplacedStruct_t const &munion,
+                                                                          Vector3D<Real_v> const &point, Real_v &safety,
+                                                                          int &component)
   {
     safety        = vecgeom::InfinityLength<Real_v>();
     component     = -1;
@@ -215,9 +210,8 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &munion,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     int comp;
     InsideComponent(munion, point, comp);
@@ -230,9 +224,8 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &munion,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     // Locate the component containing the point
     int comp;
@@ -256,10 +249,8 @@ struct MultiUnionImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> NormalKernel(
+      UnplacedStruct_t const &munion, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid)
   {
     // Locate the component containing the point
     int comp;

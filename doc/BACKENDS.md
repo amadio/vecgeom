@@ -37,21 +37,19 @@ The following example will demonstrate the vector interface call tree by using t
 
 The vector interface exposed to the user takes an input container and an output array, defined in `volumes/specialized_box.h`:
 
-    template <TranslationCode trans_code, RotationCode rot_code>
     void SpecializedBox<trans_code, rot_code>::Inside(...) const {
-      Inside_Looper<trans_code, rot_code>(*this, ...);
+      Inside_Looper(*this, ...);
     }
 
 This call is dispatched to the free function `Inside_Looper`, which is located in the `implementation.h` header file of the backend used.
 
 Assuming Vc is used as the SIMD backend, the `Inside_Looper` function is implemented as:
 
-    template <TranslationCode trans_code, RotationCode rot_code,
-              typename VolumeType, typename ContainerType>
+    template <typename VolumeType, typename ContainerType>
     void VPlacedVolume::Inside_Looper(...) {
       for (...) {
         const VcBool result =
-            volume.template InsideDispatch<trans_code, rot_code, kVc>(
+            volume.template InsideDispatch<kVc>(
               Vector3D<VcPrecision>(...)
             );
         ...
@@ -62,16 +60,16 @@ When called from the `Inside` method of the specialized box, the last two templa
 
 The dispatch function of the volume is the one finally responsible of dispatching to the abstracted code performing the work, and is located in the unspecialized version of the volume, in this case `volumes/placed_box.h`:
 
-    template <TranslationCode trans_code, RotationCode rot_code, typename Backend>
+    template <typename Backend>
     typename Backend::bool_v PlacedBox::InsideDispatch(...) const {
       typename Backend::bool_v output;
-      BoxInside<trans_code, rot_code, Backend>(..., output);
+      BoxInside<Backend>(..., output);
       return output;
     }
 
 As all template parameters and function arguments are known at this stage, the kernel for the box inside method in `volumes/kernel/box_kernel.h` can be called:
 
-    template <TranslationCode trans_code, RotationCode rot_code, typename Backend>
+    template <typename Backend>
     void BoxInside(...)
 
 As all the above is inlined, this template stack will result in transformationally specialized SIMD instructions as implemented by the backend, looping over the user input and populating the output array.

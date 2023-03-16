@@ -33,22 +33,17 @@ struct SphereImplementation {
   using UnplacedVolume_t = UnplacedSphere;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  {
-    //  printf("SpecializedSphere<%i, %i>", transCodeT, rotCodeT);
-  }
+  static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &st)
   {
-    st << "SpecializedSphere<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &st)
   {
     (void)st;
-    // st << "SphereImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -60,9 +55,8 @@ struct SphereImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &sphere,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Bool_v unused, outside;
     GenericKernelForContainsAndInside<Real_v, Bool_v, false>(sphere, point, unused, outside);
@@ -72,9 +66,8 @@ struct SphereImplementation {
   // BIG QUESTION: DO WE WANT TO GIVE ALL 3 TEMPLATE PARAMETERS
   // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &sphere,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
     using Bool_v       = vecCore::Mask_v<Real_v>;
@@ -87,24 +80,23 @@ struct SphereImplementation {
   }
 
   template <typename Real_v, typename Bool_v, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &localPoint,
-                                                Bool_v &completelyinside, Bool_v &completelyoutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(
+      UnplacedStruct_t const &sphere, Vector3D<Real_v> const &localPoint, Bool_v &completelyinside,
+      Bool_v &completelyoutside)
   {
     Real_v rad2 = localPoint.Mag2();
 
     // Check radial surfaces
     // Radial check for GenericKernel Start
     if (sphere.fRmin)
-      completelyinside = rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmax) &&
-                         rad2 >= MakePlusTolerantSquare<true>(sphere.fRmin);
+      completelyinside =
+          rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmax) && rad2 >= MakePlusTolerantSquare<true>(sphere.fRmin);
     else
       completelyinside = rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmax);
 
     if (sphere.fRmin)
-      completelyoutside = rad2 >= MakePlusTolerantSquare<true>(sphere.fRmax) ||
-                          rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmin);
+      completelyoutside =
+          rad2 >= MakePlusTolerantSquare<true>(sphere.fRmax) || rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmin);
     else
       completelyoutside = rad2 >= MakePlusTolerantSquare<true>(sphere.fRmax);
 
@@ -136,10 +128,10 @@ struct SphereImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &sphere,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const & /* stepMax */, Real_v &distance)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     distance     = kInfLength;
@@ -256,10 +248,10 @@ struct SphereImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &sphere,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const & /* stepMax */, Real_v &distance)
   {
 
     using Bool_v = typename vecCore::Mask_v<Real_v>;
@@ -341,10 +333,10 @@ struct SphereImplementation {
   }
 
   template <typename Real_v, bool DistToIn>
-  VECCORE_ATT_HOST_DEVICE
-  static void GetMinDistFromPhi(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &localPoint,
-                                Vector3D<Real_v> const &localDir, typename vecCore::Mask_v<Real_v> &done,
-                                Real_v &distance)
+  VECCORE_ATT_HOST_DEVICE static void GetMinDistFromPhi(UnplacedStruct_t const &sphere,
+                                                        Vector3D<Real_v> const &localPoint,
+                                                        Vector3D<Real_v> const &localDir,
+                                                        typename vecCore::Mask_v<Real_v> &done, Real_v &distance)
   {
     using Bool_v = typename vecCore::Mask_v<Real_v>;
     Real_v distPhi1(kInfLength);
@@ -386,9 +378,8 @@ struct SphereImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &sphere,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v done(false);
@@ -434,9 +425,8 @@ struct SphereImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &sphere,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
 
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -487,8 +477,8 @@ struct SphereImplementation {
    *
    */
   template <typename Real_v>
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> ApproxSurfaceNormalKernel(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point)
+  VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> ApproxSurfaceNormalKernel(UnplacedStruct_t const &sphere,
+                                                                            Vector3D<Real_v> const &point)
   {
     using vecCore::math::Min;
     Vector3D<Real_v> norm(0., 0., 0.);
@@ -534,10 +524,9 @@ struct SphereImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> Normal(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point,
-                                 typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> Normal(UnplacedStruct_t const &sphere,
+                                                                              Vector3D<Real_v> const &point,
+                                                                              typename vecCore::Mask_v<Real_v> &valid)
   {
     Vector3D<Real_v> normal(0., 0., 0.);
     normal.Set(1e-30);

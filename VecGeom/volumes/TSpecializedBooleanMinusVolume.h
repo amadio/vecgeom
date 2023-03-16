@@ -10,16 +10,13 @@
 
 namespace VECGEOM_NAMESPACE {
 
-template <typename LeftUnplacedVolume_t, typename RightPlacedVolume_t, TranslationCode transCodeT,
-          RotationCode rotCodeT>
+template <typename LeftUnplacedVolume_t, typename RightPlacedVolume_t>
 class TSpecializedBooleanMinusVolume
-    : public ShapeImplementationHelper<
-          TPlacedBooleanMinusVolume,
-          TBooleanMinusImplementation<LeftUnplacedVolume_t, RightPlacedVolume_t, transCodeT, rotCodeT>> {
+    : public ShapeImplementationHelper<TPlacedBooleanMinusVolume,
+                                       TBooleanMinusImplementation<LeftUnplacedVolume_t, RightPlacedVolume_t>> {
 
-  typedef ShapeImplementationHelper<
-      TPlacedBooleanMinusVolume,
-      TBooleanMinusImplementation<LeftUnplacedVolume_t, RightPlacedVolume_t, transCodeT, rotCodeT>>
+  typedef ShapeImplementationHelper<TPlacedBooleanMinusVolume,
+                                    TBooleanMinusImplementation<LeftUnplacedVolume_t, RightPlacedVolume_t>>
       Helper;
 
   // typedef TUnplacedBooleanMinusVolume<LeftUnplacedVolume_t, RightPlacedVolume_t> UnplacedVol_t;
@@ -60,6 +57,6 @@ public:
 
 }; // endofclassdefinition
 
-} // End global namespace
+} // namespace VECGEOM_NAMESPACE
 
 #endif // VECGEOM_VOLUMES_TSPECIALIZEDBOOLEANMINUS_H

@@ -36,22 +36,17 @@ struct BoxImplementation {
   using UnplacedVolume_t = UnplacedBox;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  {
-    //  printf("SpecializedBox<%i, %i>", transCodeT, rotCodeT);
-  }
+  static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &st)
   {
-    st << "SpecializedBox<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &st)
   {
     (void)st;
-    // st << "BoxImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -63,25 +58,21 @@ struct BoxImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> HalfSize(const UnplacedStruct_t &box)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> HalfSize(const UnplacedStruct_t &box)
   {
     return Vector3D<Real_v>(box.fDimensions[0], box.fDimensions[1], box.fDimensions[2]);
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &box,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     inside = (point.Abs() - HalfSize<Real_v>(box)).Max() < Real_v(0.0);
   }
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Inside_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &box,
+                                                                  Vector3D<Real_v> const &point, Inside_v &inside)
   {
     Real_v dist = (point.Abs() - HalfSize<Real_v>(box)).Max();
 
@@ -90,11 +81,9 @@ struct BoxImplementation {
   }
 
   template <typename Real_v, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(Vector3D<Real_v> const &halfsize, Vector3D<Real_v> const &point,
-                                                vecCore::Mask<Real_v> &completelyinside,
-                                                vecCore::Mask<Real_v> &completelyoutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(
+      Vector3D<Real_v> const &halfsize, Vector3D<Real_v> const &point, vecCore::Mask<Real_v> &completelyinside,
+      vecCore::Mask<Real_v> &completelyoutside)
   {
     Real_v dist = (point.Abs() - halfsize).Max();
 
@@ -104,10 +93,10 @@ struct BoxImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &box,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const & /* stepMax */, Real_v &distance)
   {
     const Vector3D<Real_v> invDir(Real_v(1.0) / NonZero(direction[0]), Real_v(1.0) / NonZero(direction[1]),
                                   Real_v(1.0) / NonZero(direction[2]));
@@ -131,10 +120,10 @@ struct BoxImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &box,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const & /* stepMax */, Real_v &distance)
   {
     const Vector3D<Real_v> invDir(Real_v(1.0) / NonZero(direction[0]), Real_v(1.0) / NonZero(direction[1]),
                                   Real_v(1.0) / NonZero(direction[2]));
@@ -151,26 +140,22 @@ struct BoxImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &box,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     safety = (point.Abs() - HalfSize<Real_v>(box)).Max();
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &box,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     safety = (HalfSize<Real_v>(box) - point.Abs()).Min();
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> NormalKernel(
+      UnplacedStruct_t const &box, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid)
   {
     // Computes the normal on a surface and returns it as a unit vector
     //   In case a point is further than kHalfTolerance from a surface, set valid=false
@@ -238,11 +223,11 @@ struct BoxImplementation {
   // an algorithm to test for intersection ( could be faster than DistanceToIn )
   // actually this also calculated the distance at the same time ( in tmin )
   template <int signx, int signy, int signz>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  //__attribute__((noinline))
-  static Precision IntersectCached(Vector3D<Precision> const *corners, Vector3D<Precision> const &point,
-                                   Vector3D<Precision> const &inverseray, Precision t0, Precision t1)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE
+      //__attribute__((noinline))
+      static Precision
+      IntersectCached(Vector3D<Precision> const *corners, Vector3D<Precision> const &point,
+                      Vector3D<Precision> const &inverseray, Precision t0, Precision t1)
   {
     // intersection algorithm 1 ( Amy Williams )
 
@@ -276,10 +261,9 @@ struct BoxImplementation {
   // an algorithm to test for intersection ( could be faster than DistanceToIn )
   // actually this also calculated the distance at the same time ( in tmin )
   template <typename Real_v, int signx, int signy, int signz>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Real_v IntersectCachedKernel(Vector3D<Real_v> const *corners, Vector3D<Precision> const &point,
-                                      Vector3D<Precision> const &inverseray, Precision t0, Precision t1)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Real_v IntersectCachedKernel(
+      Vector3D<Real_v> const *corners, Vector3D<Precision> const &point, Vector3D<Precision> const &inverseray,
+      Precision t0, Precision t1)
   {
 
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -321,11 +305,11 @@ struct BoxImplementation {
   // an algorithm to test for intersection ( could be faster than DistanceToIn )
   // actually this also calculated the distance at the same time ( in tmin )
   template <typename Real_v, typename basep>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Real_v IntersectCachedKernel2(Vector3D<Real_v> const *corners, Vector3D<basep> const &point,
-                                       Vector3D<basep> const &inverseray, int signx, int signy, int signz, basep t0,
-                                       basep t1)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Real_v IntersectCachedKernel2(Vector3D<Real_v> const *corners,
+                                                                                    Vector3D<basep> const &point,
+                                                                                    Vector3D<basep> const &inverseray,
+                                                                                    int signx, int signy, int signz,
+                                                                                    basep t0, basep t1)
   {
 
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -375,11 +359,11 @@ struct BoxImplementation {
 
   // one could do: template <class Backend, int sign0, int sign1, int sign2>
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Precision IntersectMultiple(Vector3D<Real_v> const lowercorners, Vector3D<Real_v> const uppercorners,
-                                     Vector3D<Precision> const &point, Vector3D<Precision> const &inverseray,
-                                     Precision t0, Precision t1)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Precision IntersectMultiple(Vector3D<Real_v> const lowercorners,
+                                                                                  Vector3D<Real_v> const uppercorners,
+                                                                                  Vector3D<Precision> const &point,
+                                                                                  Vector3D<Precision> const &inverseray,
+                                                                                  Precision t0, Precision t1)
   {
     // intersection algorithm 1 ( Amy Williams )
 
@@ -455,10 +439,10 @@ struct ABBoxImplementation {
   // should be useful to test one point against many bounding boxes
   // TODO: check if this can be unified with the normal generic box kernel
   template <typename Real_v, typename Bool_v = typename vecCore::Mask_v<Real_v>>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void ABBoxContainsKernel(Vector3D<Real_v> const &lowercorner, Vector3D<Real_v> const &uppercorner,
-                                  Vector3D<Precision> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void ABBoxContainsKernel(Vector3D<Real_v> const &lowercorner,
+                                                                               Vector3D<Real_v> const &uppercorner,
+                                                                               Vector3D<Precision> const &point,
+                                                                               Bool_v &inside)
   {
 
     inside = lowercorner.x() < Real_v(point.x());
@@ -476,10 +460,10 @@ struct ABBoxImplementation {
   // playing with a kernel that can do multi-box - single particle; multi-box -- multi-particle, single-box --
   // multi-particle
   template <typename T1, typename T2, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void ABBoxContainsKernelGeneric(Vector3D<T1> const &lowercorner, Vector3D<T1> const &uppercorner,
-                                         Vector3D<T2> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void ABBoxContainsKernelGeneric(Vector3D<T1> const &lowercorner,
+                                                                                      Vector3D<T1> const &uppercorner,
+                                                                                      Vector3D<T2> const &point,
+                                                                                      Bool_v &inside)
   {
     inside = lowercorner.x() < T1(point.x());
     inside &= uppercorner.x() > T1(point.x());
@@ -498,10 +482,9 @@ struct ABBoxImplementation {
   // in case a point is inside a box a squared value
   // is returned but given an overall negative sign
   template <typename Real_v, typename Real_s = typename vecCore::TypeTraits<Real_v>::ScalarType>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Real_v ABBoxSafetySqr(Vector3D<Real_v> const &lowercorner, Vector3D<Real_v> const &uppercorner,
-                               Vector3D<Real_s> const &point)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Real_v ABBoxSafetySqr(Vector3D<Real_v> const &lowercorner,
+                                                                            Vector3D<Real_v> const &uppercorner,
+                                                                            Vector3D<Real_s> const &point)
   {
 
     using Vector3D_v = Vector3D<Real_v>;
@@ -558,10 +541,10 @@ struct ABBoxImplementation {
   // in case a point is inside a box a squared value
   // is returned but given an overall negative sign
   template <typename Real_v, typename Real_s = typename vecCore::TypeTraits<Real_v>::ScalarType>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Real_v ABBoxSafetyRangeSqr(Vector3D<Real_v> const &lowercorner, Vector3D<Real_v> const &uppercorner,
-                                    Vector3D<Real_s> const &point, Real_v &safetymaxsqr)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Real_v ABBoxSafetyRangeSqr(Vector3D<Real_v> const &lowercorner,
+                                                                                 Vector3D<Real_v> const &uppercorner,
+                                                                                 Vector3D<Real_s> const &point,
+                                                                                 Real_v &safetymaxsqr)
   {
 
     using Vector3D_v = Vector3D<Real_v>;

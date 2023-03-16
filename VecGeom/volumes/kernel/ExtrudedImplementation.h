@@ -33,15 +33,11 @@ struct ExtrudedImplementation {
   using UnplacedVolume_t = UnplacedExtruded;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  {
-    //  printf("SpecializedBox<%i, %i>", transCodeT, rotCodeT);
-  }
+  static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &st)
   {
-    st << "SpecializedExtruded<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -57,9 +53,8 @@ struct ExtrudedImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &extruded,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     inside = false;
     if (extruded.fIsSxtru) {
@@ -80,9 +75,8 @@ struct ExtrudedImplementation {
   }
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point, Inside_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &extruded,
+                                                                  Vector3D<Real_v> const &point, Inside_v &inside)
   {
     inside = EInside::kOutside;
 
@@ -114,10 +108,10 @@ struct ExtrudedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &extruded,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const &stepMax, Real_v &distance)
   {
 // Note that Real_v is always double here
 #ifdef EFFICIENT_TSL_DISTANCETOIN
@@ -184,10 +178,10 @@ struct ExtrudedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &extruded,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const &stepMax, Real_v &distance)
   {
     if (extruded.fIsSxtru)
       SExtruImplementation::DistanceToOut<Real_v>(extruded.fSxtruHelper, point, direction, stepMax, distance);
@@ -196,9 +190,8 @@ struct ExtrudedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &extruded,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     if (extruded.fIsSxtru)
       SExtruImplementation::SafetyToIn<Real_v>(extruded.fSxtruHelper, point, safety);
@@ -207,9 +200,8 @@ struct ExtrudedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &extruded,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     if (extruded.fIsSxtru)
       SExtruImplementation::SafetyToOut<Real_v>(extruded.fSxtruHelper, point, safety);
@@ -218,10 +210,8 @@ struct ExtrudedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> NormalKernel(
+      UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid)
   {
     // Computes the normal on a surface and returns it as a unit vector
     if (extruded.fIsSxtru) return SExtruImplementation::NormalKernel<Real_v>(extruded.fSxtruHelper, point, valid);

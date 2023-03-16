@@ -14,26 +14,24 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT, typename hypeTypeT>
-using SpecializedHype = SpecializedVolImplHelper<HypeImplementation<hypeTypeT>, transCodeT, rotCodeT>;
+template <typename hypeTypeT>
+using SpecializedHype = SpecializedVolImplHelper<HypeImplementation<hypeTypeT>>;
 
-using SimpleHype = SpecializedHype<translation::kGeneric, rotation::kGeneric, HypeTypes::UniversalHype>;
+using SimpleHype = SpecializedHype<HypeTypes::UniversalHype>;
 
 template <typename Type>
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECCORE_ATT_DEVICE
-VPlacedVolume *SUnplacedHype<Type>::Create(LogicalVolume const *const logical_volume,
-                                           Transformation3D const *const transformation,
+VECCORE_ATT_DEVICE VPlacedVolume *SUnplacedHype<Type>::Create(LogicalVolume const *const logical_volume,
+                                                              Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                           const int id, const int copy_no, const int child_id,
+                                                              const int id, const int copy_no, const int child_id,
 #endif
-                                           VPlacedVolume *const placement)
+                                                              VPlacedVolume *const placement)
 {
   (void)placement;
-  return new SpecializedHype<transCodeT, rotCodeT, Type>(logical_volume, transformation
+  return new SpecializedHype<Type>(logical_volume, transformation
 #ifdef VECCORE_CUDA
-                                                         ,
-                                                         id, copy_no, child_id
+                                   ,
+                                   id, copy_no, child_id
 #endif
   );
 }

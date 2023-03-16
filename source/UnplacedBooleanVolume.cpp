@@ -260,75 +260,62 @@ UnplacedMultiUnion *BooleanHelper::Flatten(VUnplacedVolume const *unplaced, size
 #endif
 
 template <>
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::Create(LogicalVolume const *const logical_volume,
-                                                           Transformation3D const *const transformation,
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::Create(
+    LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                                           const int id, const int copy_no, const int child_id,
+    const int id, const int copy_no, const int child_id,
 #endif
-                                                           VPlacedVolume *const placement)
+    VPlacedVolume *const placement)
 {
-  return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kSubtraction, transCodeT, rotCodeT>>(
-      logical_volume, transformation,
+  return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kSubtraction>>(logical_volume, transformation,
 #ifdef VECCORE_CUDA
-      id, copy_no, child_id,
+                                                                                id, copy_no, child_id,
 #endif
-      placement); // TODO: add bounding box?
+                                                                                placement); // TODO: add bounding box?
 }
 
 template <>
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedBooleanVolume<kUnion>::Create(LogicalVolume const *const logical_volume,
-                                                     Transformation3D const *const transformation,
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedBooleanVolume<kUnion>::Create(LogicalVolume const *const logical_volume,
+                                                                        Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                                     const int id, const int copy_no, const int child_id,
+                                                                        const int id, const int copy_no,
+                                                                        const int child_id,
 #endif
-                                                     VPlacedVolume *const placement)
+                                                                        VPlacedVolume *const placement)
 {
-  return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kUnion, transCodeT, rotCodeT>>(
-      logical_volume, transformation,
+  return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kUnion>>(logical_volume, transformation,
 #ifdef VECCORE_CUDA
-      id, copy_no, child_id,
+                                                                          id, copy_no, child_id,
 #endif
-      placement); // TODO: add bounding box?
+                                                                          placement); // TODO: add bounding box?
 }
 
 template <>
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedBooleanVolume<kIntersection>::Create(LogicalVolume const *const logical_volume,
-                                                            Transformation3D const *const transformation,
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedBooleanVolume<kIntersection>::Create(
+    LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                                            const int id, const int copy_no, const int child_id,
+    const int id, const int copy_no, const int child_id,
 #endif
-                                                            VPlacedVolume *const placement)
+    VPlacedVolume *const placement)
 {
-  return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kIntersection, transCodeT, rotCodeT>>(
-      logical_volume, transformation,
+  return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kIntersection>>(logical_volume, transformation,
 #ifdef VECCORE_CUDA
-      id, copy_no, child_id,
+                                                                                 id, copy_no, child_id,
 #endif
-      placement); // TODO: add bounding box?
+                                                                                 placement); // TODO: add bounding box?
 }
 
 template <>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::SpecializedVolume(LogicalVolume const *const volume,
-                                                                      Transformation3D const *const transformation,
-                                                                      const TranslationCode trans_code,
-                                                                      const RotationCode rot_code,
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::SpecializedVolume(
+    LogicalVolume const *const volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                                                      const int id, const int copy_no,
-                                                                      const int child_id,
+    const int id, const int copy_no, const int child_id,
 #endif
-                                                                      VPlacedVolume *const placement) const
+    VPlacedVolume *const placement) const
 {
 #ifndef VECCORE_CUDA
 
-  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kSubtraction>>(volume, transformation, trans_code,
-                                                                                    rot_code,
+  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kSubtraction>>(volume, transformation,
 #ifdef VECCORE_CUDA
                                                                                     id, copy_no, child_id,
 #endif
@@ -343,20 +330,16 @@ VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::SpecializedVolume(LogicalVol
 }
 
 template <>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedBooleanVolume<kUnion>::SpecializedVolume(LogicalVolume const *const volume,
-                                                                Transformation3D const *const transformation,
-                                                                const TranslationCode trans_code,
-                                                                const RotationCode rot_code,
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedBooleanVolume<kUnion>::SpecializedVolume(
+    LogicalVolume const *const volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                                                const int id, const int copy_no, const int child_id,
+    const int id, const int copy_no, const int child_id,
 #endif
-                                                                VPlacedVolume *const placement) const
+    VPlacedVolume *const placement) const
 {
 #ifndef VECCORE_CUDA
 
-  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kUnion>>(volume, transformation, trans_code,
-                                                                              rot_code,
+  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kUnion>>(volume, transformation,
 #ifdef VECCORE_CUDA
                                                                               id, copy_no, child_id,
 #endif
@@ -371,21 +354,16 @@ VPlacedVolume *UnplacedBooleanVolume<kUnion>::SpecializedVolume(LogicalVolume co
 }
 
 template <>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedBooleanVolume<kIntersection>::SpecializedVolume(LogicalVolume const *const volume,
-                                                                       Transformation3D const *const transformation,
-                                                                       const TranslationCode trans_code,
-                                                                       const RotationCode rot_code,
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedBooleanVolume<kIntersection>::SpecializedVolume(
+    LogicalVolume const *const volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                                                       const int id, const int copy_no,
-                                                                       const int child_id,
+    const int id, const int copy_no, const int child_id,
 #endif
-                                                                       VPlacedVolume *const placement) const
+    VPlacedVolume *const placement) const
 {
 #ifndef VECCORE_CUDA
 
-  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kIntersection>>(volume, transformation, trans_code,
-                                                                                     rot_code,
+  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kIntersection>>(volume, transformation,
 #ifdef VECCORE_CUDA
                                                                                      id, copy_no, child_id,
 #endif
@@ -442,8 +420,8 @@ void TransformedExtent(VPlacedVolume const *pvol, Vector3D<Precision> &aMin, Vec
 }
 
 template <>
-VECCORE_ATT_HOST_DEVICE
-void UnplacedBooleanVolume<kSubtraction>::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+VECCORE_ATT_HOST_DEVICE void UnplacedBooleanVolume<kSubtraction>::Extent(Vector3D<Precision> &aMin,
+                                                                         Vector3D<Precision> &aMax) const
 {
   Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;
   // ATTENTION: Extent gives coordinates in the reference frame of the callee
@@ -458,8 +436,8 @@ void UnplacedBooleanVolume<kSubtraction>::Extent(Vector3D<Precision> &aMin, Vect
 }
 
 template <>
-VECCORE_ATT_HOST_DEVICE
-void UnplacedBooleanVolume<kUnion>::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+VECCORE_ATT_HOST_DEVICE void UnplacedBooleanVolume<kUnion>::Extent(Vector3D<Precision> &aMin,
+                                                                   Vector3D<Precision> &aMax) const
 {
   Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;
   // ATTENTION: Extent gives coordinates in the reference frame of the callee
@@ -476,8 +454,8 @@ void UnplacedBooleanVolume<kUnion>::Extent(Vector3D<Precision> &aMin, Vector3D<P
 }
 
 template <>
-VECCORE_ATT_HOST_DEVICE
-void UnplacedBooleanVolume<kIntersection>::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+VECCORE_ATT_HOST_DEVICE void UnplacedBooleanVolume<kIntersection>::Extent(Vector3D<Precision> &aMin,
+                                                                          Vector3D<Precision> &aMax) const
 {
   Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;
   // ATTENTION: Extent gives coordinates in the reference frame of the callee
@@ -494,8 +472,8 @@ void UnplacedBooleanVolume<kIntersection>::Extent(Vector3D<Precision> &aMin, Vec
 }
 
 template <>
-VECCORE_ATT_HOST_DEVICE
-bool UnplacedBooleanVolume<kSubtraction>::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+VECCORE_ATT_HOST_DEVICE bool UnplacedBooleanVolume<kSubtraction>::Normal(Vector3D<Precision> const &point,
+                                                                         Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface
   bool valid = false;
@@ -504,8 +482,8 @@ bool UnplacedBooleanVolume<kSubtraction>::Normal(Vector3D<Precision> const &poin
 }
 
 template <>
-VECCORE_ATT_HOST_DEVICE
-bool UnplacedBooleanVolume<kUnion>::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+VECCORE_ATT_HOST_DEVICE bool UnplacedBooleanVolume<kUnion>::Normal(Vector3D<Precision> const &point,
+                                                                   Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface
   bool valid = false;
@@ -514,8 +492,8 @@ bool UnplacedBooleanVolume<kUnion>::Normal(Vector3D<Precision> const &point, Vec
 }
 
 template <>
-VECCORE_ATT_HOST_DEVICE
-bool UnplacedBooleanVolume<kIntersection>::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+VECCORE_ATT_HOST_DEVICE bool UnplacedBooleanVolume<kIntersection>::Normal(Vector3D<Precision> const &point,
+                                                                          Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface
   bool valid = false;

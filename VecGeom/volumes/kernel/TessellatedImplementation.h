@@ -33,33 +33,26 @@ struct TessellatedImplementation {
   using UnplacedVolume_t = UnplacedTessellated;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
+  static void PrintType() {}
+
+  template <typename Stream>
+  static void PrintType(Stream &)
   {
-    //  printf("SpecializedBox<%i, %i>", transCodeT, rotCodeT);
   }
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintImplementationType(Stream &)
   {
-    st << "SpecializedTessellated<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &st)
+  static void PrintUnplacedType(Stream &)
   {
-    (void)st;
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
-  {
-    (void)st;
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &tessellated,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     inside = Bool_v(false);
     int isurfOut, isurfIn;
@@ -75,9 +68,8 @@ struct TessellatedImplementation {
   }
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Inside_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &tessellated,
+                                                                  Vector3D<Real_v> const &point, Inside_v &inside)
   {
     inside = Inside_v(kOutside);
     int isurfOut, isurfIn;
@@ -102,10 +94,10 @@ struct TessellatedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &tessellated,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const &stepMax, Real_v &distance)
   {
     int isurf, isurfOut;
     Real_v distOut;
@@ -113,10 +105,10 @@ struct TessellatedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &tessellated,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const &stepMax, Real_v &distance)
   {
     int isurf, isurfIn;
     Real_v distIn;
@@ -124,9 +116,8 @@ struct TessellatedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &tessellated,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v inside;
@@ -141,9 +132,8 @@ struct TessellatedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &tessellated,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v inside;
@@ -158,10 +148,8 @@ struct TessellatedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> NormalKernel(
+      UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid)
   {
     // Computes the normal on a surface and returns it as a unit vector
     valid = true;
@@ -172,10 +160,10 @@ struct TessellatedImplementation {
   }
 
   template <typename Real_v, bool ToIn>
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToSolid(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
-                              Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance, int &isurf,
-                              Real_v &distother, int &isurfother)
+  VECCORE_ATT_HOST_DEVICE static void DistanceToSolid(UnplacedStruct_t const &tessellated,
+                                                      Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction,
+                                                      Real_v const &stepMax, Real_v &distance, int &isurf,
+                                                      Real_v &distother, int &isurfother)
   {
 // Common method providing DistanceToIn/Out functionality
 // Real_v here is scalar, we need to pass vector point/direction
@@ -217,7 +205,7 @@ struct TessellatedImplementation {
       Real_v clusterToIn, clusterToOut;
       int icrtToIn, icrtToOut;
       tessellated.fClusters[hitbox.first]->DistanceToCluster(pointv, dirv, clusterToIn, clusterToOut, icrtToIn,
-                                                             icrtToOut);
+                                                                    icrtToOut);
 
       // Update distanceToIn/Out
       if (icrtToIn >= 0 && clusterToIn < distanceToIn) {
@@ -280,8 +268,8 @@ struct TessellatedImplementation {
   }
 
   template <typename Real_v, bool ToIn>
-  VECCORE_ATT_HOST_DEVICE
-  static Real_v SafetySq(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, int &isurf)
+  VECCORE_ATT_HOST_DEVICE static Real_v SafetySq(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
+                                                 int &isurf)
   {
 #ifndef VECGEOM_ENABLE_CUDA
     using Float_v = vecgeom::VectorBackend::Real_v;

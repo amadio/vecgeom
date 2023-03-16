@@ -29,30 +29,23 @@ struct SExtruImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transC = translation::kGeneric, int rotC = rotation::kGeneric)
+  static void PrintType(Stream &)
   {
-    st << "SpecializedSExtru<" << transC << "," << rotC << "\n";
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &st)
+  static void PrintImplementationType(Stream &)
   {
-    (void)st;
-    // st << "SExtruImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
+  static void PrintUnplacedType(Stream &)
   {
-    (void)st;
-    // TODO: this is wrong
-    // st << "UnplacedSExtruVolume";
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &p, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &unplaced,
+                                                                    Vector3D<Real_v> const &p, Bool_v &inside)
   {
     inside    = Bool_v(false);
     auto done = p.z() > Real_v(unplaced.fUpperZ);
@@ -65,9 +58,8 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &unplaced,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
     // this is a quick / non-optimized ans scalar only implementation:
     if (point.z() > unplaced.fUpperZ + kTolerance) {
@@ -85,7 +77,7 @@ struct SExtruImplementation {
     onZ |= Abs(point.z() - unplaced.fLowerZ) < kTolerance;
 
     if (unplaced.fPolygon.IsConvex()) {
-      inside                                         = unplaced.fPolygon.InsideConvex(point);
+      inside = unplaced.fPolygon.InsideConvex(point);
       if (onZ && inside != vecgeom::kOutside) inside = vecgeom::kSurface;
       return;
     }
@@ -118,10 +110,10 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
-                           Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &polyshell,
+                                                                        Vector3D<Real_v> const &p,
+                                                                        Vector3D<Real_v> const &dir,
+                                                                        Real_v const & /*stepMax*/, Real_v &distance)
   {
     if (polyshell.fPolygon.IsConvex()) {
       distance = polyshell.DistanceToInConvex(p, dir);
@@ -154,10 +146,10 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
-                            Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &polyshell,
+                                                                         Vector3D<Real_v> const &p,
+                                                                         Vector3D<Real_v> const &dir,
+                                                                         Real_v const & /* stepMax */, Real_v &distance)
   {
     if (polyshell.fPolygon.IsConvex()) {
       distance = polyshell.DistanceToOutConvex(p, dir);
@@ -177,9 +169,8 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &polyshell,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     if (polyshell.fPolygon.IsConvex()) {
       Real_v safeZ = vecCore::math::Max(polyshell.fLowerZ - point.z(), point.z() - polyshell.fUpperZ);
@@ -222,9 +213,8 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &polyshell,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     int unused;
     if (polyshell.fPolygon.IsConvex()) {
@@ -238,10 +228,8 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> NormalKernel(
+      UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid)
   {
     // very rough implementation
     // not doing any sort of vector addition for normals on corners etc.
@@ -278,7 +266,7 @@ struct SExtruImplementation {
   }
 
 }; // End struct SExtruImplementation
-}
-} // end namespaces
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

@@ -36,43 +36,35 @@ struct ParallelepipedImplementation {
   using UnplacedVolume_t = UnplacedParallelepiped;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  {
-    // printf("SpecializedParallelepiped<%i, %i>", transCodeT, rotCodeT);
-  }
+  static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &s)
   {
-    s << "SpecializedParallelepiped<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream & /*s*/)
   {
-    // s << "ParallelepipedImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintUnplacedType(Stream & /*s*/)
   {
-    // s << "UnplacedParallelepiped";
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Transform(UnplacedStruct_t const &unplaced, Vector3D<Real_v> &point)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Transform(UnplacedStruct_t const &unplaced,
+                                                                     Vector3D<Real_v> &point)
   {
     point.y() -= unplaced.fTanThetaSinPhi * point.z();
     point.x() -= unplaced.fTanThetaCosPhi * point.z() + unplaced.fTanAlpha * point.y();
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyVector(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &localPoint,
-                           Vector3D<Real_v> &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyVector(UnplacedStruct_t const &unplaced,
+                                                                        Vector3D<Real_v> const &localPoint,
+                                                                        Vector3D<Real_v> &safety)
   {
     safety = localPoint.Abs() - Vector3D<Real_v>(unplaced.fDimensions);
     safety.x() *= unplaced.fCtx;
@@ -80,9 +72,8 @@ struct ParallelepipedImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &unplaced,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Vector3D<Real_v> localPoint(point);
     Vector3D<Real_v> safetyVector;
@@ -93,9 +84,8 @@ struct ParallelepipedImplementation {
   }
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &unplaced,
+                                                                  Vector3D<Real_v> const &point, Inside_v &inside)
   {
     Vector3D<Real_v> localPoint(point);
     Vector3D<Real_v> safetyVector;
@@ -108,9 +98,8 @@ struct ParallelepipedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &unplaced,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     Vector3D<Real_v> localPoint(point);
     Vector3D<Real_v> safetyVector;
@@ -122,9 +111,8 @@ struct ParallelepipedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &unplaced,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     Vector3D<Real_v> localPoint(point);
     Vector3D<Real_v> safetyVector;
@@ -136,10 +124,10 @@ struct ParallelepipedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const & /* stepMax */, Real_v &distance)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
 
@@ -173,10 +161,10 @@ struct ParallelepipedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &unplaced,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const & /* stepMax */, Real_v &distance)
   {
     // Transform point and direction to local (oblique) system of coordinates,
     // compute safety vector
@@ -198,10 +186,8 @@ struct ParallelepipedImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> NormalKernel(
+      UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid)
   {
     // Compute normal at the point on the surface.
     // In case the point is not on the surface, set valid = false.

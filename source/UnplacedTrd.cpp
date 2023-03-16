@@ -51,7 +51,7 @@ UnplacedTrd *Maker<UnplacedTrd>::MakeInstance(const Precision x1, const Precisio
                                               const Precision y2, const Precision z)
 {
 
-#ifndef VECGEOM_NO_SPECIALIZATION
+#if !defined(VECGEOM_NO_SPECIALIZATION) && !defined(VECCORE_CUDA)
   // Trd becomes a box, hence returning a box from the factory
   if ((x1 == x2) && (y1 == y2)) {
     return new SUnplacedImplAs<SUnplacedTrd<TrdTypes::Trd2>, UnplacedBox>(x1, y1, z);
@@ -74,7 +74,7 @@ UnplacedTrd *Maker<UnplacedTrd>::MakeInstance(const Precision x1, const Precisio
                                               const Precision z)
 {
 
-#ifndef VECGEOM_NO_SPECIALIZATION
+#if !defined(VECGEOM_NO_SPECIALIZATION) && !defined(VECCORE_CUDA)
   // Trd1 becomes a box, hence returning a box from the factory
   if (x1 == x2) {
     return new SUnplacedImplAs<SUnplacedTrd<TrdTypes::Trd1>, UnplacedBox>(x1, y1, z);

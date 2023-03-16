@@ -104,10 +104,9 @@ private:
   }
 
   VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume, Transformation3D const *const transformation,
-                                   const TranslationCode trans_code, const RotationCode rot_code,
                                    VPlacedVolume *const placement = NULL) const override
   {
-    auto p = fImplPtr->ImplementingUnplaced::SpecializedVolume(volume, transformation, trans_code, rot_code, placement);
+    auto p = fImplPtr->ImplementingUnplaced::SpecializedVolume(volume, transformation, placement);
 
     using ImplementingKernel = IndirectImplementation<SUnplacedImplAs<UnplacedBase, ImplementingUnplaced>,
                                                       typename ImplementingUnplaced::Kernel>;

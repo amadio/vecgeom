@@ -236,9 +236,7 @@ public:
       @return Squared radius of the hyperboloid surface.
   */
   template <bool ForInnerSurface>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetHypeRadius2(Precision dz) const
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Precision GetHypeRadius2(Precision dz) const
   {
     if (ForInnerSurface)
       return GetRmin2() + GetTIn2() * dz * dz;
@@ -262,9 +260,7 @@ public:
       @return True if point is on the hype surface within the outer radius tolerance.
   */
   template <bool ForInnerSurface>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  bool PointOnHyperbolicSurface(Vector3D<Precision> const &p) const
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE bool PointOnHyperbolicSurface(Vector3D<Precision> const &p) const
   {
     Precision hypeR2    = 0.;
     hypeR2              = GetHypeRadius2<ForInnerSurface>(p.z());
@@ -365,13 +361,11 @@ struct Maker<UnplacedHype> {
 
 /** Specialized version of the unplaced hyperboloid, supporting universal/hollow/non-hollow types.*/
 template <typename HypeType = HypeTypes::UniversalHype>
-class SUnplacedHype : public UnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>,
-                      public AlignedBase {
+class SUnplacedHype : public UnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>, public AlignedBase {
 public:
   using BaseType_t = UnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>;
   using BaseType_t::BaseType_t;
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
@@ -383,23 +377,20 @@ private:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
                                            VPlacedVolume *const placement = NULL) const override
   {
-    return VolumeFactory::CreateByTransformation<SUnplacedHype<HypeType>>(volume, transformation, trans_code, rot_code,
-                                                                          placement);
+    return VolumeFactory::CreateByTransformation<SUnplacedHype<HypeType>>(volume, transformation, placement);
   }
 
 #else
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                           Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code, const int id,
+                                           Transformation3D const *const transformation, const int id,
                                            const int copy_no, const int child_id,
                                            VPlacedVolume *const placement = NULL) const override
   {
-    return VolumeFactory::CreateByTransformation<SUnplacedHype<HypeType>>(volume, transformation, trans_code, rot_code,
-                                                                          id, copy_no, child_id, placement);
+    return VolumeFactory::CreateByTransformation<SUnplacedHype<HypeType>>(volume, transformation, id, copy_no, child_id,
+                                                                          placement);
   }
 #endif
 };

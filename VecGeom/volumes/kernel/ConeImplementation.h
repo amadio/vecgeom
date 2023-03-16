@@ -42,9 +42,8 @@ struct ConeImplementation {
   static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &s)
   {
-    s << "SpecializedCone<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -63,9 +62,8 @@ struct ConeImplementation {
    * Beware : It will not do any checks on Z
    */
   template <typename Real_v, bool ForInnerSurface, bool ForLowerZ>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static typename vecCore::Mask_v<Real_v> IsOnRing(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static typename vecCore::Mask_v<Real_v> IsOnRing(
+      UnplacedStruct_t const &cone, Vector3D<Real_v> const &point)
   {
     using Bool_v = typename vecCore::Mask_v<Real_v>;
 
@@ -74,19 +72,19 @@ struct ConeImplementation {
 
     if (ForLowerZ) {
       if (ForInnerSurface) {
-        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin1)) &&
-                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin1));
+        onRing =
+            (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin1)) && (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin1));
       } else {
-	onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax1)) &&
-                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax1));
+        onRing =
+            (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax1)) && (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax1));
       }
     } else {
       if (ForInnerSurface) {
-        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin2)) &&
-                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin2));
+        onRing =
+            (rad2 <= MakePlusTolerantSquare<true>(cone.fRmin2)) && (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmin2));
       } else {
-        onRing = (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax2)) &&
-                 (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax2));
+        onRing =
+            (rad2 <= MakePlusTolerantSquare<true>(cone.fRmax2)) && (rad2 >= MakeMinusTolerantSquare<true>(cone.fRmax2));
       }
     }
 
@@ -94,10 +92,9 @@ struct ConeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point,
-                       typename vecCore::Mask_v<Real_v> &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &cone,
+                                                                    Vector3D<Real_v> const &point,
+                                                                    typename vecCore::Mask_v<Real_v> &inside)
   {
     typedef typename vecCore::Mask_v<Real_v> Bool_v;
     Bool_v unused(false);
@@ -107,18 +104,17 @@ struct ConeImplementation {
   }
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point, Inside_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &cone,
+                                                                  Vector3D<Real_v> const &point, Inside_v &inside)
   {
     ConeHelpers<Real_v, coneTypeT>::template Inside<Inside_v>(cone, point, inside);
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
-                           Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &cone,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &dir,
+                                                                        Real_v const & /*stepMax*/, Real_v &distance)
   {
     using namespace ConeUtilities;
     using namespace ConeTypes;
@@ -139,10 +135,10 @@ struct ConeImplementation {
     if (vecCore::MaskFull(done)) return;
 
     // outside or *on* outer cone and going away?
-    Float_t outerRad  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
-    Float_t rsq            = point.Perp2(); // point.x()*point.x() + point.y()*point.y();
-    done |= (rsq > MakeMinusTolerantSquare<true>(outerRad, cone.fOuterTolerance))
-         && (dir.Dot(GetNormal<Real_v, false>(cone, point)) >= zero);
+    Float_t outerRad = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
+    Float_t rsq      = point.Perp2(); // point.x()*point.x() + point.y()*point.y();
+    done |= (rsq > MakeMinusTolerantSquare<true>(outerRad, cone.fOuterTolerance)) &&
+            (dir.Dot(GetNormal<Real_v, false>(cone, point)) >= zero);
     if (vecCore::MaskFull(done)) return;
 
     //=== Next, check all dimensions of the cone: for points inside --> return -1
@@ -171,20 +167,18 @@ struct ConeImplementation {
 
     distz /= NonZero(Abs(dir.z()));
 
-
 #ifdef EDGE_POINTS
     Bool_t onZsurf  = (Abs(point.z()) - cone.fDz) < Real_v(kConeTolerance);
     Bool_t onLoZSrf = onZsurf && point.z() < zero;
     Bool_t onHiZSrf = onZsurf && point.z() > zero;
     Bool_t loZcond  = onLoZSrf && (IsOnRing<Real_v, false, true>(cone, point));
-    Bool_t hiZcond  = onHiZSrf && (IsOnRing<Real_v, false,false>(cone, point));
+    Bool_t hiZcond  = onHiZSrf && (IsOnRing<Real_v, false, false>(cone, point));
     if (checkRminTreatment<coneTypeT>(cone)) {
-       loZcond |= onLoZSrf && IsOnRing<Real_v, true, true>(cone, point);
-       hiZcond |= onHiZSrf && IsOnRing<Real_v, true,false>(cone, point);
+      loZcond |= onLoZSrf && IsOnRing<Real_v, true, true>(cone, point);
+      hiZcond |= onHiZSrf && IsOnRing<Real_v, true, false>(cone, point);
     }
     vecCore::MaskedAssign(distz, loZcond || hiZcond, zero);
 #endif
-
 
     Float_t hitx = point.x() + distz * dir.x();
     Float_t hity = point.y() + distz * dir.y();
@@ -255,10 +249,10 @@ struct ConeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &cone,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const & /*stepMax*/, Real_v &distance)
   {
 
     distance = kInfLength;
@@ -271,16 +265,16 @@ struct ConeImplementation {
     const Real_v zero(0.0);
 
     // Using this logic will improve performance of Scalar code
-    Real_v distz         = Abs(point.z()) - cone.fDz;
+    Real_v distz = Abs(point.z()) - cone.fDz;
 
     //=== Next, check all dimensions of the cone: for points outside --> return -1
     vecCore__MaskedAssignFunc(distance, !done, Real_v(-1.0));
 
     Bool_t outside = distz > Real_v(kConeTolerance);
 
-    Real_v rsq           = point.Perp2();
+    Real_v rsq      = point.Perp2();
     Real_v outerRad = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
-    outside |=  rsq > MakePlusTolerantSquare<true>(outerRad, cone.fOuterTolerance);
+    outside |= rsq > MakePlusTolerantSquare<true>(outerRad, cone.fOuterTolerance);
     done |= outside;
     if (vecCore::MaskFull(done)) return;
 
@@ -298,7 +292,6 @@ struct ConeImplementation {
     done |= outside;
     if (vecCore::MaskFull(done)) return;
 
-
     Bool_t isGoingUp   = direction.z() > zero;
     Bool_t isGoingDown = direction.z() < zero;
     Bool_t isOnZPlaneAndMovingOutside(false);
@@ -307,7 +300,6 @@ struct ConeImplementation {
     vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingOutside, distz);
     done |= isOnZPlaneAndMovingOutside;
     if (vecCore::MaskFull(done)) return;
-
 
     //=== Next step: check if z-plane is the right entry point (both r,phi
     // should be valid at z-plane crossing)
@@ -339,8 +331,7 @@ struct ConeImplementation {
       Bool_t isOnEndPhi        = ConeUtilities::IsOnEndPhi<Real_v>(cone, point);
       Vector3D<Real_v> normal1 = cone.fPhiWedge.GetNormal1();
       Vector3D<Real_v> normal2 = cone.fPhiWedge.GetNormal2();
-      Bool_t cond              = (isOnStartPhi && direction.Dot(-normal1) > zero) ||
-                    (isOnEndPhi && direction.Dot(-normal2) > zero);
+      Bool_t cond = (isOnStartPhi && direction.Dot(-normal1) > zero) || (isOnEndPhi && direction.Dot(-normal2) > zero);
       vecCore__MaskedAssignFunc(distance, !done && cond, zero);
       done |= cond;
       if (vecCore::MaskFull(done)) return;
@@ -366,9 +357,8 @@ struct ConeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &cone,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     using namespace ConeUtilities;
     using namespace ConeTypes;
@@ -432,9 +422,8 @@ struct ConeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &cone,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
 
     using namespace ConeUtilities;
@@ -455,7 +444,7 @@ struct ConeImplementation {
     // using GenericKernel and will improve performance.
     Bool_t outside = distz > Real_v(kConeTolerance);
 
-    Float_t outerRad  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
+    Float_t outerRad = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z());
     outside |= rsq > MakePlusTolerantSquare<true>(outerRad, cone.fOuterTolerance);
 
     if (checkRminTreatment<coneTypeT>(cone)) {
@@ -499,9 +488,8 @@ struct ConeImplementation {
   }
 
   template <typename Real_v, bool ForInnerSurface>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Real_v SafeDistanceToConicalSurface(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Real_v SafeDistanceToConicalSurface(UnplacedStruct_t const &cone,
+                                                                                          Vector3D<Real_v> const &point)
   {
 
     typedef Real_v Float_t;

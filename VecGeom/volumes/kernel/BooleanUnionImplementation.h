@@ -23,28 +23,16 @@ struct BooleanImplementation<kUnion> {
   using UnplacedStruct_t = BooleanStruct;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  { /* printf("SpecializedBooleanVolume<%i, %i, %i>", kUnion, transCodeT, rotCodeT); */
-  }
-
-  template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
-  {
-    st << "SpecializedBooleanVolume<kUnion" << transCodeT << "," << rotCodeT << ">";
-  }
+  static void PrintType() {}
 
   template <typename Stream>
   static void PrintType(Stream &s)
   {
-    //  s << "SpecializedBooleanVolume<kUnion"
-    //    << "," << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &s)
   {
-    // s << "BooleanImplementation<kUnion"
-    //   << "," << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -54,9 +42,8 @@ struct BooleanImplementation<kUnion> {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(BooleanStruct const &unplaced,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     inside = unplaced.fLeftVolume->Contains(point);
     if (vecCore::MaskFull(inside)) return;
@@ -64,9 +51,8 @@ struct BooleanImplementation<kUnion> {
   }
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(BooleanStruct const &unplaced,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
     // now use the Inside functionality of left and right components
     // algorithm taken from Geant4 implementation
@@ -112,10 +98,10 @@ struct BooleanImplementation<kUnion> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(BooleanStruct const &unplaced, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(BooleanStruct const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const &stepMax, Real_v &distance)
   {
     const auto d1 = unplaced.fLeftVolume->DistanceToIn(point, direction, stepMax);
     const auto d2 = unplaced.fRightVolume->DistanceToIn(point, direction, stepMax);
@@ -123,10 +109,10 @@ struct BooleanImplementation<kUnion> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
-                            Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(BooleanStruct const &unplaced,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &dir,
+                                                                         Real_v const &stepMax, Real_v &distance)
   {
     VPlacedVolume const *const ptrSolidA = unplaced.fLeftVolume;
     VPlacedVolume const *const ptrSolidB = unplaced.fRightVolume;
@@ -176,9 +162,8 @@ struct BooleanImplementation<kUnion> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(BooleanStruct const &unplaced,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     VPlacedVolume const *const fPtrSolidA = unplaced.fLeftVolume;
     VPlacedVolume const *const fPtrSolidB = unplaced.fRightVolume;
@@ -190,9 +175,8 @@ struct BooleanImplementation<kUnion> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(BooleanStruct const &unplaced,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
 
     safety                                = -kTolerance; // invalid side
@@ -221,10 +205,9 @@ struct BooleanImplementation<kUnion> {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void NormalKernel(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &normal,
-                           Bool_v &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void NormalKernel(BooleanStruct const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> &normal, Bool_v &valid)
   {
     Vector3D<Real_v> localNorm;
     Vector3D<Real_v> localPoint;

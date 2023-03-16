@@ -40,22 +40,17 @@ struct PolyconeImplementation {
   using PlacedShape_t    = SPlacedPolycone<UnplacedVolume_t>;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  {
-    //  printf("SpecializedPolycone<%i, %i>", transCodeT, rotCodeT);
-  }
+  static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &st)
   {
-    st << "SpecializedPolycone<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &st)
   {
     (void)st;
-    // st << "PolyconeImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -67,12 +62,9 @@ struct PolyconeImplementation {
   }
 
   template <typename Real_v, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForASection(UnplacedStruct_t const &unplaced, int isect,
-                                       Vector3D<Real_v> const &polyconePoint,
-                                       typename vecCore::Mask_v<Real_v> &secFullyInside,
-                                       typename vecCore::Mask_v<Real_v> &secFullyOutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForASection(
+      UnplacedStruct_t const &unplaced, int isect, Vector3D<Real_v> const &polyconePoint,
+      typename vecCore::Mask_v<Real_v> &secFullyInside, typename vecCore::Mask_v<Real_v> &secFullyOutside)
   {
 
     // using namespace PolyconeTypes;
@@ -97,9 +89,8 @@ struct PolyconeImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &polycone, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &polycone,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
 
     Bool_v unused(false), outside(false);
@@ -110,9 +101,8 @@ struct PolyconeImplementation {
   // BIG QUESTION: DO WE WANT TO GIVE ALL 3 TEMPLATE PARAMETERS
   // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &polycone, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &polycone,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
     using Bool_v       = vecCore::Mask_v<Real_v>;
@@ -125,10 +115,9 @@ struct PolyconeImplementation {
   }
 
   template <typename Real_v, typename Bool_v, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &localPoint,
-                                                Bool_v &completelyInside, Bool_v &completelyOutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(
+      UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &localPoint, Bool_v &completelyInside,
+      Bool_v &completelyOutside)
   {
 
     typedef Bool_v Bool_t;
@@ -187,10 +176,10 @@ struct PolyconeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &polycone, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &polycone,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const &stepMax, Real_v &distance)
   {
     // using namespace PolyconeTypes;
     Vector3D<Real_v> p = point;
@@ -237,10 +226,10 @@ struct PolyconeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &polycone, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &dir, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &polycone,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &dir,
+                                                                         Real_v const &stepMax, Real_v &distance)
   {
     // using namespace PolyconeTypes;
     distance            = kInfLength;
@@ -379,9 +368,8 @@ struct PolyconeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &polycone, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &polycone,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
 
     Vector3D<Real_v> p = point;
@@ -450,9 +438,8 @@ struct PolyconeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &polycone, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &polycone,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     typedef typename vecCore::Mask_v<Real_v> Bool_v;
     Bool_v compIn(false), compOut(false);

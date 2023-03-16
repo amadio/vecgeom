@@ -290,41 +290,38 @@ SolidMesh *UnplacedExtruded::CreateMesh3D(Transformation3D const &trans, size_t 
 #endif
 
 #ifdef VECCORE_CUDA
-template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE VPlacedVolume *UnplacedExtruded::Create(LogicalVolume const *const logical_volume,
                                                            Transformation3D const *const transformation, const int id,
                                                            VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedExtruded<transCodeT, rotCodeT>(logical_volume, transformation, id);
+    new (placement) SpecializedExtruded(logical_volume, transformation, id);
     return placement;
   }
-  return new SpecializedExtruded<transCodeT, rotCodeT>(logical_volume, transformation, id);
+  return new SpecializedExtruded(logical_volume, transformation, id);
 }
 #else
-template <TranslationCode transCodeT, RotationCode rotCodeT>
 VPlacedVolume *UnplacedExtruded::Create(LogicalVolume const *const logical_volume,
                                         Transformation3D const *const transformation, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedExtruded<transCodeT, rotCodeT>(logical_volume, transformation);
+    new (placement) SpecializedExtruded(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedExtruded<transCodeT, rotCodeT>(logical_volume, transformation);
+  return new SpecializedExtruded(logical_volume, transformation);
 }
 #endif
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedExtruded::SpecializedVolume(LogicalVolume const *const volume,
                                                    Transformation3D const *const transformation,
-                                                   const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                                    const int id,
 #endif
                                                    VPlacedVolume *const placement) const
 {
 
-  return VolumeFactory::CreateByTransformation<UnplacedExtruded>(volume, transformation, trans_code, rot_code,
+  return VolumeFactory::CreateByTransformation<UnplacedExtruded>(volume, transformation,
 #ifdef VECCORE_CUDA
                                                                  id,
 #endif
@@ -368,31 +365,26 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedExtruded::CopyToGpu() const
 
 #ifndef HYBRID_NAVIGATOR_PORTED_TO_CUDA
 template <>
-size_t DevicePtr<vecgeom::cuda::SpecializedVolImplHelper<vecgeom::cuda::ExtrudedImplementation, translation::kGeneric,
-                                                         rotation::kGeneric>>::SizeOf()
+size_t DevicePtr<vecgeom::cuda::SpecializedVolImplHelper<vecgeom::cuda::ExtrudedImplementation>>::SizeOf()
 {
   return 0;
 }
 
 template <>
 template <>
-void DevicePtr<
-    cuda::SpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>>::
-    Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, unsigned int, int,
-              int) const
+void DevicePtr<cuda::SpecializedVolImplHelper<cuda::ExtrudedImplementation>>::Construct(
+    DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, unsigned int, int, int) const
 {
   return;
 }
 
 template <>
-void ConstructManyOnGpu<
-    cuda::SpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>
-    /*, ... inferred from arguments */>(std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs,
-                                        DevicePtr<cuda::LogicalVolume> const *logical,
-                                        DevicePtr<cuda::Transformation3D> const *trafo,
-                                        decltype(std::declval<VPlacedVolume>().id()) const *ids,
-                                        decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
-                                        decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds)
+void ConstructManyOnGpu<cuda::SpecializedVolImplHelper<cuda::ExtrudedImplementation>
+                        /*, ... inferred from arguments */>(
+    std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs, DevicePtr<cuda::LogicalVolume> const *logical,
+    DevicePtr<cuda::Transformation3D> const *trafo, decltype(std::declval<VPlacedVolume>().id()) const *ids,
+    decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
+    decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds)
 {
 }
 
@@ -409,14 +401,12 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedExtruded>::SizeOf();
 template void DevicePtr<cuda::UnplacedExtruded>::Construct() const;
 template <>
-void ConstructManyOnGpu<
-    cuda::SpecializedVolImplHelper<cuda::ExtrudedImplementation, translation::kGeneric, rotation::kGeneric>
-    /*, ... inferred from arguments */>(std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs,
-                                        DevicePtr<cuda::LogicalVolume> const *logical,
-                                        DevicePtr<cuda::Transformation3D> const *trafo,
-                                        decltype(std::declval<VPlacedVolume>().id()) const *ids,
-                                        decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
-                                        decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds);
+void ConstructManyOnGpu<cuda::SpecializedVolImplHelper<cuda::ExtrudedImplementation>
+                        /*, ... inferred from arguments */>(
+    std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs, DevicePtr<cuda::LogicalVolume> const *logical,
+    DevicePtr<cuda::Transformation3D> const *trafo, decltype(std::declval<VPlacedVolume>().id()) const *ids,
+    decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
+    decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds);
 
 } // namespace cxx
 

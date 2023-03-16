@@ -21,10 +21,9 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTet = SpecializedVolImplHelper<TetImplementation, transCodeT, rotCodeT>;
+using SpecializedTet = SpecializedVolImplHelper<TetImplementation>;
 
-using SimpleTet = SpecializedTet<translation::kGeneric, rotation::kGeneric>;
+using SimpleTet = SpecializedTet;
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
 

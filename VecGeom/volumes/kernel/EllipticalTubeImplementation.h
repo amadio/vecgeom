@@ -35,22 +35,17 @@ struct EllipticalTubeImplementation {
   using UnplacedVolume_t = UnplacedEllipticalTube;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  {
-    //  printf("SpecializedEllipticalTube<%i, %i>", transCodeT, rotCodeT);
-  }
+  static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &st)
   {
-    st << "SpecializedEllipticalTube<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &st)
   {
     (void)st;
-    // st << "EllipticalTubeImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -62,9 +57,8 @@ struct EllipticalTubeImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &ellipticaltube,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Bool_v unused, outside;
     GenericKernelForContainsAndInside<Real_v, Bool_v, false>(ellipticaltube, point, unused, outside);
@@ -74,9 +68,8 @@ struct EllipticalTubeImplementation {
   // BIG QUESTION: DO WE WANT TO GIVE ALL 3 TEMPLATE PARAMETERS
   // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &ellipticaltube,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
     using Bool_v       = vecCore::Mask_v<Real_v>;
@@ -89,10 +82,9 @@ struct EllipticalTubeImplementation {
   }
 
   template <typename Real_v, typename Bool_v, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point,
-                                                Bool_v &completelyinside, Bool_v &completelyoutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(
+      UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point, Bool_v &completelyinside,
+      Bool_v &completelyoutside)
   {
     /* TODO : Logic to check where the point is inside or not.
     **
@@ -115,10 +107,10 @@ struct EllipticalTubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &ellipticaltube,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const & /*stepMax*/, Real_v &distance)
   {
     /* TODO :  Logic to calculate Distance from outside point to the EllipticalTube surface */
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -183,10 +175,10 @@ struct EllipticalTubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &ellipticaltube,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const & /* stepMax */, Real_v &distance)
   {
     /* TODO :  Logic to calculate Distance from inside point to the EllipticalTube surface */
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -234,9 +226,8 @@ struct EllipticalTubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &ellipticaltube,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     /* TODO :  Logic to calculate Safety from outside point to the EllipticalTube surface */
     Real_v x     = point.x() * ellipticaltube.fSx;
@@ -249,9 +240,8 @@ struct EllipticalTubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &ellipticaltube,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     /* TODO :  Logic to calculate Safety from inside point to the EllipticalTube surface */
     Real_v x     = point.x() * ellipticaltube.fSx;
@@ -264,10 +254,8 @@ struct EllipticalTubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> NormalKernel(
+      UnplacedStruct_t const &ellipticaltube, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid)
   {
     // Computes the normal on a surface and returns it as a unit vector
     //   In case if the point is further than kHalfTolerance from the surface, set valid=false

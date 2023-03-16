@@ -440,14 +440,13 @@ std::ostream &UnplacedCone::StreamInfo(std::ostream &os) const
 }
 
 // this is repetitive code:
-
 template <>
 UnplacedCone *Maker<UnplacedCone>::MakeInstance(const Precision &rmin1, const Precision &rmax1, const Precision &rmin2,
                                                 const Precision &rmax2, const Precision &dz, const Precision &phimin,
                                                 const Precision &deltaphi)
 {
 // #ifdef GENERATE_CONE_SPECIALIZATIONS
-#ifndef VECGEOM_NO_SPECIALIZATION
+#if !defined(VECGEOM_NO_SPECIALIZATION) && !defined(VECCORE_CUDA)
   if (rmin1 <= 0 && rmin2 <= 0) {
     if (deltaphi >= 2 * M_PI) {
       // NonHollowCone becomes NonHollowTube

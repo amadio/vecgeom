@@ -38,9 +38,8 @@ struct CutTubeImplementation {
   static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &s)
   {
-    s << "SpecializedCutTube<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -54,48 +53,43 @@ struct CutTubeImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &unplaced,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside);
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &unplaced,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToInKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                 Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToInKernel(UnplacedStruct_t const &unplaced,
+                                                                              Vector3D<Real_v> const &point,
+                                                                              Vector3D<Real_v> const &direction,
+                                                                              Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &unplaced,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &unplaced,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &unplaced,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety);
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &normal,
-                           Bool_v &valid);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void NormalKernel(UnplacedStruct_t const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> &normal, Bool_v &valid);
 }; // End struct CutTubeImplementation
 
 //********************************
@@ -104,9 +98,9 @@ struct CutTubeImplementation {
 
 //______________________________________________________________________________
 template <typename Real_v, typename Bool_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void CutTubeImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &contains)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void CutTubeImplementation::Contains(UnplacedStruct_t const &unplaced,
+                                                                                  Vector3D<Real_v> const &point,
+                                                                                  Bool_v &contains)
 {
   contains                = Bool_v(false);
   Bool_v inside_cutplanes = Bool_v(false);
@@ -122,9 +116,9 @@ void CutTubeImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<
 
 //______________________________________________________________________________
 template <typename Real_v, typename Inside_t>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void CutTubeImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void CutTubeImplementation::Inside(UnplacedStruct_t const &unplaced,
+                                                                                Vector3D<Real_v> const &point,
+                                                                                Inside_t &inside)
 {
   inside                    = Inside_t(EInside::kOutside);
   Inside_t inside_cutplanes = Inside_t(EInside::kOutside);
@@ -142,10 +136,11 @@ void CutTubeImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Re
 }
 
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &pointT,
-                                         Vector3D<Real_v> const &dir, Real_v const &stepMax, Real_v &distance)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced,
+                                                                                      Vector3D<Real_v> const &pointT,
+                                                                                      Vector3D<Real_v> const &dir,
+                                                                                      Real_v const &stepMax,
+                                                                                      Real_v &distance)
 {
 
   Vector3D<Real_v> point = pointT;
@@ -170,11 +165,9 @@ void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
 }
 //______________________________________________________________________________
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void CutTubeImplementation::DistanceToInKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                               Vector3D<Real_v> const &direction, Real_v const &stepMax,
-                                               Real_v &distance)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void CutTubeImplementation::DistanceToInKernel(
+    UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction,
+    Real_v const &stepMax, Real_v &distance)
 {
 
 #define USE_CONV_WRONG_SIDE 1
@@ -279,10 +272,9 @@ void CutTubeImplementation::DistanceToInKernel(UnplacedStruct_t const &unplaced,
 
 //______________________________________________________________________________
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void CutTubeImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                          Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void CutTubeImplementation::DistanceToOut(
+    UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction,
+    Real_v const &stepMax, Real_v &distance)
 {
   // Compute distance to cut planes
   distance = InfinityLength<Real_v>();
@@ -296,14 +288,14 @@ void CutTubeImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
   // The line below is needed to avoid din=dout=0 when starting from a boundary
   // A.G. There should be a dir.dot.norm check to avoid the condition above. Rounding to tolerance
   //      prevents G4UnionSolid to exit correctly from the boundary crossing loop
-  //vecCore__MaskedAssignFunc(distance, distance >= Real_v(0.) && distance < Real_v(kTolerance), Real_v(kTolerance));
+  // vecCore__MaskedAssignFunc(distance, distance >= Real_v(0.) && distance < Real_v(kTolerance), Real_v(kTolerance));
 }
 
 //______________________________________________________________________________
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void CutTubeImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void CutTubeImplementation::SafetyToIn(UnplacedStruct_t const &unplaced,
+                                                                                    Vector3D<Real_v> const &point,
+                                                                                    Real_v &safety)
 {
   // Compute safety to cut planes. These will contain the sign, i.e. if on
   // the wrong side they will be negative
@@ -319,8 +311,8 @@ void CutTubeImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3
 
 //______________________________________________________________________________
 template <typename Real_v>
-VECCORE_ATT_HOST_DEVICE
-void CutTubeImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+VECCORE_ATT_HOST_DEVICE void CutTubeImplementation::SafetyToOut(UnplacedStruct_t const &unplaced,
+                                                                Vector3D<Real_v> const &point, Real_v &safety)
 {
   // Compute safety to cut planes. These will contain the sign, i.e. if on
   // the wrong side they will be negative
@@ -336,9 +328,9 @@ void CutTubeImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector
 
 //______________________________________________________________________________
 template <typename Real_v, typename Bool_v>
-VECCORE_ATT_HOST_DEVICE
-void CutTubeImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                         Vector3D<Real_v> &normal, Bool_v &valid)
+VECCORE_ATT_HOST_DEVICE void CutTubeImplementation::NormalKernel(UnplacedStruct_t const &unplaced,
+                                                                 Vector3D<Real_v> const &point,
+                                                                 Vector3D<Real_v> &normal, Bool_v &valid)
 {
   // Compute safety to cut planes
   valid = Bool_v(true);

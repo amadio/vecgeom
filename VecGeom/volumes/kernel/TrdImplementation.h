@@ -39,10 +39,9 @@ namespace TrdUtilities {
  */
 
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void PointLineOrientation(Real_v const &px, Real_v const &py, Precision const &vx, Precision const &vy,
-                          Real_v &crossProduct)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void PointLineOrientation(Real_v const &px, Real_v const &py,
+                                                                       Precision const &vx, Precision const &vy,
+                                                                       Real_v &crossProduct)
 {
   crossProduct = vx * py - vy * px;
 }
@@ -65,11 +64,9 @@ void PointLineOrientation(Real_v const &px, Real_v const &py, Precision const &v
  */
 
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void PlaneTrajectoryIntersection(Real_v const &alongX, Real_v const &alongY, Real_v const &ylimit, Real_v const &posx,
-                                 Real_v const &posy, Real_v const &dirx, Real_v const &diry, Real_v &dist,
-                                 vecCore::Mask_v<Real_v> &ok)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void PlaneTrajectoryIntersection(
+    Real_v const &alongX, Real_v const &alongY, Real_v const &ylimit, Real_v const &posx, Real_v const &posy,
+    Real_v const &dirx, Real_v const &diry, Real_v &dist, vecCore::Mask_v<Real_v> &ok)
 {
   dist = (alongY * posx - alongX * posy) / (diry * alongX - dirx * alongY);
 
@@ -78,10 +75,10 @@ void PlaneTrajectoryIntersection(Real_v const &alongX, Real_v const &alongY, Rea
 }
 
 template <typename Real_v, bool forY, bool mirroredPoint, bool toInside>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void FaceTrajectoryIntersection(TrdStruct<Precision> const &trd, Vector3D<Real_v> const &pos,
-                                Vector3D<Real_v> const &dir, Real_v &dist, vecCore::Mask_v<Real_v> &ok)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void FaceTrajectoryIntersection(TrdStruct<Precision> const &trd,
+                                                                             Vector3D<Real_v> const &pos,
+                                                                             Vector3D<Real_v> const &dir, Real_v &dist,
+                                                                             vecCore::Mask_v<Real_v> &ok)
 {
   Real_v alongV, posV, dirV, posK, dirK, fV, fK, halfKplus, v1, ndotv;
   //    fNormals[0].Set(-fCalfX, 0., fFx*fCalfX);
@@ -138,9 +135,8 @@ void FaceTrajectoryIntersection(TrdStruct<Precision> const &trd, Vector3D<Real_v
 }
 
 template <typename Real_v, typename trdTypeT, bool inside>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void Safety(TrdStruct<Precision> const &trd, Vector3D<Real_v> const &pos, Real_v &dist)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void Safety(TrdStruct<Precision> const &trd, Vector3D<Real_v> const &pos,
+                                                         Real_v &dist)
 {
   using namespace TrdTypes;
   using Bool_v = vecCore::Mask_v<Real_v>;
@@ -168,10 +164,10 @@ void Safety(TrdStruct<Precision> const &trd, Vector3D<Real_v> const &pos, Real_v
 }
 
 template <typename Real_v, typename trdTypeT, bool surfaceT>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-static void UnplacedInside(TrdStruct<Precision> const &trd, Vector3D<Real_v> const &point,
-                           vecCore::Mask_v<Real_v> &completelyinside, vecCore::Mask_v<Real_v> &completelyoutside)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void UnplacedInside(TrdStruct<Precision> const &trd,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        vecCore::Mask_v<Real_v> &completelyinside,
+                                                                        vecCore::Mask_v<Real_v> &completelyoutside)
 {
 
   using namespace TrdUtilities;
@@ -234,9 +230,8 @@ struct TrdImplementation {
   static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &)
   {
-    s << "SpecializedTrd<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -250,9 +245,9 @@ struct TrdImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void UnplacedContains(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void UnplacedContains(UnplacedStruct_t const &trd,
+                                                                            Vector3D<Real_v> const &point,
+                                                                            Bool_v &inside)
   {
 
     Bool_v unused;
@@ -261,9 +256,8 @@ struct TrdImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &trd,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
 
     Bool_v unused;
@@ -272,9 +266,8 @@ struct TrdImplementation {
   }
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Inside_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &trd,
+                                                                  Vector3D<Real_v> const &point, Inside_v &inside)
   {
     // use double-based vector for result, as Bool_v is a mask for precision_v
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -298,10 +291,10 @@ struct TrdImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &trd,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const & /*stepMax*/, Real_v &distance)
   {
 
     using namespace TrdUtilities;
@@ -394,10 +387,10 @@ struct TrdImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
-                            Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &trd,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &dir,
+                                                                         Real_v const & /*stepMax*/, Real_v &distance)
   {
 
     using namespace TrdUtilities;
@@ -499,18 +492,16 @@ struct TrdImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &trd,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     using namespace TrdUtilities;
     Safety<Real_v, trdTypeT, false>(trd, point, safety);
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &trd,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     using namespace TrdUtilities;
     Safety<Real_v, trdTypeT, true>(trd, point, safety);

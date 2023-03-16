@@ -69,7 +69,7 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
 }
 #endif
 
-//#ifndef VECCORE_CUDA
+// #ifndef VECCORE_CUDA
 #if (1)
 // Sophisticated Implementation taking into account the PHI and THETA cut also.
 VECCORE_ATT_HOST_DEVICE
@@ -164,7 +164,7 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
 }
 #endif
 
-//#endif // !VECCORE_CUDA
+// #endif // !VECCORE_CUDA
 
 void UnplacedSphere::GetParametersList(int, Precision *aArray) const
 {
@@ -409,46 +409,45 @@ G4VSolid const *UnplacedSphere::ConvertToGeant4(char const *label) const
 }
 #endif
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedSphere::Create(LogicalVolume const *const logical_volume,
                                       Transformation3D const *const transformation, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedSphere<trans_code, rot_code>(logical_volume, transformation);
+    new (placement) SpecializedSphere(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedSphere<trans_code, rot_code>(logical_volume, transformation);
+  return new SpecializedSphere(logical_volume, transformation);
 }
 
 VPlacedVolume *UnplacedSphere::CreateSpecializedVolume(LogicalVolume const *const volume,
                                                        Transformation3D const *const transformation,
-                                                       const TranslationCode trans_code, const RotationCode rot_code,
                                                        VPlacedVolume *const placement)
 {
-  return VolumeFactory::CreateByTransformation<UnplacedSphere>(volume, transformation, trans_code, rot_code, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedSphere>(volume, transformation, placement);
 }
 
 #else
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedSphere::Create(LogicalVolume const *const logical_volume,
                                       Transformation3D const *const transformation, const int id, const int copy_no,
                                       const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+    new (placement) SpecializedSphere(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedSphere<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+  return new SpecializedSphere(logical_volume, transformation, id, copy_no, child_id);
 }
 
-VECCORE_ATT_DEVICE VPlacedVolume *UnplacedSphere::CreateSpecializedVolume(
-    LogicalVolume const *const volume, Transformation3D const *const transformation, const TranslationCode trans_code,
-    const RotationCode rot_code, const int id, const int copy_no, const int child_id, VPlacedVolume *const placement)
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedSphere::CreateSpecializedVolume(LogicalVolume const *const volume,
+                                                                          Transformation3D const *const transformation,
+                                                                          const int id, const int copy_no,
+                                                                          const int child_id,
+                                                                          VPlacedVolume *const placement)
 {
-  return VolumeFactory::CreateByTransformation<UnplacedSphere>(volume, transformation, trans_code, rot_code, id,
-                                                               copy_no, child_id, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedSphere>(volume, transformation, id, copy_no, child_id,
+                                                               placement);
 }
 
 #endif

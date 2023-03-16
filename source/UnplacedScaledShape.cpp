@@ -67,7 +67,6 @@ Vector3D<Precision> UnplacedScaledShape::SamplePointOnSurface() const
 }
 
 //______________________________________________________________________________
-template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_volume,
                                            Transformation3D const *const transformation,
@@ -77,18 +76,18 @@ VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_vo
                                            VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedScaledShape<trans_code, rot_code>(logical_volume, transformation
+    new (placement) SpecializedScaledShape(logical_volume, transformation
 #ifdef VECCORE_CUDA
-                                                                 ,
-                                                                 id, copy_no, child_id
+                                           ,
+                                           id, copy_no, child_id
 #endif
     );
     return placement;
   }
-  return new SpecializedScaledShape<trans_code, rot_code>(logical_volume, transformation
+  return new SpecializedScaledShape(logical_volume, transformation
 #ifdef VECCORE_CUDA
-                                                          ,
-                                                          id, copy_no, child_id
+                                    ,
+                                    id, copy_no, child_id
 #endif
   );
 }
@@ -97,14 +96,12 @@ VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_vo
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedScaledShape::CreateSpecializedVolume(LogicalVolume const *const volume,
                                                             Transformation3D const *const transformation,
-                                                            const TranslationCode trans_code,
-                                                            const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                                             const int id, const int copy_no, const int child_id,
 #endif
                                                             VPlacedVolume *const placement)
 {
-  return VolumeFactory::CreateByTransformation<UnplacedScaledShape>(volume, transformation, trans_code, rot_code,
+  return VolumeFactory::CreateByTransformation<UnplacedScaledShape>(volume, transformation,
 #ifdef VECCORE_CUDA
                                                                     id, copy_no, child_id,
 #endif

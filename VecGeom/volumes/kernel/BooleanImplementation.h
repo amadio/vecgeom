@@ -43,31 +43,16 @@ struct BooleanImplementation<kSubtraction> {
   using UnplacedStruct_t = BooleanStruct;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  { /*printf("SpecializedBooleanVolume<%i, %i, %i>", kSubtraction, transCodeT, rotCodeT);*/
-  }
+  static void PrintType() {}
 
   template <typename Stream>
   static void PrintType(Stream &s)
   {
-    /*s << "SpecializedBooleanVolume<kSubtraction"
-      << "," << transCodeT << "," << rotCodeT << ">";
-    */
-  }
-
-  template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
-  {
-    st << "SpecializedBooleanVolume<kSubtraction" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &s)
   {
-    /*
-    s << "BooleanImplementation<kSubtraction"
-      << "," << transCodeT << "," << rotCodeT << ">";
-    */
   }
 
   template <typename Stream>
@@ -77,9 +62,8 @@ struct BooleanImplementation<kSubtraction> {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(BooleanStruct const &unplaced,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Vector3D<Real_v> tmp;
     inside = unplaced.fLeftVolume->Contains(point);
@@ -90,9 +74,8 @@ struct BooleanImplementation<kSubtraction> {
   }
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(BooleanStruct const &unplaced, Vector3D<Real_v> const &p, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(BooleanStruct const &unplaced,
+                                                                  Vector3D<Real_v> const &p, Inside_t &inside)
   {
 
     // now use the Inside functionality of left and right components
@@ -131,10 +114,10 @@ struct BooleanImplementation<kSubtraction> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(BooleanStruct const &unplaced, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
-                           Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(BooleanStruct const &unplaced,
+                                                                        Vector3D<Real_v> const &p,
+                                                                        Vector3D<Real_v> const &dir,
+                                                                        Real_v const &stepMax, Real_v &distance)
   {
 
     // TOBEDONE: ASK Andrei about the while loop
@@ -194,10 +177,10 @@ struct BooleanImplementation<kSubtraction> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(BooleanStruct const &unplaced, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(BooleanStruct const &unplaced,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const &stepMax, Real_v &distance)
   {
     const auto distancel  = unplaced.fLeftVolume->PlacedDistanceToOut(point, direction, stepMax);
     const Real_v dinright = unplaced.fRightVolume->DistanceToIn(point, direction, stepMax);
@@ -206,9 +189,8 @@ struct BooleanImplementation<kSubtraction> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(BooleanStruct const &unplaced,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     VPlacedVolume const *const fPtrSolidA = unplaced.fLeftVolume;
     VPlacedVolume const *const fPtrSolidB = unplaced.fRightVolume;
@@ -224,9 +206,8 @@ struct BooleanImplementation<kSubtraction> {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(BooleanStruct const &unplaced,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     const auto safetyleft  = unplaced.fLeftVolume->SafetyToOut(point);
     const auto safetyright = unplaced.fRightVolume->SafetyToIn(point);
@@ -234,10 +215,9 @@ struct BooleanImplementation<kSubtraction> {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void NormalKernel(BooleanStruct const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &normal,
-                           Bool_v &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void NormalKernel(BooleanStruct const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> &normal, Bool_v &valid)
   {
     Vector3D<Real_v> localNorm;
     Vector3D<Real_v> localPoint;

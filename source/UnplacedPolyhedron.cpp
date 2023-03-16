@@ -61,7 +61,6 @@ int UnplacedPolyhedron::GetNQuadrilaterals() const
   return count;
 }
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_volume,
                                           Transformation3D const *const transformation,
@@ -81,13 +80,12 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
 #ifndef VECCORE_CUDA
 // for the moment we do not propagate placement specialization
 // (We should in the future select a few important specializations here such as rotation or no rotation)
-#define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI)                                                                   \
-  return CreateSpecializedWithPlacement<SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, INNER, PHI>>( \
-      logical_volume, transformation, placement)
+#define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI) \
+  return CreateSpecializedWithPlacement<SpecializedPolyhedron<INNER, PHI>>(logical_volume, transformation, placement)
 #else
-#define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI)                                                                   \
-  return CreateSpecializedWithPlacement<SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, INNER, PHI>>( \
-      logical_volume, transformation, id, copy_no, child_id, placement)
+#define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI)                                                           \
+  return CreateSpecializedWithPlacement<SpecializedPolyhedron<INNER, PHI>>(logical_volume, transformation, id, \
+                                                                           copy_no, child_id, placement)
 #endif
 
   if (innerRadii == EInnerRadii::kTrue) {
@@ -104,7 +102,7 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
   // Return value in case of NO_SPECIALIZATION
   if (placement) {
     new (placement)
-        SpecializedPolyhedron<transCodeT, rotCodeT, Polyhedron::EInnerRadii::kGeneric,
+        SpecializedPolyhedron<Polyhedron::EInnerRadii::kGeneric,
 #ifdef VECCORE_CUDA
                               Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation, id, copy_no, child_id);
 #else
@@ -113,7 +111,7 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
     return placement;
   }
 
-  return new SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, Polyhedron::EInnerRadii::kGeneric,
+  return new SpecializedPolyhedron<Polyhedron::EInnerRadii::kGeneric,
 #ifdef VECCORE_CUDA
                                    Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation, id, copy_no,
                                                                      child_id);
@@ -127,14 +125,13 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolyhedron::SpecializedVolume(LogicalVolume const *const volume,
                                                      Transformation3D const *const transformation,
-                                                     const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                                      const int id, const int copy_no, const int child_id,
 #endif
                                                      VPlacedVolume *const placement) const
 {
 
-  return VolumeFactory::CreateByTransformation<UnplacedPolyhedron>(volume, transformation, trans_code, rot_code,
+  return VolumeFactory::CreateByTransformation<UnplacedPolyhedron>(volume, transformation,
 #ifdef VECCORE_CUDA
                                                                    id, copy_no, child_id,
 #endif
@@ -623,34 +620,35 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolyhedron::CopyToGpu() const
  * @param volumes Pointers to UnplacedPolyhedron instances.
  * @param devicePointer Locations where the unplaced polyhedra should be constructed.
  */
-void UnplacedPolyhedron::CopyToGpu(std::vector<VUnplacedVolume const *> const & volumes,
-                                   std::vector<DevicePtr<cuda::VUnplacedVolume>> const & devicePointers)
+void UnplacedPolyhedron::CopyToGpu(std::vector<VUnplacedVolume const *> const &volumes,
+                                   std::vector<DevicePtr<cuda::VUnplacedVolume>> const &devicePointers)
 {
   const auto size = volumes.size();
-  std::vector<Precision> floatData(2*size, 0.);
-  std::vector<int> intData(2*size, 0);
+  std::vector<Precision> floatData(2 * size, 0.);
+  std::vector<int> intData(2 * size, 0);
 
   struct VarLengthData {
     std::vector<std::size_t> offsets[3];
-    std::vector<Precision>   data;
+    std::vector<Precision> data;
   } vld;
   struct RAIIDevPtr {
     DevicePtr<Precision> devPtr;
-    RAIIDevPtr() = default;
-    RAIIDevPtr(const RAIIDevPtr&) = delete;
+    RAIIDevPtr()                   = default;
+    RAIIDevPtr(const RAIIDevPtr &) = delete;
     ~RAIIDevPtr() { devPtr.Deallocate(); }
   } vldGPU;
 
   for (unsigned int i = 0; i < size; ++i) {
-    UnplacedPolyhedron const & volume = static_cast<UnplacedPolyhedron const &>(*volumes[i]);
-    floatData[0*size + i] = volume.fPoly.fPhiStart;
-    floatData[1*size + i] = volume.fPoly.fPhiDelta;
+    UnplacedPolyhedron const &volume = static_cast<UnplacedPolyhedron const &>(*volumes[i]);
+    floatData[0 * size + i]          = volume.fPoly.fPhiStart;
+    floatData[1 * size + i]          = volume.fPoly.fPhiDelta;
 
-    intData[0*size + i] = volume.fPoly.fSideCount;
-    intData[1*size + i] = volume.fPoly.fZPlanes.size();
+    intData[0 * size + i] = volume.fPoly.fSideCount;
+    intData[1 * size + i] = volume.fPoly.fZPlanes.size();
 
     int offsetCounter = 0;
-    for (vecgeom::cxx::Array<Precision> const * array : {&volume.fPoly.fZPlanes, &volume.fPoly.fRMin, &volume.fPoly.fRMax}) {
+    for (vecgeom::cxx::Array<Precision> const *array :
+         {&volume.fPoly.fZPlanes, &volume.fPoly.fRMin, &volume.fPoly.fRMax}) {
       vld.offsets[offsetCounter++].push_back(vld.data.size());
       for (int j = 0; j < array->size(); ++j) {
         vld.data.push_back((*array)[j]);
@@ -662,21 +660,19 @@ void UnplacedPolyhedron::CopyToGpu(std::vector<VUnplacedVolume const *> const & 
   vldGPU.devPtr.ToDevice(vld.data.data(), vld.data.size());
 
   std::vector<Precision const *> zPlanesGpuPtr, rMinGpuPtr, rMaxGpuPtr;
-  auto computeGpuPtr = [&vldGPU](std::size_t offset){ return vldGPU.devPtr.GetPtr() + offset; };
+  auto computeGpuPtr = [&vldGPU](std::size_t offset) { return vldGPU.devPtr.GetPtr() + offset; };
   std::transform(vld.offsets[0].begin(), vld.offsets[0].end(), std::back_inserter(zPlanesGpuPtr), computeGpuPtr);
   std::transform(vld.offsets[1].begin(), vld.offsets[1].end(), std::back_inserter(rMinGpuPtr), computeGpuPtr);
   std::transform(vld.offsets[2].begin(), vld.offsets[2].end(), std::back_inserter(rMaxGpuPtr), computeGpuPtr);
-
 
   // Forwards all data to this constructor:
   // UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount,
   //                     const int zPlaneCount, Precision const zPlanes[], Precision const rMin[],
   //                     Precision const rMax[])
-  ConstructManyOnGpu<vecgeom::cuda::UnplacedPolyhedron>(size, devicePointers.data(),
-      floatData.data(), floatData.data()+size, // phiStart, phiDelta
-      intData.data(), intData.data()+size, // sideCount, zPlaneCount
-      zPlanesGpuPtr.data(), rMinGpuPtr.data(), rMaxGpuPtr.data()
-      );
+  ConstructManyOnGpu<vecgeom::cuda::UnplacedPolyhedron>(size, devicePointers.data(), floatData.data(),
+                                                        floatData.data() + size,               // phiStart, phiDelta
+                                                        intData.data(), intData.data() + size, // sideCount, zPlaneCount
+                                                        zPlanesGpuPtr.data(), rMinGpuPtr.data(), rMaxGpuPtr.data());
 }
 
 #endif
@@ -692,10 +688,12 @@ template void DevicePtr<cuda::UnplacedPolyhedron>::Construct(Precision phiStart,
                                                              int zPlaneCount, DevicePtr<Precision> zPlanes,
                                                              DevicePtr<Precision> rMin,
                                                              DevicePtr<Precision> rMax) const;
-template void ConstructManyOnGpu<cuda::UnplacedPolyhedron>(std::size_t nElement, DevicePtr<cuda::VUnplacedVolume> const * gpu_ptrs,
-                                                           Precision const * phiStart, Precision const * phiDelta,
-                                                           int const * sideCount, int const * zPlaneCount,
-                                                           Precision const * const * zPlanes, Precision const * const * rMin, Precision const * const * rMax);
+template void ConstructManyOnGpu<cuda::UnplacedPolyhedron>(std::size_t nElement,
+                                                           DevicePtr<cuda::VUnplacedVolume> const *gpu_ptrs,
+                                                           Precision const *phiStart, Precision const *phiDelta,
+                                                           int const *sideCount, int const *zPlaneCount,
+                                                           Precision const *const *zPlanes,
+                                                           Precision const *const *rMin, Precision const *const *rMax);
 
 } // namespace cxx
 

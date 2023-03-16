@@ -127,20 +127,22 @@ std::ostream &UnplacedTet::StreamInfo(std::ostream &os) const
 }
 
 VECCORE_ATT_HOST_DEVICE
-void UnplacedTet::Print() const {
-  auto const& vtx = fTet.fVertex;
+void UnplacedTet::Print() const
+{
+  auto const &vtx = fTet.fVertex;
   printf("UnplacedTet {V0=(%.2f, %.2f, %.2f), V1=(%.2f, %.2f, %.2f), V2=(%.2f, %.2f, %.2f), V3=(%.2f, %.2f, %.2f)}\n",
-      vtx[0].x(), vtx[0].y(), vtx[0].z(), vtx[1].x(), vtx[1].y(), vtx[1].z(),
-      vtx[2].x(), vtx[2].y(), vtx[2].z(), vtx[3].x(), vtx[3].y(), vtx[3].z() );
+         vtx[0].x(), vtx[0].y(), vtx[0].z(), vtx[1].x(), vtx[1].y(), vtx[1].z(), vtx[2].x(), vtx[2].y(), vtx[2].z(),
+         vtx[3].x(), vtx[3].y(), vtx[3].z());
 }
 
-void UnplacedTet::Print(std::ostream &os) const {
-  auto const& vtx = fTet.fVertex;
+void UnplacedTet::Print(std::ostream &os) const
+{
+  auto const &vtx = fTet.fVertex;
   os << "UnplacedTet {"
-     <<"V0=("<< vtx[0].x() <<"; "<< vtx[0].y() <<"; "<< vtx[0].z() <<"), "
-     <<"V1=("<< vtx[1].x() <<"; "<< vtx[1].y() <<"; "<< vtx[1].z() <<"), "
-     <<"V2=("<< vtx[2].x() <<"; "<< vtx[2].y() <<"; "<< vtx[2].z() <<"), "
-     <<"V3=("<< vtx[3].x() <<"; "<< vtx[3].y() <<"; "<< vtx[3].z() <<") }\n";
+     << "V0=(" << vtx[0].x() << "; " << vtx[0].y() << "; " << vtx[0].z() << "), "
+     << "V1=(" << vtx[1].x() << "; " << vtx[1].y() << "; " << vtx[1].z() << "), "
+     << "V2=(" << vtx[2].x() << "; " << vtx[2].y() << "; " << vtx[2].z() << "), "
+     << "V3=(" << vtx[3].x() << "; " << vtx[3].y() << "; " << vtx[3].z() << ") }\n";
 }
 
 #ifndef VECCORE_CUDA
@@ -187,48 +189,43 @@ SolidMesh *UnplacedTet::CreateMesh3D(Transformation3D const &trans, const size_t
 #endif
 
 #ifndef VECCORE_CUDA
-template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedTet::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedTet<trans_code, rot_code>(logical_volume, transformation);
+    new (placement) SpecializedTet(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedTet<trans_code, rot_code>(logical_volume, transformation);
+  return new SpecializedTet(logical_volume, transformation);
 }
 
 VPlacedVolume *UnplacedTet::SpecializedVolume(LogicalVolume const *const volume,
                                               Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
                                               VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedTet>(volume, transformation, trans_code, rot_code, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedTet>(volume, transformation, placement);
 }
 #else
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTet::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, const int id, const int copy_no,
                                    const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedTet<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+    new (placement) SpecializedTet(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedTet<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+  return new SpecializedTet(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTet::SpecializedVolume(LogicalVolume const *const volume,
-                                              Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
-                                              const int id, const int copy_no, const int child_id,
+                                              Transformation3D const *const transformation, const int id,
+                                              const int copy_no, const int child_id,
                                               VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedTet>(volume, transformation, trans_code, rot_code, id, copy_no,
-                                                            child_id, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedTet>(volume, transformation, id, copy_no, child_id, placement);
 }
 
 #endif

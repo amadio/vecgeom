@@ -201,7 +201,8 @@ public:
   }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
-  static void CopyToGpu(std::vector<VUnplacedVolume const *> const & volumes, std::vector<DevicePtr<cuda::VUnplacedVolume>> const & devicePointers);
+  static void CopyToGpu(std::vector<VUnplacedVolume const *> const &volumes,
+                        std::vector<DevicePtr<cuda::VUnplacedVolume>> const &devicePointers);
 #endif
 
 #ifndef VECCORE_CUDA
@@ -264,7 +265,6 @@ public:
   using BaseType_t = UnplacedVolumeImplHelper<PolyconeImplementation<PolyconeType>, UnplacedPolycone>;
   using BaseType_t::BaseType_t;
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
@@ -275,23 +275,20 @@ public:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
                                            VPlacedVolume *const placement = NULL) const override
   {
-    return VolumeFactory::CreateByTransformation<SUnplacedPolycone<PolyconeType>>(volume, transformation, trans_code,
-                                                                                  rot_code, placement);
+    return VolumeFactory::CreateByTransformation<SUnplacedPolycone<PolyconeType>>(volume, transformation, placement);
   }
 
 #else
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                           Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code, const int id,
+                                           Transformation3D const *const transformation, const int id,
                                            const int copy_no, const int child_id,
                                            VPlacedVolume *const placement = NULL) const override
   {
-    return VolumeFactory::CreateByTransformation<SUnplacedPolycone<PolyconeType>>(
-        volume, transformation, trans_code, rot_code, id, copy_no, child_id, placement);
+    return VolumeFactory::CreateByTransformation<SUnplacedPolycone<PolyconeType>>(volume, transformation, id, copy_no,
+                                                                                  child_id, placement);
   }
 #endif
 };

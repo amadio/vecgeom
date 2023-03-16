@@ -153,23 +153,19 @@ public:
 
   /// Templated factory for creating a placed volume
 #ifndef VECCORE_CUDA
-  template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL);
 
   VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume, Transformation3D const *const transformation,
-                                   const TranslationCode trans_code, const RotationCode rot_code,
                                    VPlacedVolume *const placement) const override;
 #else
-  template <TranslationCode trans_code, RotationCode rot_code>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                const int id, const int copy_no, const int child_id,
                                VPlacedVolume *const placement = NULL);
   VECCORE_ATT_DEVICE VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                                      Transformation3D const *const transformation,
-                                                      const TranslationCode trans_code, const RotationCode rot_code,
-                                                      const int id, const int copy_no, const int child_id,
+                                                      Transformation3D const *const transformation, const int id,
+                                                      const int copy_no, const int child_id,
                                                       VPlacedVolume *const placement) const override;
 
 #endif

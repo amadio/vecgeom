@@ -56,7 +56,7 @@ UnplacedTrapezoid *Maker<UnplacedTrapezoid>::MakeInstance(const Precision dz, co
                                                           const Precision Alpha2)
 {
 
-#ifndef VECGEOM_NO_SPECIALIZATION
+#if !defined(VECGEOM_NO_SPECIALIZATION) && !defined(VECCORE_CUDA)
   return GetSpecialized(dz, theta, phi, dy1, dx1, dx2, Alpha1, dy2, dx3, dx4, Alpha2);
 #else
   return new UnplacedTrapezoid(dz, theta, phi, dy1, dx1, dx2, Alpha1, dy2, dx3, dx4, Alpha2);
@@ -66,7 +66,7 @@ UnplacedTrapezoid *Maker<UnplacedTrapezoid>::MakeInstance(const Precision dz, co
 template <>
 UnplacedTrapezoid *Maker<UnplacedTrapezoid>::MakeInstance(TrapCorners const pt)
 {
-#ifndef VECGEOM_NO_SPECIALIZATION
+#if !defined(VECGEOM_NO_SPECIALIZATION) && !defined(VECCORE_CUDA)
 
   Precision dz      = pt[7].z();
   Precision DzRecip = 1.0 / dz;
@@ -90,13 +90,12 @@ UnplacedTrapezoid *Maker<UnplacedTrapezoid>::MakeInstance(TrapCorners const pt)
   Precision phi   = atan2(TthetaSphi, TthetaCphi);
 
   return GetSpecialized(dz, theta, phi, dy1, dx1, dx2, Alpha1, dy2, dx3, dx4, Alpha2);
-
 #else
   return new UnplacedTrapezoid(pt);
 #endif
 }
 
-#ifndef VECGEOM_NO_SPECIALIZATION
+#if !defined(VECGEOM_NO_SPECIALIZATION) && !defined(VECCORE_CUDA)
 UnplacedTrapezoid *GetSpecialized(const Precision dz, const Precision theta, const Precision phi, const Precision dy1,
                                   const Precision dx1, const Precision dx2, const Precision Alpha1, const Precision dy2,
                                   const Precision dx3, const Precision dx4, const Precision Alpha2)
@@ -438,9 +437,9 @@ void UnplacedTrapezoid::Print() const
 void UnplacedTrapezoid::Print(std::ostream &os) const
 {
   // Note: units printed out chosen such that same numbers can be used as arguments to full constructor
-  os << "UnplacedTrapezoid { " << fTrap.fDz << "mm, " << this->theta() << "rad, " << this->phi() << "rad, " << fTrap.fDy1
-     << "mm, " << fTrap.fDx1 << "mm, " << fTrap.fDx2 << "mm, " << this->alpha1() << "rad, " << fTrap.fDy2 << "mm, "
-     << fTrap.fDx3 << "mm, " << fTrap.fDx4 << "mm, " << this->alpha2() << "rad }\n";
+  os << "UnplacedTrapezoid { " << fTrap.fDz << "mm, " << this->theta() << "rad, " << this->phi() << "rad, "
+     << fTrap.fDy1 << "mm, " << fTrap.fDx1 << "mm, " << fTrap.fDx2 << "mm, " << this->alpha1() << "rad, " << fTrap.fDy2
+     << "mm, " << fTrap.fDx3 << "mm, " << fTrap.fDx4 << "mm, " << this->alpha2() << "rad }\n";
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -677,50 +676,45 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners const pt)
 //===================== specialization stuff
 #ifndef VECCORE_CUDA
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedTrapezoid::Create(LogicalVolume const *const logical_volume,
                                          Transformation3D const *const transformation, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedTrapezoid<trans_code, rot_code>(logical_volume, transformation);
+    new (placement) SpecializedTrapezoid(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedTrapezoid<trans_code, rot_code>(logical_volume, transformation);
+  return new SpecializedTrapezoid(logical_volume, transformation);
 }
 
 VPlacedVolume *UnplacedTrapezoid::SpecializedVolume(LogicalVolume const *const volume,
                                                     Transformation3D const *const transformation,
-                                                    const TranslationCode trans_code, const RotationCode rot_code,
                                                     VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedTrapezoid>(volume, transformation, trans_code, rot_code,
-                                                                  placement);
+  return VolumeFactory::CreateByTransformation<UnplacedTrapezoid>(volume, transformation, placement);
 }
 
 #else
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTrapezoid::Create(LogicalVolume const *const logical_volume,
                                          Transformation3D const *const transformation, const int id, const int copy_no,
                                          const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedTrapezoid<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+    new (placement) SpecializedTrapezoid(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedTrapezoid<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+  return new SpecializedTrapezoid(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE VPlacedVolume *UnplacedTrapezoid::SpecializedVolume(LogicalVolume const *const volume,
                                                                        Transformation3D const *const transformation,
-                                                                       const TranslationCode trans_code,
-                                                                       const RotationCode rot_code, const int id,
-                                                                       const int copy_no, const int child_id,
+                                                                       const int id, const int copy_no,
+                                                                       const int child_id,
                                                                        VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedTrapezoid>(volume, transformation, trans_code, rot_code, id,
-                                                                  copy_no, child_id, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedTrapezoid>(volume, transformation, id, copy_no, child_id,
+                                                                  placement);
 }
 
 #endif

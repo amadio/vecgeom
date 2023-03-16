@@ -14,11 +14,10 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedScaledShape = SpecializedVolImplHelper<ScaledShapeImplementation, transCodeT, rotCodeT>;
+using SpecializedScaledShape = SpecializedVolImplHelper<ScaledShapeImplementation>;
 
-using SimpleScaledShape = SpecializedScaledShape<translation::kGeneric, rotation::kGeneric>;
-}
-} // End global namespace
+using SimpleScaledShape = SpecializedScaledShape;
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDSCALEDSHAPE_H_

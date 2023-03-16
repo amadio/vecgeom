@@ -17,12 +17,11 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTrapezoid = SpecializedVolImplHelper<TrapezoidImplementation, transCodeT, rotCodeT>;
+using SpecializedTrapezoid = SpecializedVolImplHelper<TrapezoidImplementation>;
 
-using SimpleTrapezoid = SpecializedTrapezoid<translation::kGeneric, rotation::kGeneric>;
+using SimpleTrapezoid = SpecializedTrapezoid;
 
-} // inline NS
-} // vecgeom NS
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

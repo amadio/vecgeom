@@ -43,51 +43,45 @@ void UnplacedCoaxialCones::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedCoaxialCones::Create(LogicalVolume const *const logical_volume,
                                             Transformation3D const *const transformation,
                                             VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedCoaxialCones<trans_code, rot_code>(logical_volume, transformation);
+    new (placement) SpecializedCoaxialCones(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedCoaxialCones<trans_code, rot_code>(logical_volume, transformation);
+  return new SpecializedCoaxialCones(logical_volume, transformation);
 }
 
 VPlacedVolume *UnplacedCoaxialCones::SpecializedVolume(LogicalVolume const *const volume,
                                                        Transformation3D const *const transformation,
-                                                       const TranslationCode trans_code, const RotationCode rot_code,
                                                        VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedCoaxialCones>(volume, transformation, trans_code, rot_code,
-                                                                     placement);
+  return VolumeFactory::CreateByTransformation<UnplacedCoaxialCones>(volume, transformation, placement);
 }
 #else
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCoaxialCones::Create(LogicalVolume const *const logical_volume,
                                             Transformation3D const *const transformation, const int id,
                                             const int copy_no, const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement)
-        SpecializedCoaxialCones<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+    new (placement) SpecializedCoaxialCones(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedCoaxialCones<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+  return new SpecializedCoaxialCones(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCoaxialCones::SpecializedVolume(LogicalVolume const *const volume,
-                                                       Transformation3D const *const transformation,
-                                                       const TranslationCode trans_code, const RotationCode rot_code,
-                                                       const int id, const int copy_no, const int child_id,
+                                                       Transformation3D const *const transformation, const int id,
+                                                       const int copy_no, const int child_id,
                                                        VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedCoaxialCones>(volume, transformation, trans_code, rot_code, id,
-                                                                     copy_no, child_id, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedCoaxialCones>(volume, transformation, id, copy_no, child_id,
+                                                                     placement);
 }
 
 #endif

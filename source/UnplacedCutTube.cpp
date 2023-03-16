@@ -9,7 +9,7 @@
 
 #ifndef VECCORE_CUDA
 #include "VecGeom/base/RNG.h"
-//#include <cmath>
+// #include <cmath>
 #include <iostream>
 #endif
 
@@ -255,7 +255,6 @@ SolidMesh *UnplacedCutTube::CreateMesh3D(Transformation3D const &trans, size_t n
 }
 #endif
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume,
                                        Transformation3D const *const transformation,
@@ -265,18 +264,18 @@ VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume
                                        VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedCutTube<trans_code, rot_code>(logical_volume, transformation
+    new (placement) SpecializedCutTube(logical_volume, transformation
 #ifdef VECCORE_CUDA
-                                                             ,
-                                                             id, copy_no, child_id
+                                       ,
+                                       id, copy_no, child_id
 #endif
     );
     return placement;
   }
-  return new SpecializedCutTube<trans_code, rot_code>(logical_volume, transformation
+  return new SpecializedCutTube(logical_volume, transformation
 #ifdef VECCORE_CUDA
-                                                      ,
-                                                      id, copy_no, child_id
+                                ,
+                                id, copy_no, child_id
 #endif
   );
 }
@@ -284,13 +283,12 @@ VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCutTube::SpecializedVolume(LogicalVolume const *const volume,
                                                   Transformation3D const *const transformation,
-                                                  const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                                   const int id, const int copy_no, const int child_id,
 #endif
                                                   VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedCutTube>(volume, transformation, trans_code, rot_code,
+  return VolumeFactory::CreateByTransformation<UnplacedCutTube>(volume, transformation,
 #ifdef VECCORE_CUDA
                                                                 id, copy_no, child_id,
 #endif

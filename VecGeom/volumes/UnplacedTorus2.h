@@ -224,7 +224,6 @@ public:
   virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, size_t nSegments) const override;
 #endif
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
@@ -242,14 +241,12 @@ private:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
                                            VPlacedVolume *const placement = NULL) const override;
 
 #else
   __device__ virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                                      Transformation3D const *const transformation,
-                                                      const TranslationCode trans_code, const RotationCode rot_code,
-                                                      const int id, const int copy_no, const int child_id,
+                                                      Transformation3D const *const transformation, const int id,
+                                                      const int copy_no, const int child_id,
                                                       VPlacedVolume *const placement = NULL) const override;
 
 #endif

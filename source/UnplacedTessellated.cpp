@@ -89,41 +89,38 @@ bool UnplacedTessellated::Normal(Vector3D<Precision> const &point, Vector3D<Prec
 }
 
 #ifdef VECCORE_CUDA
-template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE VPlacedVolume *UnplacedTessellated::Create(LogicalVolume const *const logical_volume,
                                                               Transformation3D const *const transformation,
                                                               const int id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedTessellated<transCodeT, rotCodeT>(logical_volume, transformation, id);
+    new (placement) SpecializedTessellated(logical_volume, transformation, id);
     return placement;
   }
-  return new SpecializedTessellated<transCodeT, rotCodeT>(logical_volume, transformation, id);
+  return new SpecializedTessellated(logical_volume, transformation, id);
 }
 #else
-template <TranslationCode transCodeT, RotationCode rotCodeT>
 VPlacedVolume *UnplacedTessellated::Create(LogicalVolume const *const logical_volume,
                                            Transformation3D const *const transformation, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedTessellated<transCodeT, rotCodeT>(logical_volume, transformation);
+    new (placement) SpecializedTessellated(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedTessellated<transCodeT, rotCodeT>(logical_volume, transformation);
+  return new SpecializedTessellated(logical_volume, transformation);
 }
 #endif
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTessellated::SpecializedVolume(LogicalVolume const *const volume,
                                                       Transformation3D const *const transformation,
-                                                      const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                                       const int id,
 #endif
                                                       VPlacedVolume *const placement) const
 {
 
-  return VolumeFactory::CreateByTransformation<UnplacedTessellated>(volume, transformation, trans_code, rot_code,
+  return VolumeFactory::CreateByTransformation<UnplacedTessellated>(volume, transformation,
 #ifdef VECCORE_CUDA
                                                                     id,
 #endif
@@ -167,31 +164,26 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTessellated::CopyToGpu() const
 
 #ifndef HYBRID_NAVIGATOR_PORTED_TO_CUDA
 template <>
-size_t DevicePtr<vecgeom::cuda::SpecializedVolImplHelper<vecgeom::cuda::TessellatedImplementation,
-                                                         translation::kGeneric, rotation::kGeneric>>::SizeOf()
+size_t DevicePtr<vecgeom::cuda::SpecializedVolImplHelper<vecgeom::cuda::TessellatedImplementation>>::SizeOf()
 {
   return 0;
 }
 
 template <>
 template <>
-void DevicePtr<
-    cuda::SpecializedVolImplHelper<cuda::TessellatedImplementation, translation::kGeneric, rotation::kGeneric>>::
-    Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, unsigned int, int,
-              int) const
+void DevicePtr<cuda::SpecializedVolImplHelper<cuda::TessellatedImplementation>>::Construct(
+    DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, unsigned int, int, int) const
 {
   return;
 }
 
 template <>
-void ConstructManyOnGpu<
-    cuda::SpecializedVolImplHelper<cuda::TessellatedImplementation, translation::kGeneric, rotation::kGeneric>
-    /*, ... inferred from arguments */>(std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs,
-                                        DevicePtr<cuda::LogicalVolume> const *logical,
-                                        DevicePtr<cuda::Transformation3D> const *trafo,
-                                        decltype(std::declval<VPlacedVolume>().id()) const *ids,
-                                        decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
-                                        decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds)
+void ConstructManyOnGpu<cuda::SpecializedVolImplHelper<cuda::TessellatedImplementation>
+                        /*, ... inferred from arguments */>(
+    std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs, DevicePtr<cuda::LogicalVolume> const *logical,
+    DevicePtr<cuda::Transformation3D> const *trafo, decltype(std::declval<VPlacedVolume>().id()) const *ids,
+    decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
+    decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds)
 {
 }
 

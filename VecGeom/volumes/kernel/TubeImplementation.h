@@ -55,12 +55,10 @@ namespace TubeUtilities {
  * statement) or at runtime.
  **/
 
-template <typename Real_v, typename ShapeType, typename UnplacedVolumeType, bool onSurfaceT,
-          bool includeSurface = true>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void PointInCyclicalSector(UnplacedVolumeType const &volume, Real_v const &x, Real_v const &y,
-                           typename vecCore::Mask_v<Real_v> &ret)
+template <typename Real_v, typename ShapeType, typename UnplacedVolumeType, bool onSurfaceT, bool includeSurface = true>
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void PointInCyclicalSector(UnplacedVolumeType const &volume,
+                                                                        Real_v const &x, Real_v const &y,
+                                                                        typename vecCore::Mask_v<Real_v> &ret)
 {
   using namespace ::vecgeom::TubeTypes;
   // assert(SectorType<ShapeType>::value != kNoAngle && "ShapeType without a
@@ -101,11 +99,9 @@ void PointInCyclicalSector(UnplacedVolumeType const &volume, Real_v const &x, Re
 }
 
 template <typename Real_v, typename UnplacedStruct_t, typename TubeType, bool LargestSolution, bool insectorCheck>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStruct_t const &tube,
-                                  Vector3D<Real_v> const &pos, Vector3D<Real_v> const &dir, Real_v &dist,
-                                  typename vecCore::Mask_v<Real_v> &ok)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void CircleTrajectoryIntersection(
+    Real_v const &b, Real_v const &c, UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos,
+    Vector3D<Real_v> const &dir, Real_v &dist, typename vecCore::Mask_v<Real_v> &ok)
 {
   using namespace ::vecgeom::TubeTypes;
 
@@ -193,9 +189,8 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
  */
 
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-Real_v PerpDist2D(Real_v const &px, Real_v const &py, Real_v const &vx, Real_v const &vy)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Real_v PerpDist2D(Real_v const &px, Real_v const &py, Real_v const &vx,
+                                                               Real_v const &vy)
 {
   return px * vy - py * vx;
 }
@@ -204,9 +199,8 @@ Real_v PerpDist2D(Real_v const &px, Real_v const &py, Real_v const &vx, Real_v c
  * Find safety distance from a point to the phi plane
  */
 template <typename Real_v, typename UnplacedStruct_t, typename TubeType, bool inside>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, Real_v &safety)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void PhiPlaneSafety(UnplacedStruct_t const &tube,
+                                                                 Vector3D<Real_v> const &pos, Real_v &safety)
 {
   using namespace ::vecgeom::TubeTypes;
 
@@ -259,11 +253,9 @@ void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, R
 
 template <typename Real_v, typename UnplacedStruct_t, typename TubeType, bool PositiveDirectionOfPhiVector,
           bool insectorCheck>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precision normalX, Precision normalY,
-                                    UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos,
-                                    Vector3D<Real_v> const &dir, Real_v &dist, typename vecCore::Mask_v<Real_v> &ok)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void PhiPlaneTrajectoryIntersection(
+    Precision alongX, Precision alongY, Precision normalX, Precision normalY, UnplacedStruct_t const &tube,
+    Vector3D<Real_v> const &pos, Vector3D<Real_v> const &dir, Real_v &dist, typename vecCore::Mask_v<Real_v> &ok)
 {
 
   dist = kInfLength;
@@ -308,9 +300,8 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
 }
 
 template <typename Real_v, typename UnplacedStruct_t, bool ForInnerSurface>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-typename vecCore::Mask_v<Real_v> IsOnTubeSurface(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE typename vecCore::Mask_v<Real_v> IsOnTubeSurface(
+    UnplacedStruct_t const &tube, Vector3D<Real_v> const &point)
 {
   const Real_v rho = point.Perp2();
   if (ForInnerSurface) {
@@ -321,8 +312,7 @@ typename vecCore::Mask_v<Real_v> IsOnTubeSurface(UnplacedStruct_t const &tube, V
 }
 
 template <typename Real_v, bool ForInnerSurface>
-VECCORE_ATT_HOST_DEVICE
-Vector3D<Real_v> GetNormal(Vector3D<Real_v> const &point)
+VECCORE_ATT_HOST_DEVICE Vector3D<Real_v> GetNormal(Vector3D<Real_v> const &point)
 {
   Vector3D<Real_v> norm(0., 0., 0.);
   if (ForInnerSurface) {
@@ -334,10 +324,8 @@ Vector3D<Real_v> GetNormal(Vector3D<Real_v> const &point)
 }
 
 template <typename Real_v, typename UnplacedStruct_t, bool ForInnerSurface>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-typename vecCore::Mask_v<Real_v> IsMovingInsideTubeSurface(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
-                                                           Vector3D<Real_v> const &direction)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE typename vecCore::Mask_v<Real_v> IsMovingInsideTubeSurface(
+    UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction)
 {
   return IsOnTubeSurface<Real_v, UnplacedStruct_t, ForInnerSurface>(tube, point) &&
          (direction.Dot(GetNormal<Real_v, ForInnerSurface>(point)) <= Real_v(0.));
@@ -357,41 +345,28 @@ struct TubeImplementation {
   using PlacedShape_t    = SPlacedTube<UnplacedVolume_t>;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
+  static void PrintType() {}
+
+  template <typename Stream>
+  static void PrintType(Stream &)
   {
-    // have to implement this somewhere else
-    // printf("SpecializedTube<%i, %i, %s>", transCodeT, rotCodeT,
-    // tubeTypeT::toString());
   }
 
   template <typename Stream>
-  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintImplementationType(Stream &)
   {
-    s << "SpecializedTube<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &s)
+  static void PrintUnplacedType(Stream &)
   {
-    (void)s;
-    // have to implement this somewhere else
-    //  s << "TubeImplementation<" << transCodeT << "," << rotCodeT <<
-    //  ",TubeTypes::" << tubeTypeT::toString() << ">";
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &s)
-  {
-    s << "UnplacedTube";
   }
 
   /////GenericKernel Contains/Inside implementation
   template <typename Real_v, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
-                                                typename vecCore::Mask_v<Real_v> &completelyinside,
-                                                typename vecCore::Mask_v<Real_v> &completelyoutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(
+      UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &completelyinside,
+      typename vecCore::Mask_v<Real_v> &completelyoutside)
   {
     using namespace ::vecgeom::TubeTypes;
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -447,10 +422,9 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
-                       typename vecCore::Mask_v<Real_v> &contains)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &tube,
+                                                                    Vector3D<Real_v> const &point,
+                                                                    typename vecCore::Mask_v<Real_v> &contains)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v unused, outside;
@@ -459,9 +433,8 @@ struct TubeImplementation {
   }
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &tube,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
     using Bool_v       = vecCore::Mask_v<Real_v>;
     using InsideBool_v = vecCore::Mask_v<Inside_t>;
@@ -473,10 +446,10 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pointt, Vector3D<Real_v> const &dir,
-                           Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &tube,
+                                                                        Vector3D<Real_v> const &pointt,
+                                                                        Vector3D<Real_v> const &dir,
+                                                                        Real_v const &stepMax, Real_v &distance)
   {
     Vector3D<Real_v> point = pointt;
     Real_v ptDist          = point.Mag();
@@ -502,10 +475,10 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToInKernel(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
-                                 Vector3D<Real_v> const &dir, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToInKernel(UnplacedStruct_t const &tube,
+                                                                              Vector3D<Real_v> const &point,
+                                                                              Vector3D<Real_v> const &dir,
+                                                                              Real_v const &stepMax, Real_v &distance)
   {
     (void)stepMax;
     using namespace TubeUtilities;
@@ -681,10 +654,10 @@ struct TubeImplementation {
   } // end of DistanceToIn()
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
-                            Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &tube,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &dir,
+                                                                         Real_v const &stepMax, Real_v &distance)
   {
     (void)stepMax;
     using namespace ::vecgeom::TubeTypes;
@@ -823,9 +796,8 @@ struct TubeImplementation {
   /// This function keeps track of both positive (outside) and negative (inside)
   /// distances separately
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyAssign(Real_v safety, Real_v &positiveSafety, Real_v &negativeSafety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyAssign(Real_v safety, Real_v &positiveSafety,
+                                                                        Real_v &negativeSafety)
   {
     vecCore::MaskedAssign(positiveSafety, safety >= Real_v(0.) && safety < positiveSafety, safety);
     vecCore::MaskedAssign(negativeSafety, safety <= Real_v(0.) && safety > negativeSafety, safety);
@@ -837,10 +809,9 @@ struct TubeImplementation {
       smallest positive distance (w.r.t. faces which point is outside of)
    */
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyKernel(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safePos,
-                           Real_v &safeNeg)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyKernel(UnplacedStruct_t const &tube,
+                                                                        Vector3D<Real_v> const &point, Real_v &safePos,
+                                                                        Real_v &safeNeg)
   {
 
     // TODO: implement caching if input point is not changed
@@ -870,9 +841,8 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &tube,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
 
 #ifdef TUBE_SAFETY_OLD
@@ -889,9 +859,8 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &tube,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
 #ifdef TUBE_SAFETY_OLD
     SafetyToOutOld(tube, point, safety);
@@ -907,9 +876,8 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToInOld(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToInOld(UnplacedStruct_t const &tube,
+                                                                         Vector3D<Real_v> const &point, Real_v &safety)
   {
     using namespace ::vecgeom::TubeTypes;
     using namespace TubeUtilities;
@@ -939,9 +907,8 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOutOld(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOutOld(UnplacedStruct_t const &tube,
+                                                                          Vector3D<Real_v> const &point, Real_v &safety)
   {
     using namespace ::vecgeom::TubeTypes;
     using namespace TubeUtilities;
@@ -964,9 +931,8 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> ApproxSurfaceNormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> ApproxSurfaceNormalKernel(
+      UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point)
   {
 
     Vector3D<Real_v> norm(0., 0., 0.);
@@ -1016,10 +982,9 @@ struct TubeImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &norm,
-                           Bool_v &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void NormalKernel(UnplacedStruct_t const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> &norm, Bool_v &valid)
   {
 
     valid = Bool_v(false);

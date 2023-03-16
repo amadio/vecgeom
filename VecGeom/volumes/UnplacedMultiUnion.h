@@ -86,7 +86,6 @@ public:
 
   virtual void Print(std::ostream & /*os*/) const override{};
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
@@ -113,14 +112,13 @@ private:
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const override;
 
 }; // End class
-} // End impl namespace
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_VOLUMES_UNPLACEDMULTIUNION_H_ */

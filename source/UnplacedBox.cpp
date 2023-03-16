@@ -73,48 +73,43 @@ Vector3D<Precision> UnplacedBox::SamplePointOnSurface() const
 }
 
 #ifndef VECCORE_CUDA
-template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedBox::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedBox<trans_code, rot_code>(logical_volume, transformation);
+    new (placement) SpecializedBox(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedBox<trans_code, rot_code>(logical_volume, transformation);
+  return new SpecializedBox(logical_volume, transformation);
 }
 
 VPlacedVolume *UnplacedBox::SpecializedVolume(LogicalVolume const *const volume,
                                               Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
                                               VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedBox>(volume, transformation, trans_code, rot_code, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedBox>(volume, transformation, placement);
 }
 #else
 
-template <TranslationCode trans_code, RotationCode rot_code>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedBox::Create(LogicalVolume const *const logical_volume,
-                                   Transformation3D const *const transformation, const int id, const int copy_no,
-                                   const int child_id, VPlacedVolume *const placement)
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedBox::Create(LogicalVolume const *const logical_volume,
+                                                      Transformation3D const *const transformation, const int id,
+                                                      const int copy_no, const int child_id,
+                                                      VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedBox<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+    new (placement) SpecializedBox(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedBox<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+  return new SpecializedBox(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBox::SpecializedVolume(LogicalVolume const *const volume,
-                                              Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
-                                              const int id, const int copy_no, const int child_id,
+                                              Transformation3D const *const transformation, const int id,
+                                              const int copy_no, const int child_id,
                                               VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedBox>(volume, transformation, trans_code, rot_code, id, copy_no,
-                                                            child_id, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedBox>(volume, transformation, id, copy_no, child_id, placement);
 }
 
 #endif

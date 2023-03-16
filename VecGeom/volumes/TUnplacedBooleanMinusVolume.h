@@ -13,7 +13,7 @@
 #include "VecGeom/base/AlignedBase.h"
 #include "VecGeom/base/Vector3D.h"
 #include "VecGeom/volumes/UnplacedVolume.h"
-//#include "VecGeom/volumes/TSpecializedBooleanMinusVolume.h"
+// #include "VecGeom/volumes/TSpecializedBooleanMinusVolume.h"
 
 namespace VECGEOM_NAMESPACE {
 
@@ -89,64 +89,42 @@ public:
   virtual void Print(std::ostream &os) const {};
 
 #ifndef VECCORE_CUDA
-  template <typename LeftUnplacedVolume_t, typename RightPlacedVolume_t, TranslationCode trans_code,
-            RotationCode rot_code>
+  template <typename LeftUnplacedVolume_t, typename RightPlacedVolume_t>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL)
   {
-    //      if (placement) {
-    //          new(placement) TSpecializedBooleanMinusVolume<LeftUnplacedVolume_t, RightPlacedVolume_t,
-    //                  trans_code, rot_code>(logical_volume,
-    //                                                              transformation);
-    //          return placement;
-    //        }
-    //      return new TSpecializedBooleanMinusVolume<LeftUnplacedVolume_t, RightPlacedVolume_t, trans_code,
-    //      rot_code>(logical_volume,
-    //                                                     transformation);
   }
 
   static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
                                                 Transformation3D const *const transformation,
-                                                const TranslationCode trans_code, const RotationCode rot_code,
                                                 VPlacedVolume *const placement = NULL)
   {
-
-    // return VolumeFactory::CreateByTransformation<TUnplacedBooleanMinusVolume<LeftUnplacedVolume_t,
-    // RightPlacedVolume_t> >(
-    //           volume, transformation, trans_code, rot_code, placement
-    //         );
   }
 
 #else // for CUDA
-  template <TranslationCode trans_code, RotationCode rot_code>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                const int id, VPlacedVolume *const placement = NULL);
 
   VECCORE_ATT_DEVICE static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
                                                                    Transformation3D const *const transformation,
-                                                                   const TranslationCode trans_code,
-                                                                   const RotationCode rot_code, const int id,
-                                                                   VPlacedVolume *const placement = NULL);
+                                                                   const int id, VPlacedVolume *const placement = NULL);
 #endif
 
 private:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
                                            VPlacedVolume *const placement = NULL) const
   {
-    return CreateSpecializedVolume(volume, transformation, trans_code, rot_code, placement);
+    return CreateSpecializedVolume(volume, transformation, placement);
   }
 #else
   VECCORE_ATT_DEVICE virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                                               Transformation3D const *const transformation,
-                                                              const TranslationCode trans_code,
-                                                              const RotationCode rot_code, const int id,
-                                                              VPlacedVolume *const placement = NULL) const
+                                                              const int id, VPlacedVolume *const placement = NULL) const
   {
-    return CreateSpecializedVolume(volume, transformation, trans_code, rot_code, id, placement);
+    return CreateSpecializedVolume(volume, transformation, id, placement);
   }
 #endif
 

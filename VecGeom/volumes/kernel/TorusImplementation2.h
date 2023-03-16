@@ -21,8 +21,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 //_____________________________________________________________________________
 template <typename T>
-VECCORE_ATT_HOST_DEVICE
-unsigned int SolveCubic(T a, T b, T c, T *x)
+VECCORE_ATT_HOST_DEVICE unsigned int SolveCubic(T a, T b, T c, T *x)
 {
   // Find real solutions of the cubic equation : x^3 + a*x^2 + b*x + c = 0
   // Input: a,b,c
@@ -64,9 +63,7 @@ unsigned int SolveCubic(T a, T b, T c, T *x)
 }
 
 template <typename T, unsigned int i, unsigned int j>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void CmpAndSwap(T *array)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void CmpAndSwap(T *array)
 {
   if (vecCore::MaskFull(array[i] > array[j])) {
     T c      = array[j];
@@ -79,9 +76,7 @@ void CmpAndSwap(T *array)
 // sorting is done inplace and in increasing order
 // implementation comes from a sorting network
 template <typename T>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void Sort4(T *array)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void Sort4(T *array)
 {
   CmpAndSwap<T, 0, 2>(array);
   CmpAndSwap<T, 1, 3>(array);
@@ -94,8 +89,7 @@ void Sort4(T *array)
 //_____________________________________________________________________________
 
 template <typename T>
-VECCORE_ATT_HOST_DEVICE
-int SolveQuartic(T a, T b, T c, T d, T *x)
+VECCORE_ATT_HOST_DEVICE int SolveQuartic(T a, T b, T c, T d, T *x)
 {
   // Find real solutions of the quartic equation : x^4 + a*x^3 + b*x^2 + c*x + d = 0
   // Input: a,b,c,d
@@ -186,9 +180,8 @@ struct TorusImplementation2 {
   using UnplacedVolume_t = UnplacedTorus2;
 
   template <class Real_v>
-  VECCORE_ATT_HOST_DEVICE
-  static Real_v DistSqrToTorusR(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point,
-                                Vector3D<Real_v> const &dir, Real_v dist)
+  VECCORE_ATT_HOST_DEVICE static Real_v DistSqrToTorusR(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point,
+                                                        Vector3D<Real_v> const &dir, Real_v dist)
   {
     Vector3D<Real_v> p = point + dir * dist;
     Real_v rxy         = p.Perp();
@@ -196,10 +189,10 @@ struct TorusImplementation2 {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
-                            Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &torus,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &dir,
+                                                                         Real_v const & /*stepMax*/, Real_v &distance)
   {
     using Inside_v = vecCore::Index_v<Real_v>;
     using Bool_v   = vecCore::Mask_v<Real_v>;
@@ -223,9 +216,8 @@ struct TorusImplementation2 {
     Precision innerExclRadius = torus.rtor() - torus.rmax() - kHalfTolerance;
     done |= rsq < innerExclRadius * innerExclRadius;
     vecCore__MaskedAssignFunc(distance, done, Real_v(-1.));
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done))
-      return;
-    
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
+
     //=== Use InsideKernel() for a quick check, and if outside --> return -1
     // Bool_t inside=false, outside=false;
     // GenericKernelForContainsAndInside<Backend,true,true>(torus, point, inside, outside);
@@ -235,9 +227,8 @@ struct TorusImplementation2 {
     TorusImplementation2::InsideKernel<Real_v, Inside_v>(torus, point, locus);
     vecCore__MaskedAssignFunc(distance, locus == EInside::kOutside, Real_v(-1.));
     done |= locus == EInside::kOutside;
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done))
-      return;
-  
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
+
     Real_v dout = ToBoundary<Real_v, false>(torus, point, dir, torus.rmax(), true);
     // ToBoundary<Backend, false, true>(torus, point, dir, torus.rmax());
     Real_v din(kInfLength);
@@ -291,9 +282,8 @@ struct TorusImplementation2 {
   }
 
   template <typename Real_v, typename Bool_v, bool notForDisk>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void ContainsKernel(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void ContainsKernel(UnplacedStruct_t const &torus,
+                                                                          Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Bool_v unused;
     Bool_v outside;
@@ -302,17 +292,16 @@ struct TorusImplementation2 {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void UnplacedContainsDisk(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void UnplacedContainsDisk(UnplacedStruct_t const &torus,
+                                                                                Vector3D<Real_v> const &point,
+                                                                                Bool_v &inside)
   {
     ContainsKernel<Real_v, Bool_v, false>(torus, point, inside);
   }
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void InsideKernel(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void InsideKernel(UnplacedStruct_t const &torus,
+                                                                        Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -326,11 +315,9 @@ struct TorusImplementation2 {
   }
 
   template <typename Real_v, bool ForInside, bool notForDisk>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point,
-                                                typename vecCore::Mask_v<Real_v> &completelyinside,
-                                                typename vecCore::Mask_v<Real_v> &completelyoutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(
+      UnplacedStruct_t const &torus, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &completelyinside,
+      typename vecCore::Mask_v<Real_v> &completelyoutside)
 
   {
     // using vecgeom::GenericKernels;
@@ -384,10 +371,10 @@ struct TorusImplementation2 {
   }
 
   template <typename Real_v, bool ForRmin>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Real_v ToBoundary(UnplacedStruct_t const &torus, Vector3D<Real_v> const &pt, Vector3D<Real_v> const &dir,
-                           Real_v radius, bool out)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Real_v ToBoundary(UnplacedStruct_t const &torus,
+                                                                        Vector3D<Real_v> const &pt,
+                                                                        Vector3D<Real_v> const &dir, Real_v radius,
+                                                                        bool out)
   {
     // to be taken from ROOT
     // Returns distance to the surface or the torus from a point, along
@@ -397,13 +384,13 @@ struct TorusImplementation2 {
     // Compute coeficients of the quartic
     Real_v s                 = vecgeom::kInfLength;
     VECGEOM_CONST Real_v tol = 100. * vecgeom::kTolerance;
-    Real_v r0sq          = pt[0] * pt[0] + pt[1] * pt[1] + pt[2] * pt[2];
-    Real_v rdotn         = pt[0] * dir[0] + pt[1] * dir[1] + pt[2] * dir[2];
-    Real_v rsumsq        = torus.rtor2() + radius * radius;
-    Real_v a             = 4. * rdotn;
-    Real_v b             = 2. * (r0sq + 2. * rdotn * rdotn - rsumsq + 2. * torus.rtor2() * dir[2] * dir[2]);
-    Real_v c             = 4. * (r0sq * rdotn - rsumsq * rdotn + 2. * torus.rtor2() * pt[2] * dir[2]);
-    Real_v d             = r0sq * r0sq - 2. * r0sq * rsumsq + 4. * torus.rtor2() * pt[2] * pt[2] +
+    Real_v r0sq              = pt[0] * pt[0] + pt[1] * pt[1] + pt[2] * pt[2];
+    Real_v rdotn             = pt[0] * dir[0] + pt[1] * dir[1] + pt[2] * dir[2];
+    Real_v rsumsq            = torus.rtor2() + radius * radius;
+    Real_v a                 = 4. * rdotn;
+    Real_v b                 = 2. * (r0sq + 2. * rdotn * rdotn - rsumsq + 2. * torus.rtor2() * dir[2] * dir[2]);
+    Real_v c                 = 4. * (r0sq * rdotn - rsumsq * rdotn + 2. * torus.rtor2() * pt[2] * dir[2]);
+    Real_v d                 = r0sq * r0sq - 2. * r0sq * rsumsq + 4. * torus.rtor2() * pt[2] * pt[2] +
                (torus.rtor2() - radius * radius) * (torus.rtor2() - radius * radius);
 
     Real_v x[4] = {vecgeom::kInfLength, vecgeom::kInfLength, vecgeom::kInfLength, vecgeom::kInfLength};
@@ -495,9 +482,8 @@ struct TorusImplementation2 {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &torus,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     Real_v rxy = Sqrt(point[0] * point[0] + point[1] * point[1]);
     Real_v rad = Sqrt((rxy - torus.rtor()) * (rxy - torus.rtor()) + point[2] * point[2]);
@@ -515,10 +501,9 @@ struct TorusImplementation2 {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point,
-                       typename vecCore::Mask_v<Real_v> &contains)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &torus,
+                                                                    Vector3D<Real_v> const &point,
+                                                                    typename vecCore::Mask_v<Real_v> &contains)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v unused, outside;
@@ -527,25 +512,19 @@ struct TorusImplementation2 {
   }
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &torus,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
     TorusImplementation2::InsideKernel<Real_v, Inside_t>(torus, point, inside);
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &torus,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const &stepMax, Real_v &distance)
   {
 
-    // typedef typename Backend::precision_v Float_t;
-    // typedef typename Backend::bool_v Bool_t;
-
-    // Vector3D<Float_t> localPoint     = transformation.Transform<transCodeT, rotCodeT>(point);
-    // Vector3D<Float_t> localDirection = transformation.TransformDirection<rotCodeT>(direction);
     Vector3D<Real_v> localPoint     = point;
     Vector3D<Real_v> localDirection = direction;
 
@@ -657,13 +636,11 @@ struct TorusImplementation2 {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &torus, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &torus,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
 
-    // typedef typename Backend::precision_v Float_t;
-    Vector3D<Real_v> localPoint = point; // transformation.Transform<transCodeT, rotCodeT>(point);
+    Vector3D<Real_v> localPoint = point;
 
     // implementation taken from TGeoTorus
     Real_v rxy = Sqrt(localPoint[0] * localPoint[0] + localPoint[1] * localPoint[1]);
@@ -684,15 +661,13 @@ struct TorusImplementation2 {
   static void PrintType() { printf("SpecializedTorus2"); }
 
   template <typename Stream>
-  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &)
   {
-    s << "SpecializedTorus2<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &s)
+  static void PrintImplementationType(Stream &)
   {
-    s << "TorusImplemenation2";
   }
 
   template <typename Stream>

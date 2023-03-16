@@ -13,12 +13,13 @@
 namespace vecgeom {
 
 // putting a forward declaration by hand
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1t_2v(class, SpecializedVolImplHelper, typename, TranslationCode,
-                                           translation::kGeneric, RotationCode, rotation::kGeneric);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, SpecializedVolImplHelper, typename);
+// VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1t_2v(class, SpecializedVolImplHelper, typename, TranslationCode,
+//                                            translation::kGeneric, RotationCode, rotation::kGeneric);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <class Specialization, TranslationCode transC, RotationCode rotC>
+template <class Specialization>
 class SpecializedVolImplHelper : public Specialization::PlacedShape_t {
 
   using PlacedShape_t    = typename Specialization::PlacedShape_t;
@@ -79,19 +80,16 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override { Specialization::PrintType(); }
 
-  virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os, transC, rotC); }
+  virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os); }
   virtual void PrintImplementationType(std::ostream &os) const override { Specialization::PrintImplementationType(os); }
   virtual void PrintUnplacedType(std::ostream &os) const override { Specialization::PrintUnplacedType(os); }
-
-  int GetTransCode() const final { return transC; }
-  int GetRotCode() const final { return rotC; }
 
   VECCORE_ATT_HOST_DEVICE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const override
   {
     Inside_t output;
     Transformation3D const *tr = this->GetTransformation();
-    Specialization::Inside(*this->GetUnplacedStruct(), tr->Transform<transC, rotC, Precision>(point), output);
+    Specialization::Inside(*this->GetUnplacedStruct(), tr->Transform<Precision>(point), output);
     return (EnumInside)output;
   }
 
@@ -100,7 +98,7 @@ public:
   {
     bool output(false);
     Transformation3D const *tr = this->GetTransformation();
-    Vector3D<Precision> lp     = tr->Transform<transC, rotC, Precision>(point);
+    Vector3D<Precision> lp     = tr->Transform<Precision>(point);
     Specialization::Contains(*this->GetUnplacedStruct(), lp, output);
     return output;
   }
@@ -110,7 +108,7 @@ public:
   {
     bool output(false);
     Transformation3D const *tr = this->GetTransformation();
-    localPoint                 = tr->Transform<transC, rotC, Precision>(point);
+    localPoint                 = tr->Transform<Precision>(point);
     Specialization::Contains(*this->GetUnplacedStruct(), localPoint, output);
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareUnplacedContains(this, output, localPoint);
@@ -127,8 +125,8 @@ public:
 #endif
     Precision output(kInfLength);
     Transformation3D const *tr = this->GetTransformation();
-    Specialization::DistanceToIn(*this->GetUnplacedStruct(), tr->Transform<transC, rotC>(point),
-                                 tr->TransformDirection<rotC>(direction), stepMax, output);
+    Specialization::DistanceToIn(*this->GetUnplacedStruct(), tr->Transform(point), tr->TransformDirection(direction),
+                                 stepMax, output);
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToIn(this, output, point, direction, stepMax);
 #endif
@@ -144,8 +142,8 @@ public:
 #endif
     Transformation3D const *tr = this->GetTransformation();
     Precision output(-1.);
-    Specialization::template DistanceToOut(*this->GetUnplacedStruct(), tr->Transform<transC, rotC>(point),
-                                           tr->TransformDirection<rotC>(direction), stepMax, output);
+    Specialization::template DistanceToOut(*this->GetUnplacedStruct(), tr->Transform(point),
+                                           tr->TransformDirection(direction), stepMax, output);
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToOut(this, output, this->GetTransformation()->Transform(point),
@@ -159,12 +157,12 @@ public:
   {
     Precision output(kInfLength);
     Transformation3D const *tr = this->GetTransformation();
-    Specialization::SafetyToIn(*this->GetUnplacedStruct(), tr->Transform<transC, rotC>(point), output);
+    Specialization::SafetyToIn(*this->GetUnplacedStruct(), tr->Transform(point), output);
     return output;
   }
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  using ThisClass_t = SpecializedVolImplHelper<Specialization, transC, rotC>;
+  using ThisClass_t = SpecializedVolImplHelper<Specialization>;
   virtual size_t DeviceSizeOf() const override { return DevicePtr<CudaType_t<ThisClass_t>>::SizeOf(); }
 
   DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,

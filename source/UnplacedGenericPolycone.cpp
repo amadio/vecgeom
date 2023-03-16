@@ -141,10 +141,10 @@ Vector3D<Precision> UnplacedGenericPolycone::SamplePointOnSurface() const
   Vector<ConeStruct<Precision> *> coneStructVector = coaxialCones->fConeStructVector;
   int coneSelection                                = (int)RNG::Instance().uniform(0., coneStructVector.size());
   ConeStruct<Precision> *coneStruct                = coneStructVector[coneSelection];
-  auto coneUnplaced =
-      GeoManager::MakeInstance<UnplacedCone>(coneStruct->fRmin1, coneStruct->fRmax1, coneStruct->fRmin2,
-                                             coneStruct->fRmax2, coneStruct->fDz, coneStruct->fSPhi, coneStruct->fDPhi);
-  return coneUnplaced->SamplePointOnSurface();
+  SUnplacedCone<ConeTypes::UniversalCone> coneUnplaced(coneStruct->fRmin1, coneStruct->fRmax1, coneStruct->fRmin2,
+                                                       coneStruct->fRmax2, coneStruct->fDz, coneStruct->fSPhi,
+                                                       coneStruct->fDPhi);
+  return coneUnplaced.SamplePointOnSurface();
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -185,51 +185,45 @@ void UnplacedGenericPolycone::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
-template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedGenericPolycone::Create(LogicalVolume const *const logical_volume,
                                                Transformation3D const *const transformation,
                                                VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedGenericPolycone<trans_code, rot_code>(logical_volume, transformation);
+    new (placement) SpecializedGenericPolycone(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedGenericPolycone<trans_code, rot_code>(logical_volume, transformation);
+  return new SpecializedGenericPolycone(logical_volume, transformation);
 }
 
 VPlacedVolume *UnplacedGenericPolycone::SpecializedVolume(LogicalVolume const *const volume,
                                                           Transformation3D const *const transformation,
-                                                          const TranslationCode trans_code, const RotationCode rot_code,
                                                           VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedGenericPolycone>(volume, transformation, trans_code, rot_code,
-                                                                        placement);
+  return VolumeFactory::CreateByTransformation<UnplacedGenericPolycone>(volume, transformation, placement);
 }
 #else
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenericPolycone::Create(LogicalVolume const *const logical_volume,
                                                Transformation3D const *const transformation, const int id,
                                                const int copy_no, const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement)
-        SpecializedGenericPolycone<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+    new (placement) SpecializedGenericPolycone(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedGenericPolycone<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+  return new SpecializedGenericPolycone(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenericPolycone::SpecializedVolume(LogicalVolume const *const volume,
-                                                          Transformation3D const *const transformation,
-                                                          const TranslationCode trans_code, const RotationCode rot_code,
-                                                          const int id, const int copy_no, const int child_id,
+                                                          Transformation3D const *const transformation, const int id,
+                                                          const int copy_no, const int child_id,
                                                           VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedGenericPolycone>(volume, transformation, trans_code, rot_code,
-                                                                        id, copy_no, child_id, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedGenericPolycone>(volume, transformation, id, copy_no, child_id,
+                                                                        placement);
 }
 
 #endif

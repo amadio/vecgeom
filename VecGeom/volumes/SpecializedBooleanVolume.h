@@ -12,21 +12,19 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <BooleanOperation boolOp, TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedBooleanVolume = SpecializedVolImplHelper<BooleanImplementation<boolOp>, transCodeT, rotCodeT>;
+template <BooleanOperation boolOp>
+using SpecializedBooleanVolume = SpecializedVolImplHelper<BooleanImplementation<boolOp>>;
 
-using GenericPlacedUnionVolume = SpecializedBooleanVolume<kUnion, translation::kGeneric, rotation::kGeneric>;
-using GenericPlacedIntersectionVolume =
-    SpecializedBooleanVolume<kIntersection, translation::kGeneric, rotation::kGeneric>;
-using GenericPlacedSubtractionVolume =
-    SpecializedBooleanVolume<kSubtraction, translation::kGeneric, rotation::kGeneric>;
+using GenericPlacedUnionVolume        = SpecializedBooleanVolume<kUnion>;
+using GenericPlacedIntersectionVolume = SpecializedBooleanVolume<kIntersection>;
+using GenericPlacedSubtractionVolume  = SpecializedBooleanVolume<kSubtraction>;
 
-using GenericUnionVolume        = SpecializedBooleanVolume<kUnion, translation::kIdentity, rotation::kIdentity>;
-using GenericIntersectionVolume = SpecializedBooleanVolume<kIntersection, translation::kIdentity, rotation::kIdentity>;
-using GenericSubtractionVolume  = SpecializedBooleanVolume<kSubtraction, translation::kIdentity, rotation::kIdentity>;
+using GenericUnionVolume        = SpecializedBooleanVolume<kUnion>;
+using GenericIntersectionVolume = SpecializedBooleanVolume<kIntersection>;
+using GenericSubtractionVolume  = SpecializedBooleanVolume<kSubtraction>;
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDBOOLEAN_H

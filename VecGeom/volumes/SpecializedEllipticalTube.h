@@ -21,10 +21,9 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedEllipticalTube = SpecializedVolImplHelper<EllipticalTubeImplementation, transCodeT, rotCodeT>;
+using SpecializedEllipticalTube = SpecializedVolImplHelper<EllipticalTubeImplementation>;
 
-using SimpleEllipticalTube = SpecializedEllipticalTube<translation::kGeneric, rotation::kGeneric>;
+using SimpleEllipticalTube = SpecializedEllipticalTube;
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
 

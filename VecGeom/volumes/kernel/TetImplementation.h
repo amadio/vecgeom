@@ -35,36 +35,26 @@ struct TetImplementation {
   using UnplacedVolume_t = UnplacedTet;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
+  static void PrintType() {}
+
+  template <typename Stream>
+  static void PrintType(Stream &)
   {
-    //  printf("SpecializedTet<%i, %i>", transCodeT, rotCodeT);
   }
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintImplementationType(Stream &)
   {
-    st << "SpecializedTet<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &st)
+  static void PrintUnplacedType(Stream &)
   {
-    (void)st;
-    // st << "TetImplementation<" << transCodeT << "," << rotCodeT << ">";
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
-  {
-    (void)st;
-    // TODO: this is wrong
-    // st << "UnplacedTet";
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &tet,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Bool_v unused, outside;
     GenericKernelForContainsAndInside<Real_v, Bool_v, false>(tet, point, unused, outside);
@@ -74,9 +64,8 @@ struct TetImplementation {
   // BIG QUESTION: DO WE WANT TO GIVE ALL 3 TEMPLATE PARAMETERS
   // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &tet,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
     using Bool_v       = vecCore::Mask_v<Real_v>;
@@ -89,10 +78,9 @@ struct TetImplementation {
   }
 
   template <typename Real_v, typename Bool_v, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &tet, Vector3D<Real_v> const &localPoint,
-                                                Bool_v &completelyinside, Bool_v &completelyoutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(
+      UnplacedStruct_t const &tet, Vector3D<Real_v> const &localPoint, Bool_v &completelyinside,
+      Bool_v &completelyoutside)
   {
     /* Logic to check where the point is inside or not.
     **
@@ -117,10 +105,10 @@ struct TetImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &tet,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const & /*stepMax*/, Real_v &distance)
   {
     /* Logic to calculate Distance from outside point to the Tet surface */
     // using Bool_v       = vecCore::Mask_v<Real_v>;
@@ -140,7 +128,8 @@ struct TetImplementation {
     for (int i = 0; i < 4; ++i) {
       vecCore__MaskedAssignFunc(distance, (cosa[i] < Real_v(0.)), vecCore::math::Max(distance, dist[i]));
       vecCore__MaskedAssignFunc(distanceOut, (cosa[i] > Real_v(0.)), vecCore::math::Min(distanceOut, dist[i]));
-      vecCore__MaskedAssignFunc(absSafe, (cosa[i] > Real_v(0.)), vecCore::math::Min(absSafe, vecCore::math::Abs(safe[i])));
+      vecCore__MaskedAssignFunc(absSafe, (cosa[i] > Real_v(0.)),
+                                vecCore::math::Min(absSafe, vecCore::math::Abs(safe[i])));
     }
 
     vecCore::MaskedAssign(distance,
@@ -149,10 +138,10 @@ struct TetImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &tet,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const & /* stepMax */, Real_v &distance)
   {
     /* Logic to calculate Distance from inside point to the Tet surface */
     distance      = kInfLength;
@@ -173,9 +162,8 @@ struct TetImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &tet,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     /* Logic to calculate Safety from outside point to the Tet surface */
 
@@ -188,9 +176,8 @@ struct TetImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &tet,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     /* Logic to calculate Safety from inside point to the Tet surface */
 
@@ -203,10 +190,8 @@ struct TetImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> NormalKernel(
+      UnplacedStruct_t const &tet, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid)
   {
     Vector3D<Real_v> normal(0.);
     valid = true;

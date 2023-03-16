@@ -334,7 +334,6 @@ public:
   virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, size_t nSegments) const override;
 #endif
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
@@ -345,7 +344,6 @@ public:
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                            const int id, const int copy_no, const int child_id,
 #endif
@@ -357,7 +355,8 @@ public:
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedPolyhedron>::SizeOf(); }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
-  static void CopyToGpu(std::vector<VUnplacedVolume const *> const & volumes, std::vector<DevicePtr<cuda::VUnplacedVolume>> const & devPtrs);
+  static void CopyToGpu(std::vector<VUnplacedVolume const *> const &volumes,
+                        std::vector<DevicePtr<cuda::VUnplacedVolume>> const &devPtrs);
 #endif
 
 private:

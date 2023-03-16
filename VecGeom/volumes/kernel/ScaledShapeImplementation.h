@@ -30,76 +30,64 @@ struct ScaledShapeImplementation {
   using UnplacedVolume_t = UnplacedScaledShape;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
+  static void PrintType() {}
+
+  template <typename Stream>
+  static void PrintType(Stream &s)
   {
-    // printf("SpecializedScaledShape<%i, %i>", transCodeT, rotCodeT);
   }
 
   template <typename Stream>
-  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintImplementationType(Stream &)
   {
-    s << "SpecializedScaledShape<" << transCodeT << "," << rotCodeT << ","
-      << ">";
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream & /*s*/)
+  static void PrintUnplacedType(Stream &)
   {
-    // s << "SpecializedScaledShape<" << transCodeT << "," << rotCodeT << ">";
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream & /*s*/)
-  {
-    // s << "UnplacedScaledShape";
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &unplaced,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside);
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &unplaced,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &unplaced,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &unplaced,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &unplaced,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &normal,
-                           vecCore::Mask_v<Real_v> &valid);
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void NormalKernel(UnplacedStruct_t const &unplaced,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> &normal,
+                                                                        vecCore::Mask_v<Real_v> &valid);
 
 }; // End struct ScaledShapeImplementation
 
 // Implementations start here
 
 template <typename Real_v, typename Bool_v>
-VECCORE_ATT_HOST_DEVICE
-void ScaledShapeImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                         Bool_v &inside)
+VECCORE_ATT_HOST_DEVICE void ScaledShapeImplementation::Contains(UnplacedStruct_t const &unplaced,
+                                                                 Vector3D<Real_v> const &point, Bool_v &inside)
 {
 
   // Transform local point to unscaled shape frame
@@ -111,9 +99,8 @@ void ScaledShapeImplementation::Contains(UnplacedStruct_t const &unplaced, Vecto
 }
 
 template <typename Real_v, typename Inside_t>
-VECCORE_ATT_HOST_DEVICE
-void ScaledShapeImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                       Inside_t &inside)
+VECCORE_ATT_HOST_DEVICE void ScaledShapeImplementation::Inside(UnplacedStruct_t const &unplaced,
+                                                               Vector3D<Real_v> const &point, Inside_t &inside)
 {
 
   // Transform local point to unscaled shape frame
@@ -125,9 +112,10 @@ void ScaledShapeImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3
 }
 
 template <typename Real_v>
-VECCORE_ATT_HOST_DEVICE
-void ScaledShapeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                             Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+VECCORE_ATT_HOST_DEVICE void ScaledShapeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced,
+                                                                     Vector3D<Real_v> const &point,
+                                                                     Vector3D<Real_v> const &direction,
+                                                                     Real_v const &stepMax, Real_v &distance)
 {
 
   // Transform point, direction and stepMax to unscaled shape frame
@@ -150,10 +138,10 @@ void ScaledShapeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, V
 }
 
 template <typename Real_v>
-VECCORE_ATT_HOST_DEVICE
-void ScaledShapeImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                              Vector3D<Real_v> const &direction, Real_v const &stepMax,
-                                              Real_v &distance)
+VECCORE_ATT_HOST_DEVICE void ScaledShapeImplementation::DistanceToOut(UnplacedStruct_t const &unplaced,
+                                                                      Vector3D<Real_v> const &point,
+                                                                      Vector3D<Real_v> const &direction,
+                                                                      Real_v const &stepMax, Real_v &distance)
 {
 
   // Transform point, direction and stepMax to unscaled shape frame
@@ -176,9 +164,8 @@ void ScaledShapeImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, 
 }
 
 template <typename Real_v>
-VECCORE_ATT_HOST_DEVICE
-void ScaledShapeImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                           Real_v &safety)
+VECCORE_ATT_HOST_DEVICE void ScaledShapeImplementation::SafetyToIn(UnplacedStruct_t const &unplaced,
+                                                                   Vector3D<Real_v> const &point, Real_v &safety)
 {
 
   // Transform point to unscaled shape frame
@@ -191,9 +178,8 @@ void ScaledShapeImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vec
 }
 
 template <typename Real_v>
-VECCORE_ATT_HOST_DEVICE
-void ScaledShapeImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                            Real_v &safety)
+VECCORE_ATT_HOST_DEVICE void ScaledShapeImplementation::SafetyToOut(UnplacedStruct_t const &unplaced,
+                                                                    Vector3D<Real_v> const &point, Real_v &safety)
 {
 
   // Transform point to unscaled shape frame
@@ -206,9 +192,10 @@ void ScaledShapeImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Ve
 }
 
 template <typename Real_v>
-VECCORE_ATT_HOST_DEVICE
-void ScaledShapeImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                             Vector3D<Real_v> &normal, vecCore::Mask_v<Real_v> & /* valid */)
+VECCORE_ATT_HOST_DEVICE void ScaledShapeImplementation::NormalKernel(UnplacedStruct_t const &unplaced,
+                                                                     Vector3D<Real_v> const &point,
+                                                                     Vector3D<Real_v> &normal,
+                                                                     vecCore::Mask_v<Real_v> & /* valid */)
 {
 
   // Transform point to unscaled shape frame

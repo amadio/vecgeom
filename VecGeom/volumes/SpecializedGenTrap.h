@@ -20,11 +20,10 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedGenTrap = SpecializedVolImplHelper<GenTrapImplementation, transCodeT, rotCodeT>;
+using SpecializedGenTrap = SpecializedVolImplHelper<GenTrapImplementation>;
 
-using SimpleGenTrap = SpecializedGenTrap<translation::kGeneric, rotation::kGeneric>;
-}
-} // End global namespace
+using SimpleGenTrap = SpecializedGenTrap;
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_VOLUMES_SPECIALIZEDGENTRAP_H_ */

@@ -66,47 +66,41 @@ bool UnplacedMultiUnion::Normal(Vector3D<Precision> const &point, Vector3D<Preci
 }
 
 #ifndef VECCORE_CUDA
-template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedMultiUnion::Create(LogicalVolume const *const logical_volume,
                                           Transformation3D const *const transformation, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedMultiUnion<trans_code, rot_code>(logical_volume, transformation);
+    new (placement) SpecializedMultiUnion(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedMultiUnion<trans_code, rot_code>(logical_volume, transformation);
+  return new SpecializedMultiUnion(logical_volume, transformation);
 }
 
 VPlacedVolume *UnplacedMultiUnion::SpecializedVolume(LogicalVolume const *const volume,
                                                      Transformation3D const *const transformation,
-                                                     const TranslationCode trans_code, const RotationCode rot_code,
                                                      VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedMultiUnion>(volume, transformation, trans_code, rot_code,
-                                                                   placement);
+  return VolumeFactory::CreateByTransformation<UnplacedMultiUnion>(volume, transformation, placement);
 }
 #else
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE VPlacedVolume *UnplacedMultiUnion::Create(LogicalVolume const *const logical_volume,
                                                              Transformation3D const *const transformation, const int id,
                                                              VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedMultiUnion<trans_code, rot_code>(logical_volume, transformation, id);
+    new (placement) SpecializedMultiUnion(logical_volume, transformation, id);
     return placement;
   }
-  return new SpecializedMultiUnion<trans_code, rot_code>(logical_volume, transformation, id);
+  return new SpecializedMultiUnion(logical_volume, transformation, id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedMultiUnion::SpecializedVolume(LogicalVolume const *const volume,
-                                                     Transformation3D const *const transformation,
-                                                     const TranslationCode trans_code, const RotationCode rot_code,
-                                                     const int id, VPlacedVolume *const placement) const
+                                                     Transformation3D const *const transformation, const int id,
+                                                     VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedMultiUnion>(volume, transformation, trans_code, rot_code, id,
-                                                                   placement);
+  return VolumeFactory::CreateByTransformation<UnplacedMultiUnion>(volume, transformation, id, placement);
 }
 
 #endif
@@ -149,8 +143,7 @@ namespace cuda {
 inline namespace cxx {
 
 template <>
-size_t DevicePtr<
-    cuda::SpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric, rotation::kGeneric>>::SizeOf()
+size_t DevicePtr<cuda::SpecializedVolImplHelper<cuda::MultiUnionImplementation>>::SizeOf()
 {
   return 0;
 }
@@ -159,23 +152,19 @@ size_t DevicePtr<
 
 template <>
 template <>
-void DevicePtr<
-    cuda::SpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric, rotation::kGeneric>>::
-    Construct(DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, unsigned int, int,
-              int) const
+void DevicePtr<cuda::SpecializedVolImplHelper<cuda::MultiUnionImplementation>>::Construct(
+    DevicePtr<vecgeom::cuda::LogicalVolume>, DevicePtr<vecgeom::cuda::Transformation3D>, unsigned int, int, int) const
 {
   return;
 }
 
 template <>
-void ConstructManyOnGpu<
-    cuda::SpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric, rotation::kGeneric>
-    /*, ... inferred from arguments */>(std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs,
-                                        DevicePtr<cuda::LogicalVolume> const *logical,
-                                        DevicePtr<cuda::Transformation3D> const *trafo,
-                                        decltype(std::declval<VPlacedVolume>().id()) const *ids,
-                                        decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
-                                        decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds)
+void ConstructManyOnGpu<cuda::SpecializedVolImplHelper<cuda::MultiUnionImplementation>
+                        /*, ... inferred from arguments */>(
+    std::size_t nElement, DevicePtr<cuda::VPlacedVolume> const *gpu_ptrs, DevicePtr<cuda::LogicalVolume> const *logical,
+    DevicePtr<cuda::Transformation3D> const *trafo, decltype(std::declval<VPlacedVolume>().id()) const *ids,
+    decltype(std::declval<VPlacedVolume>().GetCopyNo()) const *copyNos,
+    decltype(std::declval<VPlacedVolume>().GetChildId()) const *childIds)
 {
 }
 

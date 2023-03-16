@@ -72,7 +72,7 @@ G4VSolid const *PlacedPolyhedron::ConvertToGeant4() const
 #endif
 #endif // !VECCORE_CUDA
 
-} // End inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 

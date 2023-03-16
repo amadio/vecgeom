@@ -39,22 +39,17 @@ struct OrbImplementation {
   using UnplacedVolume_t = UnplacedOrb;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  {
-    //  printf("SpecializedOrb<%i, %i>", transCodeT, rotCodeT);
-  }
+  static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &st)
   {
-    st << "SpecializedOrb<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &st)
   {
     (void)st;
-    // st << "OrbImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -66,9 +61,8 @@ struct OrbImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &orb,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Bool_v unused, outside;
     GenericKernelForContainsAndInside<Real_v, Bool_v, false>(orb, point, unused, outside);
@@ -78,9 +72,8 @@ struct OrbImplementation {
   // BIG QUESTION: DO WE WANT TO GIVE ALL 3 TEMPLATE PARAMETERS
   // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
   template <typename Real_v, typename Inside_t>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point, Inside_t &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &orb,
+                                                                  Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
     using Bool_v       = vecCore::Mask_v<Real_v>;
@@ -93,10 +86,9 @@ struct OrbImplementation {
   }
 
   template <typename Real_v, typename Bool_v, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &orb, Vector3D<Real_v> const &localPoint,
-                                                Bool_v &completelyinside, Bool_v &completelyoutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(
+      UnplacedStruct_t const &orb, Vector3D<Real_v> const &localPoint, Bool_v &completelyinside,
+      Bool_v &completelyoutside)
   {
     Precision fR = orb.fR;
     Real_v rad2  = localPoint.Mag2();
@@ -108,10 +100,10 @@ struct OrbImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &orb,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const & /*stepMax*/, Real_v &distance)
   {
     using Bool_v         = vecCore::Mask_v<Real_v>;
     distance             = kInfLength;
@@ -133,10 +125,10 @@ struct OrbImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &orb,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const & /* stepMax */, Real_v &distance)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
 
@@ -162,9 +154,8 @@ struct OrbImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &orb,
+                                                                      Vector3D<Real_v> const &point, Real_v &safety)
   {
     using Bool_v         = vecCore::Mask_v<Real_v>;
     Real_v rad           = point.Mag();
@@ -178,9 +169,8 @@ struct OrbImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point, Real_v &safety)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &orb,
+                                                                       Vector3D<Real_v> const &point, Real_v &safety)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
 
@@ -196,12 +186,9 @@ struct OrbImplementation {
   }
 
   template <typename Real_v, bool ForDistanceToIn>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static typename vecCore::Mask_v<Real_v> DetectIntersectionAndCalculateDistance(UnplacedStruct_t const &orb,
-                                                                                 Vector3D<Real_v> const &point,
-                                                                                 Vector3D<Real_v> const &direction,
-                                                                                 Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static typename vecCore::Mask_v<Real_v>
+  DetectIntersectionAndCalculateDistance(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point,
+                                         Vector3D<Real_v> const &direction, Real_v &distance)
   {
 
     using Bool_v   = vecCore::Mask_v<Real_v>;
@@ -222,10 +209,8 @@ struct OrbImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> NormalKernel(
+      UnplacedStruct_t const &orb, Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid)
   {
     Real_v rad2             = point.Mag2();
     Real_v invRadius        = Real_v(1.) / Sqrt(rad2);

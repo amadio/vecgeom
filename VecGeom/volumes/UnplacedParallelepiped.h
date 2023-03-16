@@ -198,16 +198,14 @@ public:
   std::string GetEntityType() const { return "parallelepiped"; }
 
   /// Templated factory for creating a placed volume
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
 #ifdef VECCORE_CUDA
   VECCORE_ATT_DEVICE
 #endif
-      static VPlacedVolume *
-      Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-             const int id, const int copy_no, const int child_id,
+                               const int id, const int copy_no, const int child_id,
 #endif
-             VPlacedVolume *const placement = NULL);
+                               VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedParallelepiped>::SizeOf(); }
@@ -220,7 +218,6 @@ public:
 #endif
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                            const int id, const int copy_no, const int child_id,
 #endif

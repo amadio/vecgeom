@@ -23,7 +23,7 @@
 #include "VecGeom/volumes/kernel/shapetypes/HypeTypes.h"
 
 // different SafetyToIn implementations
-//#define ACCURATE_BB
+// #define ACCURATE_BB
 #define ACCURATE_BC
 
 namespace vecgeom {
@@ -48,22 +48,17 @@ struct HypeImplementation {
   using PlacedShape_t    = SPlacedHype<UnplacedVolume_t>;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType()
-  {
-    //  printf("SpecializedHype<%i, %i>", transCodeT, rotCodeT);
-  }
+  static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
+  static void PrintType(Stream &st)
   {
-    st << "SpecializedHype<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &st)
   {
     (void)st;
-    // st << "HypeImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
@@ -75,9 +70,8 @@ struct HypeImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point, Bool_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &hype,
+                                                                    Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Bool_v unused(false), outside(false);
     GenericKernelForContainsAndInside<Real_v, Bool_v, false>(hype, point, unused, outside);
@@ -85,9 +79,8 @@ struct HypeImplementation {
   }
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point, Inside_v &inside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Inside(UnplacedStruct_t const &hype,
+                                                                  Vector3D<Real_v> const &point, Inside_v &inside)
   {
     using Bool_v       = vecCore::Mask_v<Real_v>;
     using InsideBool_v = vecCore::Mask_v<Inside_v>;
@@ -99,10 +92,8 @@ struct HypeImplementation {
   }
 
   template <typename Real_v, typename Bool_v, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point,
-                                                Bool_v &completelyinside, Bool_v &completelyoutside)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(
+      UnplacedStruct_t const &hype, Vector3D<Real_v> const &point, Bool_v &completelyinside, Bool_v &completelyoutside)
   {
     using namespace ::vecgeom::HypeTypes;
     Real_v r2    = point.Perp2();
@@ -128,10 +119,10 @@ struct HypeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToIn(UnplacedStruct_t const &hype,
+                                                                        Vector3D<Real_v> const &point,
+                                                                        Vector3D<Real_v> const &direction,
+                                                                        Real_v const & /*stepMax*/, Real_v &distance)
   {
     using namespace ::vecgeom::HypeTypes;
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -195,10 +186,10 @@ struct HypeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void DistanceToOut(UnplacedStruct_t const &hype,
+                                                                         Vector3D<Real_v> const &point,
+                                                                         Vector3D<Real_v> const &direction,
+                                                                         Real_v const & /* stepMax */, Real_v &distance)
   {
     using namespace ::vecgeom::HypeTypes;
     using Bool_v = typename vecCore::Mask_v<Real_v>;
@@ -232,8 +223,8 @@ struct HypeImplementation {
   }
 
   template <class Real_v>
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point, Real_v &safety)
+  VECCORE_ATT_HOST_DEVICE static void SafetyToIn(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point,
+                                                 Real_v &safety)
   {
 
     using Bool_v = typename vecCore::Mask_v<Real_v>;
@@ -289,8 +280,8 @@ struct HypeImplementation {
   }
 
   template <class Real_v>
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point, Real_v &safety)
+  VECCORE_ATT_HOST_DEVICE static void SafetyToOut(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point,
+                                                  Real_v &safety)
   {
     using namespace ::vecgeom::HypeTypes;
     using Bool_v = typename vecCore::Mask_v<Real_v>;

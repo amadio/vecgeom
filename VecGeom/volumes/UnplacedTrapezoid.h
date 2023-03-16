@@ -112,24 +112,24 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision theta() const {
+  Precision theta() const
+  {
     // follow Geant4 sign convention
     if (fTrap.fTheta < 0 || fTrap.fTheta >= kHalfPi) {
       return vecCore::math::ATan(vecCore::math::Abs(vecCore::math::Tan(fTrap.fTheta)));
-    }
-    else {
+    } else {
       return fTrap.fTheta;
     }
   }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision phi() const {
+  Precision phi() const
+  {
     // follow Geant4 sign convention
     if (fTrap.fPhi < -kPi || fTrap.fPhi >= kPi) {
       return vecCore::math::ATan2(fTrap.fTthetaSphi, fTrap.fTthetaCphi);
-    }
-    else {
+    } else {
       return fTrap.fPhi;
     }
   }
@@ -328,8 +328,7 @@ public:
   std::string GetEntityType() const { return "Trapezoid"; }
 
   template <typename T>
-  VECCORE_ATT_HOST_DEVICE
-  void GetParametersList(int aNumber, T *aArray) const;
+  VECCORE_ATT_HOST_DEVICE void GetParametersList(int aNumber, T *aArray) const;
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedTrapezoid *Clone() const;
@@ -354,26 +353,22 @@ public:
 
 #ifndef VECCORE_CUDA
   // this is the function called from the VolumeFactory, it may be specific to the trapezoid
-  template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL);
 
   VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume, Transformation3D const *const transformation,
-                                   const TranslationCode trans_code, const RotationCode rot_code,
                                    VPlacedVolume *const placement) const override;
 
 #else
 
-  template <TranslationCode trans_code, RotationCode rot_code>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                const int id, const int copy_no, const int child_id,
                                VPlacedVolume *const placement = NULL);
 
   VECCORE_ATT_DEVICE VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                                      Transformation3D const *const transformation,
-                                                      const TranslationCode trans_code, const RotationCode rot_code,
-                                                      const int id, const int copy_no, const int child_id,
+                                                      Transformation3D const *const transformation, const int id,
+                                                      const int copy_no, const int child_id,
                                                       VPlacedVolume *const placement) const override;
 #endif
 

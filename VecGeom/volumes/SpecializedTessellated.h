@@ -13,11 +13,10 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTessellated = SpecializedVolImplHelper<TessellatedImplementation, transCodeT, rotCodeT>;
+using SpecializedTessellated = SpecializedVolImplHelper<TessellatedImplementation>;
 
-using SimpleTessellated = SpecializedTessellated<translation::kGeneric, rotation::kGeneric>;
-}
-} // End global namespace
+using SimpleTessellated = SpecializedTessellated;
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDTESSELLATED_H_

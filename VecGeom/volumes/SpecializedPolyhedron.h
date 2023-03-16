@@ -14,16 +14,13 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT, Polyhedron::EInnerRadii innerRadiiT,
-          Polyhedron::EPhiCutout phiCutoutT>
-using SpecializedPolyhedron =
-    SpecializedVolImplHelper<PolyhedronImplementation<innerRadiiT, phiCutoutT>, transCodeT, rotCodeT>;
+template <Polyhedron::EInnerRadii innerRadiiT, Polyhedron::EPhiCutout phiCutoutT>
+using SpecializedPolyhedron = SpecializedVolImplHelper<PolyhedronImplementation<innerRadiiT, phiCutoutT>>;
 
-using SimplePolyhedron = SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric,
-                                               Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric>;
+using SimplePolyhedron = SpecializedPolyhedron<Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric>;
 
-} // End inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDPOLYHEDRON_H_

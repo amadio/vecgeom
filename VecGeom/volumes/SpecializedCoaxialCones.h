@@ -16,10 +16,9 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedCoaxialCones = SpecializedVolImplHelper<CoaxialConesImplementation, transCodeT, rotCodeT>;
+using SpecializedCoaxialCones = SpecializedVolImplHelper<CoaxialConesImplementation>;
 
-using SimpleCoaxialCones = SpecializedCoaxialCones<translation::kGeneric, rotation::kGeneric>;
+using SimpleCoaxialCones = SpecializedCoaxialCones;
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
 

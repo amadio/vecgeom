@@ -184,48 +184,43 @@ G4VSolid const *UnplacedOrb::ConvertToGeant4(char const *label) const
 }
 #endif
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedOrb<trans_code, rot_code>(logical_volume, transformation);
+    new (placement) SpecializedOrb(logical_volume, transformation);
     return placement;
   }
-  return new SpecializedOrb<trans_code, rot_code>(logical_volume, transformation);
+  return new SpecializedOrb(logical_volume, transformation);
 }
 
 VPlacedVolume *UnplacedOrb::SpecializedVolume(LogicalVolume const *const volume,
                                               Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
                                               VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedOrb>(volume, transformation, trans_code, rot_code, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedOrb>(volume, transformation, placement);
 }
 #else
 
-template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, const int id, const int copy_no,
                                    const int child_id, VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+    new (placement) SpecializedOrb(logical_volume, transformation, id, copy_no, child_id);
     return placement;
   }
-  return new SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, id, copy_no, child_id);
+  return new SpecializedOrb(logical_volume, transformation, id, copy_no, child_id);
 }
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedOrb::SpecializedVolume(LogicalVolume const *const volume,
-                                              Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
-                                              const int id, const int copy_no, const int child_id,
+                                              Transformation3D const *const transformation, const int id,
+                                              const int copy_no, const int child_id,
                                               VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedOrb>(volume, transformation, trans_code, rot_code, id, copy_no,
-                                                            child_id, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedOrb>(volume, transformation, id, copy_no, child_id, placement);
 }
 
 #endif

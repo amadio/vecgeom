@@ -88,21 +88,18 @@ SolidMesh *UnplacedTorus2::CreateMesh3D(Transformation3D const &trans, size_t nS
 #ifndef VECCORE_CUDA
 VPlacedVolume *UnplacedTorus2::SpecializedVolume(LogicalVolume const *const volume,
                                                  Transformation3D const *const transformation,
-                                                 const TranslationCode trans_code, const RotationCode rot_code,
                                                  VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedTorus2>(volume, transformation, trans_code, rot_code, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedTorus2>(volume, transformation, placement);
 }
 #else
 __device__ VPlacedVolume *UnplacedTorus2::SpecializedVolume(LogicalVolume const *const volume,
-                                                            Transformation3D const *const transformation,
-                                                            const TranslationCode trans_code,
-                                                            const RotationCode rot_code, const int id,
+                                                            Transformation3D const *const transformation, const int id,
                                                             const int copy_no, const int child_id,
                                                             VPlacedVolume *const placement) const
 {
-  return VolumeFactory::CreateByTransformation<UnplacedTorus2>(volume, transformation, trans_code, rot_code, id,
-                                                               copy_no, child_id, placement);
+  return VolumeFactory::CreateByTransformation<UnplacedTorus2>(volume, transformation, id, copy_no, child_id,
+                                                               placement);
 }
 #endif
 
@@ -161,7 +158,6 @@ void UnplacedTorus2::DetectConvexity()
   }
 }
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTorus2::Create(LogicalVolume const *const logical_volume,
                                       Transformation3D const *const transformation,

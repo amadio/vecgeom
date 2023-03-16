@@ -204,7 +204,6 @@ public:
   virtual SolidMesh *CreateMesh3D(Transformation3D const &trans, size_t nSegments) const override;
 #endif
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
@@ -291,7 +290,6 @@ public:
   using BaseType_t = UnplacedVolumeImplHelper<ConeImplementation<ConeType>, UnplacedCone>;
   using BaseType_t::BaseType_t;
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
@@ -302,23 +300,20 @@ public:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
                                            VPlacedVolume *const placement = NULL) const override
   {
-    return VolumeFactory::CreateByTransformation<SUnplacedCone<ConeType>>(volume, transformation, trans_code, rot_code,
-                                                                          placement);
+    return VolumeFactory::CreateByTransformation<SUnplacedCone<ConeType>>(volume, transformation, placement);
   }
 
 #else
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                           Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code, const int id,
+                                           Transformation3D const *const transformation, const int id,
                                            const int copy_no, const int child_id,
                                            VPlacedVolume *const placement = NULL) const override
   {
-    return VolumeFactory::CreateByTransformation<SUnplacedCone<ConeType>>(volume, transformation, trans_code, rot_code,
-                                                                          id, copy_no, child_id, placement);
+    return VolumeFactory::CreateByTransformation<SUnplacedCone<ConeType>>(volume, transformation, id, copy_no, child_id,
+                                                                          placement);
   }
 #endif
 };

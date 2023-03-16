@@ -10,11 +10,10 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedSExtru = SpecializedVolImplHelper<SExtruImplementation, transCodeT, rotCodeT>;
+using SpecializedSExtru = SpecializedVolImplHelper<SExtruImplementation>;
 
-using SimpleSExtru = SpecializedSExtru<translation::kGeneric, rotation::kGeneric>;
-}
-} // End global namespace
+using SimpleSExtru = SpecializedSExtru;
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

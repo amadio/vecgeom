@@ -18,26 +18,24 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT, typename TrdTypeT>
-using SpecializedTrd = SpecializedVolImplHelper<TrdImplementation<TrdTypeT>, transCodeT, rotCodeT>;
+template <typename TrdTypeT>
+using SpecializedTrd = SpecializedVolImplHelper<TrdImplementation<TrdTypeT>>;
 
-using SimpleTrd = SpecializedTrd<translation::kGeneric, rotation::kGeneric, TrdTypes::UniversalTrd>;
+using SimpleTrd = SpecializedTrd<TrdTypes::UniversalTrd>;
 
 template <typename Type>
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECCORE_ATT_DEVICE
-VPlacedVolume *SUnplacedTrd<Type>::Create(LogicalVolume const *const logical_volume,
-                                          Transformation3D const *const transformation,
+VECCORE_ATT_DEVICE VPlacedVolume *SUnplacedTrd<Type>::Create(LogicalVolume const *const logical_volume,
+                                                             Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                          const int id, const int copy_no, const int child_id,
+                                                             const int id, const int copy_no, const int child_id,
 #endif
-                                          VPlacedVolume *const placement)
+                                                             VPlacedVolume *const placement)
 {
   (void)placement;
-  return new SpecializedTrd<transCodeT, rotCodeT, Type>(logical_volume, transformation
+  return new SpecializedTrd<Type>(logical_volume, transformation
 #ifdef VECCORE_CUDA
-                                                        ,
-                                                        id, copy_no, child_id
+                                  ,
+                                  id, copy_no, child_id
 #endif
   );
 }

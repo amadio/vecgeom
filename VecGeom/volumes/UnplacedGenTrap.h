@@ -181,7 +181,6 @@ public:
   std::string GetEntityType() const { return "GenTrap"; }
 
   /** @brief Templated factory for creating a placed volume */
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
@@ -189,17 +188,6 @@ public:
 #endif
                                VPlacedVolume *const placement = NULL);
 
-  /*
-    // Is this still needed?
-    VECCORE_ATT_DEVICE
-    static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
-                                                  Transformation3D const *const transformation,
-                                                  const TranslationCode trans_code, const RotationCode rot_code,
-  #ifdef VECCORE_CUDA
-                                                  const int id,
-  #endif
-                                                  VPlacedVolume *const placement = NULL);
-  */
   /** @brief Stream trapezoid information in the Geant4 style */
   std::ostream &StreamInfo(std::ostream &os) const;
 
@@ -208,7 +196,6 @@ private:
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                            const int id, const int copy_no, const int child_id,
 #endif

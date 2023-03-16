@@ -16,10 +16,9 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedGenericPolycone = SpecializedVolImplHelper<GenericPolyconeImplementation, transCodeT, rotCodeT>;
+using SpecializedGenericPolycone = SpecializedVolImplHelper<GenericPolyconeImplementation>;
 
-using SimpleGenericPolycone = SpecializedGenericPolycone<translation::kGeneric, rotation::kGeneric>;
+using SimpleGenericPolycone = SpecializedGenericPolycone;
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
 

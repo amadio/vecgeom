@@ -44,7 +44,11 @@ private:
   Vector3D<Precision> fUpperCorner;
 
   void SetLogicalVolume(LogicalVolume *lv) { fLogicalVolume = lv; }
-  void UpdateExtent() { UnplacedAssembly::Extent(fLowerCorner, fUpperCorner); ComputeBBox(); }
+  void UpdateExtent()
+  {
+    UnplacedAssembly::Extent(fLowerCorner, fUpperCorner);
+    ComputeBBox();
+  }
   friend class LogicalVolume;
 
 public:
@@ -175,13 +179,11 @@ public:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
                                            VPlacedVolume *const placement = NULL) const override;
 #else
   VECCORE_ATT_DEVICE VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                                      Transformation3D const *const transformation,
-                                                      const TranslationCode trans_code, const RotationCode rot_code,
-                                                      const int id, const int copy_no, const int child_id,
+                                                      Transformation3D const *const transformation, const int id,
+                                                      const int copy_no, const int child_id,
                                                       VPlacedVolume *const placement) const override;
 #endif
 };

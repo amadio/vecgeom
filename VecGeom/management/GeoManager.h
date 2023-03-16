@@ -91,6 +91,7 @@ public:
    */
   bool IsClosed() const { return fIsClosed; }
 
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
   /// A factory template for unplaced shapes.
   template <typename UnplacedShape_t, typename... ArgTypes>
   static UnplacedShape_t *MakeInstance(ArgTypes... Args);
@@ -101,7 +102,7 @@ public:
   {
     return Maker<UnplacedScaledShape>::MakeInstance<BaseShape_t>(scale, args...);
   }
-
+#endif
   /** Compactify memory space used by VecGeom geometry objects.
    *
    * This is an internal method which should be called by ClosedGeometry.
@@ -292,12 +293,14 @@ void GeoManager::getAllPlacedVolumes(Container &c) const
   visitAllPlacedVolumes(GetWorld(), &pv);
 }
 
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
 /// A factory for unplaced shapes. Factory redirects to the "Maker" template
 template <typename UnplacedShape_t, typename... Argtypes>
 UnplacedShape_t *GeoManager::MakeInstance(Argtypes... args)
 {
   return Maker<UnplacedShape_t>::MakeInstance(args...);
 }
+#endif
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
 
