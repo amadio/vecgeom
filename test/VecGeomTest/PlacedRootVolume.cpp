@@ -30,16 +30,6 @@ void PlacedRootVolume::PrintType(std::ostream &os) const
   os << "PlacedRootVolume";
 }
 
-void PlacedRootVolume::PrintImplementationType(std::ostream &os) const
-{
-  os << "RootVolumeImplementation(does not exist)";
-}
-
-void PlacedRootVolume::PrintUnplacedType(std::ostream &os) const
-{
-  os << "UnplacedRootVolume(does not exist)";
-}
-
 Precision PlacedRootVolume::Capacity()
 {
   return GetRootShape()->Capacity();

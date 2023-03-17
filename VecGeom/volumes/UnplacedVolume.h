@@ -105,15 +105,6 @@ public:
   virtual Precision DistanceToOut(Vector3D<Precision> const &pos, Vector3D<Precision> const &dir,
                                   Precision step_max = kInfLength) const = 0;
 
-  /*!
-   * Same as DistanceToOut(pos, dir, step_max) but in addition returns
-   * @param normal The unit normal vector at the point of exit (pointing out tbc)
-   * @param convex Whether the shape lies in the half-space behind the plane defined by the exit point and the normal.
-   */
-  VECCORE_ATT_HOST_DEVICE
-  virtual Precision DistanceToOut(Vector3D<Precision> const &pos, Vector3D<Precision> const &dir,
-                                  Vector3D<Precision> &normal, bool &convex, Precision step_max = kInfLength) const;
-
   // ---------------- SafetyToOut functions -----------------------------------------------------
 
   /*!

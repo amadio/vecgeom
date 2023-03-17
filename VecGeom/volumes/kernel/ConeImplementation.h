@@ -38,24 +38,6 @@ struct ConeImplementation {
   using UnplacedVolume_t = SUnplacedCone<coneTypeT>;
   using PlacedShape_t    = SPlacedCone<UnplacedVolume_t>;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &s)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream & /*s*/)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream & /*s*/)
-  {
-  }
-
   /* A Function that will just check if the point is on the CONICAL (circle) edge
    * assuming that it is on either lowerZ or upperZ
    *

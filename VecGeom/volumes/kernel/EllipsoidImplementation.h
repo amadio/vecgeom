@@ -35,28 +35,6 @@ struct EllipsoidImplementation {
   using UnplacedStruct_t = EllipsoidStruct<Precision>;
   using UnplacedVolume_t = UnplacedEllipsoid;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &st)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &st)
-  {
-    (void)st;
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
-  {
-    (void)st;
-    // TODO: this is wrong
-    // st << "UnplacedEllipsoid";
-  }
-
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &ellipsoid,
                                                                     Vector3D<Real_v> const &point, Bool_v &inside)

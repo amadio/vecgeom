@@ -60,22 +60,6 @@ public:
     return output;
   }
 
-  // the extended DistanceToOut interface
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                  Vector3D<Precision> &normal, bool &convex,
-                                  Precision step_max = kInfLength) const override
-  {
-    (void)p;
-    (void)d;
-    (void)normal;
-    (void)convex;
-    (void)step_max;
-    assert(false);
-    return 0.;
-  }
-
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual bool Contains(Vector3D<Precision> const &p) const override

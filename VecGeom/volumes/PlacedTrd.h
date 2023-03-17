@@ -63,16 +63,16 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedTrd() {}
 
+  VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &os) const override;
+
   /// Getter for unplaced volume
   VECCORE_ATT_HOST_DEVICE
   UnplacedTrd const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedTrd const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual void PrintType() const override;
-  virtual void PrintType(std::ostream &s) const override;
 
   /// Getter for half-length along x at -dz
   VECCORE_ATT_HOST_DEVICE

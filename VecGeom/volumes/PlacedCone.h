@@ -50,7 +50,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override;
-  virtual void PrintType(std::ostream &s) const override;
+  virtual void PrintType(std::ostream &os) const override;
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedCone const *GetUnplacedVolume() const

@@ -47,29 +47,12 @@ public:
     return fImplPtr->ImplementingUnplaced::DistanceToOut(p, d, step_max);
   }
 
-  VECCORE_ATT_HOST_DEVICE
-  Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d, Vector3D<Precision> &normal,
-                          bool &convex, Precision step_max = kInfLength) const override
-  {
-    return fImplPtr->ImplementingUnplaced::DistanceToOut(p, d, normal, convex, step_max);
-  }
-
   // SafetyToOut
   VECCORE_ATT_HOST_DEVICE
   Precision SafetyToOut(Vector3D<Precision> const &p) const override
   {
     return fImplPtr->ImplementingUnplaced::SafetyToOut(p);
   }
-
-  // NOTE: This does not work yet (for whatever reason) since the trampoline dispatch is confused
-  // in UnplacedVolume.h
-  // DistanceToIn
-  //  VECCORE_ATT_HOST_DEVICE
-  //  Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-  //                         const Precision step_max) const override
-  //  {
-  //    return fImplPtr->ImplementingUnplaced::DistanceToIn(position, direction, step_max);
-  //  }
 
   VECCORE_ATT_HOST_DEVICE
   Precision SafetyToIn(Vector3D<Precision> const &position) const override

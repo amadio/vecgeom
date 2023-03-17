@@ -35,28 +35,6 @@ struct BoxImplementation {
   using UnplacedStruct_t = BoxStruct<Precision>;
   using UnplacedVolume_t = UnplacedBox;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &st)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &st)
-  {
-    (void)st;
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
-  {
-    (void)st;
-    // TODO: this is wrong
-    // st << "UnplacedBox";
-  }
-
   template <typename Real_v>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static Vector3D<Real_v> HalfSize(const UnplacedStruct_t &box)
   {

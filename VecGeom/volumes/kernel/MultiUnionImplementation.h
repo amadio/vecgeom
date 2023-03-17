@@ -30,26 +30,6 @@ struct MultiUnionImplementation {
   using UnplacedStruct_t = MultiUnionStruct;
   using UnplacedVolume_t = UnplacedMultiUnion;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &st)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &st)
-  {
-    (void)st;
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
-  {
-    (void)st;
-  }
-
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &munion,
                                                                     Vector3D<Real_v> const &point, Bool_v &inside)

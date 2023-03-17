@@ -344,24 +344,6 @@ struct TubeImplementation {
   using UnplacedVolume_t = SUnplacedTube<tubeTypeT>;
   using PlacedShape_t    = SPlacedTube<UnplacedVolume_t>;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &)
-  {
-  }
-
   /////GenericKernel Contains/Inside implementation
   template <typename Real_v, bool ForInside>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForContainsAndInside(

@@ -42,9 +42,6 @@ public:
   virtual void PrintType() const override;
   virtual void PrintType(std::ostream &) const override;
 
-  virtual void PrintImplementationType(std::ostream &) const override;
-  virtual void PrintUnplacedType(std::ostream &) const override;
-
   VECGEOM_FORCE_INLINE
   virtual bool Contains(Vector3D<Precision> const &point) const override;
 

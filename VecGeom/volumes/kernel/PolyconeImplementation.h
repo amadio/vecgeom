@@ -39,28 +39,6 @@ struct PolyconeImplementation {
   using UnplacedVolume_t = SUnplacedPolycone<polyconeTypeT>;
   using PlacedShape_t    = SPlacedPolycone<UnplacedVolume_t>;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &st)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &st)
-  {
-    (void)st;
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
-  {
-    (void)st;
-    // TODO: this is wrong
-    // st << "UnplacedPolycone";
-  }
-
   template <typename Real_v, bool ForInside>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForASection(
       UnplacedStruct_t const &unplaced, int isect, Vector3D<Real_v> const &polyconePoint,

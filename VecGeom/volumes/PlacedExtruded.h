@@ -46,14 +46,14 @@ public:
   virtual ~PlacedExtruded() {}
 
   VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &os) const override;
+
+  VECCORE_ATT_HOST_DEVICE
   UnplacedExtruded const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedExtruded const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual void PrintType() const override;
-  virtual void PrintType(std::ostream &s) const override;
 
 #ifndef VECCORE_CUDA
   /** @brief Memory size in bytes */
@@ -63,17 +63,11 @@ public:
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const *ConvertToRoot() const override
-  {
-      return GetUnplacedVolume()->ConvertToRoot(GetName());
-  }
+  virtual TGeoShape const *ConvertToRoot() const override { return GetUnplacedVolume()->ConvertToRoot(GetName()); }
 #endif
 
 #ifdef VECGEOM_GEANT4
-  G4VSolid const *ConvertToGeant4() const override
-  {
-    return GetUnplacedVolume()->ConvertToGeant4(GetName());
-  }
+  G4VSolid const *ConvertToGeant4() const override { return GetUnplacedVolume()->ConvertToGeant4(GetName()); }
 #endif
 #endif // VECCORE_CUDA
 };

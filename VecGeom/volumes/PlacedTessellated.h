@@ -62,16 +62,16 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedTessellated() {}
 
+  VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &os) const override;
+
   /// Getter for the UnplacedTessellated
   VECCORE_ATT_HOST_DEVICE
   UnplacedTessellated const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedTessellated const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual void PrintType() const override;
-  virtual void PrintType(std::ostream &s) const override;
 
 #ifndef VECCORE_CUDA
   /** @brief Memory size in bytes */

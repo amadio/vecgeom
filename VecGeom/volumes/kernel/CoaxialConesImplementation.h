@@ -30,28 +30,6 @@ struct CoaxialConesImplementation {
   using UnplacedStruct_t = CoaxialConesStruct<Precision>;
   using UnplacedVolume_t = UnplacedCoaxialCones;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &st)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &st)
-  {
-    (void)st;
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
-  {
-    (void)st;
-    // TODO: this is wrong
-    // st << "UnplacedCoaxialCones";
-  }
-
   template <typename Real_v, bool ForLowerZ>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static typename vecCore::Mask_v<Real_v> IsOnRing(
       UnplacedStruct_t const &coaxialcones, Vector3D<Real_v> const &point)

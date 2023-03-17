@@ -32,24 +32,6 @@ struct TessellatedImplementation {
   using UnplacedStruct_t = TessellatedStruct<3, Precision>;
   using UnplacedVolume_t = UnplacedTessellated;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &)
-  {
-  }
-
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &tessellated,
                                                                     Vector3D<Real_v> const &point, Bool_v &inside)

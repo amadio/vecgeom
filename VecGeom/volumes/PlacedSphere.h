@@ -56,15 +56,15 @@ public:
   virtual ~PlacedSphere() {}
 
   VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &os) const override;
+
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   UnplacedSphere const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedSphere const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual void PrintType() const override;
-  virtual void PrintType(std::ostream &s) const override;
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE

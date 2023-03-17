@@ -34,24 +34,6 @@ struct CutTubeImplementation {
   using UnplacedStruct_t = CutTubeStruct<Precision>;
   using UnplacedVolume_t = UnplacedCutTube;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &s)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream & /*s*/)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream & /*s*/)
-  {
-  }
-
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &unplaced,
                                                                     Vector3D<Real_v> const &point, Bool_v &inside);

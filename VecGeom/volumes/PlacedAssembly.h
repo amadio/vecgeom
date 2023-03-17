@@ -40,28 +40,14 @@ public:
 #endif
 
   VECCORE_ATT_HOST_DEVICE
-  virtual ~PlacedAssembly();
-
-  // the VPlacedVolume Interfaces -----
-  virtual int MemorySize() const override { return sizeof(*this); }
+  virtual ~PlacedAssembly() {}
 
   VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &os) const override;
 
-  virtual void PrintType(std::ostream &s) const override;
-
-  virtual void PrintImplementationType(std::ostream &) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("unimplemented function called");
-#endif
-  }
-  virtual void PrintUnplacedType(std::ostream &) const override
-  {
-#ifndef VECCORE_CUDA
-    throw std::runtime_error("unimplemented function called");
-#endif
-  }
+  // the VPlacedVolume Interfaces -----
+  virtual int MemorySize() const override { return sizeof(*this); }
 
   VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &p) const override

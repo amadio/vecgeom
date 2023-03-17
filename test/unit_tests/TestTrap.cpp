@@ -126,8 +126,6 @@ bool TestTrap()
   // if(ptrap1 != NULL) {
   // ptrap1->Print();
   // // ptrap1->PrintType(std::cout);
-  // // ptrap1->PrintUnplacedType(std::cout);
-  // // ptrap1->PrintImplementationType(std::cout);
   // }
 
   // Check Inside

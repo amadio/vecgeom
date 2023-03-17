@@ -240,10 +240,6 @@ public:
 
   /// Print the actual volume type to an outstream
   virtual void PrintType(std::ostream &os) const = 0;
-  /// Print the implementation struct of this volume to an outstream
-  virtual void PrintImplementationType(std::ostream &os) const = 0;
-  /// Print the unplaced type to an outstream
-  virtual void PrintUnplacedType(std::ostream &os) const = 0;
 
   /// Returns translation code/enumeration of the placed volume
   virtual int GetTransCode() const { return translation::kGeneric; }

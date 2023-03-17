@@ -31,26 +31,6 @@ struct GenericPolyconeImplementation {
   using UnplacedStruct_t = GenericPolyconeStruct<Precision>;
   using UnplacedVolume_t = UnplacedGenericPolycone;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &st)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &st)
-  {
-    (void)st;
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
-  {
-    st << "UnplacedGenericPolycone";
-  }
-
   template <typename Real_v, bool ForInside>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void GenericKernelForASection(
       UnplacedStruct_t const &unplaced, int isect, Vector3D<Real_v> const &polyconePoint,

@@ -41,24 +41,6 @@ struct TrapezoidImplementation {
   using TrapSidePlane = TrapezoidStruct<Precision>::TrapSidePlane;
 #endif
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &)
-  {
-  }
-
 #ifdef VECGEOM_PLANESHELL_DISABLE
   template <typename Real_v>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void EvaluateTrack(UnplacedStruct_t const &unplaced,

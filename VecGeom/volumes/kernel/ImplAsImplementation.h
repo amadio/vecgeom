@@ -21,27 +21,6 @@ struct IndirectImplementation {
   using UnplacedStruct_t = typename DispatchingImplementation::UnplacedStruct_t;
   using UnplacedVolume_t = UnplVol_t;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &st)
-  {
-    DispatchingImplementation::PrintType(st);
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &st)
-  {
-    (void)st;
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &st)
-  {
-    (void)st;
-  }
-
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(UnplacedStruct_t const &s,
                                                                     Vector3D<Real_v> const &point, Bool_v &inside)

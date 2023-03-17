@@ -29,19 +29,6 @@ Vector3D<Precision> VUnplacedVolume::SamplePointOnSurface() const
 // trivial implementations for the interface functions
 // (since we are moving to these interfaces only gradually)
 
-// ---------------- DistanceToOut functions -----------------------------------------------------
-
-// the USolid/GEANT4-like interface for DistanceToOut (returning also exiting normal)
-VECCORE_ATT_HOST_DEVICE
-Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                         Vector3D<Precision> &normal, bool &convex, Precision step_max) const
-{
-#ifndef VECCORE_CUDA
-  throw std::runtime_error("unimplemented function called");
-#endif
-  return -1.;
-}
-
 // ---------------- Normal ---------------------------------------------------------------------
 VECCORE_ATT_HOST_DEVICE
 bool VUnplacedVolume::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const

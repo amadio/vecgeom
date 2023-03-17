@@ -657,25 +657,6 @@ struct TorusImplementation2 {
     }
   }
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() { printf("SpecializedTorus2"); }
-
-  template <typename Stream>
-  static void PrintType(Stream &)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &s)
-  {
-    s << "UnplacedTorus2";
-  }
-
 }; // end struct
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

@@ -226,24 +226,6 @@ struct TrdImplementation {
   using UnplacedVolume_t = SUnplacedTrd<trdTypeT>;
   using PlacedShape_t    = SPlacedTrd<UnplacedVolume_t>;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream & /*s*/)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream & /*s*/)
-  {
-  }
-
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void UnplacedContains(UnplacedStruct_t const &trd,
                                                                             Vector3D<Real_v> const &point,

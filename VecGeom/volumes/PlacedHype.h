@@ -49,15 +49,15 @@ public:
   virtual ~PlacedHype() {}
 
   VECCORE_ATT_HOST_DEVICE
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &os) const override;
+
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   UnplacedHype const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedHype const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
-
-  VECCORE_ATT_HOST_DEVICE
-  virtual void PrintType() const override;
-  virtual void PrintType(std::ostream &s) const override;
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE

@@ -27,7 +27,7 @@ VPlacedVolume const *PlacedSphere::ConvertToUnspecialized() const
 }
 #endif // VECCORE_CUDA
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -35,4 +35,4 @@ VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedSphere)
 
 #endif // VECCORE_CUDA
 
-} // End global namespace
+} // namespace vecgeom

@@ -22,25 +22,6 @@ struct BooleanImplementation<kUnion> {
   using UnplacedVolume_t = UnplacedBooleanVolume<kUnion>;
   using UnplacedStruct_t = BooleanStruct;
 
-  VECCORE_ATT_HOST_DEVICE
-  static void PrintType() {}
-
-  template <typename Stream>
-  static void PrintType(Stream &s)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintImplementationType(Stream &s)
-  {
-  }
-
-  template <typename Stream>
-  static void PrintUnplacedType(Stream &s)
-  {
-    s << "UnplacedBooleanVolume";
-  }
-
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void Contains(BooleanStruct const &unplaced,
                                                                     Vector3D<Real_v> const &point, Bool_v &inside)

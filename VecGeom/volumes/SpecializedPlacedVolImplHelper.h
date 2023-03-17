@@ -78,13 +78,6 @@ public:
   virtual int MemorySize() const override { return sizeof(*this); }
 
   VECCORE_ATT_HOST_DEVICE
-  virtual void PrintType() const override { Specialization::PrintType(); }
-
-  virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os); }
-  virtual void PrintImplementationType(std::ostream &os) const override { Specialization::PrintImplementationType(os); }
-  virtual void PrintUnplacedType(std::ostream &os) const override { Specialization::PrintUnplacedType(os); }
-
-  VECCORE_ATT_HOST_DEVICE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const override
   {
     Inside_t output;
