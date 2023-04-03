@@ -46,11 +46,11 @@ endfunction()
 # Download data if required
 message(STATUS "Checking data files required for tests")
 if(VECGEOM_ROOT)
-  download_if_not_installed("https://cern.ch/geant4-data/geometry/detectors/cms2015.root"
+  download_if_not_installed("https://geant4-data.web.cern.ch/geometry/detectors/cms2015.root"
     "cms2015.root"
     "${CMAKE_CURRENT_BINARY_DIR}"
     "fb3ede867532b372c5e6f7138d00c07e")
-  download_if_not_installed("https://cern.ch/geant4-data/geometry/detectors/ExN03.root"
+  download_if_not_installed("https://geant4-data.web.cern.ch/geometry/detectors/ExN03.root"
     "ExN03.root"
     "${CMAKE_CURRENT_BINARY_DIR}"
     "b6b0cfdd5035117171bfe1b7f1f40c3f")
