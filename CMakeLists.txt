@@ -457,7 +457,6 @@ set(VECGEOM_COMMON_SRCS
   source/Plane.cpp
   source/CutPlanes.cpp
   source/Quadrilaterals.cpp
-  source/Rectangles.cpp
   source/TessellatedHelpers.cpp
   source/Tile.cpp
   source/Scale3D.cpp
