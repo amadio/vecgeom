@@ -25,7 +25,6 @@
 #include "VecGeom/volumes/UnplacedBooleanVolume.h"
 #include "VecGeom/volumes/ScaledShape.h"
 #include "VecGeom/volumes/GenTrap.h"
-#include "VecGeom/base/MessageLogger.h"
 #include <sstream>
 #include <ostream>
 #include <fstream>

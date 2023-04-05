@@ -492,8 +492,6 @@ set(VECGEOM_COMMON_SRCS
   source/BVH.cpp
   source/BVHManager.cpp
 
-  source/MessageLogger.cpp
-
   source/NavigationSpecializer.cpp
 
   source/MarchingCubes.cpp
