@@ -104,7 +104,6 @@ set(TEST_EXECUTABLES_CORE
   #  services/CompNavStatePools.cpp
   core/TestMaskedAssign.cpp
   core/TestVector.cpp
-  core/TestMap.cpp
   core/TestHybridBVH.cpp
   core/TestEarlyReturns.cpp
   core/CreateTessels.cpp
@@ -261,17 +260,11 @@ endif()
 ################################################################################
 # - CUDA tests
 if(VECGEOM_ENABLE_CUDA)
-  add_executable(MapTest cuda/MapTest.cpp cuda/MapTest.cu)
-  target_link_libraries(MapTest PUBLIC vecgeomcuda_static)
-  add_test(NAME MapTest COMMAND MapTest)
-
   if(VECGEOM_GDML)
     add_executable(BVHTest cuda/BVHTest.cu cuda/BVHTest.cpp )
-    add_executable(MapTestClass cuda/MapTestClass.cpp cuda/MapTestClass.cu)
     add_executable(GeometryTest cuda/GeometryTest.cpp cuda/GeometryTest.cu)
 
     target_link_libraries(BVHTest      PUBLIC vecgeomcuda_static vgdml)
-    target_link_libraries(MapTestClass PUBLIC vecgeomcuda_static vgdml)
     target_link_libraries(GeometryTest PUBLIC vecgeomcuda_static vgdml)
 
     add_test(NAME BVHTest      COMMAND BVHTest ${PROJECT_SOURCE_DIR}/test/gdml/gdmls/trackML.gdml)
