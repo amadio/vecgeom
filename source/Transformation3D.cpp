@@ -5,7 +5,6 @@
 #ifdef VECGEOM_CUDA_INTERFACE
 #include "VecGeom/backend/cuda/Interface.h"
 #endif
-#include "VecGeom/base/SpecializedTransformation3D.h"
 
 #ifdef VECGEOM_ROOT
 #include "TGeoMatrix.h"
