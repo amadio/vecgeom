@@ -86,7 +86,6 @@ set(TEST_EXECUTABLES_CORE
   core/BitSetTest.cpp
   core/PlanesTest.cpp
   core/QuadrilateralTest.cpp
-  # core/SOATest.cpp
   core/Transformation3DTest.cpp
   # core/boolminustest.cpp
   # core/boolminustest2.cpp
