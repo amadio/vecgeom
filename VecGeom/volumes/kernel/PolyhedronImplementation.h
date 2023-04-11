@@ -342,13 +342,18 @@ VECCORE_ATT_HOST_DEVICE Real_v PolyhedronImplementation<innerRadiiT, phiCutoutT>
   // always be the correct result
   if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
     vecCore__MaskedAssignFunc(distance, !done, (segment.phi.DistanceToIn<Real_v, false>(point, direction)));
+    if (unplaced.fHasLargePhiCutout) {
+      // NOTE: The statement above is NOT always true: if fHasLargePhiCutout is false there can be a first hit of the
+      // inner surface coming from the endcap holes
+      done |= distance < InfinityLength<Real_v>();
+      if (vecCore::MaskFull(done)) return distance;
+    }
   }
-  done |= distance < InfinityLength<Real_v>();
-  if (vecCore::MaskFull(done)) return distance;
 
   // Finally treat inner shell
   if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
-    vecCore__MaskedAssignFunc(distance, !done, (segment.inner.DistanceToIn<Real_v, true>(point, direction)));
+    Real_v distrmin = segment.inner.DistanceToIn<Real_v, true>(point, direction);
+    vecCore__MaskedAssignFunc(distance, !done && distance > distrmin, distrmin);
   }
 
   return distance;
@@ -371,18 +376,22 @@ VECCORE_ATT_HOST_DEVICE Real_v PolyhedronImplementation<innerRadiiT, phiCutoutT>
   // Check inner shell first, as it would always be the correct result
   if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
     distance = segment.inner.DistanceToIn<Real_v, false>(point, direction);
-    done     = distance < InfinityLength<Real_v>();
-    if (vecCore::MaskFull(done)) return distance;
+    // Even if an inner surface is hit, there may be a phi hit before if there is no large phi cut
+    if (unplaced.fHasLargePhiCutout) {
+      done = distance < InfinityLength<Real_v>();
+      if (vecCore::MaskFull(done)) return distance;
+    }
   }
 
   // Check phi cutout if necessary. It is also possible to return here if a
   // result is found
   if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
     Real_v distphi = segment.phi.DistanceToIn<Real_v, true>(point, direction);
-    vecCore::MaskedAssign(distance, !done && distance > -kTolerance, distphi);
-    done = distance > -kTolerance && distance < InfinityLength<Real_v>();
-    if (vecCore::MaskFull(done)) return distance;
+    vecCore::MaskedAssign(distance, distance > distphi, distphi);
   }
+
+  done = distance > -kTolerance && distance < InfinityLength<Real_v>();
+  if (vecCore::MaskFull(done)) return distance;
 
   // Finally check outer shell
   Real_v distout = segment.outer.DistanceToOut<Real_v>(point, direction, zMin, zMax);
@@ -415,10 +424,9 @@ PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarSafetyToZSegmentSquared
         iSurf         = 1;
       }
       // If the point is within the phi cutout wedge, we still need to check the
-      // inner part if there is a large cutout
+      // inner part
       if (in_cutout) {
-        if (LargePhiCutout<phiCutoutT>(unplaced.fHasLargePhiCutout) &&
-            TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
+        if (TreatInner<innerRadiiT>(segment.hasInnerRadius())) {
           if (segment.inner.size() > 0) {
             Precision safetySquaredInner = segment.inner.ScalarDistanceSquared(0, point);
             if (safetySquaredInner < safetySquared) {

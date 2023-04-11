@@ -303,7 +303,7 @@ struct PolyhedronStruct {
       // no phi segment here if degenerate z;
       if (fHasPhiCutout) {
         multiplier = (zPlanes[i] == zPlanes[i + 1]) ? 0 : 1;
-        new (&fZSegments[i].phi) Quadrilaterals(2 * multiplier);
+        new (&fZSegments[i].phi) Quadrilaterals(2 * multiplier, phiDelta <= kPi);
       }
 
       multiplier = (zPlanes[i] == zPlanes[i + 1] && rMin[i] == rMin[i + 1]) ? 0 : 1;
@@ -389,18 +389,16 @@ struct PolyhedronStruct {
 
       // Draw the regular quadrilaterals along phi
       for (int iSide = 0; iSide < fZSegments[iPlane].outer.size(); ++iSide) {
-        fZSegments[iPlane].outer.Set(
-            iSide, getOuterVertex(iPlane, iSide), getOuterVertex(iPlane, iSide + 1),
-            getOuterVertex(iPlane + 1, iSide + 1), getOuterVertex(iPlane + 1, iSide));
+        fZSegments[iPlane].outer.Set(iSide, getOuterVertex(iPlane, iSide), getOuterVertex(iPlane, iSide + 1),
+                                     getOuterVertex(iPlane + 1, iSide + 1), getOuterVertex(iPlane + 1, iSide));
         // Normal has to point away from Z-axis
         if (WrongNormal(fZSegments[iPlane].outer.GetNormal(iSide), getOuterVertex(iPlane, iSide))) {
           fZSegments[iPlane].outer.FlipSign(iSide);
         }
       }
       for (int iSide = 0; iSide < fZSegments[iPlane].inner.size(); ++iSide) {
-        fZSegments[iPlane].inner.Set(
-            iSide, getInnerVertex(iPlane, iSide), getInnerVertex(iPlane, iSide + 1),
-            getInnerVertex(iPlane + 1, iSide + 1), getInnerVertex(iPlane + 1, iSide));
+        fZSegments[iPlane].inner.Set(iSide, getInnerVertex(iPlane, iSide), getInnerVertex(iPlane, iSide + 1),
+                                     getInnerVertex(iPlane + 1, iSide + 1), getInnerVertex(iPlane + 1, iSide));
         // Normal has to point away from Z-axis
         if (WrongNormal(fZSegments[iPlane].inner.GetNormal(iSide), getInnerVertex(iPlane, iSide))) {
           fZSegments[iPlane].inner.FlipSign(iSide);
@@ -417,9 +415,8 @@ struct PolyhedronStruct {
         if (fZSegments[iPlane].phi.GetNormal(0).Dot(fPhiSections[0]) > 0) {
           fZSegments[iPlane].phi.FlipSign(0);
         }
-        fZSegments[iPlane].phi.Set(
-            1, getOuterVertex(iPlane, sideCount), getOuterVertex(iPlane + 1, sideCount),
-            getInnerVertex(iPlane + 1, sideCount), getInnerVertex(iPlane, sideCount));
+        fZSegments[iPlane].phi.Set(1, getOuterVertex(iPlane, sideCount), getOuterVertex(iPlane + 1, sideCount),
+                                   getInnerVertex(iPlane + 1, sideCount), getInnerVertex(iPlane, sideCount));
         // Make sure normal points forwards along phi
         if (fZSegments[iPlane].phi.GetNormal(1).Dot(fPhiSections[fSideCount]) < 0) {
           fZSegments[iPlane].phi.FlipSign(1);
