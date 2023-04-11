@@ -181,7 +181,8 @@ bool TestPolyhedra()
 
   // Check that Inside and Contains agree for points around phi tolerance.
   {
-    Vec_t pPhiInside(20 + tolerance, 20, 5);
+    // Note: the point below is at 2 * kTolerance / sqrt(2) distance from boundary, so inside
+    Vec_t pPhiInside(20 + 2 * tolerance, 20, 5);
     std::cout << " MyPGon->Contains(" << pPhiInside << ") = " << MyPGon->Contains(pPhiInside) << "\n";
     std::cout << " MyPGon->Inside(" << pPhiInside << ") = " << MyPGon->Inside(pPhiInside) << "\n";
 
@@ -199,7 +200,8 @@ bool TestPolyhedra()
   }
 
   {
-    Vec_t pPhiOutside(20 - tolerance, 20, 5);
+    // Note: the point below is at 2 * kTolerance / sqrt(2) distance from boundary, so outside
+    Vec_t pPhiOutside(20 - 2 * tolerance, 20, 5);
     std::cout << " MyPGon->Contains(" << pPhiOutside << ") = " << MyPGon->Contains(pPhiOutside) << "\n";
     std::cout << " MyPGon->Inside(" << pPhiOutside << ") = " << MyPGon->Inside(pPhiOutside) << "\n";
 
