@@ -15,7 +15,7 @@
 #include "VecGeom/volumes/Planes.h"
 
 // Switches on/off explicit vectorization of algorithms using Vc
-//#define VECGEOM_QUADRILATERALS_VC --> now done in CMakeFile
+// #define VECGEOM_QUADRILATERALS_VC --> now done in CMakeFile
 
 namespace vecgeom {
 
@@ -40,7 +40,7 @@ public:
   typedef AOS3D<Precision> Corners_t[4];
 
   VECCORE_ATT_HOST_DEVICE
-  Quadrilaterals(int size);
+  Quadrilaterals(int size, bool convex = true);
 
   VECCORE_ATT_HOST_DEVICE
   ~Quadrilaterals();
@@ -127,35 +127,26 @@ public:
   void FlipSign(int index);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  vecCore::Mask_v<Real_v> Contains(Vector3D<Real_v> const &point) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE vecCore::Mask_v<Real_v> Contains(Vector3D<Real_v> const &point) const;
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Inside_v Inside(Vector3D<Real_v> const &point) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Inside_v Inside(Vector3D<Real_v> const &point) const;
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Inside_v Inside(Vector3D<Real_v> const &point, int i) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Inside_v Inside(Vector3D<Real_v> const &point, int i) const;
 
   template <typename Real_v, bool behindPlanesT>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Real_v DistanceToIn(Vector3D<Real_v> const &point,
+                                                                   Vector3D<Real_v> const &direction) const;
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Precision zMin,
-                       Precision zMax) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Real_v DistanceToOut(Vector3D<Real_v> const &point,
+                                                                    Vector3D<Real_v> const &direction, Precision zMin,
+                                                                    Precision zMax) const;
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Real_v DistanceToOut(Vector3D<Real_v> const &point,
+                                                                    Vector3D<Real_v> const &direction) const;
 
   /// \param index Quadrilateral to compute distance to.
   VECGEOM_FORCE_INLINE
@@ -275,22 +266,19 @@ Vector3D<Precision> Quadrilaterals::GetPointOnFace(int index) const
 }
 
 template <typename Real_v>
-VECCORE_ATT_HOST_DEVICE
-vecCore::Mask_v<Real_v> Quadrilaterals::Contains(Vector3D<Real_v> const &point) const
+VECCORE_ATT_HOST_DEVICE vecCore::Mask_v<Real_v> Quadrilaterals::Contains(Vector3D<Real_v> const &point) const
 {
   return fPlanes.Contains<Real_v>(point);
 }
 
 template <typename Real_v, typename Inside_v>
-VECCORE_ATT_HOST_DEVICE
-Inside_v Quadrilaterals::Inside(Vector3D<Real_v> const &point) const
+VECCORE_ATT_HOST_DEVICE Inside_v Quadrilaterals::Inside(Vector3D<Real_v> const &point) const
 {
   return fPlanes.Inside<Real_v, Inside_v>(point);
 }
 
 template <typename Real_v, typename Inside_v>
-VECCORE_ATT_HOST_DEVICE
-Inside_v Quadrilaterals::Inside(Vector3D<Real_v> const &point, int i) const
+VECCORE_ATT_HOST_DEVICE Inside_v Quadrilaterals::Inside(Vector3D<Real_v> const &point, int i) const
 {
   return fPlanes.Inside<Real_v, Inside_v>(point, i);
 }
@@ -300,11 +288,9 @@ namespace {
 template <class Real_v>
 struct AcceleratedDistanceToIn {
   template <bool behindPlanesT>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void VectorLoop(int & /*i*/, const int /*n*/, Planes const & /*planes*/, Planes const (&/*sideVectors*/)[4],
-                         Vector3D<Real_v> const & /*point*/, Vector3D<Real_v> const & /*direction*/,
-                         Real_v & /*distance*/)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void VectorLoop(
+      int & /*i*/, const int /*n*/, Planes const & /*planes*/, Planes const (&/*sideVectors*/)[4],
+      Vector3D<Real_v> const & /*point*/, Vector3D<Real_v> const & /*direction*/, Real_v & /*distance*/)
   {
     // Do nothing if not scalar backend
     return;
@@ -316,10 +302,11 @@ template <>
 struct AcceleratedDistanceToIn<Precision> {
 
   template <bool behindPlanesT>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void VectorLoop(int &i, const int n, Planes const &planes, Planes const (&sideVectors)[4],
-                         Vector3D<Precision> const &point, Vector3D<Precision> const &direction, Precision &distance)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE static void VectorLoop(int &i, const int n, Planes const &planes,
+                                                                      Planes const (&sideVectors)[4],
+                                                                      Vector3D<Precision> const &point,
+                                                                      Vector3D<Precision> const &direction,
+                                                                      Precision &distance)
   {
 
     // Explicitly vectorize over quadrilaterals using Vc
@@ -366,8 +353,8 @@ struct AcceleratedDistanceToIn<Precision> {
 } // End anonymous namespace
 
 template <typename Real_v, bool behindPlanesT>
-VECCORE_ATT_HOST_DEVICE
-Real_v Quadrilaterals::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const
+VECCORE_ATT_HOST_DEVICE Real_v Quadrilaterals::DistanceToIn(Vector3D<Real_v> const &point,
+                                                            Vector3D<Real_v> const &direction) const
 {
 
   // Looks for the shortest distance to one of the quadrilaterals.
@@ -420,12 +407,10 @@ Real_v Quadrilaterals::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real
 namespace {
 
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void AcceleratedDistanceToOut(int & /*i*/, const int /*n*/, Planes const & /*planes*/,
-                              Planes const (&/*sideVectors*/)[4], const Precision /*zMin*/, const Precision /*zMax*/,
-                              Vector3D<Real_v> const & /*point*/, Vector3D<Real_v> const & /*direction*/,
-                              Real_v & /*distance*/)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedDistanceToOut(
+    int & /*i*/, const int /*n*/, Planes const & /*planes*/, Planes const (&/*sideVectors*/)[4],
+    const Precision /*zMin*/, const Precision /*zMax*/, Vector3D<Real_v> const & /*point*/,
+    Vector3D<Real_v> const & /*direction*/, Real_v & /*distance*/)
 {
   // Do nothing if the backend is not scalar
   return;
@@ -433,11 +418,9 @@ void AcceleratedDistanceToOut(int & /*i*/, const int /*n*/, Planes const & /*pla
 
 #if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void AcceleratedDistanceToOut<Precision>(int &i, const int n, Planes const &planes, Planes const (&sideVectors)[4],
-                                         const Precision zMin, const Precision zMax, Vector3D<Precision> const &point,
-                                         Vector3D<Precision> const &direction, Precision &distance)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedDistanceToOut<Precision>(
+    int &i, const int n, Planes const &planes, Planes const (&sideVectors)[4], const Precision zMin,
+    const Precision zMax, Vector3D<Precision> const &point, Vector3D<Precision> const &direction, Precision &distance)
 {
 
   // Explicitly vectorize over quadrilaterals using Vc
@@ -487,9 +470,9 @@ void AcceleratedDistanceToOut<Precision>(int &i, const int n, Planes const &plan
 } // End anonymous namespace
 
 template <typename Real_v>
-VECCORE_ATT_HOST_DEVICE
-Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Precision zMin,
-                                     Precision zMax) const
+VECCORE_ATT_HOST_DEVICE Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point,
+                                                             Vector3D<Real_v> const &direction, Precision zMin,
+                                                             Precision zMax) const
 {
 
   // The below computes the distance to the quadrilaterals similar to
@@ -544,8 +527,8 @@ Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Rea
 }
 
 template <typename Real_v>
-VECCORE_ATT_HOST_DEVICE
-Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const
+VECCORE_ATT_HOST_DEVICE Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point,
+                                                             Vector3D<Real_v> const &direction) const
 {
   return DistanceToOut<Real_v>(point, direction, -InfinityLength<Real_v>(), InfinityLength<Real_v>());
 }

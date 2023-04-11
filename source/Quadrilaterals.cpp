@@ -8,16 +8,16 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECCORE_ATT_HOST_DEVICE
-Quadrilaterals::Quadrilaterals(int size)
-    : fPlanes(size), fSideVectors{{size}, {size}, {size}, {size}},
-      fCorners{{(size_t)size}, {(size_t)size}, {(size_t)size}, {(size_t)size}}
+Quadrilaterals::Quadrilaterals(int size, bool convex)
+    : fPlanes(size, convex), fSideVectors{{size}, {size}, {size}, {size}}, fCorners{{(size_t)size},
+                                                                                    {(size_t)size},
+                                                                                    {(size_t)size},
+                                                                                    {(size_t)size}}
 {
 }
 
 VECCORE_ATT_HOST_DEVICE
-Quadrilaterals::~Quadrilaterals()
-{
-}
+Quadrilaterals::~Quadrilaterals() {}
 
 VECCORE_ATT_HOST_DEVICE
 Quadrilaterals &Quadrilaterals::operator=(Quadrilaterals const &other)
@@ -99,7 +99,6 @@ void Quadrilaterals::Set(int index, Vector3D<Precision> const &corner0, Vector3D
 
   auto ComputeSideVector = [&index, &normal](Planes &sideVectors, Vector3D<Precision> const &c0,
                                              Vector3D<Precision> const &c1) {
-
     // protect against degenerate points
     if (!(c1 == c0)) {
       Vector3D<Precision> sideVector = normal.Cross(c1 - c0).Normalized();
@@ -149,6 +148,6 @@ std::ostream &operator<<(std::ostream &os, Quadrilaterals const &quads)
   return os;
 }
 
-} // End inline impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 } // End namespace vecgeom

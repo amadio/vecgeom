@@ -4,14 +4,10 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECCORE_ATT_HOST_DEVICE
-Planes::Planes(int size) : fNormals(size), fDistances(size)
-{
-}
+Planes::Planes(int size, bool convex) : fNormals(size), fDistances(size), fConvex(convex) {}
 
 VECCORE_ATT_HOST_DEVICE
-Planes::~Planes()
-{
-}
+Planes::~Planes() {}
 
 VECCORE_ATT_HOST_DEVICE
 Planes &Planes::operator=(Planes const &rhs)
@@ -20,7 +16,7 @@ Planes &Planes::operator=(Planes const &rhs)
   fNormals   = rhs.fNormals;
   fDistances = rhs.fDistances;
 #else
-  fNormals = SOA3D<Precision>(const_cast<Precision *>(rhs.fNormals.x()), const_cast<Precision *>(rhs.fNormals.y()),
+  fNormals   = SOA3D<Precision>(const_cast<Precision *>(rhs.fNormals.x()), const_cast<Precision *>(rhs.fNormals.y()),
                               const_cast<Precision *>(rhs.fNormals.z()), rhs.fNormals.size());
   fDistances = Array<Precision>(const_cast<Precision *>(&rhs.fDistances[0]), rhs.fDistances.size());
 #endif
@@ -59,6 +55,6 @@ std::ostream &operator<<(std::ostream &os, Planes const &planes)
   return os;
 }
 
-} // End inline implementation namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom

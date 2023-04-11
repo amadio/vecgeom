@@ -30,10 +30,11 @@ class Planes : public AlignedBase {
 private:
   SOA3D<Precision> fNormals;   ///< Normalized normals of the planes.
   Array<Precision> fDistances; ///< Distance from plane to origin (0, 0, 0).
+  bool fConvex{true};          ///< Convexity of the planes array (drives the inside reduction)
 
 public:
   VECCORE_ATT_HOST_DEVICE
-  Planes(int size);
+  Planes(int size, bool convex = true);
 
   VECCORE_ATT_HOST_DEVICE
   ~Planes();
@@ -74,6 +75,10 @@ public:
   Precision GetDistance(int i) const;
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  bool IsConvex() const { return fConvex; }
+
+  VECCORE_ATT_HOST_DEVICE
   void Set(int index, Vector3D<Precision> const &normal, Vector3D<Precision> const &origin);
 
   VECCORE_ATT_HOST_DEVICE
@@ -84,29 +89,20 @@ public:
   void FlipSign(int index);
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  vecCore::Mask_v<Real_v> Contains(Vector3D<Real_v> const &point) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE vecCore::Mask_v<Real_v> Contains(Vector3D<Real_v> const &point) const;
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Inside_v Inside(Vector3D<Real_v> const &point) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Inside_v Inside(Vector3D<Real_v> const &point) const;
 
   template <typename Real_v, typename Inside_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Inside_v Inside(Vector3D<Real_v> const &point, int i) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Inside_v Inside(Vector3D<Real_v> const &point, int i) const;
 
   template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Real_v Distance(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Real_v Distance(Vector3D<Real_v> const &point,
+                                                               Vector3D<Real_v> const &direction) const;
 
   template <bool pointInsideT, typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  Real_v Distance(Vector3D<Real_v> const &point) const;
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Real_v Distance(Vector3D<Real_v> const &point) const;
 };
 
 std::ostream &operator<<(std::ostream &os, Planes const &planes);
@@ -153,30 +149,47 @@ Precision Planes::GetDistance(int i) const
 
 namespace {
 
-template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void AcceleratedContains(int & /*i*/, const int /*n*/, SOA3D<Precision> const & /*normals*/,
-                         Array<Precision> const & /*distances*/, Vector3D<Real_v> const & /*point*/,
-                         vecCore::Mask_v<Real_v> & /*result*/)
+template <typename Real_v, bool Convex = true>
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedContains(int & /*i*/, const int /*n*/,
+                                                                      SOA3D<Precision> const & /*normals*/,
+                                                                      Array<Precision> const & /*distances*/,
+                                                                      Vector3D<Real_v> const & /*point*/,
+                                                                      vecCore::Mask_v<Real_v> & /*result*/)
 {
   return;
 }
 
 #if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void AcceleratedContains<Precision>(int &i, const int n, SOA3D<Precision> const &normals,
-                                    Array<Precision> const &distances, Vector3D<Precision> const &point,
-                                    vecCore::Mask_v<double> &result)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedContains<Precision, true>(
+    int &i, const int n, SOA3D<Precision> const &normals, Array<Precision> const &distances,
+    Vector3D<Precision> const &point, vecCore::Mask_v<double> &result)
 {
   for (; i < n - kVectorSize; i += kVectorSize) {
-    VcBool valid = VcPrecision(normals.x() + i) * point[0] + VcPrecision(normals.y() + i) * point[1] +
-                       VcPrecision(normals.z() + i) * point[2] + VcPrecision(&distances[0] + i) <
-                   0;
-    result = vecCore::MaskFull(valid);
+    VcBool inside = VcPrecision(normals.x() + i) * point[0] + VcPrecision(normals.y() + i) * point[1] +
+                        VcPrecision(normals.z() + i) * point[2] + VcPrecision(&distances[0] + i) <
+                    0;
+    // Early return if not inside all planes (convex case)
+    result = vecCore::MaskFull(inside);
     if (!result) {
+      i = n;
+      break;
+    }
+  }
+}
+
+template <>
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedContains<Precision, false>(
+    int &i, const int n, SOA3D<Precision> const &normals, Array<Precision> const &distances,
+    Vector3D<Precision> const &point, vecCore::Mask_v<double> &result)
+{
+  for (; i < n - kVectorSize; i += kVectorSize) {
+    VcBool inside = VcPrecision(normals.x() + i) * point[0] + VcPrecision(normals.y() + i) * point[1] +
+                        VcPrecision(normals.z() + i) * point[2] + VcPrecision(&distances[0] + i) <
+                    0;
+    // Early return ifinside any planes (non-convex case)
+    result = !vecCore::MaskEmpty(inside);
+    if (result) {
       i = n;
       break;
     }
@@ -187,18 +200,24 @@ void AcceleratedContains<Precision>(int &i, const int n, SOA3D<Precision> const 
 } // End anonymous namespace
 
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-vecCore::Mask_v<Real_v> Planes::Contains(Vector3D<Real_v> const &point) const
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE vecCore::Mask_v<Real_v> Planes::Contains(
+    Vector3D<Real_v> const &point) const
 {
 
   vecCore::Mask_v<Real_v> result = vecCore::Mask_v<Real_v>(true);
 
   int i       = 0;
   const int n = size();
-  AcceleratedContains<Real_v>(i, n, fNormals, fDistances, point, result);
-  for (; i < n; ++i) {
-    result &= point.Dot(fNormals[i]) + fDistances[i] < 0;
+  if (fConvex) {
+    AcceleratedContains<Real_v, true>(i, n, fNormals, fDistances, point, result);
+    for (; i < n; ++i) {
+      result &= point.Dot(fNormals[i]) + fDistances[i] < 0;
+    }
+  } else {
+    AcceleratedContains<Real_v, false>(i, n, fNormals, fDistances, point, result);
+    for (; i < n; ++i) {
+      result |= point.Dot(fNormals[i]) + fDistances[i] < 0;
+    }
   }
 
   return result;
@@ -206,23 +225,21 @@ vecCore::Mask_v<Real_v> Planes::Contains(Vector3D<Real_v> const &point) const
 
 namespace {
 
-template <typename Real_v, typename Inside_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void AcceleratedInside(int & /*i*/, const int /*n*/, SOA3D<Precision> const & /*normals*/,
-                       Array<Precision> const & /*distances*/, Vector3D<Real_v> const & /*point*/,
-                       Inside_v & /*result*/)
+template <typename Real_v, typename Inside_v, bool Convex = true>
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedInside(int & /*i*/, const int /*n*/,
+                                                                    SOA3D<Precision> const & /*normals*/,
+                                                                    Array<Precision> const & /*distances*/,
+                                                                    Vector3D<Real_v> const & /*point*/,
+                                                                    Inside_v & /*result*/)
 {
   return;
 }
 
 #if defined(VECGEOM_VC) and defined(VECGEOM_QUADRILATERALS_VC)
 template <>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void AcceleratedInside<Precision, Inside_t>(int &i, const int n, SOA3D<Precision> const &normals,
-                                            Array<Precision> const &distances, Vector3D<Precision> const &point,
-                                            Inside_t &result)
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedInside<Precision, Inside_t, true>(
+    int &i, const int n, SOA3D<Precision> const &normals, Array<Precision> const &distances,
+    Vector3D<Precision> const &point, Inside_t &result)
 {
   for (; i < n - kVectorSize; i += kVectorSize) {
     VcPrecision distance = VcPrecision(normals.x() + i) * point[0] + VcPrecision(normals.y() + i) * point[1] +
@@ -239,52 +256,80 @@ void AcceleratedInside<Precision, Inside_t>(int &i, const int n, SOA3D<Precision
     result = EInside::kSurface;
   }
 }
+
+template <>
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedInside<Precision, Inside_t, false>(
+    int &i, const int n, SOA3D<Precision> const &normals, Array<Precision> const &distances,
+    Vector3D<Precision> const &point, Inside_t &result)
+{
+  for (; i < n - kVectorSize; i += kVectorSize) {
+    VcPrecision distance = VcPrecision(normals.x() + i) * point[0] + VcPrecision(normals.y() + i) * point[1] +
+                           VcPrecision(normals.z() + i) * point[2] + VcPrecision(&distances[0] + i);
+    // If point is inside tolerance of any plane, it is safe to return
+    if (!vecCore::MaskEmpty(distance < -kTolerance)) {
+      result = EInside::kInside;
+      i      = n;
+      break;
+    }
+    // If point is outside tolerance of all planes, keep looking
+    if (vecCore::MaskFull(distance > kTolerance)) continue;
+    // Otherwise point must be on a surface, but could still be outside
+    result = EInside::kSurface;
+  }
+}
 #endif
 
 } // End anonymous namespace
 
 template <typename Real_v, typename Inside_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-Inside_v Planes::Inside(Vector3D<Real_v> const &point) const
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Inside_v Planes::Inside(Vector3D<Real_v> const &point) const
 {
-  Inside_v result = Inside_v(EInside::kInside);
+  Inside_v result = fConvex ? Inside_v(EInside::kInside) : Inside_v(EInside::kOutside);
 
   int i       = 0;
   const int n = size();
-  AcceleratedInside<Real_v, Inside_v>(i, n, fNormals, fDistances, point, result);
-  for (; i < n; ++i) {
-    Real_v distanceResult =
-        fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
-    vecCore::MaskedAssign(result, distanceResult > Real_v(kHalfTolerance), EInside::kOutside);
-    vecCore::MaskedAssign(result, result == Inside_v(EInside::kInside) && distanceResult > Real_v(-kHalfTolerance),
-                          Inside_v(EInside::kSurface));
-    if (vecCore::MaskFull(result == Inside_v(EInside::kOutside))) break;
+  if (fConvex) {
+    AcceleratedInside<Real_v, Inside_v, true>(i, n, fNormals, fDistances, point, result);
+    for (; i < n; ++i) {
+      Real_v distanceResult =
+          fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
+      vecCore::MaskedAssign(result, distanceResult > Real_v(kTolerance), EInside::kOutside);
+      vecCore::MaskedAssign(result, result == Inside_v(EInside::kInside) && distanceResult > Real_v(-kTolerance),
+                            Inside_v(EInside::kSurface));
+      if (vecCore::MaskFull(result == Inside_v(EInside::kOutside))) break;
+    }
+  } else {
+    AcceleratedInside<Real_v, Inside_v, false>(i, n, fNormals, fDistances, point, result);
+    for (; i < n; ++i) {
+      Real_v distanceResult =
+          fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
+      vecCore::MaskedAssign(result, distanceResult < Real_v(-kTolerance), EInside::kInside);
+      vecCore::MaskedAssign(result, result == Inside_v(EInside::kOutside) && distanceResult < Real_v(kTolerance),
+                            Inside_v(EInside::kSurface));
+      if (vecCore::MaskFull(result == Inside_v(EInside::kInside))) break;
+    }
   }
 
   return result;
 }
 
 template <typename Real_v, typename Inside_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-Inside_v Planes::Inside(Vector3D<Real_v> const &point, int i) const
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Inside_v Planes::Inside(Vector3D<Real_v> const &point, int i) const
 {
 
   Inside_v result = Inside_v(EInside::kInside);
   Real_v distanceResult =
       fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
-  vecCore::MaskedAssign(result, distanceResult > Real_v(kHalfTolerance), Inside_v(EInside::kOutside));
-  vecCore::MaskedAssign(result, result == Inside_v(EInside::kInside) && distanceResult > Real_v(-kHalfTolerance),
+  vecCore::MaskedAssign(result, distanceResult > Real_v(kTolerance), Inside_v(EInside::kOutside));
+  vecCore::MaskedAssign(result, result == Inside_v(EInside::kInside) && distanceResult > Real_v(-kTolerance),
                         Inside_v(EInside::kSurface));
 
   return result;
 }
 
 template <typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-Real_v Planes::Distance(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Real_v Planes::Distance(Vector3D<Real_v> const &point,
+                                                                     Vector3D<Real_v> const &direction) const
 {
 
   Real_v bestDistance = InfinityLength<Real_v>();
@@ -298,9 +343,7 @@ Real_v Planes::Distance(Vector3D<Real_v> const &point, Vector3D<Real_v> const &d
 }
 
 template <bool pointInsideT, typename Real_v>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-Real_v Planes::Distance(Vector3D<Real_v> const &point) const
+VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE Real_v Planes::Distance(Vector3D<Real_v> const &point) const
 {
 
   Real_v bestDistance = InfinityLength<Real_v>();
@@ -311,8 +354,8 @@ Real_v Planes::Distance(Vector3D<Real_v> const &point) const
   return bestDistance;
 }
 
-} // End inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLANES_H_
