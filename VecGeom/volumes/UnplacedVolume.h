@@ -172,8 +172,9 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision ApproachSolid(Vector3D<Precision> const &point, Vector3D<Precision> const &invDir) const
   {
-    return BoxImplementation::IntersectCachedKernel2<Precision, Precision>(
+    Precision distance = BoxImplementation::IntersectCachedKernel2<Precision, Precision>(
         fBBox, point, invDir, invDir.x() < 0, invDir.y() < 0, invDir.z() < 0, 0, kInfLength);
+    return vecCore::math::Max(distance, Precision(0));
   }
 
   /*!
