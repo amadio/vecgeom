@@ -27,13 +27,22 @@ UnplacedPolyhedron *WithInnerRadii()
   return new UnplacedPolyhedron(5, nPlanes, zPlanes, rInner, rOuter);
 }
 
-UnplacedPolyhedron *WithPhiSection()
+UnplacedPolyhedron *WithPhiSectionConvex()
 {
   constexpr int nPlanes      = 5;
   Precision zPlanes[nPlanes] = {-4, -1, 0, 1, 4};
   Precision rInner[nPlanes]  = {1, 0.75, 0.5, 0.75, 1};
   Precision rOuter[nPlanes]  = {1.5, 1.5, 1.5, 1.5, 1.5};
   return new UnplacedPolyhedron(15 * kDegToRad, 45 * kDegToRad, 5, nPlanes, zPlanes, rInner, rOuter);
+}
+
+UnplacedPolyhedron *WithPhiSectionNonConvex()
+{
+  constexpr int nPlanes      = 5;
+  Precision zPlanes[nPlanes] = {-4, -1, 0, 1, 4};
+  Precision rInner[nPlanes]  = {1, 0.75, 0.5, 0.75, 1};
+  Precision rOuter[nPlanes]  = {1.5, 1.5, 1.5, 1.5, 1.5};
+  return new UnplacedPolyhedron(15 * kDegToRad, 340 * kDegToRad, 5, nPlanes, zPlanes, rInner, rOuter);
 }
 
 UnplacedPolyhedron *ManySegments()
@@ -45,27 +54,36 @@ UnplacedPolyhedron *ManySegments()
   return new UnplacedPolyhedron(6, nPlanes, zPlanes, rInner, rOuter);
 }
 
+UnplacedPolyhedron *SameZsection()
+{
+  constexpr int nPlanes      = 5;
+  Precision zPlanes[nPlanes] = {-2, -1, 1, 1, 2};
+  Precision rInner[nPlanes]  = {0, 1, 0.5, 1, 0};
+  Precision rOuter[nPlanes]  = {1, 2, 2, 2.5, 1};
+  return new UnplacedPolyhedron(15 * kDegToRad, 340 * kDegToRad, 5, nPlanes, zPlanes, rInner, rOuter);
+};
+
 int main(int argc, char *argv[])
 {
 
-  OPTION_INT(npoints, 1024);
+  OPTION_INT(npoints, 10000);
   OPTION_INT(nrep, 4);
   // Polyhedron type:
   //   0=NoInnerRadii
   //   1=WithInnerRadii
-  //   2=WithPhiSection
-  //   3=ManySegments
-  OPTION_INT(type, 2);
+  //   2=WithPhiSectionConvex
+  //   3=WithPhiSectionNonConvex
+  //   4=ManySegments
+  //   5=SameZsection
+  OPTION_INT(type, 3);
 
-  UnplacedBox worldUnplaced = UnplacedBox(10, 10, 10);
+  UnplacedBox worldUnplaced = UnplacedBox(5, 5, 10);
 
   auto RunBenchmark = [&worldUnplaced](UnplacedPolyhedron const *shape, char const *label, int npoints,
                                        int nrep) -> int {
     LogicalVolume logical("pgon", shape);
-    // VPlacedVolume *placed = logical.Place();
     LogicalVolume worldLogical(&worldUnplaced);
-    //   worldLogical.PlaceDaughter(placed);
-    Transformation3D transformation(5, 5, 5);
+    Transformation3D transformation(0, 0, 0);
     worldLogical.PlaceDaughter("pgonplaced", &logical, &transformation);
     GeoManager::Instance().SetWorldAndClose(worldLogical.Place());
 
@@ -97,13 +115,21 @@ int main(int argc, char *argv[])
     std::cout << "________________________________________________________________________________\n";
     return RunBenchmark(WithInnerRadii(), "polyhedron_with-inner-radii.csv", npoints, nrep);
   case 2:
-    std::cout << "Testing WithPhiSection with npoints = " << npoints << " nrep = " << nrep << std::endl;
+    std::cout << "Testing WithPhiSectionConvex with npoints = " << npoints << " nrep = " << nrep << std::endl;
     std::cout << "________________________________________________________________________________\n";
-    return RunBenchmark(ManySegments(), "polyhedron_many-segments.csv", npoints, nrep);
+    return RunBenchmark(WithPhiSectionConvex(), "polyhedron_phi-section-conv.csv", npoints, nrep);
   case 3:
+    std::cout << "Testing WithPhiSectionNonConvex with npoints = " << npoints << " nrep = " << nrep << std::endl;
+    std::cout << "________________________________________________________________________________\n";
+    return RunBenchmark(WithPhiSectionNonConvex(), "polyhedron_phi-section-non-conv.csv", npoints, nrep);
+  case 4:
     std::cout << "Testing ManySegments with npoints = " << npoints << " nrep = " << nrep << std::endl;
     std::cout << "________________________________________________________________________________\n";
-    return RunBenchmark(WithPhiSection(), "polyhedron_phi-section.csv", npoints, nrep);
+    return RunBenchmark(ManySegments(), "polyhedron_many-segments.csv", npoints, nrep);
+  case 5:
+    std::cout << "Testing SameZsection with npoints = " << npoints << " nrep = " << nrep << std::endl;
+    std::cout << "________________________________________________________________________________\n";
+    return RunBenchmark(SameZsection(), "polyhedron_sameZsection.csv", npoints, nrep);
   default:
     std::cout << "Unknown polyhedron type." << std::endl;
   }

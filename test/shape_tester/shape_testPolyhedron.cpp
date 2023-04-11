@@ -19,33 +19,86 @@ int main(int argc, char *argv[])
   OPTION_INT(npoints, 10000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
-  OPTION_INT(type, 0);
+  OPTION_INT(type, 5);
   using namespace vecgeom;
 
   Polyhedron_t *solid = 0;
 
-  switch (type) {
-  case 0: {
-    // Non-zero alpha, theta, phi
-    std::cout << "Testing polyhedron #0\n";
-    Precision phiStart = 0., deltaPhi = 120. * kDegToRad;
-    int sides                  = 4;
+  auto NoInnerRadii = []() {
+    constexpr int nPlanes      = 5;
+    Precision zPlanes[nPlanes] = {-4, -2, 0, 2, 4};
+    Precision rInner[nPlanes]  = {0, 0, 0, 0, 0};
+    Precision rOuter[nPlanes]  = {2, 3, 2, 3, 2};
+    return new Polyhedron_t("NoInnerRadii", 5, nPlanes, zPlanes, rInner, rOuter);
+  };
+
+  auto WithInnerRadii = []() {
+    constexpr int nPlanes      = 5;
+    Precision zPlanes[nPlanes] = {-4, -1, 0, 1, 4};
+    Precision rInner[nPlanes]  = {1, 0.75, 0.5, 0.75, 1};
+    Precision rOuter[nPlanes]  = {1.5, 1.5, 1.5, 1.5, 1.5};
+    return new Polyhedron_t("WithInnerRadii", 5, nPlanes, zPlanes, rInner, rOuter);
+  };
+
+  auto WithPhiSectionConvex = []() {
+    constexpr int nPlanes      = 5;
+    Precision zPlanes[nPlanes] = {-4, -1, 0, 1, 4};
+    Precision rInner[nPlanes]  = {1, 0.75, 0.5, 0.75, 1};
+    Precision rOuter[nPlanes]  = {1.5, 1.5, 1.5, 1.5, 1.5};
+    return new Polyhedron_t("WithPhiSectionConvex", 15 * kDegToRad, 45 * kDegToRad, 5, nPlanes, zPlanes, rInner,
+                            rOuter);
+  };
+
+  auto WithPhiSectionNonConvex = []() {
+    constexpr int nPlanes      = 5;
+    Precision zPlanes[nPlanes] = {-4, -1, 0, 1, 4};
+    Precision rInner[nPlanes]  = {1, 0.75, 0.5, 0.75, 1};
+    Precision rOuter[nPlanes]  = {1.5, 1.5, 1.5, 1.5, 1.5};
+    return new Polyhedron_t("WithPhiSectionNonConvex", 15 * kDegToRad, 340 * kDegToRad, 5, nPlanes, zPlanes, rInner,
+                            rOuter);
+  };
+
+  auto ManySegments = []() {
+    constexpr int nPlanes      = 17;
+    Precision zPlanes[nPlanes] = {-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8};
+    Precision rInner[nPlanes]  = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    Precision rOuter[nPlanes]  = {2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2};
+    return new Polyhedron_t("ManySegments", 6, nPlanes, zPlanes, rInner, rOuter);
+  };
+
+  auto SameZsection = []() {
     constexpr int nPlanes      = 5;
     Precision zPlanes[nPlanes] = {-2, -1, 1, 1, 2};
     Precision rInner[nPlanes]  = {0, 1, 0.5, 1, 0};
     Precision rOuter[nPlanes]  = {1, 2, 2, 2.5, 1};
-    solid = new Polyhedron_t("test_VecGeomPolyhedron", phiStart, deltaPhi, sides, nPlanes, zPlanes, rInner, rOuter);
-  } break;
+    return new Polyhedron_t("SameZsection", 15 * kDegToRad, 340 * kDegToRad, 5, nPlanes, zPlanes, rInner, rOuter);
+  };
+
+  switch (type) {
+  case 0:
+    solid = NoInnerRadii();
+    break;
   case 1:
-    // Polyhedron degenerated to box
-    std::cout << "NOT implemented polyhedron #1\n";
-    return 1;
+    solid = WithInnerRadii();
+    break;
+  case 2:
+    solid = WithPhiSectionConvex();
+    break;
+  case 3:
+    solid = WithPhiSectionNonConvex();
+    break;
+  case 4:
+    solid = ManySegments();
+    break;
+  case 5:
+    solid = SameZsection();
     break;
   default:
     std::cout << "Unknown test case.\n";
   }
 
   if (!solid) return 0;
+  std::cout << "Testing polyhedron: " << solid->GetName() << "\n";
 
   ShapeTester<vecgeom::VPlacedVolume> tester;
   tester.setDebug(debug);
