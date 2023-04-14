@@ -149,7 +149,7 @@ Precision Planes::GetDistance(int i) const
 
 namespace {
 
-template <typename Real_v, bool Convex = true>
+template <typename Real_v, bool = true>
 VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedContains(int & /*i*/, const int /*n*/,
                                                                       SOA3D<Precision> const & /*normals*/,
                                                                       Array<Precision> const & /*distances*/,
@@ -225,7 +225,7 @@ VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE vecCore::Mask_v<Real_v> Planes::Con
 
 namespace {
 
-template <typename Real_v, typename Inside_v, bool Convex = true>
+template <typename Real_v, typename Inside_v, bool = true>
 VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE void AcceleratedInside(int & /*i*/, const int /*n*/,
                                                                     SOA3D<Precision> const & /*normals*/,
                                                                     Array<Precision> const & /*distances*/,
