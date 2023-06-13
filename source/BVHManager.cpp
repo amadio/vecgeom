@@ -10,7 +10,7 @@ namespace vecgeom {
 #ifdef VECCORE_CUDA
 inline
 #endif
-namespace cuda {
+    namespace cuda {
 
 void *AllocateDeviceBVHBuffer(size_t n);
 void FreeDeviceBVHBuffer();
@@ -23,10 +23,12 @@ BVH *GetDeviceBVH(int id);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 void BVHManager::Init()
 {
-  auto lvmap = GeoManager::Instance().GetLogicalVolumesMap();
-  hBVH.resize(lvmap.size());
-  for (auto item : lvmap)
-    hBVH[item.first] = item.second->GetDaughters().size() > 0 ? new BVH(*item.second) : nullptr;
+  std::vector<LogicalVolume const *> lvols;
+  GeoManager::Instance().GetAllLogicalVolumes(lvols);
+  // There may be volumes not used in the hierarchy, so the maximum index may be larger
+  hBVH.resize(GeoManager::Instance().GetLogicalVolumesMap().size());
+  for (auto logical_volume : lvols)
+    hBVH[logical_volume->id()] = logical_volume->GetDaughters().size() > 0 ? new BVH(*logical_volume) : nullptr;
 }
 
 #ifdef VECGEOM_CUDA_INTERFACE
@@ -34,17 +36,15 @@ void BVHManager::DeviceInit()
 {
   int n = hBVH.size();
 
-  BVH *ptr = (BVH*) vecgeom::cuda::AllocateDeviceBVHBuffer(n);
+  BVH *ptr = (BVH *)vecgeom::cuda::AllocateDeviceBVHBuffer(n);
 
   for (int id = 0; id < n; ++id) {
-    if (!hBVH[id])
-      continue;
+    if (!hBVH[id]) continue;
 
     hBVH[id]->CopyToGpu(&ptr[id]);
   }
 }
 #endif
-
 
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <numeric>
+#include <ostream>
 #include <stdexcept>
 
 namespace vecgeom {
@@ -148,7 +149,10 @@ DevicePtr<cuda::BVH> BVH::CopyToGpu(void *addr) const
 
   cuda::LogicalVolume const *dvolume = CudaManager::Instance().LookupLogical(&fLV).GetPtr();
 
-  if (!dvolume) throw std::logic_error("Cannot copy BVH because logical volume does not exist on the device.");
+  if (!dvolume) {
+    std::cout << "Failed for lv " << fLV.GetLabel() << " (id = " << fLV.id() << ")" << std::endl;
+    throw std::logic_error("Cannot copy BVH because logical volume does not exist on the device.");
+  }
 
   DevicePtr<cuda::BVH> dBVH(addr);
 

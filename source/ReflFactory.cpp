@@ -4,13 +4,14 @@
 //!    \authors Author:  Andrei Gheata <andrei.gheata@cern.ch>
 //!
 
-#include "ReflFactory.h"
+#include "VecGeom/management/ReflFactory.h"
 
-#include <VecGeom/volumes/LogicalVolume.h>
-#include <VecGeom/volumes/PlacedVolume.h>
-#include <VecGeom/volumes/UnplacedScaledShape.h>
+#include "VecGeom/volumes/LogicalVolume.h"
+#include "VecGeom/volumes/PlacedVolume.h"
+#include "VecGeom/volumes/UnplacedScaledShape.h"
 
-namespace vgdml {
+namespace vecgeom {
+inline namespace cxx {
 
 ReflFactory::ReflFactory()
 {
@@ -214,4 +215,5 @@ void ReflFactory::Clean()
   fReflectedLVMap.clear();
 }
 
-} // namespace vgdml
+} // namespace cxx
+} // namespace vecgeom

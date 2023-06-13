@@ -18,7 +18,6 @@ add_library(vgdml
   src/Frontend.cpp
   src/Helper.cpp
   src/Middleware.cpp
-  src/ReflFactory.cpp
 )
 
 target_include_directories(vgdml PUBLIC

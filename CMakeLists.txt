@@ -502,7 +502,8 @@ set(VECGEOM_COMMON_SRCS
 
 set(VECGEOM_CPPONLY_SRCS
   source/GeoManager.cpp
-  source/CppExporter.cpp)
+  source/CppExporter.cpp
+  source/ReflFactory.cpp)
 
 if(VECGEOM_EMBREE)
   list(APPEND VECGEOM_COMMON_SRCS source/EmbreeManager.cpp)

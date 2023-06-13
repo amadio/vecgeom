@@ -64,31 +64,30 @@ namespace {
  * This function sorts volumes by type, and calls a specialised bulk-copy function for the slowest
  * volume types.
  */
-void CopyUnplacedVolumes(std::vector<vecgeom::cxx::VUnplacedVolume const *> && volumesToCopy,
-    std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::VUnplacedVolume>> && devPtrs)
+void CopyUnplacedVolumes(std::vector<vecgeom::cxx::VUnplacedVolume const *> &&volumesToCopy,
+                         std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::VUnplacedVolume>> &&devPtrs)
 {
   using vecgeom::cxx::VUnplacedVolume;
   assert(volumesToCopy.size() == devPtrs.size());
 
-  std::unordered_map<std::type_index,
-    std::pair<std::vector<VUnplacedVolume const *>,
-              std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::VUnplacedVolume>>>> typesToCopy;
+  std::unordered_map<std::type_index, std::pair<std::vector<VUnplacedVolume const *>,
+                                                std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::VUnplacedVolume>>>>
+      typesToCopy;
   for (auto i = 0u; i < volumesToCopy.size(); ++i) {
     const std::type_index tidx{typeid(*volumesToCopy[i])};
     typesToCopy[tidx].first.push_back(volumesToCopy[i]);
     typesToCopy[tidx].second.push_back(std::move(devPtrs[i]));
   }
 
-  for (auto const & typeAndVolumes : typesToCopy) {
-    const std::type_index & tid = typeAndVolumes.first;
-    const auto & volumeData = typeAndVolumes.second;
+  for (auto const &typeAndVolumes : typesToCopy) {
+    const std::type_index &tid = typeAndVolumes.first;
+    const auto &volumeData     = typeAndVolumes.second;
 
     if (tid == std::type_index(typeid(UnplacedPolyhedron))) {
       UnplacedPolyhedron::CopyToGpu(volumeData.first, volumeData.second);
     } else if (tid == typeid(UnplacedPolycone) || tid == typeid(GenericUnplacedPolycone)) {
       UnplacedPolycone::CopyToGpu(volumeData.first, volumeData.second);
-    }
-    else {
+    } else {
       for (auto i = 0u; i < volumeData.first.size(); ++i) {
         volumeData.first[i]->CopyToGpu(volumeData.second[i]);
       }
@@ -96,7 +95,16 @@ void CopyUnplacedVolumes(std::vector<vecgeom::cxx::VUnplacedVolume const *> && v
   }
 }
 
+template <class T>
+unsigned int SizeFromHighestId(std::set<T const *> const &items)
+{
+  if (items.empty()) return 0;
+  auto iter =
+      std::max_element(items.begin(), items.end(), [](T const *lhs, T const *rhs) { return lhs->id() < rhs->id(); });
+  return (*iter)->id() + 1;
 }
+
+} // namespace
 
 vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize()
 {
@@ -138,7 +146,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
   {
     std::vector<VUnplacedVolume const *> volumesToCopy;
     std::vector<vecgeom::cxx::DevicePtr<vecgeom::cuda::VUnplacedVolume>> devPtrs;
-    for (VUnplacedVolume const * vol : unplaced_volumes_) {
+    for (VUnplacedVolume const *vol : unplaced_volumes_) {
       volumesToCopy.emplace_back(vol);
       devPtrs.emplace_back(LookupUnplaced(vol));
     }
@@ -349,10 +357,10 @@ bool CudaManager::AllocatePlacedVolumesOnCoproc()
     std::cerr << "Warning: Geometry on host side MUST be closed before copying to DEVICE\n";
   }
 
-  // we start from the compact buffer on the CPU
-  unsigned int size = placed_volumes_.size();
+  // Allocate one past the highest maximum reachable element ID
+  unsigned int size = SizeFromHighestId(placed_volumes_);
 
-  if (verbose_ > 2) std::cout << "Allocating placed volumes...";
+  if (verbose_ > 2) std::cout << "Allocating " << size << " placed volumes...";
 
   size_t totalSize = 0;
   // calculate total size of buffer on GPU to hold the GPU copies of the collection
@@ -396,8 +404,11 @@ void CudaManager::AllocateGeometry()
   {
     if (verbose_ > 2) std::cout << "Allocating logical volumes...";
 
+    // Allocate one past the highest maximum reachable element ID
+    unsigned int size = SizeFromHighestId(logical_volumes_);
+
     DevicePtr<cuda::LogicalVolume> gpu_array;
-    gpu_array.Allocate(logical_volumes_.size());
+    gpu_array.Allocate(size);
     allocated_memory_.push_back(DevicePtr<char>(gpu_array));
 
     for (std::set<LogicalVolume const *>::const_iterator i = logical_volumes_.begin(); i != logical_volumes_.end();
@@ -457,29 +468,19 @@ void CudaManager::AllocateGeometry()
   }
 
   if (verbose_ > 0) {
-    printf("NUMBER OF PLACED VOLUMES %ld\n", placed_volumes_.size());
-    printf("NUMBER OF UNPLACED VOLUMES %ld\n", unplaced_volumes_.size());
+    std::cout << "NUMBER OF PLACED VOLUMES: " << placed_volumes_.size() << '\n';
+    std::cout << "NUMBER OF UNPLACED VOLUMES: " << unplaced_volumes_.size() << '\n';
   }
 }
 
 void CudaManager::ScanGeometry(VPlacedVolume const *const volume)
 {
 
-  if (placed_volumes_.find(volume) == placed_volumes_.end()) {
-    placed_volumes_.insert(volume);
-  }
-  if (logical_volumes_.find(volume->GetLogicalVolume()) == logical_volumes_.end()) {
-    logical_volumes_.insert(volume->GetLogicalVolume());
-  }
-  if (transformations_.find(volume->GetTransformation()) == transformations_.end()) {
-    transformations_.insert(volume->GetTransformation());
-  }
-  if (unplaced_volumes_.find(volume->GetUnplacedVolume()) == unplaced_volumes_.end()) {
-    unplaced_volumes_.insert(volume->GetUnplacedVolume());
-  }
-  if (daughters_.find(volume->GetLogicalVolume()->fDaughters) == daughters_.end()) {
-    daughters_.insert(volume->GetLogicalVolume()->fDaughters);
-  }
+  placed_volumes_.insert(volume);
+  logical_volumes_.insert(volume->GetLogicalVolume());
+  transformations_.insert(volume->GetTransformation());
+  unplaced_volumes_.insert(volume->GetUnplacedVolume());
+  daughters_.insert(volume->GetLogicalVolume()->fDaughters);
 
   if (auto v = dynamic_cast<PlacedBooleanVolume<kUnion> const *>(volume)) {
     ScanGeometry(v->GetUnplacedVolume()->GetLeft());
