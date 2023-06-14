@@ -244,20 +244,20 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
 VECCORE_ATT_HOST_DEVICE
 void UnplacedPolycone::Print() const
 {
-  printf("UnplacedPolycone {%.2f, %.2f, %d}\n", fPolycone.fStartPhi, fPolycone.fDeltaPhi, fPolycone.fNz);
-  printf("have %zu size Z\n", fPolycone.fZs.size());
-  printf("------- z planes follow ---------\n");
+  printf("UnplacedPolycone { stPhi: %.2f, delPhi: %.2f, Nz: %d}\n",
+    fPolycone.fStartPhi, fPolycone.fDeltaPhi, fPolycone.fNz);
+  printf("\t------- %zu z planes follow ---------\n", fPolycone.fZs.size());
   for (size_t p = 0; p < fPolycone.fZs.size(); ++p) {
-    printf(" plane %zu at z pos %lf\n", p, fPolycone.fZs[p]);
+    printf("\t plane #%zu at z pos %lf\n", p, fPolycone.fZs[p]);
   }
 
-  printf("have %zu size fSections\n", fPolycone.fSections.size());
-  printf("------ sections follow ----------\n");
+  printf("\t------ %zu sections follow ----------\n", fPolycone.fSections.size());
   for (int s = 0; s < fPolycone.GetNSections(); ++s) {
-    printf("## section %d, shift %lf\n", s, fPolycone.fSections[s].fShift);
+    printf("\t section #%d, shift %lf\n\t ", s, fPolycone.fSections[s].fShift);
     fPolycone.fSections[s].fSolid->Print();
     printf("\n");
   }
+  printf("\t-------------------------------------");
 }
 // VECCORE_ATT_HOST_DEVICE
 void UnplacedPolycone::Print(std::ostream &os) const

@@ -21,7 +21,7 @@ void UnplacedScaledShape::Print() const
 {
   printf("UnplacedScaledShape: scale:{%g, %g, %g} shape: ", fScaled.fScale.Scale()[0], fScaled.fScale.Scale()[1],
          fScaled.fScale.Scale()[2]);
-  //  UnscaledShape()->Print();
+  fScaled.fPlaced->GetUnplacedVolume()->Print();
 }
 
 void UnplacedScaledShape::Print(std::ostream &os) const

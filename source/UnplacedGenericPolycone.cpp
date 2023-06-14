@@ -152,17 +152,13 @@ void UnplacedGenericPolycone::Print() const
 {
   // Provided Elliptical Cone Parameters as done for Tube below
   // printf("GenericPolycone {%.2f, %.2f, %.2f}", fGenericPolycone.fDx, fGenericPolycone.fDy, fGenericPolycone.fDz);
-  printf("---------------------------------------------------\n");
-  printf(" Solid type: GenericPolycone\n");
-  printf(" Parameters: \n");
-  printf("    starting phi angle : %f radians\n", fSPhi);
-  printf("    ending phi angle : %f radians\n", fDPhi);
-  printf("    number of RZ points : %d\n", fNumRZ);
-  printf("              RZ values (corners): \n");
+  printf("UnplacedGenericPolycone:  {StartPhi: %f   DeltaPhi: %f   N_RZpoints: %d}\n",
+     fSPhi, fDPhi, fNumRZ);
+  printf("        -------------------------------------------\n");
   for (int i = 0; i < fNumRZ; i++) {
-    printf("          %f, %f\n", fR[i], fZ[i]);
+    printf("        RZpoint #%i:  %f, %f\n", i, fR[i], fZ[i]);
   }
-  printf("---------------------------------------------------\n");
+  printf("        -------------------------------------------\n");
 }
 
 void UnplacedGenericPolycone::Print(std::ostream &os) const

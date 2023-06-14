@@ -1221,6 +1221,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processExtru
   if (debug) {
     std::cout << "Middleware::processExtruded: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
+  auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier = GetLengthMultiplier(aDOMNode);
   std::vector<Precision> xs;
   std::vector<Precision> ys;
@@ -1238,7 +1239,16 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processExtru
         xs.push_back(x);
         ys.push_back(y);
       } else if (theChildNodeName == "section") {
-        // FIXME warn about unsupported attributes
+        DECLAREANDGETLENGTVAR(scalingFactor)
+        DECLAREANDGETLENGTVAR(xOffset)
+        DECLAREANDGETLENGTVAR(yOffset)
+        DECLAREANDGETINTVAR(zOrder)
+        if (debug) {
+          if(!(scalingFactor==1 && xOffset==0 && yOffset==0) && !(zOrder==0 && zOrder==1))
+            printf("Middleware::processExtruded: WARNING: invalid section attributes ignored: %s", theChildNodeName.c_str());
+        }
+        assert(scalingFactor==1 && xOffset==0 && yOffset==0);
+        assert(zOrder==0 || zOrder==1);
         auto const z = lengthMultiplier * GetDoubleAttribute("zPosition", childAttributes);
         zs.push_back(z);
       }

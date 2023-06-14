@@ -278,18 +278,15 @@ struct GenTrapStruct {
   VECCORE_ATT_HOST_DEVICE
   void Print() const
   {
-    printf("--------------------------------------------------------\n");
-    printf("    =================================================== \n");
-    printf(" Solid type: UnplacedGenTrap \n");
-    printf("   half length Z: %f mm \n", fDz);
-    printf("   list of vertices:\n");
-
+    printf("UnplacedGenTrap: { halfZ: %f mm,  planar: %s }\n",
+       fDz, (IsPlanar() ? "true" : "false"));
+    printf("        --------------------------------------\n");
     for (int i = 0; i < 8; ++i) {
-      printf("#%d", i);
+      printf("        #%d", i);
       printf("   vx = %f mm", fVertices[i].x());
       printf("   vy = %f mm\n", fVertices[i].y());
     }
-    printf("   planar: %s\n", IsPlanar() ? "true" : "false");
+    printf("        --------------------------------------\n");
   }
 
   VECCORE_ATT_HOST_DEVICE

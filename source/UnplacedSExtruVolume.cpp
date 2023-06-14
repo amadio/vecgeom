@@ -10,7 +10,15 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 VECCORE_ATT_HOST_DEVICE
 void UnplacedSExtruVolume::Print() const
 {
-  printf("UnplacedSExtruVolume\n");
+  size_t Nvert = fPolyShell.GetPolygon().GetNVertices();
+  printf("UnplacedSExtruVolume:  {LowerZ: %f   UpperZ: %f   Nvertices: %ld}\n",
+    fPolyShell.GetLowerZ(), fPolyShell.GetUpperZ(), Nvert);
+  auto const& vert = fPolyShell.GetPolygon().GetVertices();
+  printf("        ---------------------------------------------------\n");
+  for (size_t i = 0; i < Nvert; i++) {
+    printf("        Vtx #%ld:  (%f, %f), prevSlope %f\n", i, vert.x(i), vert.y(i), 1./vert.z(i));
+  }
+  printf("        ---------------------------------------------------\n");
 }
 
 void UnplacedSExtruVolume::Print(std::ostream &os) const

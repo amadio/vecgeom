@@ -123,11 +123,12 @@ public:
     printf("UnplacedBooleanVol<%i>{fLeft=[%i], fRight=[%i]}", this->GetOp(), this->GetLeft()->id(),
            this->GetRight()->id());
 #endif
-    printf("\nfLeft:  [%i] ", this->GetLeft()->id());
+    printf("\n\t----------------------------------------");
+    printf("\n\tfLeft:  [%i] ", this->GetLeft()->id());
     this->GetLeft()->GetUnplacedVolume()->Print();
-    printf("\nfRight: [%i] ", this->GetRight()->id());
+    printf("\n\tfRight: [%i] ", this->GetRight()->id());
     this->GetRight()->GetUnplacedVolume()->Print();
-    printf("\n");
+    printf("\n\t----------------------------------------\n");
   }
 
   virtual void Print(std::ostream &os) const override
