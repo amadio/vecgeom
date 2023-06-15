@@ -1,5 +1,5 @@
-Version 2.0.0-b1         15th Jun 2023
-======================================
+Version 2.0.0-rc1         15th Jun 2023
+=======================================
 Overview:
 - Removed vector APIs.
 - Simplified ImplHelpers.
