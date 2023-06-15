@@ -1,3 +1,100 @@
+Version 2.0.b1           15th Jun 2023
+======================================
+Overview:
+- Removed vector APIs.
+- Simplified ImplHelpers.
+- Removed transformation specialization.
+
+Configuration:
+- Removed all obsolete CI/general scripts. Rationalised gitlab CI spec.
+- Use official WebEOS domain for geant4-data site.
+
+Code cleanup:
+- Removed vector APIs:
+  * Removed Benchmarker vector tests.
+  * Removed vector interfaces from VSafetyEstimator and derived.
+  * Removed vector interfaces from VNavigator and derived.
+  * Removed vector interfaces from VPlacedVolume, VUnplacedVolume
+    and implementation helpers.
+  * Removed vector interfaces from navigation specializer, testers,
+    benchmarker, and tests.
+- Simplified ImplHelpers.
+- Removed transformation specialization (not yet linking on device):
+  * Enabling automatically VECGEOM_NO_SPECIALIZATION in CUDA mode since
+    specialization + CUDA never worked together.
+- Removed GetTransCode and GetRotCode.
+- Removed APIs for Geant-V from LogicalVolume.
+- Removed unused class Rectangles.
+- Removed unused Lorentz headers and SpecializedTransformation3D.
+- Removed unused MessageLogger.
+- Deleted now unused Map implementation.
+- Extra simplifications:
+  * Polycone benchmark can test now specializations.
+  * Move PrintType to Placed volumes.
+  * Clean up unused code.
+  * No shape implements the extended DistanceToOut function.
+  * Removed PrintImplementationType() and PrintUnplacedType().
+  * Removed unused code in CudaManager.cu and unused SOA.h.
+  * Removed dead test.
+
+Version 1.2.3            15th Jun 2023
+======================================
+Overview:
+- In PlaneShell, removed broken optimization for Trapezoid.
+- Fixes in Polyhedra to provides correct navigation for dphi larger than pi.
+- Fixed errors in geometry synchronization for GPU.
+
+Configuration:
+- Fix for name clash when including X11/X.h.
+
+Navigation:
+- ApproachSolid must return zero if called from inside the bounding box.
+
+Shapes:
+- PlaneShell: removed broken optimization for Trapezoid:
+  * PlaneShell's SafetyToIn and SafetyToOut contained what looks like an
+    optimization for the case N == 4. However, the condition / branches
+    were swapped so that the code would use the general loop for N == 4
+    and assume exactly four planes for N != 4. This wasn't a problem in
+    practice because VecGeom only ever uses PlaneShell with N == 4, for
+    the Trapezoid.
+  * Performance measurements show that the re-ordering of Max operations
+    yields a very minor improvement of at most 1.5% - 2%. As it wasn't
+    active up to now, just remove the code path. As such, no performance
+    difference expected nor measured.
+- Polyhedra now provides correct navigation for dphi larger than pi.
+  * Contains() takes into account the fact that the phi planes responses
+    must be OR-ed.
+  * Inside() correctly finds the inside surface and outside regions and
+    uses consistently kTolerance instead of a mix with kHalfTolerance.
+  * DistanceToIn/Out() correctly deals with early returns that were
+    inappropriate in the larger than pi cases.
+- Planes and quadrilaterals support the non-convex case to support phi
+  planes at angle larger than pi:    
+  * The logic for Contains and Inside must change from AND to OR if the
+    planes are delimiting a non-convex body.
+- Improved and simplified Print() format for several shapes:
+  * Implemented SExTru Print() and warn for unexpected SExtru parameters
+    from GMDL.
+
+GPU:
+- Fix errors in geometry synchronization for GPU:
+  * Only used 'placed' volumes in BVH.
+  * Copy missing components to GPU.
+  * Use ID comparison rather than pointer comparison to determine size.
+  * Moved ReflFactory from vgdml to vecgeom module.
+  * Fixed missing copy of constituent volumes to GPU.
+  * Eliminated redundant 'find'.
+  * Use cout instead of printf().
+  * Fix out-of-range errors in volume lookups.
+
+Benchmarks & Tests:
+- Added six polyhedron topologies in both the benchmarher and shape tester:
+  * 0-NoInnerRadii, 1-WithInnerRadii, 2-WithPhiSectionConvex,
+    3-WithPhiSectionNonConvex, 4-ManySegments and 5-SameZsection.
+- Adjusted TestPolyhedra to deal with changed surface tolerance from
+  kHalfTolerance to kTolerance.
+
 Version 1.2.2            10th Mar 2023
 ======================================
 Overview:
