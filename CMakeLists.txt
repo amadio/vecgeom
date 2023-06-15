@@ -5,10 +5,16 @@ include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
 
 project(VecGeom
-  VERSION 2.0.0-rc1
+  VERSION 2.0.0
   DESCRIPTION "Vectorized geometry library for particle-detector simulation"
   HOMEPAGE_URL "https://gitlab.cern.ch/VecGeom/VecGeom"
   LANGUAGES C CXX)
+
+# Comment the line below when not an RC!
+set(VecGeom_VERSION_RC 1)
+if(DEFINED VecGeom_VERSION_RC)
+ string(APPEND VecGeom_VERSION "-rc${VecGeom_VERSION_RC}")
+endif()
 
 ################################################################################
 # - Core CMake settings
