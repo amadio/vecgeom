@@ -16,12 +16,14 @@
 #include "VecGeom/base/Global.h"
 #include "VecGeom/management/GeoManager.h"
 #include "VecGeom/management/CudaManager.h"
+#include "test/benchmark/ArgParser.h"
 
 #ifdef VECGEOM_GDML
 #include "Frontend.h" // VecGeom/gdml/Frontend.h
 #endif
 
 #include <err.h>
+#include <cstring>
 
 using namespace vecgeom;
 
@@ -65,24 +67,55 @@ void compareGeometries(const cxx::VPlacedVolume *hostVolume, std::size_t &volume
 int main(int argc, char **argv)
 {
 #ifdef VECGEOM_GDML
-  bool verbose   = true;
+  OPTION_INT(verbosity, 0);
+  OPTION_INT(stacksize, 8192);
+  OPTION_INT(heapsize, 8388608);
   bool validate  = true;
   double mm_unit = 0.1;
 
-  if (argc == 1) errx(ENOENT, "No input GDML file. Usage: ./GeometryTest <gdml>");
+  if (argc == 1) errx(ENOENT, "No input GDML file. \n\tUsage: ./GeometryTest <gdml> [-verbosity N] [-stacksize SS] [-heapsize HS]");
 
   const char *filename = argv[1];
 
-  if (!filename || !vgdml::Frontend::Load(filename, validate, mm_unit, verbose))
+  if (!filename || !vgdml::Frontend::Load(filename, validate, mm_unit, verbosity > 0))
     errx(EBADF, "Cannot open file '%s'", filename);
 
   auto &geoManager  = GeoManager::Instance();
   auto &cudaManager = CudaManager::Instance();
 
+  // larger CUDA stack size needed for cms2018 or run3 geometries
+  if (std::strstr(filename, "cms-run3.gdml") || std::strstr(filename, "cms2018.gdml"))
+  {
+      printf("Setting stack size to 8704\n");
+      CudaAssertError(CudaDeviceSetStackLimit(8 * 1024 + 512)); // default=8KB
+  }
+
+  if (std::strstr(filename, "cms-hllhc.gdml")) {
+      printf("Setting heap size to 9MB\n");
+      CudaAssertError(CudaDeviceSetHeapLimit(9 * 1024 * 1024)); // default=8MB
+  }
+
+  // user-requested stack or heap size
+  if (stacksize != 8 * 1024) {   // default=8KB
+      printf("Setting stack size to %i\n", stacksize);
+      CudaAssertError(CudaDeviceSetStackLimit(stacksize));
+  }
+  if (heapsize != 8 * 1024 * 1024) {  // default=8MB
+      printf("Setting heap size to %i\n", heapsize);
+      CudaAssertError(CudaDeviceSetHeapLimit(heapsize));
+  }
+
   if (!geoManager.IsClosed()) errx(1, "Geometry not closed");
 
   cudaManager.LoadGeometry(geoManager.GetWorld());
   cudaManager.Synchronize();
+
+  if (verbosity > 0) {
+      printf("#PV known to GeoManager: %li\n", geoManager.GetPlacedVolumesCount());
+      printf("#LV known to GeoManager: %li\n", geoManager.GetRegisteredVolumesCount());
+      printf("# unique navig states: %li\n", geoManager.GetTotalNodeCount());
+      cudaManager.set_verbose(verbosity);
+  }
 
   printf("Visiting device geometry ... ");
   const std::size_t numVols = geoManager.GetTotalNodeCount();
