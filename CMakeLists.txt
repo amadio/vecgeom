@@ -1,5 +1,16 @@
+# - Enforce an out-of-source builds before anything else
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
+  # The odd formatting of the string is needed to comply with CMake's display rules!
+  message(FATAL_ERROR 
+"VecGeom in-source build detected
+ Please remove these files from ${CMAKE_CURRENT_BINARY_DIR}:
+  \n  CMakeCache.txt
+  CMakeFiles
+ \n Once these files are removed, create a separate directory and run CMake from there")
+endif()
+
 # - Setup the project
-cmake_minimum_required(VERSION 3.16...3.22)
+cmake_minimum_required(VERSION 3.16...3.26)
 
 include(cmake/modules/RecordCmdLine.cmake)
 include(ExternalProject)
