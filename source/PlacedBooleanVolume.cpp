@@ -128,9 +128,9 @@ TGeoShape const *PlacedBooleanVolume<kIntersection>::ConvertToRoot() const
   VPlacedVolume const *right     = GetUnplacedVolume()->GetRight();
   Transformation3D const *leftm  = left->GetTransformation();
   Transformation3D const *rightm = right->GetTransformation();
-  TGeoIntersection *node         = new TGeoIntersection(const_cast<TGeoShape *>(left->ConvertToRoot()),
-                                                        const_cast<TGeoShape *>(right->ConvertToRoot()),
-                                                        Transformation3D::ConvertToTGeoMatrix(*leftm), Transformation3D::ConvertToTGeoMatrix(*rightm));
+  TGeoIntersection *node         = new TGeoIntersection(
+      const_cast<TGeoShape *>(left->ConvertToRoot()), const_cast<TGeoShape *>(right->ConvertToRoot()),
+      Transformation3D::ConvertToTGeoMatrix(*leftm), Transformation3D::ConvertToTGeoMatrix(*rightm));
   return new TGeoCompositeShape("RootComposite", node);
 }
 
@@ -198,6 +198,9 @@ G4VSolid const *PlacedBooleanVolume<kSubtraction>::ConvertToGeant4() const
   }
   Transformation3D const *rightm = right->GetTransformation();
   G4RotationMatrix *g4rot        = new G4RotationMatrix();
+  auto rot                       = rightm->Rotation();
+  // HepRep3x3 seems? to be column major order:
+  g4rot->set(CLHEP::HepRep3x3(rot[0], rot[3], rot[6], rot[1], rot[4], rot[7], rot[2], rot[5], rot[8]));
   return new G4SubtractionSolid(GetLabel(), const_cast<G4VSolid *>(left->ConvertToGeant4()),
                                 const_cast<G4VSolid *>(right->ConvertToGeant4()), g4rot,
                                 G4ThreeVector(rightm->Translation(0), rightm->Translation(1), rightm->Translation(2)));
