@@ -45,6 +45,14 @@ bool IsHittingVolume(Vector3D<Precision> const &point, Vector3D<Precision> const
   return volume.DistanceToIn(point, dir, vecgeom::kInfLength) < vecgeom::kInfLength;
 }
 
+VECGEOM_FORCE_INLINE
+bool IsHittingLogicalVolume(Vector3D<Precision> const &point, Vector3D<Precision> const &dir,
+                            LogicalVolume const &volume)
+{
+  assert(!volume.GetUnplacedVolume()->Contains(point));
+  return volume.GetUnplacedVolume()->DistanceToIn(point, dir, vecgeom::kInfLength) < vecgeom::kInfLength;
+}
+
 // utility function to check if track hits any daughter of input logical volume
 inline bool IsHittingAnyDaughter(Vector3D<Precision> const &point, Vector3D<Precision> const &dir,
                                  LogicalVolume const &volume)
@@ -81,8 +89,8 @@ Vector3D<Precision> SamplePoint(Vector3D<Precision> const &size, const Precision
  * @return a random output point
  */
 template <typename RngEngine>
-VECGEOM_FORCE_INLINE
-Vector3D<Precision> SamplePoint(Vector3D<Precision> const &size, RngEngine &rngengine, const Precision scale = 1)
+VECGEOM_FORCE_INLINE Vector3D<Precision> SamplePoint(Vector3D<Precision> const &size, RngEngine &rngengine,
+                                                     const Precision scale = 1)
 {
   std::uniform_real_distribution<double> dist(0, 2.);
   const Vector3D<Precision> ret(scale * (1. - dist(rngengine)) * size[0], scale * (1. - dist(rngengine)) * size[1],
@@ -113,8 +121,7 @@ Vector3D<Precision> SampleDirection()
  *  @param dirs is the output container, provided by the caller
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillRandomDirections(TrackContainer &dirs)
+VECGEOM_FORCE_INLINE void FillRandomDirections(TrackContainer &dirs)
 {
   dirs.resize(dirs.capacity());
   for (int i = 0, iMax = dirs.capacity(); i < iMax; ++i) {
@@ -137,13 +144,12 @@ void FillRandomDirections(TrackContainer &dirs)
  *    caller.
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &points, Precision bias,
-                          TrackContainer &dirs)
+VECGEOM_FORCE_INLINE void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &points,
+                                               Precision bias, TrackContainer &dirs, const bool motherOnly = false)
 {
   assert(bias >= 0. && bias <= 1.);
 
-  if (bias > 0. && volume.GetDaughters().size() == 0) {
+  if (bias > 0. && !motherOnly && volume.GetDaughters().size() == 0) {
     printf("\nFillBiasedDirections ERROR:\n bias=%f requested, but no daughter volumes found.\n", bias);
     //// should throw exception, but for now just abort
     // printf("FillBiasedDirections: aborting...\n");
@@ -161,7 +167,9 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
 
   // Check hits
   for (int track = 0; track < size; ++track) {
-    if (IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume())) {
+    bool isHitting = motherOnly ? IsHittingLogicalVolume(points[track], dirs[track], *volume.GetLogicalVolume())
+                                : IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume());
+    if (isHitting) {
       n_hits++;
       hit[track] = true;
     }
@@ -189,7 +197,10 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
         dirs.set(track, -dirs[track]);
       }
       internaltries++;
-      if (!IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume())) {
+      bool isHitting = motherOnly ? IsHittingLogicalVolume(points[track], dirs[track], *volume.GetLogicalVolume())
+                                  : IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume());
+
+      if (!isHitting) {
         n_hits--;
         hit[track] = false;
         //	  tries = 0;
@@ -207,8 +218,11 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
   // crosscheck
   {
     int crosscheckhits = 0;
-    for (int track = 0; track < size; ++track)
-      if (IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume())) crosscheckhits++;
+    for (int track = 0; track < size; ++track) {
+      bool isHitting = motherOnly ? IsHittingLogicalVolume(points[track], dirs[track], *volume.GetLogicalVolume())
+                                  : IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume());
+      if (isHitting) crosscheckhits++;
+    }
     assert(crosscheckhits == n_hits && "problem with hit count == 0");
     (void)crosscheckhits; // silence set but not unused warnings when asserts are disabled
   }
@@ -223,6 +237,32 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
         printf("%s line %i: Warning: %i tries to increase bias... volume=%s, current bias=%i/%i=%f.  Please check.\n",
                __FILE__, __LINE__, tries, volume.GetLabel().c_str(), n_hits, size,
                static_cast<Precision>(n_hits) / static_cast<Precision>(size));
+      }
+
+      if (motherOnly) {
+        int internaltries = 0;
+        while (!hit[track]) {
+          if (internaltries % 2) {
+            dirs.set(track, SampleDirection());
+          } else {
+            // try inversing direction
+            dirs.set(track, -dirs[track]);
+          }
+          internaltries++;
+
+          if (IsHittingLogicalVolume(points[track], dirs[track], *volume.GetLogicalVolume())) {
+            n_hits++;
+            hit[track] = true;
+          }
+          if (internaltries % 100 == 0) {
+            // printf("%s line %i: Warning: %i tries to reduce bias... current bias %d volume=%s. Please check.\n",
+            // __FILE__,
+            //       __LINE__, internaltries, n_hits, volume.GetLabel().c_str());
+            // try another track
+            break;
+          }
+        }
+        continue;
       }
 
       // SW: a potentially much faster algorithm is the following:
@@ -251,8 +291,11 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
   // crosscheck
   {
     int crosscheckhits = 0;
-    for (int p = 0; p < size; ++p)
-      if (IsHittingAnyDaughter(points[p], dirs[p], *volume.GetLogicalVolume())) crosscheckhits++;
+    for (int p = 0; p < size; ++p) {
+      bool isHitting = motherOnly ? IsHittingLogicalVolume(points[p], dirs[p], *volume.GetLogicalVolume())
+                                  : IsHittingAnyDaughter(points[p], dirs[p], *volume.GetLogicalVolume());
+      if (isHitting) crosscheckhits++;
+    }
     assert(crosscheckhits == n_hits && "problem with hit count");
     (void)crosscheckhits; // silence set but not unused warnings when asserts are disabled
   }
@@ -268,12 +311,12 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
  * @detail Delegates the filling to the other function (@see FillBiasedDirections).
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillBiasedDirections(LogicalVolume const &volume, TrackContainer const &points, const Precision bias,
-                          TrackContainer &dirs)
+VECGEOM_FORCE_INLINE void FillBiasedDirections(LogicalVolume const &volume, TrackContainer const &points,
+                                               const Precision bias, TrackContainer &dirs,
+                                               const bool motherOnly = false)
 {
   VPlacedVolume const *const placed = volume.Place();
-  FillBiasedDirections(*placed, points, bias, dirs);
+  FillBiasedDirections(*placed, points, bias, dirs, motherOnly);
   delete placed;
 }
 
@@ -299,7 +342,8 @@ Precision UncontainedCapacity(VPlacedVolume const &volume)
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE bool FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
+VECGEOM_FORCE_INLINE bool FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points,
+                                                const bool motherOnly = false)
 {
   static double lastUncontCap = 0.0;
   double uncontainedCapacity  = UncontainedCapacity(volume);
@@ -318,12 +362,13 @@ VECGEOM_FORCE_INLINE bool FillUncontainedPoints(VPlacedVolume const &volume, Tra
 
   Vector3D<Precision> lower, upper, offset;
   volume.GetUnplacedVolume()->Extent(lower, upper);
-  offset                        = 0.5 * (upper + lower);
-  const Vector3D<Precision> dim = 0.5 * (upper - lower);
+  offset                  = 0.5 * (upper + lower);
+  Vector3D<Precision> dim = 0.5 * (upper - lower);
+  if (motherOnly) dim = 1.3 * dim;
 
   int totaltries = 0;
   for (int i = 0; i < size; ++i) {
-    bool contained;
+    bool contained, retry;
     Vector3D<Precision> point;
     totaltries = 0;
     do {
@@ -341,8 +386,11 @@ VECGEOM_FORCE_INLINE bool FillUncontainedPoints(VPlacedVolume const &volume, Tra
         }
 
         point = offset + SamplePoint(dim);
-      } while (!volume.UnplacedContains(point));
+        retry = !volume.UnplacedContains(point);
+        if (motherOnly) retry = !retry;
+      } while (retry);
       points.set(i, point);
+      if (motherOnly) break;
 
       contained = false;
       int kk    = 0;
@@ -457,7 +505,8 @@ VECGEOM_FORCE_INLINE bool FillUncontainedPoints(VPlacedVolume const &volume, Ran
     if (tries >= maxtries) break;
   }
   std::cout << " FillUncontained:  trials " << tries << " for num points = " << i << " ( out of " << size
-            << " requested - "  << " success ratio = " << (i * 1.0) / tries << "\n";
+            << " requested - "
+            << " success ratio = " << (i * 1.0) / tries << "\n";
   return (i > 0);
 }
 
@@ -483,8 +532,7 @@ VECGEOM_FORCE_INLINE bool FillUncontainedPoints(LogicalVolume const &volume, Ran
  * returns if successful or not
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
+VECGEOM_FORCE_INLINE bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
 {
   const int size = points.capacity();
   points.resize(points.capacity());
@@ -526,8 +574,7 @@ bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
  * returns if successful or not
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-bool FillRandomPoints(VUnplacedVolume const &volume, TrackContainer &points)
+VECGEOM_FORCE_INLINE bool FillRandomPoints(VUnplacedVolume const &volume, TrackContainer &points)
 {
   const int size = points.capacity();
   points.resize(points.capacity());
@@ -566,36 +613,48 @@ bool FillRandomPoints(VUnplacedVolume const &volume, TrackContainer &points)
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackContainer &points,
-                         const bool placed = true)
+VECGEOM_FORCE_INLINE void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackContainer &points,
+                                              const bool placed = true, const bool motherOnly = false)
 {
 
   const int size = points.capacity();
   points.resize(points.capacity());
 
   Vector3D<Precision> lower, upper, offset;
-  volume.Extent(lower, upper);
-  offset                        = 0.5 * (upper + lower);
-  const Vector3D<Precision> dim = 0.5 * (upper - lower);
+  if (motherOnly)
+    volume.GetUnplacedVolume()->Extent(lower, upper);
+  else
+    volume.Extent(lower, upper);
+  offset                  = 0.5 * (upper + lower);
+  Vector3D<Precision> dim = 0.5 * (upper - lower);
+  if (motherOnly) dim = 1.3 * dim;
 
   int insideCount = 0;
   std::vector<bool> insideVector(size, false);
   for (int i = 0; i < size; ++i) {
     points.set(i, offset + SamplePoint(dim));
     // measure bias, which is the fraction of points contained in daughters
+    if (motherOnly) {
+      bool inside = volume.UnplacedContains(points[i]);
+      if (inside) {
+        ++insideCount;
+        insideVector[i] = true;
+      }
+      continue;
+    }
     for (Vector<Daughter>::const_iterator v = volume.GetDaughters().cbegin(), v_end = volume.GetDaughters().cend();
          v != v_end; ++v) {
       bool inside = (placed) ? (*v)->Contains(points[i]) : (*v)->UnplacedContains(points[i]);
       if (inside) {
         ++insideCount;
         insideVector[i] = true;
+        continue; // if contained in one daughter, no need to check the others
       }
     }
   }
 
   // remove contained points to reduce bias as needed
-  int i     = 0;
+  int i          = 0;
   int totaltries = 0;
   while (static_cast<double>(insideCount) / static_cast<double>(size) > bias) {
     while (!insideVector[i])
@@ -610,13 +669,14 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
 
       points.set(i, offset + SamplePoint(dim));
       contained = false;
+      if (motherOnly) {
+        contained = volume.UnplacedContains(points[i]);
+        continue;
+      }
       for (Vector<Daughter>::const_iterator v = volume.GetDaughters().cbegin(), v_end = volume.GetDaughters().end();
            v != v_end; ++v) {
-        bool inside = (placed) ? (*v)->Contains(points[i]) : (*v)->UnplacedContains(points[i]);
-        if (inside) {
-          contained = true;
-          break;
-        }
+        contained = (placed) ? (*v)->Contains(points[i]) : (*v)->UnplacedContains(points[i]);
+        if (contained) break;
       }
     } while (contained);
     insideVector[i] = false;
@@ -641,6 +701,11 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
                tries, volume.GetLabel().c_str());
       }
 
+      if (motherOnly) {
+        points.set(i, offset + SamplePoint(dim));
+        contained = volume.UnplacedContains(points[i]);
+        continue;
+      }
       auto ndaughters = volume.GetDaughters().size();
       if (ndaughters == 1) {
         // a faster procedure for just 1 daughter --> can directly sample in daughter
@@ -670,10 +735,10 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
 }
 
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillContainedPoints(VPlacedVolume const &volume, TrackContainer &points, const bool placed = true)
+VECGEOM_FORCE_INLINE void FillContainedPoints(VPlacedVolume const &volume, TrackContainer &points,
+                                              const bool placed = true, const bool motherOnly = false)
 {
-  FillContainedPoints<TrackContainer>(volume, 1, points, placed);
+  FillContainedPoints<TrackContainer>(volume, 1, points, placed, motherOnly);
 }
 
 /**
@@ -683,9 +748,8 @@ void FillContainedPoints(VPlacedVolume const &volume, TrackContainer &points, co
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision> const &uppercorner,
-                      TrackContainer &points)
+VECGEOM_FORCE_INLINE void FillRandomPoints(Vector3D<Precision> const &lowercorner,
+                                           Vector3D<Precision> const &uppercorner, TrackContainer &points)
 {
   const int size = points.capacity();
   points.resize(points.capacity());
@@ -705,9 +769,9 @@ void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer, typename ExcludedVol, bool exlu = true>
-VECGEOM_FORCE_INLINE
-void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision> const &uppercorner,
-                      ExcludedVol const &vol, TrackContainer &points)
+VECGEOM_FORCE_INLINE void FillRandomPoints(Vector3D<Precision> const &lowercorner,
+                                           Vector3D<Precision> const &uppercorner, ExcludedVol const &vol,
+                                           TrackContainer &points)
 {
   const int size = points.capacity();
   points.resize(points.capacity());
@@ -729,8 +793,7 @@ void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-void FillRandomPoints(Vector3D<Precision> const &dim, TrackContainer &points)
+VECGEOM_FORCE_INLINE void FillRandomPoints(Vector3D<Precision> const &dim, TrackContainer &points)
 {
   FillRandomPoints(Vector3D<Precision>(-dim.x(), -dim.y(), -dim.z()), Vector3D<Precision>(dim.x(), dim.y(), dim.z()),
                    points);

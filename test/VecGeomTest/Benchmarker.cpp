@@ -30,9 +30,10 @@ namespace vecgeom {
 
 Benchmarker::Benchmarker() : Benchmarker(NULL) {}
 
-Benchmarker::Benchmarker(VPlacedVolume const *const world)
+Benchmarker::Benchmarker(VPlacedVolume const *const world, bool benchmarkTop)
     : fPointCount(1024), fPoolMultiplier(1), fRepetitions(1024), fMeasurementCount(1), fVerbosity(1), fToInBias(0.8),
-      fInsideBias(0.5), fPointPool(NULL), fDirectionPool(NULL), fStepMax(NULL), fTolerance(kTolerance)
+      fInsideBias(0.5), fPointPool(NULL), fDirectionPool(NULL), fStepMax(NULL), fTolerance(kTolerance),
+      fBenchmarkTop(benchmarkTop)
 #ifdef VECGEOM_ROOT
       ,
       fOkToRunROOT(true)
@@ -78,6 +79,11 @@ std::list<BenchmarkResult> Benchmarker::PopResults()
 
 void Benchmarker::GenerateVolumePointers(VPlacedVolume const *const vol)
 {
+  if (fBenchmarkTop) {
+    fVolumes.emplace_back(vol);
+    assert(fVolumes.size() == 1);
+    return;
+  }
   for (auto i = vol->GetDaughters().begin(), iEnd = vol->GetDaughters().end(); i != iEnd; ++i) {
 
     // this is pretty tricky
@@ -543,7 +549,7 @@ int Benchmarker::RunInsideBenchmark()
   if (fVerbosity > 1) printf("Generating points with bias %f... ", fInsideBias);
   Stopwatch timer;
   timer.Start();
-  volumeUtilities::FillContainedPoints(*fWorld, fInsideBias, *fPointPool, true);
+  volumeUtilities::FillContainedPoints(*fWorld, fInsideBias, *fPointPool, true, fBenchmarkTop);
   if (fVerbosity > 1) printf("Done in %f s.\n", timer.Stop());
 
   std::stringstream outputLabelsContains, outputLabelsInside;
@@ -760,8 +766,8 @@ int Benchmarker::RunToInBenchmark()
   // a daughter to the specified bias.
   Stopwatch timer;
   timer.Start();
-  volumeUtilities::FillUncontainedPoints(*fWorld, *fPointPool);
-  volumeUtilities::FillBiasedDirections(*fWorld, *fPointPool, fToInBias, *fDirectionPool);
+  volumeUtilities::FillUncontainedPoints(*fWorld, *fPointPool, fBenchmarkTop);
+  volumeUtilities::FillBiasedDirections(*fWorld, *fPointPool, fToInBias, *fDirectionPool, fBenchmarkTop);
   if (fVerbosity > 1) printf(" Done in %f s.\n", timer.Stop());
 
   fPointPool->resize(fPointCount * fPoolMultiplier);
@@ -881,7 +887,7 @@ void Benchmarker::InitInsideCaches()
   // initializes a reusable container of tracks inside the test volumes
   fInsidePointPoolCache     = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
   fInsideDirectionPoolCache = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  volumeUtilities::FillContainedPoints(*fWorld, *fInsidePointPoolCache, false);
+  volumeUtilities::FillContainedPoints(*fWorld, *fInsidePointPoolCache, false, fBenchmarkTop);
   volumeUtilities::FillRandomDirections(*fInsideDirectionPoolCache);
   fInsideCacheInitialized = true;
   if (fVerbosity > 1) printf(" Inside Caches initialized in %f s.\n", timer.Stop());
@@ -1642,7 +1648,10 @@ void Benchmarker::RunInsideSpecialized(bool *contains, Inside_t *inside)
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        contains[i] = v->Specialized()->Contains((*fPointPool)[index + i]);
+        if (fBenchmarkTop)
+          contains[i] = v->Specialized()->GetUnplacedVolume()->Contains((*fPointPool)[index + i]);
+        else
+          contains[i] = v->Specialized()->Contains((*fPointPool)[index + i]);
       }
     }
   }
@@ -1652,7 +1661,10 @@ void Benchmarker::RunInsideSpecialized(bool *contains, Inside_t *inside)
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        inside[i] = v->Specialized()->Inside((*fPointPool)[index + i]);
+        if (fBenchmarkTop)
+          inside[i] = v->Specialized()->GetUnplacedVolume()->Inside((*fPointPool)[index + i]);
+        else
+          inside[i] = v->Specialized()->Inside((*fPointPool)[index + i]);
       }
     }
   }
@@ -1676,8 +1688,11 @@ void Benchmarker::RunToInSpecialized(Precision *distances, Precision *safeties)
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p        = index + i;
-        distances[i] = v->Specialized()->DistanceToIn((*fPointPool)[p], (*fDirectionPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          distances[i] = v->Specialized()->GetUnplacedVolume()->DistanceToIn((*fPointPool)[p], (*fDirectionPool)[p]);
+        else
+          distances[i] = v->Specialized()->DistanceToIn((*fPointPool)[p], (*fDirectionPool)[p]);
       }
     }
   }
@@ -1687,8 +1702,11 @@ void Benchmarker::RunToInSpecialized(Precision *distances, Precision *safeties)
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p       = index + i;
-        safeties[i] = v->Specialized()->SafetyToIn((*fPointPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          safeties[i] = v->Specialized()->GetUnplacedVolume()->SafetyToIn((*fPointPool)[p]);
+        else
+          safeties[i] = v->Specialized()->SafetyToIn((*fPointPool)[p]);
       }
     }
   }
@@ -1713,8 +1731,11 @@ void Benchmarker::RunToOutSpecialized(Precision *distances, Precision *safeties)
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p        = index + i;
-        distances[i] = v->Specialized()->DistanceToOut((*fPointPool)[p], (*fDirectionPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          distances[i] = v->Specialized()->GetUnplacedVolume()->DistanceToOut((*fPointPool)[p], (*fDirectionPool)[p]);
+        else
+          distances[i] = v->Specialized()->DistanceToOut((*fPointPool)[p], (*fDirectionPool)[p]);
       }
     }
   }
@@ -1724,8 +1745,11 @@ void Benchmarker::RunToOutSpecialized(Precision *distances, Precision *safeties)
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p       = index + i;
-        safeties[i] = v->Specialized()->SafetyToOut((*fPointPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          safeties[i] = v->Specialized()->GetUnplacedVolume()->SafetyToOut((*fPointPool)[p]);
+        else
+          safeties[i] = v->Specialized()->SafetyToOut((*fPointPool)[p]);
       }
     }
   }
@@ -1750,8 +1774,11 @@ void Benchmarker::RunInsideUnspecialized(bool *contains, Inside_t *inside)
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p       = index + i;
-        contains[i] = v->Unspecialized()->Contains((*fPointPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          contains[i] = v->Unspecialized()->GetUnplacedVolume()->Contains((*fPointPool)[p]);
+        else
+          contains[i] = v->Unspecialized()->Contains((*fPointPool)[p]);
       }
     }
   }
@@ -1761,8 +1788,11 @@ void Benchmarker::RunInsideUnspecialized(bool *contains, Inside_t *inside)
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p     = index + i;
-        inside[i] = v->Unspecialized()->Inside((*fPointPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          inside[i] = v->Unspecialized()->GetUnplacedVolume()->Inside((*fPointPool)[p]);
+        else
+          inside[i] = v->Unspecialized()->Inside((*fPointPool)[p]);
       }
     }
   }
@@ -1787,8 +1817,11 @@ void Benchmarker::RunToInUnspecialized(Precision *const distances, Precision *co
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p        = index + i;
-        distances[i] = v->Unspecialized()->DistanceToIn((*fPointPool)[p], (*fDirectionPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          distances[i] = v->Unspecialized()->GetUnplacedVolume()->DistanceToIn((*fPointPool)[p], (*fDirectionPool)[p]);
+        else
+          distances[i] = v->Unspecialized()->DistanceToIn((*fPointPool)[p], (*fDirectionPool)[p]);
       }
     }
   }
@@ -1798,8 +1831,11 @@ void Benchmarker::RunToInUnspecialized(Precision *const distances, Precision *co
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p       = index + i;
-        safeties[i] = v->Unspecialized()->SafetyToIn((*fPointPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          safeties[i] = v->Unspecialized()->GetUnplacedVolume()->SafetyToIn((*fPointPool)[p]);
+        else
+          safeties[i] = v->Unspecialized()->SafetyToIn((*fPointPool)[p]);
       }
     }
   }
@@ -1824,8 +1860,11 @@ void Benchmarker::RunToOutUnspecialized(Precision *const distances, Precision *c
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p        = index + i;
-        distances[i] = v->Unspecialized()->DistanceToOut((*fPointPool)[p], (*fDirectionPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          distances[i] = v->Unspecialized()->GetUnplacedVolume()->DistanceToOut((*fPointPool)[p], (*fDirectionPool)[p]);
+        else
+          distances[i] = v->Unspecialized()->DistanceToOut((*fPointPool)[p], (*fDirectionPool)[p]);
       }
     }
   }
@@ -1835,8 +1874,11 @@ void Benchmarker::RunToOutUnspecialized(Precision *const distances, Precision *c
     int index = (rand() % fPoolMultiplier) * fPointCount;
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p       = index + i;
-        safeties[i] = v->Unspecialized()->SafetyToOut((*fPointPool)[p]);
+        int p = index + i;
+        if (fBenchmarkTop)
+          safeties[i] = v->Unspecialized()->GetUnplacedVolume()->SafetyToOut((*fPointPool)[p]);
+        else
+          safeties[i] = v->Unspecialized()->SafetyToOut((*fPointPool)[p]);
       }
     }
   }
@@ -1862,9 +1904,10 @@ void Benchmarker::RunInsideGeant4(::EInside *const inside)
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                           = index + i;
-        const Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
-        inside[i]                       = v->Geant4()->Inside(G4ThreeVector(point[0], point[1], point[2]));
+        int p = index + i;
+        const Vector3D<Precision> point =
+            fBenchmarkTop ? (*fPointPool)[p] : transformation->Transform((*fPointPool)[p]);
+        inside[i] = v->Geant4()->Inside(G4ThreeVector(point[0], point[1], point[2]));
       }
     }
   }
@@ -1886,9 +1929,11 @@ void Benchmarker::RunToInGeant4(Precision *distances, Precision *safeties)
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                           = index + i;
-        const Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
-        const Vector3D<Precision> dir   = transformation->TransformDirection((*fDirectionPool)[p]);
+        int p = index + i;
+        const Vector3D<Precision> point =
+            fBenchmarkTop ? (*fPointPool)[p] : transformation->Transform((*fPointPool)[p]);
+        const Vector3D<Precision> dir =
+            fBenchmarkTop ? (*fDirectionPool)[p] : transformation->TransformDirection((*fDirectionPool)[p]);
         // printf("Geant4 RunToIn will get point %.6f %.6f
         // %.6f",point[0],point[1],point[2]);
         // printf("Geant4 RunToIn before transform point %.6f %.6f
@@ -1905,9 +1950,10 @@ void Benchmarker::RunToInGeant4(Precision *distances, Precision *safeties)
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                           = index + i;
-        const Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
-        safeties[i]                     = v->Geant4()->DistanceToIn(G4ThreeVector(point[0], point[1], point[2]));
+        int p = index + i;
+        const Vector3D<Precision> point =
+            fBenchmarkTop ? (*fPointPool)[p] : transformation->Transform((*fPointPool)[p]);
+        safeties[i] = v->Geant4()->DistanceToIn(G4ThreeVector(point[0], point[1], point[2]));
       }
     }
   }
@@ -1974,9 +2020,10 @@ void Benchmarker::RunInsideRoot(bool *inside)
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                  = index + i;
-        Vector3D<double> point = transformation->Transform((*fPointPool)[p]);
-        inside[i]              = v->ROOT()->Contains(&point[0]);
+        int p = index + i;
+        const Vector3D<Precision> point =
+            fBenchmarkTop ? (*fPointPool)[p] : transformation->Transform((*fPointPool)[p]);
+        inside[i] = v->ROOT()->Contains(&point[0]);
       }
     }
   }
@@ -1999,10 +2046,12 @@ void Benchmarker::RunToInRoot(Precision *const distances, Precision *const safet
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                  = index + i;
-        Vector3D<double> point = transformation->Transform((*fPointPool)[p]);
-        Vector3D<double> dir   = transformation->TransformDirection((*fDirectionPool)[p]);
-        distances[i]           = v->ROOT()->DistFromOutside(&point[0], &dir[0], 3);
+        int p = index + i;
+        const Vector3D<Precision> point =
+            fBenchmarkTop ? (*fPointPool)[p] : transformation->Transform((*fPointPool)[p]);
+        const Vector3D<Precision> dir =
+            fBenchmarkTop ? (*fDirectionPool)[p] : transformation->TransformDirection((*fDirectionPool)[p]);
+        distances[i] = v->ROOT()->DistFromOutside(&point[0], &dir[0], 3);
       }
     }
   }
@@ -2013,9 +2062,10 @@ void Benchmarker::RunToInRoot(Precision *const distances, Precision *const safet
     for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
       Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
       for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                  = index + i;
-        Vector3D<double> point = transformation->Transform((*fPointPool)[p]);
-        safeties[i]            = v->ROOT()->Safety(&point[0], false);
+        int p = index + i;
+        const Vector3D<Precision> point =
+            fBenchmarkTop ? (*fPointPool)[p] : transformation->Transform((*fPointPool)[p]);
+        safeties[i] = v->ROOT()->Safety(&point[0], false);
       }
     }
   }
@@ -2086,6 +2136,7 @@ void Benchmarker::FreeAligned(Type *const distance)
 #ifdef VECGEOM_CUDA_INTERFACE
 void Benchmarker::GetVolumePointers(std::list<DevicePtr<cuda::VPlacedVolume>> &volumesGpu)
 {
+  CudaAssertError(CudaDeviceSetStackLimit(8192));
   CudaManager::Instance().LoadGeometry(GetWorld());
   CudaManager::Instance().Synchronize();
   for (std::list<VolumePointers>::const_iterator v = fVolumes.begin(); v != fVolumes.end(); ++v) {

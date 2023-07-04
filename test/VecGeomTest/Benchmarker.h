@@ -81,7 +81,7 @@ private:
 
   // a container storing rays : startpoint (Vector3D) plus direction (Vector3D)
   RayContainer fProblematicRays;
-
+  bool fBenchmarkTop{false}; // only benchmark the top placed volume
 // flags indicating whether it is ok to run ROOT/G4
 // because in some cases a conversion might not exist
 // the Benchmarker class will check this at initialization and
@@ -114,7 +114,7 @@ public:
   /// \param world Mother volume containing daughters that will be benchmarked.
   ///              The mother volume must have an available bounding box, as it
   ///              is used in the sampling process.
-  Benchmarker(VPlacedVolume_t const world);
+  Benchmarker(VPlacedVolume_t const world, bool benchmarkTop = false);
 
   ~Benchmarker();
 
@@ -304,8 +304,7 @@ private:
 
   // internal method to crosscheck results from boundary; fills a container with problematic cases
   int CheckDistancesFromBoundary(Precision expected, SOA3D<Precision> *points, SOA3D<Precision> *directions,
-                                 Precision const *const specialized,
-                                 Precision const *const unspecialized,
+                                 Precision const *const specialized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
                                  Precision const *const root,
 #endif
@@ -333,8 +332,7 @@ private:
   // special version for boundary points
   // here we know that result has to be zero
   int CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precision> *directions,
-                              Precision const *const specialized,
-                              Precision const *const unspecialized,
+                              Precision const *const specialized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
                               Precision const *const root,
 #endif

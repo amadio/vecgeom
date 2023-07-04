@@ -11,53 +11,71 @@ namespace vecgeom {
 inline namespace cuda {
 
 __global__ void ContainsBenchmarkCudaKernel(VPlacedVolume const *const volume, const SOA3D<Precision> positions,
-                                            const int n, bool *const contains)
+                                            const int n, bool *const contains, bool benchmarkTop)
 {
   const int i = ThreadIndex();
   if (i >= n) return;
-  contains[i] = volume->Contains(positions[i]);
+  if (benchmarkTop)
+    contains[i] = volume->GetUnplacedVolume()->Contains(positions[i]);
+  else
+    contains[i] = volume->Contains(positions[i]);
 }
 
 __global__ void InsideBenchmarkCudaKernel(VPlacedVolume const *const volume, const SOA3D<Precision> positions,
-                                          const int n, Inside_t *const inside)
+                                          const int n, Inside_t *const inside, bool benchmarkTop)
 {
   const int i = ThreadIndex();
   if (i >= n) return;
-  inside[i] = volume->Inside(positions[i]);
+  if (benchmarkTop)
+    inside[i] = volume->GetUnplacedVolume()->Inside(positions[i]);
+  else
+    inside[i] = volume->Inside(positions[i]);
 }
 
 __global__ void DistanceToInBenchmarkCudaKernel(VPlacedVolume const *const volume, const SOA3D<Precision> positions,
                                                 const SOA3D<Precision> directions, const int n,
-                                                Precision *const distance)
+                                                Precision *const distance, bool benchmarkTop)
 {
   const int i = ThreadIndex();
   if (i >= n) return;
-  distance[i] = volume->DistanceToIn(positions[i], directions[i]);
+  if (benchmarkTop)
+    distance[i] = volume->GetUnplacedVolume()->DistanceToIn(positions[i], directions[i]);
+  else
+    distance[i] = volume->DistanceToIn(positions[i], directions[i]);
 }
 
 __global__ void DistanceToOutBenchmarkCudaKernel(VPlacedVolume const *const volume, const SOA3D<Precision> positions,
                                                  const SOA3D<Precision> directions, const int n,
-                                                 Precision *const distance)
+                                                 Precision *const distance, bool benchmarkTop)
 {
   const int i = ThreadIndex();
   if (i >= n) return;
-  distance[i] = volume->DistanceToOut(positions[i], directions[i]);
+  if (benchmarkTop)
+    distance[i] = volume->GetUnplacedVolume()->DistanceToOut(positions[i], directions[i]);
+  else
+    distance[i] = volume->DistanceToOut(positions[i], directions[i]);
 }
 
 __global__ void SafetyToInBenchmarkCudaKernel(VPlacedVolume const *const volume, const SOA3D<Precision> positions,
-                                              const int n, Precision *const distance)
+                                              const int n, Precision *const distance, bool benchmarkTop)
 {
   const int i = ThreadIndex();
   if (i >= n) return;
-  distance[i] = volume->SafetyToIn(positions[i]);
+  if (benchmarkTop)
+    distance[i] = volume->GetUnplacedVolume()->SafetyToIn(positions[i]);
+  else
+    distance[i] = volume->SafetyToIn(positions[i]);
 }
 
 __global__ void SafetyToOutBenchmarkCudaKernel(VPlacedVolume const *const volume, const SOA3D<Precision> positions,
-                                               const int n, Precision *const distance)
+                                               const int n, Precision *const distance, bool benchmarkTop)
 {
   const int i = ThreadIndex();
   if (i >= n) return;
-  distance[i] = volume->SafetyToOut(positions[i]);
+  if (benchmarkTop)
+    distance[i] = volume->GetUnplacedVolume()->SafetyToOut(positions[i]);
+  else
+    distance[i] = volume->SafetyToOut(positions[i]);
 }
 
 } // End cuda namespace
@@ -100,7 +118,7 @@ void Benchmarker::RunInsideCuda(Precision *const posX, Precision *const posY, Pr
   for (unsigned r = 0; r < fRepetitions; ++r) {
     for (std::list<CudaVolume>::const_iterator v = volumesGpu.begin(), vEnd = volumesGpu.end(); v != vEnd; ++v) {
       vecgeom::cuda::InsideBenchmarkCudaKernel<<<launch.grid_size, launch.block_size>>>(*v, positionGpu, fPointCount,
-                                                                                        insideGpu);
+                                                                                        insideGpu, fBenchmarkTop);
     }
   }
   cudaDeviceSynchronize();
@@ -110,7 +128,7 @@ void Benchmarker::RunInsideCuda(Precision *const posX, Precision *const posY, Pr
   for (unsigned r = 0; r < fRepetitions; ++r) {
     for (std::list<CudaVolume>::const_iterator v = volumesGpu.begin(), vEnd = volumesGpu.end(); v != vEnd; ++v) {
       vecgeom::cuda::ContainsBenchmarkCudaKernel<<<launch.grid_size, launch.block_size>>>(*v, positionGpu, fPointCount,
-                                                                                          containsGpu);
+                                                                                          containsGpu, fBenchmarkTop);
     }
   }
   cudaDeviceSynchronize();
@@ -176,7 +194,7 @@ void Benchmarker::RunToInCuda(Precision *const posX, Precision *const posY, Prec
   for (unsigned r = 0; r < fRepetitions; ++r) {
     for (std::list<CudaVolume>::const_iterator v = volumesGpu.begin(), vEnd = volumesGpu.end(); v != vEnd; ++v) {
       vecgeom::cuda::SafetyToInBenchmarkCudaKernel<<<launch.grid_size, launch.block_size>>>(*v, positionGpu,
-                                                                                            fPointCount, safetiesGpu);
+                                                                                            fPointCount, safetiesGpu, fBenchmarkTop);
     }
   }
   cudaDeviceSynchronize();
@@ -186,7 +204,7 @@ void Benchmarker::RunToInCuda(Precision *const posX, Precision *const posY, Prec
   for (unsigned r = 0; r < fRepetitions; ++r) {
     for (std::list<CudaVolume>::const_iterator v = volumesGpu.begin(), vEnd = volumesGpu.end(); v != vEnd; ++v) {
       vecgeom::cuda::DistanceToInBenchmarkCudaKernel<<<launch.grid_size, launch.block_size>>>(
-          *v, positionGpu, directionGpu, fPointCount, distancesGpu);
+          *v, positionGpu, directionGpu, fPointCount, distancesGpu, fBenchmarkTop);
     }
   }
   cudaDeviceSynchronize();
@@ -257,7 +275,7 @@ void Benchmarker::RunToOutCuda(Precision *const posX, Precision *const posY, Pre
   for (unsigned r = 0; r < fRepetitions; ++r) {
     for (std::list<CudaVolume>::const_iterator v = volumesGpu.begin(), vEnd = volumesGpu.end(); v != vEnd; ++v) {
       vecgeom::cuda::SafetyToOutBenchmarkCudaKernel<<<launch.grid_size, launch.block_size>>>(*v, positionGpu,
-                                                                                             fPointCount, safetiesGpu);
+                                                                                             fPointCount, safetiesGpu, fBenchmarkTop);
     }
   }
   cudaDeviceSynchronize();
@@ -267,7 +285,7 @@ void Benchmarker::RunToOutCuda(Precision *const posX, Precision *const posY, Pre
   for (unsigned r = 0; r < fRepetitions; ++r) {
     for (std::list<CudaVolume>::const_iterator v = volumesGpu.begin(), vEnd = volumesGpu.end(); v != vEnd; ++v) {
       vecgeom::cuda::DistanceToOutBenchmarkCudaKernel<<<launch.grid_size, launch.block_size>>>(
-          *v, positionGpu, directionGpu, fPointCount, distancesGpu);
+          *v, positionGpu, directionGpu, fPointCount, distancesGpu, fBenchmarkTop);
     }
   }
   cudaDeviceSynchronize();

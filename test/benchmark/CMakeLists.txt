@@ -37,6 +37,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${PROJECT_SOURCE_DIR}/test/benchmark/MultiUnionBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/benchmark/UnionFlatteningBenchmark.cpp
   ${PROJECT_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
+  ${PROJECT_SOURCE_DIR}/test/benchmark/BenchmarkVGDMLShape.cpp
 )
 
 build_executables("${TEST_EXECUTABLES_BENCHMARK}")
@@ -51,6 +52,7 @@ if(VECGEOM_GDML)
     target_sources(TestNavIndex PRIVATE TestNavIndex.cu)
   endif()
   target_link_libraries(TestNavIndex PUBLIC vgdml)
+  target_link_libraries(BenchmarkVGDMLShape PUBLIC vgdml)
 endif()
 
 #define which ones should be run under ctest
