@@ -116,8 +116,7 @@ T GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNa
 std::array<double, 9> makeRotationMatrixFromCartesianAngles(double x, double y, double z)
 {
   // besides being faster, omitting this special case returns an "identity" matrix with r[2] = -0
-  if (x==0 && y==0 && z==0)
-      return {{1, 0, 0, 0, 1, 0, 0, 0, 1}};
+  if (x == 0 && y == 0 && z == 0) return {{1, 0, 0, 0, 1, 0, 0, 0, 1}};
 
   auto const s1 = -std::sin(x);
   auto const c1 = std::cos(x);
@@ -456,7 +455,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoole
       } else {
         if (debug) std::cout << "Found solid " << solidName << std::endl;
         firstSolid = foundSolid->second;
-        name1st = solidName;
+        name1st    = solidName;
       }
     } else if (theChildNodeName == "second") {
       auto const solidName = GetAttribute("ref", aDOMElement->getAttributes());
@@ -467,7 +466,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoole
       } else {
         if (debug) std::cout << "Found solid " << solidName << std::endl;
         secondSolid = foundSolid->second;
-        name2nd = solidName;
+        name2nd     = solidName;
       }
     } else if (theChildNodeName == "positionref") {
       auto const positionName = GetAttribute("ref", aDOMElement->getAttributes());
@@ -499,7 +498,8 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoole
   }
   auto const r              = makeRotationMatrixFromCartesianAngles(rotation.x(), rotation.y(), rotation.z());
   auto const transformation = vecgeom::VECGEOM_IMPL_NAMESPACE::Transformation3D(
-      position.x(), position.y(), position.z(), r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
+      //    position.x(), position.y(), position.z(), r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
+      position.x(), position.y(), position.z(), r[0], r[3], r[5], r[1], r[4], r[7], r[2], r[5], r[8]);
   auto const logicFirstVolume  = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume(name1st.c_str(), firstSolid);
   auto const logicSecondVolume = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume(name2nd.c_str(), secondSolid);
   auto *placedFirstSolidPtr    = logicFirstVolume->Place();
@@ -690,14 +690,10 @@ double Middleware::GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
   auto const unitTag           = (nodeName == "position") ? "unit" : (nodeName == "auxiliary") ? "auxunit" : "lunit";
   auto const unit              = GetAttribute(unitTag, attributes);
   // if no unit attribute is specified, the default is mm
-  auto const lengthMultiplier =
-      (unit == "mm")
-          ? mm
-          : (unit == "m")
-                ? 1e3 * mm
-                : (unit == "km")
-                      ? 1e6 * mm
-                      : (unit == "um") ? 1e-3 * mm
+  auto const lengthMultiplier = (unit == "mm")   ? mm
+                                : (unit == "m")  ? 1e3 * mm
+                                : (unit == "km") ? 1e6 * mm
+                                : (unit == "um") ? 1e-3 * mm
                                 : (unit == "nm") ? 1e-6 * mm
                                 : (unit == "cm") ? 10 * mm
                                                  : mm; // TODO more units
@@ -905,9 +901,9 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processGenPo
       zvec.push_back(z);
     }
   }
-  auto const anUnplacedGenericPolyconePtr =
-      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedGenericPolycone>(
-          startphi, deltaphi, rvec.size(), rvec.data(), zvec.data());
+  auto const anUnplacedGenericPolyconePtr = vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<
+      vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedGenericPolycone>(startphi, deltaphi, rvec.size(), rvec.data(),
+                                                                zvec.data());
   return anUnplacedGenericPolyconePtr;
 }
 
@@ -979,7 +975,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processSpher
   DECLAREANDGETLENGTVAR(rmin)
   DECLAREANDGETLENGTVAR(rmax)
   DECLAREANDGETANGLEVAR(startphi)
-  DECLAREANDGETANGLEVAR(deltaphi) // FIXME the default value is not 0
+  DECLAREANDGETANGLEVAR(deltaphi)   // FIXME the default value is not 0
   DECLAREANDGETANGLEVAR(starttheta)
   DECLAREANDGETANGLEVAR(deltatheta) // FIXME the default value is not 0
   auto const anUnplacedSpherePtr =
@@ -1133,7 +1129,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processGenTr
   verticesy.push_back(v8y);
   auto const anUnplacedGenTrapPtr =
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedGenTrap>(
-          verticesx.data() , verticesy.data() , dz);
+          verticesx.data(), verticesy.data(), dz);
   return anUnplacedGenTrapPtr;
 }
 
@@ -1222,7 +1218,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processExtru
     std::cout << "Middleware::processExtruded: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
-  auto const lengthMultiplier = GetLengthMultiplier(aDOMNode);
+  auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
   std::vector<Precision> xs;
   std::vector<Precision> ys;
   std::vector<Precision> zs; // only first two are used, scaling factor and offset are not supported
@@ -1244,11 +1240,12 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processExtru
         DECLAREANDGETLENGTVAR(yOffset)
         DECLAREANDGETINTVAR(zOrder)
         if (debug) {
-          if(!(scalingFactor==1 && xOffset==0 && yOffset==0) && !(zOrder==0 && zOrder==1))
-            printf("Middleware::processExtruded: WARNING: invalid section attributes ignored: %s", theChildNodeName.c_str());
+          if (!(scalingFactor == 1 && xOffset == 0 && yOffset == 0) && !(zOrder == 0 && zOrder == 1))
+            printf("Middleware::processExtruded: WARNING: invalid section attributes ignored: %s",
+                   theChildNodeName.c_str());
         }
-        assert(scalingFactor==1 && xOffset==0 && yOffset==0);
-        assert(zOrder==0 || zOrder==1);
+        assert(scalingFactor == 1 && xOffset == 0 && yOffset == 0);
+        assert(zOrder == 0 || zOrder == 1);
         auto const z = lengthMultiplier * GetDoubleAttribute("zPosition", childAttributes);
         zs.push_back(z);
       }
@@ -1401,11 +1398,11 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
       }
     } else if (theChildNodeName == "physvol") {
       auto const success = processPhysicalVolume(aDOMElement, logicVolume);
-      if(!success) return false;     
+      if (!success) return false;
     } else if (theChildNodeName == "auxiliary") {
       Auxiliary aux;
       auto const success = processAuxiliary(aDOMElement, aux);
-      if(!success) {
+      if (!success) {
         std::cout << "processLogicVolume: Could not process auxiliary tag in volume: " << volumeName << std::endl;
         return false;
       }
@@ -1417,7 +1414,7 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
 }
 
 bool Middleware::processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode,
-                                                          vecgeom::LogicalVolume *motherLogical)
+                                       vecgeom::LogicalVolume *motherLogical)
 {
   if (debug) {
     std::cout << "Middleware::processPhysicalVolume: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
@@ -1478,8 +1475,8 @@ bool Middleware::processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
         return false;
       }
     } else if (theChildNodeName == "scaleref") {
-      auto const scaleName    = GetAttribute("ref", aDOMElement->getAttributes());
-      scale                   = scaleMap[scaleName];
+      auto const scaleName = GetAttribute("ref", aDOMElement->getAttributes());
+      scale                = scaleMap[scaleName];
     } else if (theChildNodeName == "positionref") {
       auto const positionName = GetAttribute("ref", aDOMElement->getAttributes());
       position                = positionMap[positionName];
@@ -1495,8 +1492,8 @@ bool Middleware::processPhysicalVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode co
   }
   if (!logicalVolume) return false;
   auto const r = makeRotationMatrixFromCartesianAngles(rotation.x(), rotation.y(), rotation.z());
-  vecgeom::Transformation3D transformation(position.x(), position.y(), position.z(),
-                                           r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
+  vecgeom::Transformation3D transformation(position.x(), position.y(), position.z(), r[0], r[1], r[2], r[3], r[4], r[5],
+                                           r[6], r[7], r[8]);
 
   // make sure PVname is not empty
   if (PVname == "") {
