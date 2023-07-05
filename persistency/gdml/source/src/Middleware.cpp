@@ -498,8 +498,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoole
   }
   auto const r              = makeRotationMatrixFromCartesianAngles(rotation.x(), rotation.y(), rotation.z());
   auto const transformation = vecgeom::VECGEOM_IMPL_NAMESPACE::Transformation3D(
-      //    position.x(), position.y(), position.z(), r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
-      position.x(), position.y(), position.z(), r[0], r[3], r[5], r[1], r[4], r[7], r[2], r[5], r[8]);
+      position.x(), position.y(), position.z(), r[0], r[3], r[6], r[1], r[4], r[7], r[2], r[5], r[8]);
   auto const logicFirstVolume  = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume(name1st.c_str(), firstSolid);
   auto const logicSecondVolume = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume(name2nd.c_str(), secondSolid);
   auto *placedFirstSolidPtr    = logicFirstVolume->Place();
